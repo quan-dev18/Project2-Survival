@@ -41,3 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Nor_TileMap
+    uniqueID: 3636214843
+    locked: 0
+  - name: Player
+    uniqueID: 4119460427
+    locked: 0
