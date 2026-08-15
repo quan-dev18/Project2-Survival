@@ -1,0 +1,56 @@
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class PlayerUI : MonoBehaviour
+{
+    [SerializeField] private WeaponController weapon;
+    [SerializeField] private TMP_Text ammoText;
+    [SerializeField] private Image reloadFill;
+    [SerializeField] private GameObject reloadPanel;
+    [SerializeField] private int lowAmmoPercent = 30;
+    [SerializeField] private Color lowColor = Color.red;
+
+    private void Start()
+    {
+        if (weapon == null) return;
+
+        weapon.OnAmmoChanged += OnAmmoChanged;
+        weapon.OnReloadStart += OnReloadStart;
+        weapon.OnReloadEnd += OnReloadEnd;
+
+        reloadPanel.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (weapon != null && weapon.IsReloading)
+        {
+            reloadFill.fillAmount = weapon.ReloadProgress;
+            if (reloadFill.fillAmount >= 1f && reloadPanel.activeSelf)
+                OnReloadEnd();
+        }
+    }
+
+    private void OnAmmoChanged(int current, int max)
+    {
+        int lowThreshold = Mathf.CeilToInt(max * lowAmmoPercent / 100f);
+        string ammo = current <= lowThreshold
+            ? $"<color=#{ColorUtility.ToHtmlStringRGB(lowColor)}>{current}</color>"
+            : current.ToString();
+        ammoText.text = $"{ammo}/{max}";
+    }
+
+    private void OnReloadStart()
+    {
+        reloadPanel.SetActive(true);
+        reloadFill.fillAmount = 0f;
+        ammoText.gameObject.SetActive(false);
+    }
+
+    private void OnReloadEnd()
+    {
+        reloadPanel.SetActive(false);
+        ammoText.gameObject.SetActive(true);
+    }
+}
