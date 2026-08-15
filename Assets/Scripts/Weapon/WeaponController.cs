@@ -20,6 +20,12 @@ public class WeaponController : MonoBehaviour
     [Header("Target Detection")]
     [SerializeField] private string targetTag = "Target";
 
+    [Header("Fog")]
+    [SerializeField] private FogController fogController;
+
+    [Header("Muzzle Flash")]
+    [SerializeField] private MuzzleFlashLight muzzleFlash;
+
     #region Stats
     private float fireRate;
     private float fireRange;
@@ -118,6 +124,11 @@ public class WeaponController : MonoBehaviour
             return;
 
         Vector2 barrelDir = (Vector2)(transform.rotation * weaponFront.localPosition).normalized;
+
+        if (fogController != null)
+            fogController.RevealAt(weaponFront.position, barrelDir);
+
+        muzzleFlash?.Flash();
 
         for (int i = 0; i < bulletCount; i++)
         {
