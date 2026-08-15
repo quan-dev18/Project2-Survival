@@ -566,6 +566,7 @@ GameObject:
   - component: {fileID: 1217646338286709945}
   - component: {fileID: 6269951117998031569}
   - component: {fileID: 4907707044219373075}
+  - component: {fileID: 7174231146645042228}
   m_Layer: 0
   m_Name: Mesh
   m_TagString: Untagged
@@ -661,6 +662,51 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7174231146645042228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5577347399162994389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
+  m_ComponentVersion: 1
+  m_HasRenderer: 1
+  m_UseRendererSilhouette: 1
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_ApplyToSortingLayers: 000000003b3cbcd84bfa89f55b897e2a9f7083800b9f4cbb
+  m_ShapePath:
+  - {x: -0.38366246, y: -0.84456253, z: 0}
+  - {x: -0.4679158, y: -0.6977858, z: 0}
+  - {x: -0.49147534, y: -0.4001753, z: 0}
+  - {x: -0.49810538, y: 0.3560073, z: 0}
+  - {x: -0.48077002, y: 0.64891934, z: 0}
+  - {x: -0.39374515, y: 0.80314684, z: 0}
+  - {x: -0.2433966, y: 0.94041854, z: 0}
+  - {x: -0.116633676, y: 0.9929248, z: 0}
+  - {x: -0.0032943622, y: 0.99938715, z: 0}
+  - {x: 0.11116687, y: 0.9929248, z: 0}
+  - {x: 0.21331926, y: 0.9549658, z: 0}
+  - {x: 0.353685, y: 0.85904497, z: 0}
+  - {x: 0.47232896, y: 0.64587724, z: 0}
+  - {x: 0.49882594, y: 0.3630951, z: 0}
+  - {x: 0.49209756, y: -0.6337849, z: 0}
+  - {x: 0.3655675, y: -0.8487635, z: 0}
+  - {x: 0.21476048, y: -0.96090066, z: 0}
+  - {x: -0.021290237, y: -1.007703, z: 0}
+  - {x: -0.2119122, y: -0.96090066, z: 0}
+  m_ShapePathHash: -2048192247
+  m_Mesh: {fileID: 0}
+  m_InstanceId: 49128
+  m_LocalBounds:
+    m_Center: {x: 0.00036028028, y: -0.004157901, z: 0}
+    m_Extent: {x: 0.49846566, y: 1.003545, z: 0}
 --- !u!1001 &747540967870530020
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -670,10 +716,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 1383182683960027192}
     m_Modifications:
     - target: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
-      propertyPath: target
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
       propertyPath: leftHand
       value: 
       objectReference: {fileID: 7280631041118929453}
@@ -682,9 +724,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2644285144624402181}
     - target: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+      propertyPath: muzzleFlash
+      value: 
+      objectReference: {fileID: 1928226560113136338}
+    - target: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
       propertyPath: weaponStats
       value: 
       objectReference: {fileID: 11400000, guid: e22cc49547baf234c8dc4b94e9a14cf3, type: 2}
+    - target: {fileID: 1535812034282148506, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+      propertyPath: m_PointLightOuterRadius
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4868042765978741321, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
       propertyPath: m_Name
       value: WeaponPivot
@@ -734,6 +784,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+--- !u!114 &1928226560113136338 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1197292690123641654, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+  m_PrefabInstance: {fileID: 747540967870530020}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38574ca1720d40a43b2c912d0444e966, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1980550686911637948 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}

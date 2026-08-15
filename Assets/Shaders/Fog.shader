@@ -17,6 +17,12 @@ Shader "Custom/FogOfWar"
         _WispyAmount ("Wispy Alpha Variation", Range(0, 1)) = 0.15
 
         _PlayerPos ("Player Position", Vector) = (0, 0, 0, 0)
+
+        _FlashPos ("Muzzle Flash Position", Vector) = (0, 0, 0, 0)
+        _FlashDir ("Muzzle Flash Direction", Vector) = (1, 0, 0, 0)
+        _FlashRadius ("Muzzle Flash Length", Float) = 3
+        _FlashAngle ("Muzzle Flash Half Angle (deg)", Range(1, 90)) = 25
+        _FlashStrength ("Muzzle Flash Strength", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -46,6 +52,11 @@ Shader "Custom/FogOfWar"
                 float4 _NoiseSpeed;
                 float _WispyAmount;
                 float4 _PlayerPos;
+                float4 _FlashPos;
+                float4 _FlashDir;
+                float _FlashRadius;
+                float _FlashAngle;
+                float _FlashStrength;
             CBUFFER_END
 
             struct Attributes
@@ -129,6 +140,16 @@ Shader "Custom/FogOfWar"
                 wispy = 1.0 - _WispyAmount * 0.5 + wispy * _WispyAmount;
 
                 float fog = (1.0 - vision) * fogAlphaBase * saturate(wispy);
+
+                // Ánh sáng từ nòng súng xua sương thành hình nón theo hướng bắn
+                float2 toPoint = worldPos - _FlashPos.xy;
+                float flashDist = length(toPoint);
+                float2 flashDir = normalize(_FlashDir.xy);
+                float dirAlign = dot(toPoint / max(flashDist, 1e-5), flashDir);
+                float cone = smoothstep(cos(radians(_FlashAngle)), 1.0, dirAlign);
+                float range = 1.0 - smoothstep(_FlashRadius * 0.25, _FlashRadius, flashDist);
+                float flash = cone * range * _FlashStrength;
+                fog *= 1.0 - flash;
 
                 return half4(fogColor, saturate(fog));
             }
