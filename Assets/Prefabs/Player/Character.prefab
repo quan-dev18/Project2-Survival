@@ -439,7 +439,7 @@ GameObject:
   - component: {fileID: 2949180905414544421}
   - component: {fileID: 7544442532058421254}
   - component: {fileID: 7321741506684919708}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Character
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -555,6 +555,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterStats: {fileID: 11400000, guid: 376e75f03e8f6244e88007c65e6a5ce1, type: 2}
+  minMoveSpeed: 1
+  maxMoveSpeed: 15
+  maxRecoveryRate: 50
+  maxCollectRange: 20
+  maxGrowthRate: 5
 --- !u!1 &5577347399162994389
 GameObject:
   m_ObjectHideFlags: 0
@@ -567,7 +572,7 @@ GameObject:
   - component: {fileID: 6269951117998031569}
   - component: {fileID: 4907707044219373075}
   - component: {fileID: 7174231146645042228}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -703,7 +708,7 @@ MonoBehaviour:
   - {x: -0.2119122, y: -0.96090066, z: 0}
   m_ShapePathHash: -2048192247
   m_Mesh: {fileID: 0}
-  m_InstanceId: 49128
+  m_InstanceId: 31254
   m_LocalBounds:
     m_Center: {x: 0.00036028028, y: -0.004157901, z: 0}
     m_Extent: {x: 0.49846566, y: 1.003545, z: 0}
@@ -715,6 +720,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1383182683960027192}
     m_Modifications:
+    - target: {fileID: 1197292690123641654, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+      propertyPath: shadowIntensity
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
       propertyPath: leftHand
       value: 

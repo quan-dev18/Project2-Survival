@@ -4,6 +4,7 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] private BulletSO bulletStats;
     [SerializeField] private float hitRadius = 0.15f;
+    [SerializeField] private float knockbackForce = 3f;
 
     private Vector2 direction;
     private float age;
@@ -61,6 +62,10 @@ public class Bullet : MonoBehaviour
         {
             damageable.TakeDamage(bulletStats.Damage);
         }
+        if (other.TryGetComponent(out IKnockbackable knockbackable))
+        {
+            knockbackable.ApplyKnockback(direction, knockbackForce);
+        }
         DespawnSelf();
     }
 
@@ -76,4 +81,9 @@ public class Bullet : MonoBehaviour
 public interface IDamageable
 {
     void TakeDamage(float amount);
+}
+
+public interface IKnockbackable
+{
+    void ApplyKnockback(Vector2 dir, float force);
 }

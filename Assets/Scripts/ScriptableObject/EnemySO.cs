@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "EnemeySO", menuName = "EnemeyStats")]
-public class EnemeySO : ScriptableObject
+public class EnemySO : ScriptableObject
 {
     [SerializeField] private float maxHealth;
     public float MaxHealth => maxHealth;
@@ -11,6 +11,8 @@ public class EnemeySO : ScriptableObject
     public float AttackDamage => attackDamage;
     [SerializeField] private float attackRange;
     public float AttackRange => attackRange;
+    [SerializeField] private float attackSpeed;
+    public float AttackSpeed => attackSpeed;
     [SerializeField] private EnemyType enemyType;
     public EnemyType EnemyType => enemyType;
     
