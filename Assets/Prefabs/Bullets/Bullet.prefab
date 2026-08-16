@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1923511341759586670}
   - component: {fileID: 2759096466761105531}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46,7 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletStats: {fileID: 11400000, guid: 8e9d17ad8830680479b87df2bd2c5fd6, type: 2}
-  targetTag: Enemy
   hitRadius: 0.15
 --- !u!1 &6163268696217798519
 GameObject:
@@ -58,7 +57,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8780356767187556269}
   - component: {fileID: 745329957571394791}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}

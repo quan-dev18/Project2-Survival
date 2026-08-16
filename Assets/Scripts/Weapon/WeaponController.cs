@@ -7,10 +7,10 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private WeaponSO weaponStats;
 
     [Header("References")]
-    [SerializeField] private Transform weaponPivot;   // gốc xoay súng (đặt tại vị trí Rear)
-    [SerializeField] private Transform weaponFront;   // nòng súng, nơi đạn bắn ra
+    [SerializeField] private Transform weaponPivot;
+    [SerializeField] private Transform weaponFront;
     [SerializeField] private Transform target;
-    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private string bulletKey = "Bullet";
 
     [Header("Hands")]
     [SerializeField] private Transform leftHand;
@@ -26,13 +26,32 @@ public class WeaponController : MonoBehaviour
     [Header("Muzzle Flash")]
     [SerializeField] private MuzzleFlashLight muzzleFlash;
 
-    #region Stats
-    private float fireRate;
-    private float fireRange;
-    private float reloadTime;
-    private int magazineSize;
-    private int spread; // độ lệch góc tối đa (degree), ví dụ 5 = lệch +-5 độ
-    private int bulletCount; // số lượng đạn bắn ra mỗi lần bắn
+    #region Base Stats (từ SO, không đổi)
+    private float baseFireRate;
+    private float baseFireRange;
+    private float baseReloadTime;
+    private int baseMagazineSize;
+    private int baseSpread;
+    private int baseBulletCount;
+    #endregion
+
+    #region Bonus 
+    public float bonusFireRatePercent { get; private set; }   // giảm thời gian giữa 2 phát -> cần trừ ngược
+    public float bonusFireRangePercent { get; private set; }
+    public float bonusReloadSpeedPercent { get; private set; } // giảm reload time
+    public float bonusMagazineSizePercent { get; private set; }
+    public int bonusBulletCountFlat { get; private set; }
+    #endregion
+
+
+    #region Final stats (tính toán runtime)
+    // fireRate là thời gian chờ giữa 2 phát -> bonus % làm bắn NHANH hơn nghĩa là fireRate giảm
+    public float fireRate => Mathf.Max(0.1f, baseFireRate / Mathf.Max(0.01f, 1f + bonusFireRatePercent));
+    public float fireRange => baseFireRange * (1f + bonusFireRangePercent);
+    public float reloadTime => Mathf.Max(0.1f, baseReloadTime / Mathf.Max(0.01f, 1f + bonusReloadSpeedPercent));
+    public int magazineSize => Mathf.RoundToInt(baseMagazineSize * (1f + bonusMagazineSizePercent));
+    private int spread => baseSpread;
+    private int bulletCount => Mathf.Clamp(baseBulletCount + bonusBulletCountFlat,1,4);
     #endregion
 
     #region Runtime state
@@ -43,7 +62,7 @@ public class WeaponController : MonoBehaviour
     private Transform currentHand;
     #endregion
 
-    public event Action<int, int> OnAmmoChanged;   // (currentAmmo, magazineSize)
+    public event Action<int, int> OnAmmoChanged;
     public event Action OnReloadStart;
     public event Action OnReloadEnd;
     public event Action OnFire;
@@ -55,12 +74,12 @@ public class WeaponController : MonoBehaviour
 
     private void Awake()
     {
-        fireRate = weaponStats.FireRate;
-        fireRange = weaponStats.FireRange;
-        reloadTime = weaponStats.ReloadTime;
-        magazineSize = weaponStats.MagazineSize;
-        spread = weaponStats.Spread;
-        bulletCount = weaponStats.BulletCount;
+        baseFireRate = weaponStats.FireRate;
+        baseFireRange = weaponStats.FireRange;
+        baseReloadTime = weaponStats.ReloadTime;
+        baseMagazineSize = weaponStats.MagazineSize;
+        baseSpread = weaponStats.Spread;
+        baseBulletCount = weaponStats.BulletCount;
         currentAmmo = magazineSize;
 
         if (TryGetComponent(out CircleCollider2D rangeTrigger))
@@ -120,7 +139,7 @@ public class WeaponController : MonoBehaviour
         OnAmmoChanged?.Invoke(currentAmmo, magazineSize);
         OnFire?.Invoke();
 
-        if (bulletPrefab == null || weaponFront == null)
+        if (ObjectPooling.Instance == null || weaponFront == null)
             return;
 
         Vector2 barrelDir = (Vector2)(transform.rotation * weaponFront.localPosition).normalized;
@@ -138,16 +157,11 @@ public class WeaponController : MonoBehaviour
             Vector2 bulletDir = Quaternion.Euler(0, 0, spreadAngle) * barrelDir;
 
             Quaternion bulletRotation = Quaternion.FromToRotation(Vector3.right, bulletDir);
-            GameObject bulletObj;
-
-            if (ObjectPooling.Instance != null)
-                bulletObj = ObjectPooling.Instance.Spawn(bulletPrefab, weaponFront.position, bulletRotation);
-            else
-                bulletObj = Instantiate(bulletPrefab, weaponFront.position, bulletRotation);
+            GameObject bulletObj = ObjectPooling.Instance.Spawn(bulletKey, weaponFront.position, bulletRotation);
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(bulletDir, transform.root);
+                bullet.Init(bulletDir, transform.root); // damage do chính BulletSO quyết định
             }
         }
     }
@@ -172,6 +186,22 @@ public class WeaponController : MonoBehaviour
             OnReloadEnd?.Invoke();
         }
     }
+
+    public void AddFireRatePercent(float amount) => bonusFireRatePercent += amount;
+    public void AddFireRangePercent(float amount)
+    {
+        bonusFireRangePercent += amount;
+        if (TryGetComponent(out CircleCollider2D rangeTrigger))
+            rangeTrigger.radius = fireRange;
+    }
+    public void AddReloadSpeedPercent(float amount) => bonusReloadSpeedPercent += amount;
+    public void AddMagazineSizePercent(float amount)
+    {
+        int oldMagSize = magazineSize;
+        bonusMagazineSizePercent += amount;
+        currentAmmo = Mathf.Max(0, currentAmmo + magazineSize - oldMagSize); 
+    }
+    public void AddBulletCount(int amount) => bonusBulletCountFlat += amount;
 
     public void SetTarget(Transform newTarget) => target = newTarget;
 
