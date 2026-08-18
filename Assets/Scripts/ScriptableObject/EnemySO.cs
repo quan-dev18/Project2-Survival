@@ -13,6 +13,8 @@ public class EnemySO : ScriptableObject
     public float AttackRange => attackRange;
     [SerializeField] private float attackSpeed;
     public float AttackSpeed => attackSpeed;
+    [SerializeField] private float xpReward;
+    public float XpReward => xpReward;
     [SerializeField] private EnemyType enemyType;
     public EnemyType EnemyType => enemyType;
     
