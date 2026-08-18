@@ -40,9 +40,19 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        DropXP();
         if (ObjectPooling.Instance != null)
             ObjectPooling.Instance.Despawn(gameObject);
         else
             Destroy(gameObject);
+    }
+
+    private void DropXP()
+    {
+        if (ObjectPooling.Instance == null || enemyController == null) return;
+
+        GameObject gem = ObjectPooling.Instance.Spawn("XPGem", transform.position, Quaternion.identity);
+        if (gem != null && gem.TryGetComponent(out XPGem xpGem))
+            xpGem.SetAmount(enemyController.xpReward);
     }
 }

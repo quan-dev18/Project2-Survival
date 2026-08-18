@@ -11,6 +11,7 @@ public class EnemyController : MonoBehaviour
     public float baseAttackSpeed { get; private set; }
     public float attackRange { get; private set; }
     public EnemyType enemyType { get; private set; }
+    public float xpReward { get; private set; }
 
     //percent bonus
     public float bonusMaxHealthPercent { get; private set; }
@@ -46,6 +47,7 @@ public class EnemyController : MonoBehaviour
         baseAttackSpeed = enemySO.AttackSpeed;
         attackRange = enemySO.AttackRange;
         enemyType = enemySO.EnemyType;
+        xpReward = enemySO.XpReward;
     }
 
     // ----- Các hàm cộng bonus -----
