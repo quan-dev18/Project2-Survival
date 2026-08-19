@@ -6,10 +6,7 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private Rigidbody2D rb; // Reference to the Rigidbody2D component
     [SerializeField] private Animator animator; // Reference to the Animator component
-    public Vector2 movementInput; // Stores the player's movement input
-    //animation dir
-    private int lastDir = 0;
-    [SerializeField] private Transform mesh;
+    private Vector2 movementInput; // Stores the player's movement input
 
     void Awake()
     {
@@ -32,24 +29,15 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        JoystickController joystick = JoystickController.Instance;
-        if (joystick != null && joystick.IsActive)
-        {
-            movementInput = joystick.Direction;
-        }
-        else
-        {
-            movementInput = new Vector2(Input.GetAxisRaw("Horizontal"),
-                                        Input.GetAxisRaw("Vertical")); // Get movement input from player
-        }
+        movementInput = new Vector2(Input.GetAxisRaw("Horizontal"), 
+                                    Input.GetAxisRaw("Vertical")); // Get movement input from player
 
-        UpdateAnimation();
+        //UpdateAnimation(); // Update the animation based on movement input
     }
 
     void FixedUpdate()
     {
         MovePlayer(); // Move the player based on input
-        
     }
     void MovePlayer()
     {
@@ -58,48 +46,23 @@ public class PlayerMovement : MonoBehaviour
 
     void UpdateAnimation()
     {
-        bool isMoving = movementInput != Vector2.zero;
-
-        if (isMoving)
+        bool isMoveing = movementInput != Vector2.zero;
+        animator.SetBool("isMoving", isMoveing); // Set the "isMoving" parameter in the Animator
+        if (Mathf.Abs(movementInput.y) > Mathf.Abs(movementInput.x))
         {
-            // 1. Kiểm tra hướng di chuyển
-            if (movementInput.y > 0)
-            {
-                lastDir = 1; // Đi lên -> Walk_Back
-            }
-            else if (movementInput.y < 0)
-            {
-                lastDir = 0; // Đi xuống -> Walk_Front
-            }
-            else if (Mathf.Abs(movementInput.x) > 0.01f)
-            {
-                lastDir = 0; // Đi ngang (Trái / Phải) -> Luôn đặt là Walk_Front
-            }
-
-            // Gán hướng di chuyển cho Animator (0: Front, 1: Back)
-            animator.SetInteger("Dir", lastDir);
-
-            // Lật mặt nhân vật khi đi trái / phải
-            if (Mathf.Abs(movementInput.x) > 0.01f)
-            {
-                Flip(movementInput.x);
-            }
+            animator.SetInteger("Dir", movementInput.y > 0 ? 1 : 0); // 0 = Down, 1 = Up
         }
-        else
+        else if (movementInput.x != 0)
         {
-            // Khi dừng lại: chuyển về Idle với hướng nhìn cuối cùng
-            animator.SetInteger("Dir", -1);
-            animator.SetFloat("idle_blend", lastDir); 
+            animator.SetInteger("Dir", 2); // 2 = Side
+            Flip(movementInput.x);
         }
     }
     private void Flip(float x)
     {
         Vector3 scale = transform.localScale;
-        scale.x = Mathf.Abs(scale.x) * -Mathf.Sign(x);
-        if(mesh != null)
-        {
-            mesh.localScale = scale;
-        }
+        scale.x = Mathf.Abs(scale.x) * Mathf.Sign(x);
+        transform.localScale = scale;
     }
 }
 

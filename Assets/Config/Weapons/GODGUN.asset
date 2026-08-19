@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: for Debug
   fireRate: 0.1
-  fireRange: 10
+  fireRange: 5
   reloadTime: 0.1
   magazineSize: 200
   bulletCount: 1

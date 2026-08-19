@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
@@ -8,17 +8,13 @@ public class Bullet : MonoBehaviour
 
     private Vector2 direction;
     private float age;
-    private float maxDistance;
-    private float travelledDistance;
     private Transform owner;
 
-    public void Init(Vector2 dir, Transform owner, float maxDistance)
+    public void Init(Vector2 dir, Transform owner)
     {
         direction = dir.normalized;
         this.owner = owner;
-        this.maxDistance = maxDistance;
         age = 0f;
-        travelledDistance = 0f;
     }
 
     private void Awake()
@@ -51,15 +47,7 @@ public class Bullet : MonoBehaviour
         float t = age / bulletStats.LifeTime;
         float speed = bulletStats.Speed * bulletStats.SpeedCurve.Evaluate(t);
 
-        float step = speed * Time.deltaTime;
-        travelledDistance += step;
-        if (travelledDistance >= maxDistance)
-        {
-            DespawnSelf();
-            return;
-        }
-
-        transform.position += (Vector3)(direction * step);
+        transform.position += (Vector3)(direction * speed * Time.deltaTime);
         transform.up = direction;
     }
 
@@ -70,20 +58,11 @@ public class Bullet : MonoBehaviour
         if (other.TryGetComponent(out Bullet _))
             return;
 
-        IDamageable damageable = other.GetComponentInChildren<IDamageable>();
-        if (damageable == null)
-            damageable = other.GetComponentInParent<IDamageable>();
-
-        if (damageable == null)
-            return;
-
-        damageable.TakeDamage(bulletStats.Damage);
-
-        IKnockbackable knockbackable = other.GetComponent<IKnockbackable>();
-        if (knockbackable == null)
-            knockbackable = other.GetComponentInParent<IKnockbackable>();
-
-        if (knockbackable != null)
+        if (other.TryGetComponent(out IDamageable damageable))
+        {
+            damageable.TakeDamage(bulletStats.Damage);
+        }
+        if (other.TryGetComponent(out IKnockbackable knockbackable))
         {
             knockbackable.ApplyKnockback(direction, knockbackForce);
         }
