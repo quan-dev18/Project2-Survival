@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 1218714738610804500}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0.045, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -72,7 +72,7 @@ MonoBehaviour:
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
-  m_PointLightOuterRadius: 3
+  m_PointLightOuterRadius: 5
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1
@@ -125,8 +125,8 @@ Transform:
   m_GameObject: {fileID: 1679931784596185171}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.35, z: 0}
-  m_LocalScale: {x: 0.15, y: 0.7, z: 0}
+  m_LocalPosition: {x: 0, y: 0.2168, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7699315148217798644}
@@ -174,12 +174,12 @@ SpriteRenderer:
   m_SortingLayerID: -2138869601
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: -728691573, guid: fa1bf59a1d040064bb28991f97ca754a, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.36, y: 1.04}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -235,13 +235,14 @@ MonoBehaviour:
   weaponPivot: {fileID: 6726404993617762654}
   weaponFront: {fileID: 7699315148217798644}
   target: {fileID: 0}
-  bulletPrefab: {fileID: 296294771682459973, guid: c961c05455f1b5340aab1a00f7377a1b, type: 3}
+  bulletKey: Bullet
   leftHand: {fileID: 0}
   rightHand: {fileID: 0}
   handSwitchDeadZone: 1
   targetTag: Enemy
   fogController: {fileID: 0}
-  muzzleFlash: {fileID: 0}
+  muzzleFlash: {fileID: 1197292690123641654}
+  weaponMesh: {fileID: 4528004195497500985}
 --- !u!58 &9019136000194821035
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -302,7 +303,7 @@ Transform:
   m_GameObject: {fileID: 8831049735514971648}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0.045, y: -0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
