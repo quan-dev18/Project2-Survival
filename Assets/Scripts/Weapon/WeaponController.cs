@@ -117,20 +117,21 @@ public class WeaponController : MonoBehaviour
         float dist = Vector2.Distance(transform.position, target.position);
         return dist <= fireRange;
     }
-#region Aim
+
     private void Aim()
     {
         Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
         Transform desiredHand = toTarget.x >= 0 ? rightHand : leftHand;
+
         if (currentHand == null)
             currentHand = desiredHand;
         else if (desiredHand != currentHand && Mathf.Abs(toTarget.x) > handSwitchDeadZone)
             currentHand = desiredHand;
+
         transform.position = currentHand.position;
         transform.rotation = Quaternion.FromToRotation(weaponFront.localPosition, toTarget);
     }
-#endregion
-#region Fire
+
     private void Fire()
     {
         lastFireTime = Time.time;
@@ -160,12 +161,11 @@ public class WeaponController : MonoBehaviour
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(bulletDir, transform.root, fireRange); // damage do chính BulletSO quyết định
+                bullet.Init(bulletDir, transform.root); // damage do chính BulletSO quyết định
             }
         }
     }
-#endregion
-#region Reload
+
     public void StartReload()
     {
         if (isReloading || currentAmmo == magazineSize) return;
@@ -186,8 +186,7 @@ public class WeaponController : MonoBehaviour
             OnReloadEnd?.Invoke();
         }
     }
-#endregion
-#region Bonus Stat
+
     public void AddFireRatePercent(float amount) => bonusFireRatePercent += amount;
     public void AddFireRangePercent(float amount)
     {
@@ -203,7 +202,7 @@ public class WeaponController : MonoBehaviour
         currentAmmo = Mathf.Max(0, currentAmmo + magazineSize - oldMagSize); 
     }
     public void AddBulletCount(int amount) => bonusBulletCountFlat += amount;
-#endregion
+
     public void SetTarget(Transform newTarget) => target = newTarget;
 
     private void OnTriggerStay2D(Collider2D other)

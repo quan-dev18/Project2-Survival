@@ -31,32 +31,10 @@ public class EnemyController : MonoBehaviour
 
     public float currentHealth { get; private set; }
 
-    private float nextAttackTime;
-
-    private SpriteRenderer[] spriteRenderers;
-
     private void Awake()
     {
         LoadFromSO();
         currentHealth = maxHealth;
-        spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
-    }
-
-    private void Update()
-    {
-        UpdateLayerOrder();
-    }
-
-    public void UpdateLayerOrder()
-    {
-        if (spriteRenderers == null || spriteRenderers.Length == 0) return;
-
-        int order = Mathf.RoundToInt(-transform.position.y * 100f);
-        for (int i = 0; i < spriteRenderers.Length; i++)
-        {
-            if (spriteRenderers[i] != null && spriteRenderers[i].sortingOrder != order)
-                spriteRenderers[i].sortingOrder = order;
-        }
     }
 
     public void LoadFromSO()
@@ -87,27 +65,4 @@ public class EnemyController : MonoBehaviour
 
     public void SetCurrentHealth(float value) => currentHealth = Mathf.Max(0f, value);
     public void ResetHealth() => currentHealth = maxHealth;
-
-    public void Attack()
-    {
-        if (ObjectPooling.Instance == null)
-        {
-            return;
-        }
-
-        if (ObjectPooling.Instance.targetTransform == null)
-        {
-            return;
-        }
-
-        PlayerHealth playerHealth = ObjectPooling.Instance.targetTransform.GetComponentInChildren<PlayerHealth>();
-        if (playerHealth == null)
-        {
-            return;
-        }
-
-        playerHealth.DealDamage(attackDamage);
-        float interval = attackSpeed > 0f ? 1f / attackSpeed : 1f;
-        nextAttackTime = Time.time + interval;
-    }
 }

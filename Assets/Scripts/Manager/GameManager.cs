@@ -18,11 +18,6 @@ public class GameManager : MonoBehaviour
     private GameState currentState;
     public GameState CurrentState => currentState;
 
-    public bool IsWin { get; private set; }
-
-    public void SetIsWin(bool value) => IsWin = value;
-    [SerializeField] private GameOverPanel panel;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -44,16 +39,7 @@ public class GameManager : MonoBehaviour
         if (currentState == newState) return;
         currentState = newState;
         Debug.Log($"GameState: {currentState}");
-        Time.timeScale = currentState == GameState.Playing ? 1f : 0f;
-
-        if (currentState == GameState.Playing)
-            IsWin = false;
-
-        if (currentState == GameState.GameOver)
-        {
-            if (panel != null) panel.Show();
-        }
-
+        Time.timeScale = currentState == GameState.LevelUp ? 0f : 1f;
         OnStateChanged?.Invoke(currentState);
     }
 }
