@@ -47,6 +47,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   xpAmount: 1
   magnetSpeed: 12
+  backDistance: 1
+  backDuration: 0.15
 --- !u!1 &6163268696217798519
 GameObject:
   m_ObjectHideFlags: 0
@@ -74,7 +76,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.09347095}
-  m_LocalScale: {x: 0.14, y: 0.14, z: 0.14}
+  m_LocalScale: {x: 0.33, y: 0.33, z: 0.33}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1923511341759586670}
@@ -118,10 +120,10 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1152606453
-  m_SortingLayer: 5
+  m_SortingLayer: 6
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.015686274, g: 0.7872481, b: 1, a: 1}
+  m_Sprite: {fileID: 1119419721, guid: d58f4cbcc7fa23b43aad7fd92a629866, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -14,8 +14,8 @@ TagManager:
   - UI
   - Enemy
   - Projectile
-  - 
-  - 
+  - Probs
+  - Terrain
   - 
   - 
   - 
@@ -48,6 +48,9 @@ TagManager:
   - name: Player
     uniqueID: 4119460427
     locked: 0
+  - name: Prob
+    uniqueID: 3726319671
+    locked: 0
   - name: Enemy
     uniqueID: 712935771
     locked: 0
@@ -56,4 +59,7 @@ TagManager:
     locked: 0
   - name: Bullet
     uniqueID: 3142360843
+    locked: 0
+  - name: DamagePopup
+    uniqueID: 3616860571
     locked: 0
