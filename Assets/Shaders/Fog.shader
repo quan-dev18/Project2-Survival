@@ -31,12 +31,7 @@ Shader "Custom/FogOfWar"
         ZWrite Off
         Cull Off
 
-        Pass
-        {
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-
+        HLSLINCLUDE
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
@@ -153,6 +148,23 @@ Shader "Custom/FogOfWar"
 
                 return half4(fogColor, saturate(fog));
             }
+        ENDHLSL
+
+        Pass
+        {
+            Tags { "LightMode" = "Universal2D" }
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Tags { "LightMode" = "SRPDefaultUnlit" }
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
             ENDHLSL
         }
     }
