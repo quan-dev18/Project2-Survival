@@ -15,6 +15,8 @@ public class EnemySpawner : MonoBehaviour
     private float totalElapsed;
     private float spawnTimer;
     private float currentSpawnRate;
+    private float totalStageDuration;
+    private bool spawningDone;
 
     private StageSO.StageEntry CurrentEntry => stage.Stages[stageIndex];
 
@@ -33,6 +35,10 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
         ResetStageEntry();
+
+        totalStageDuration = 0f;
+        for (int i = 0; i < stage.Stages.Count; i++)
+            totalStageDuration += stage.Stages[i].Duration;
     }
 
     private void Update()
@@ -45,23 +51,32 @@ public class EnemySpawner : MonoBehaviour
                 activeEnemies.RemoveAt(i);
         }
 
-        if (activeEnemies.Count >= maxSpawned) return;
-
-        stageTimer += Time.deltaTime;
-        entryElapsed += Time.deltaTime;
-        totalElapsed += Time.deltaTime;
-
-        UpdateSpawnRate();
-        TryAdvanceEntry();
-
-        spawnTimer += currentSpawnRate * Time.deltaTime;
-        int spawnCount = Mathf.FloorToInt(spawnTimer);
-        if (spawnCount > 0)
+        if (!spawningDone)
         {
-            spawnTimer -= spawnCount;
-            for (int i = 0; i < spawnCount; i++)
-                SpawnEnemy();
+            stageTimer += Time.deltaTime;
+            entryElapsed += Time.deltaTime;
+            totalElapsed += Time.deltaTime;
+
+            UpdateSpawnRate();
+            TryAdvanceEntry();
+
+            if (activeEnemies.Count < maxSpawned)
+            {
+                spawnTimer += currentSpawnRate * Time.deltaTime;
+                int spawnCount = Mathf.FloorToInt(spawnTimer);
+                if (spawnCount > 0)
+                {
+                    spawnTimer -= spawnCount;
+                    for (int i = 0; i < spawnCount; i++)
+                        SpawnEnemy();
+                }
+            }
+
+            if (totalElapsed >= totalStageDuration)
+                spawningDone = true;
         }
+
+        CheckEndCondition();
     }
 
     private void ResetStageEntry()
@@ -85,9 +100,21 @@ public class EnemySpawner : MonoBehaviour
         StageSO.StageEntry entry = CurrentEntry;
         if (entry.Duration > 0f && stageTimer >= entry.Duration)
         {
-            stageIndex = (stageIndex + 1) % stage.Stages.Count;
-            ResetStageEntry();
+            if (stageIndex < stage.Stages.Count - 1)
+            {
+                stageIndex++;
+                ResetStageEntry();
+            }
         }
+    }
+
+    private void CheckEndCondition()
+    {
+        if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameState.Playing) return;
+        if (!spawningDone || activeEnemies.Count > 0) return;
+
+        GameManager.Instance.SetIsWin(true);
+        GameManager.Instance.SetState(GameState.GameOver);
     }
 
     private void SpawnEnemy()
