@@ -9,13 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce465405f9ad3c7428f2cb2de51a57c6, type: 3}
-  m_Name: MobA
+  m_Script: {fileID: 11500000, guid: cb6a6c9e052f3224aa42128bd8cbfcde, type: 3}
+  m_Name: VB_2
   m_EditorClassIdentifier: 
-  maxHealth: 20
-  movementSpeed: 1
-  attackDamage: 10
-  attackRange: 1
-  attackSpeed: 1
-  xpReward: 1
-  enemyType: 0
+  upgradeName: Vitality Boost
+  description: Max HP +100%
+  icon: {fileID: 0}
+  statMods:
+  - stat: 0
+    amount: 100
+  requires:
+  - {fileID: 11400000, guid: 5c73676f91bcd1e4eb6b25b3ebfb9594, type: 2}

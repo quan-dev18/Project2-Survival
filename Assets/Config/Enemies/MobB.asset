@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MobB
   m_EditorClassIdentifier: 
   maxHealth: 10
-  movementSpeed: 4
+  movementSpeed: 3
   attackDamage: 5
   attackRange: 1
   attackSpeed: 1

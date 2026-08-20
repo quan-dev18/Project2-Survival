@@ -26,6 +26,10 @@ public class WeaponController : MonoBehaviour
     [Header("Muzzle Flash")]
     [SerializeField] private MuzzleFlashLight muzzleFlash;
 
+    [Header("Sprite")]
+    [SerializeField] private SpriteRenderer weaponSprite;
+    [SerializeField] private bool spriteFacesRight = true;
+
     #region Base Stats (từ SO, không đổi)
     private float baseFireRate;
     private float baseFireRange;
@@ -41,6 +45,12 @@ public class WeaponController : MonoBehaviour
     public float bonusReloadSpeedPercent { get; private set; } // giảm reload time
     public float bonusMagazineSizePercent { get; private set; }
     public int bonusBulletCountFlat { get; private set; }
+    public int bonusBulletPierce { get; private set; }
+    public float bonusBulletSpeedPercent { get; private set; }
+    public float bonusBulletDamagePercent { get; private set; }
+    public float bonusBulletExecutePercent { get; private set; }
+    public float bonusBulletKnockbackPercent { get; private set; }
+    public float bonusBulletSizePercent { get; private set; }
     #endregion
 
 
@@ -128,6 +138,13 @@ public class WeaponController : MonoBehaviour
             currentHand = desiredHand;
         transform.position = currentHand.position;
         transform.rotation = Quaternion.FromToRotation(weaponFront.localPosition, toTarget);
+
+        if (weaponSprite != null)
+        {
+            bool aimingRight = toTarget.x >= 0;
+            weaponSprite.flipY = spriteFacesRight && !aimingRight;
+            weaponSprite.flipX = !spriteFacesRight && aimingRight;
+        }
     }
 #endregion
 #region Fire
@@ -160,7 +177,9 @@ public class WeaponController : MonoBehaviour
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(bulletDir, transform.root, fireRange); // damage do chính BulletSO quyết định
+                bullet.Init(bulletDir, transform.root, fireRange,
+                    bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
+                    bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent); // damage do chính BulletSO quyết định
             }
         }
     }
@@ -203,6 +222,18 @@ public class WeaponController : MonoBehaviour
         currentAmmo = Mathf.Max(0, currentAmmo + magazineSize - oldMagSize); 
     }
     public void AddBulletCount(int amount) => bonusBulletCountFlat += amount;
+
+    public void AddBulletPierce(int amount) => bonusBulletPierce += amount;
+
+    public void AddBulletSpeedPercent(float amount) => bonusBulletSpeedPercent += amount;
+
+    public void AddBulletDamagePercent(float amount) => bonusBulletDamagePercent += amount;
+
+    public void AddBulletExecutePercent(float amount) => bonusBulletExecutePercent = Mathf.Clamp(bonusBulletExecutePercent + amount, 0f, 1f);
+
+    public void AddBulletKnockbackPercent(float amount) => bonusBulletKnockbackPercent += amount;
+
+    public void AddBulletSizePercent(float amount) => bonusBulletSizePercent += amount;
 #endregion
     public void SetTarget(Transform newTarget) => target = newTarget;
 

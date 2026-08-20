@@ -63,4 +63,13 @@ public class DamagePopup : MonoBehaviour, IPoolSpawnable
         if (label != null)
             label.alpha = 1f;
     }
+
+    private void OnDisable()
+    {
+        if (sequence != null)
+        {
+            sequence.Kill();
+            sequence = null;
+        }
+    }
 }

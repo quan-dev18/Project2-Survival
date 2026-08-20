@@ -12,14 +12,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: Stage1_SO
   m_EditorClassIdentifier: 
-  stages:
-  - mobKey: Enemy
-    duration: 3
-    spawnPerSecond: 5
-    spawnIncrementAmount: 1
-    spawnIncrementInterval: 15
-  - mobKey: Enemy2
-    duration: 1
-    spawnPerSecond: 3
-    spawnIncrementAmount: 2
-    spawnIncrementInterval: 30
+  phases:
+  - phaseName: 1
+    duration: 15
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 1
+      spawnLimit: 8
+      isBoss: 0
+  - phaseName: 2
+    duration: 20
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 2
+      spawnLimit: 15
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 1
+      spawnLimit: 2
+      isBoss: 0
+  - phaseName: 3
+    duration: 25
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 3
+      spawnLimit: 12
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 1
+      spawnLimit: 3
+      isBoss: 0
+  - phaseName: 4
+    duration: 45
+    enemies:
+    - mobKey: BossA
+      spawnPerSecond: 1
+      spawnLimit: 1
+      isBoss: 1
+    - mobKey: Enemy2
+      spawnPerSecond: 2
+      spawnLimit: 4
+      isBoss: 0

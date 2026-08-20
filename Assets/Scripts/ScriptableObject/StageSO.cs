@@ -5,21 +5,30 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "StageSO", menuName = "StageStats")]
 public class StageSO : ScriptableObject
 {
-    [SerializeField] private List<StageEntry> stages;
-    public List<StageEntry> Stages => stages;
+    [SerializeField] private List<Phase> phases;
+    public List<Phase> Phases => phases;
 
     [Serializable]
-    public class StageEntry
+    public class Phase
     {
-        [SerializeField] private string mobKey;
-        public string MobKey => mobKey;
-        [SerializeField] private float duration; // How long this entry lasts before moving to the next
+        [SerializeField] private string phaseName = "Phase";
+        public string PhaseName => phaseName;
+        [SerializeField] private float duration = 20f; // Timer before moving to the next phase. Ignored for the final phase.
         public float Duration => duration;
-        [SerializeField] private float spawnPerSecond;
+        [SerializeField] private List<PhaseEnemy> enemies;
+        public List<PhaseEnemy> Enemies => enemies;
+    }
+
+    [Serializable]
+    public class PhaseEnemy
+    {
+        [SerializeField] private string mobKey = "Enemy";
+        public string MobKey => mobKey;
+        [SerializeField] private float spawnPerSecond = 1f;
         public float SpawnPerSecond => spawnPerSecond;
-        [SerializeField] private float spawnIncrementAmount; // How much the spawn rate increases each interval
-        public float SpawnIncrementAmount => spawnIncrementAmount;
-        [SerializeField] private float spawnIncrementInterval; // How often (in seconds) the spawn rate increases
-        public float SpawnIncrementInterval => spawnIncrementInterval;
+        [SerializeField] private int spawnLimit; // Max total spawns during the phase. 0 = endless.
+        public int SpawnLimit => spawnLimit;
+        [SerializeField] private bool isBoss; // Spawns instantly once when the phase starts instead of on a timer.
+        public bool IsBoss => isBoss;
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameOverPanel : MonoBehaviour
 {
     [SerializeField] private TMP_Text titleText;
+    [SerializeField] private TMP_Text statsText;
 
     [SerializeField] private float floatDistance = 40f;
     [SerializeField] private float floatDuration = 1f;
@@ -28,11 +29,18 @@ public class GameOverPanel : MonoBehaviour
     {
         gameObject.SetActive(true);
 
-        if (titleText != null)
+        if (GameManager.Instance != null)
         {
-            bool win = GameManager.Instance != null && GameManager.Instance.IsWin;
+            bool win = GameManager.Instance.IsWin;
             titleText.text = win ? "You Win" : "Game Over";
             titleText.color = win ? Color.yellow : Color.red;
+
+            float total = GameManager.Instance.TotalElapsedTime;
+            int minutes = Mathf.FloorToInt(total / 60f);
+            int seconds = Mathf.FloorToInt(total % 60f);
+
+            if (statsText != null)
+                statsText.text = $"Time Alive: {minutes:D2}:{seconds:D2}\nKills: {GameManager.Instance.KillCount}";
         }
 
         PlayTitleFloat();
@@ -75,6 +83,13 @@ public class GameOverPanel : MonoBehaviour
     public void PlayAgain()
     {
         Time.timeScale = 1f;
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetIsWin(false);
+            GameManager.Instance.SetState(GameState.Playing);
+        }
+
         SceneManager.LoadScene("GameMap1");
     }
 

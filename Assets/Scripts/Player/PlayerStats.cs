@@ -65,6 +65,7 @@ public class PlayerStats : MonoBehaviour
     #region Runtime State
     public float CurrentHealth { get; private set; }
     public float CurrentArmor { get; private set; }
+    private bool isDead;
     #endregion
 
     private void Awake()
@@ -119,6 +120,8 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        if (isDead || amount <= 0f) return;
+
         float remaining = amount;
         if (CurrentArmor > 0f)
         {
@@ -127,6 +130,13 @@ public class PlayerStats : MonoBehaviour
             remaining -= absorbed;
         }
         CurrentHealth = Mathf.Max(CurrentHealth - remaining, 0f);
+
+        if (CurrentHealth <= 0f)
+        {
+            isDead = true;
+            if (GameManager.Instance != null)
+                GameManager.Instance.SetState(GameState.GameOver);
+        }
     }
 
     private void RegenOverTime()

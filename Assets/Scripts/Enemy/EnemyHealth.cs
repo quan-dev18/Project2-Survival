@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour, IDamageable
@@ -5,8 +6,14 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     [SerializeField] private EnemyController enemyController;
     [SerializeField] private EnemyMovement enemyMovement;
     [SerializeField] private Animator _animator;
+    [SerializeField] private float deathFallbackDelay = 2f;
+
+    private Coroutine deathWatchdog;
+    private GameObject pooledRoot;
 
     public float CurrentHealth => enemyController.currentHealth;
+
+    public float MaxHealth => enemyController != null ? enemyController.maxHealth : 0f;
 
     public event System.Action<float, float> OnHealthChanged;
 
@@ -20,11 +27,41 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         }
     }
 
+    private GameObject GetPooledRoot()
+    {
+        if (pooledRoot != null) return pooledRoot;
+
+        Transform t = transform;
+        while (t != null)
+        {
+            if (t.TryGetComponent(out PooledObject pooled))
+                return pooledRoot = t.gameObject;
+            t = t.parent;
+        }
+        return gameObject;
+    }
+
     private void OnEnable()
     {
+        pooledRoot = null;
         enemyController.ResetHealth();
-        if (TryGetComponent(out Collider2D col)) col.enabled = true;
+        Collider2D col = GetComponentInParent<Collider2D>();
+        if (col != null) col.enabled = true;
         enemyMovement.enabled = true;
+        if (deathWatchdog != null)
+        {
+            StopCoroutine(deathWatchdog);
+            deathWatchdog = null;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (deathWatchdog != null)
+        {
+            StopCoroutine(deathWatchdog);
+            deathWatchdog = null;
+        }
     }
 
     public void TakeDamage(float amount)
@@ -41,8 +78,6 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         if (health <= 0f)
         {
             Die();
-            _animator.SetBool("isDead",true);
-            
         }
             
     }
@@ -56,17 +91,39 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     private void Die()
     {
-        enemyMovement.enabled = false;
-        if (TryGetComponent(out Collider2D col)) col.enabled = false; 
+        if (GameManager.Instance != null)
+            GameManager.Instance.AddKill();
 
+        enemyMovement.enabled = false;
+        Collider2D col = GetComponentInParent<Collider2D>();
+        if (col != null) col.enabled = false;
+        _animator.SetBool("isDead",true);
+        deathWatchdog = StartCoroutine(DeathWatchdog());
     }
+
+    private IEnumerator DeathWatchdog()
+    {
+        yield return new WaitForSeconds(deathFallbackDelay);
+        deathWatchdog = null;
+        if (gameObject.activeInHierarchy)
+            OnDeathAnimationEnd();
+    }
+
     public void OnDeathAnimationEnd()
     {
+        if (!gameObject.activeInHierarchy) return;
+
+        if (deathWatchdog != null)
+        {
+            StopCoroutine(deathWatchdog);
+            deathWatchdog = null;
+        }
+
         DropXP();
         _animator.SetBool("isDead",false);
         if (ObjectPooling.Instance != null)
         {
-            ObjectPooling.Instance.Despawn(gameObject);
+            ObjectPooling.Instance.Despawn(GetPooledRoot());
         }
     }
 

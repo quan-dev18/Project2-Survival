@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1923511341759586670}
   - component: {fileID: -4510307493770929313}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: Experience
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,7 +59,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8780356767187556269}
   - component: {fileID: 745329957571394791}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76,7 +76,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.09347095}
-  m_LocalScale: {x: 0.33, y: 0.33, z: 0.33}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1923511341759586670}
@@ -119,8 +119,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1152606453
-  m_SortingLayer: 6
+  m_SortingLayerID: -175506869
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 1119419721, guid: d58f4cbcc7fa23b43aad7fd92a629866, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb6a6c9e052f3224aa42128bd8cbfcde, type: 3}
+  m_Name: HH_3
+  m_EditorClassIdentifier: 
+  upgradeName: Heavy Hitter
+  description: 'Bullet Damage +20%
+
+    Bullet Piercing +1'
+  icon: {fileID: 0}
+  statMods:
+  - stat: 13
+    amount: 20
+  - stat: 11
+    amount: 1
+  requires:
+  - {fileID: 11400000, guid: 589221277b3d4234d9e85bab6e68fd79, type: 2}
+  - {fileID: 11400000, guid: 346d53834a2be1d4a98413c431ed938f, type: 2}
