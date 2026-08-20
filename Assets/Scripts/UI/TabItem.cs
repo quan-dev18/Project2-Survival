@@ -30,7 +30,7 @@ public class TabItem : MonoBehaviour
         if (unselectState != null) unselectState.SetActive(false);
         if (selectedState != null) selectedState.SetActive(true);
 
-        if (animateScale) transform.localScale = selectedScale;
+        if (animateScale) selectedState.transform.localScale = selectedScale;
     }
 
     // Gọi khi Tab bị bỏ chọn
@@ -40,6 +40,6 @@ public class TabItem : MonoBehaviour
         if (unselectState != null) unselectState.SetActive(true);
         if (selectedState != null) selectedState.SetActive(false);
 
-        if (animateScale) transform.localScale = normalScale;
+        if (animateScale) unselectState.transform.localScale = normalScale;
     }
 }
