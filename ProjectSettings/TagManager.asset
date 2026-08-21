@@ -45,6 +45,9 @@ TagManager:
   - name: Nor_TileMap
     uniqueID: 3636214843
     locked: 0
+  - name: Prop_Walkable
+    uniqueID: 3858357545
+    locked: 0
   - name: Player
     uniqueID: 4119460427
     locked: 0

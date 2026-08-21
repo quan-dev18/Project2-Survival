@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4826247983685172142}
@@ -55,7 +55,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 6bda215000740ba4b91c73e118163d54, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -74,10 +74,10 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 712935771
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 934338712, guid: 91a64d498fc42c947865c534cc2ce43f, type: 3}
-  m_Color: {r: 1, g: 0.5641509, b: 0.5798963, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -107,16 +107,26 @@ MonoBehaviour:
   m_SelfShadows: 0
   m_ApplyToSortingLayers: 000000003b3cbcd84bfa89f55b897e2a9f7083800b9f4cbb
   m_ShapePath:
-  - {x: -0.5, y: -1, z: 0}
-  - {x: -0.5, y: 1, z: 0}
-  - {x: 0.5, y: 1, z: 0}
-  - {x: 0.5, y: -1, z: 0}
-  m_ShapePathHash: 0
+  - {x: -0.38052326, y: -0.5480662, z: 0}
+  - {x: -0.40619248, y: -0.27563673, z: 0}
+  - {x: 0.14963415, y: -0.31199926, z: 0}
+  - {x: 0.2067752, y: -0.109408215, z: 0}
+  - {x: -0.4477496, y: -0.13538143, z: 0}
+  - {x: -0.56203175, y: 0.2230488, z: 0}
+  - {x: -0.4162091, y: 0.7276795, z: 0}
+  - {x: -0.02042767, y: 0.91894495, z: 0}
+  - {x: 0.34836906, y: 0.85496175, z: 0}
+  - {x: 0.56610876, y: 0.56283367, z: 0}
+  - {x: 0.5713457, y: 0.12816826, z: 0}
+  - {x: 0.34092063, y: -0.102256745, z: 0}
+  - {x: 0.33896613, y: -0.51170367, z: 0}
+  - {x: -0.0010104422, y: -0.60809374, z: 0}
+  m_ShapePathHash: -516976637
   m_Mesh: {fileID: 0}
-  m_InstanceId: 65982
+  m_InstanceId: 48708
   m_LocalBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0.5, y: 1, z: 0}
+    m_Center: {x: 0.0046569705, y: 0.15542561, z: 0}
+    m_Extent: {x: 0.5666887, y: 0.76351935, z: 0}
 --- !u!95 &2757306944947068797
 Animator:
   serializedVersion: 5
@@ -249,8 +259,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.00096818805, y: -0.0030580163}
-  m_Size: {x: 0.40165883, y: 0.81177354}
+  m_Offset: {x: -0.04, y: 0.4357847}
+  m_Size: {x: 1.07, y: 2.3583338}
   m_Direction: 0
 --- !u!114 &8069974498983253383
 MonoBehaviour:

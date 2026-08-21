@@ -90,7 +90,8 @@ public class GameOverPanel : MonoBehaviour
             GameManager.Instance.SetState(GameState.Playing);
         }
 
-        SceneManager.LoadScene("GameMap1");
+        LoadingSceneController.targetScene = "GameMap1";
+        SceneManager.LoadScene("LoadingScene");
     }
 
     public void BackToHome()

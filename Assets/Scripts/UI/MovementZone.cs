@@ -7,8 +7,8 @@ public class MovementZone : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
 
     private void Awake()
     {
-        if (joystick == null)
-            joystick = FindObjectOfType<JoystickController>();
+        if(joystick == null)
+            joystick = GetComponent<JoystickController>();
     }
 
     public void OnPointerDown(PointerEventData eventData)

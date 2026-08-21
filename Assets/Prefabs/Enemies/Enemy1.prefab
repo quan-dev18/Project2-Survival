@@ -74,7 +74,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 712935771
-  m_SortingLayer: 3
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 934338712, guid: 91a64d498fc42c947865c534cc2ce43f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -107,16 +107,27 @@ MonoBehaviour:
   m_SelfShadows: 0
   m_ApplyToSortingLayers: 000000003b3cbcd84bfa89f55b897e2a9f7083800b9f4cbb
   m_ShapePath:
-  - {x: -0.5, y: -1, z: 0}
-  - {x: -0.5, y: 1, z: 0}
-  - {x: 0.5, y: 1, z: 0}
-  - {x: 0.5, y: -1, z: 0}
-  m_ShapePathHash: 0
+  - {x: 0.29741836, y: -0.58735, z: 0}
+  - {x: -0.36208856, y: -0.54128194, z: 0}
+  - {x: -0.38997033, y: -0.30149877, z: 0}
+  - {x: 0.18997027, y: -0.27361703, z: 0}
+  - {x: 0.12305403, y: -0.14536093, z: 0}
+  - {x: -0.43458113, y: -0.19554809, z: 0}
+  - {x: -0.50707376, y: 0.016353294, z: 0}
+  - {x: -0.5684136, y: 0.20594928, z: 0}
+  - {x: -0.49592102, y: 0.32862905, z: 0}
+  - {x: -0.40520194, y: 0.6988771, z: 0}
+  - {x: -0.021931097, y: 0.9029933, z: 0}
+  - {x: 0.3996257, y: 0.83270943, z: 0}
+  - {x: 0.5803149, y: 0.5126486, z: 0}
+  - {x: 0.580315, y: 0.17249116, z: 0}
+  - {x: 0.36059123, y: -0.13008907, z: 0}
+  m_ShapePathHash: -260579236
   m_Mesh: {fileID: 0}
-  m_InstanceId: 57542
+  m_InstanceId: 43696
   m_LocalBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0.5, y: 1, z: 0}
+    m_Center: {x: 0.0059506893, y: 0.15782166, z: 0}
+    m_Extent: {x: 0.5743643, y: 0.74517167, z: 0}
 --- !u!95 &2757306944947068797
 Animator:
   serializedVersion: 5
@@ -153,6 +164,7 @@ MonoBehaviour:
   enemyController: {fileID: 8069974498983253383}
   enemyMovement: {fileID: 2980252082715626386}
   _animator: {fileID: 2757306944947068797}
+  deathFallbackDelay: 2
 --- !u!1 &1407889229624869330
 GameObject:
   m_ObjectHideFlags: 0

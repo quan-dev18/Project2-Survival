@@ -8,7 +8,8 @@ public class MainMenuManager : MonoBehaviour
     public GameObject settingsUI; // Panel Settings
     public void StartGame()
     {
-        SceneManager.LoadScene("GameMap1");
+        LoadingSceneController.targetScene = "GameMap1";
+        SceneManager.LoadScene("LoadingScene");
     }
 
     public void OpenSettings()
