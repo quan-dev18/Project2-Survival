@@ -11,19 +11,38 @@ public class Bullet : MonoBehaviour
     private float maxDistance;
     private float travelledDistance;
     private Transform owner;
+    private int pierceRemaining;
+    private float speedMultiplier = 1f;
+    private float damageMultiplier = 1f;
+    private float executePercent;
+    private float knockbackMultiplier = 1f;
+    private float sizeMultiplier = 1f;
+    private Vector3 baseScale = Vector3.one;
+    private Collider2D lastHit;
+    private float lastHitTime;
 
-    public void Init(Vector2 dir, Transform owner, float maxDistance)
+    public void Init(Vector2 dir, Transform owner, float maxDistance, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f)
     {
         direction = dir.normalized;
         this.owner = owner;
         this.maxDistance = maxDistance;
+        pierceRemaining = pierce;
+        this.speedMultiplier = speedMultiplier;
+        this.damageMultiplier = damageMultiplier;
+        this.executePercent = executePercent;
+        this.knockbackMultiplier = knockbackMultiplier;
+        this.sizeMultiplier = sizeMultiplier;
+        transform.localScale = baseScale * sizeMultiplier;
         age = 0f;
         travelledDistance = 0f;
+        lastHit = null;
+        lastHitTime = 0f;
     }
 
     private void Awake()
     {
         EnsurePhysics();
+        baseScale = transform.localScale;
     }
 
     private void EnsurePhysics()
@@ -49,7 +68,7 @@ public class Bullet : MonoBehaviour
         }
 
         float t = age / bulletStats.LifeTime;
-        float speed = bulletStats.Speed * bulletStats.SpeedCurve.Evaluate(t);
+        float speed = bulletStats.Speed * bulletStats.SpeedCurve.Evaluate(t) * speedMultiplier;
 
         float step = speed * Time.deltaTime;
         travelledDistance += step;
@@ -77,7 +96,16 @@ public class Bullet : MonoBehaviour
         if (damageable == null)
             return;
 
-        damageable.TakeDamage(bulletStats.Damage);
+        if (lastHit == other && Time.time - lastHitTime < 0.1f)
+            return;
+
+        damageable.TakeDamage(bulletStats.Damage * damageMultiplier);
+
+        if (executePercent > 0f && damageable is EnemyHealth enemyHealth
+            && enemyHealth.CurrentHealth <= enemyHealth.MaxHealth * executePercent)
+        {
+            damageable.TakeDamage(float.MaxValue);
+        }
 
         IKnockbackable knockbackable = other.GetComponent<IKnockbackable>();
         if (knockbackable == null)
@@ -85,7 +113,15 @@ public class Bullet : MonoBehaviour
 
         if (knockbackable != null)
         {
-            knockbackable.ApplyKnockback(direction, knockbackForce);
+            knockbackable.ApplyKnockback(direction, knockbackForce * knockbackMultiplier);
+        }
+
+        if (pierceRemaining > 0)
+        {
+            pierceRemaining--;
+            lastHit = other;
+            lastHitTime = Time.time;
+            return;
         }
         DespawnSelf();
     }

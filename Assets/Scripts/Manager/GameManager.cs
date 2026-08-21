@@ -5,6 +5,7 @@ public enum GameState
 {
     Menu,
     Playing,
+    Paused,
     LevelUp,
     GameOver
 }
@@ -20,7 +21,17 @@ public class GameManager : MonoBehaviour
 
     public bool IsWin { get; private set; }
 
+    public float TotalElapsedTime { get; private set; }
+    public int KillCount { get; private set; }
+    public event Action<int> OnKillCountChanged;
+
     public void SetIsWin(bool value) => IsWin = value;
+    public void AddKill()
+    {
+        KillCount++;
+        OnKillCountChanged?.Invoke(KillCount);
+    }
+
     [SerializeField] private GameOverPanel panel;
 
     private void Awake()
@@ -32,11 +43,19 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
         currentState = GameState.Menu;
+        TotalElapsedTime = 0f;
+        KillCount = 0;
     }
 
     private void Start()
     {
         SetState(GameState.Playing);
+    }
+
+    private void Update()
+    {
+        if (currentState == GameState.Playing)
+            TotalElapsedTime += Time.deltaTime;
     }
 
     public void SetState(GameState newState)

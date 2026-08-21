@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Piss tool
   fireRate: 0.5
-  fireRange: 10
+  fireRange: 5
   reloadTime: 1
   magazineSize: 6
   bulletCount: 1

@@ -48,7 +48,8 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
 
         if (dist <= enemyController.attackRange)
         {
-            Attack();
+            if (enemyController.CanAttack)
+                Attack();
             return;
         }
 

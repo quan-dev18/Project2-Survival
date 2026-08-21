@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Bullet1
   m_EditorClassIdentifier: 
   damage: 10
-  speed: 15
+  speed: 8
   speedCurve:
     serializedVersion: 2
     m_Curve:

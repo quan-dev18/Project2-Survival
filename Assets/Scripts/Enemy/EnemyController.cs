@@ -33,6 +33,8 @@ public class EnemyController : MonoBehaviour
 
     private float nextAttackTime;
 
+    public bool CanAttack => Time.time >= nextAttackTime;
+
     private SpriteRenderer[] spriteRenderers;
 
     private void Awake()

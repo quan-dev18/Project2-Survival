@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -8,19 +9,30 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float spawnMargin = 2f;
     [SerializeField] private int maxSpawned = 50;
 
+    [Header("UI")]
+    [SerializeField] private TMP_Text phaseTimerText;
+
     private readonly List<GameObject> activeEnemies = new List<GameObject>();
-    private int stageIndex;
-    private float stageTimer;
-    private float entryElapsed;
-    private float totalElapsed;
-    private float spawnTimer;
-    private float currentSpawnRate;
-    private float totalStageDuration;
-    private bool spawningDone;
+    private readonly List<GameObject> spawnedBosses = new List<GameObject>();
+    private readonly List<EntryState> entryStates = new List<EntryState>();
+    private readonly List<int> pendingBosses = new List<int>();
+    private int phaseIndex;
+    private float phaseTimer;
+    private bool phaseHasBoss;
+    private int bossSpawnedCount;
+    private float bossRetryTimer;
+    private bool bossRetryWarningShown;
 
-    private StageSO.StageEntry CurrentEntry => stage.Stages[stageIndex];
+    private class EntryState
+    {
+        public float spawnTimer;
+        public readonly List<GameObject> spawned = new List<GameObject>();
+    }
 
-    void Awake()
+    private StageSO.Phase CurrentPhase => stage.Phases[phaseIndex];
+    private bool IsFinalPhase => phaseIndex >= stage.Phases.Count - 1;
+
+    private void Awake()
     {
         if (targetCamera == null)
             targetCamera = Camera.main;
@@ -28,101 +40,199 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        if (stage == null || stage.Stages == null || stage.Stages.Count == 0)
+        if (stage == null || stage.Phases == null || stage.Phases.Count == 0)
         {
             enabled = false;
-            Debug.LogWarning("EnemySpawner: StageSO has no stages, spawning disabled");
+            Debug.LogWarning("EnemySpawner: StageSO has no phases, spawning disabled");
             return;
         }
-        ResetStageEntry();
+        StartPhase(0);
+    }
 
-        totalStageDuration = 0f;
-        for (int i = 0; i < stage.Stages.Count; i++)
-            totalStageDuration += stage.Stages[i].Duration;
+    private void StartPhase(int index)
+    {
+        phaseIndex = index;
+        phaseTimer = 0f;
+        phaseHasBoss = false;
+        bossSpawnedCount = 0;
+        bossRetryTimer = 0f;
+        bossRetryWarningShown = false;
+        spawnedBosses.Clear();
+        entryStates.Clear();
+        pendingBosses.Clear();
+
+        StageSO.Phase phase = CurrentPhase;
+        for (int i = 0; i < phase.Enemies.Count; i++)
+            entryStates.Add(new EntryState());
+
+        for (int i = 0; i < phase.Enemies.Count; i++)
+        {
+            StageSO.PhaseEnemy entry = phase.Enemies[i];
+            if (!entry.IsBoss) continue;
+
+            phaseHasBoss = true;
+            TrySpawnBoss(i);
+        }
+    }
+
+    private void TrySpawnBoss(int entryIndex)
+    {
+        StageSO.PhaseEnemy entry = CurrentPhase.Enemies[entryIndex];
+        GameObject boss = SpawnEnemy(entry.MobKey, entryStates[entryIndex]);
+        if (boss != null)
+        {
+            spawnedBosses.Add(boss);
+            bossSpawnedCount++;
+            pendingBosses.Remove(entryIndex);
+        }
+        else
+        {
+            if (!pendingBosses.Contains(entryIndex))
+                pendingBosses.Add(entryIndex);
+            if (!bossRetryWarningShown)
+            {
+                bossRetryWarningShown = true;
+                Debug.LogWarning($"EnemySpawner: boss '{entry.MobKey}' failed to spawn — check it is registered in ObjectPooling with that key");
+            }
+        }
     }
 
     private void Update()
     {
         if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameState.Playing) return;
 
+        CleanupActiveEnemies();
+        UpdatePhaseTimerText();
+        phaseTimer += Time.deltaTime;
+
+        if (pendingBosses.Count > 0)
+            TryRetryPendingBosses();
+
+        if (CurrentPhase.Duration > 0f && phaseTimer >= CurrentPhase.Duration)
+        {
+            if (IsFinalPhase)
+            {
+                Lose();
+                return;
+            }
+
+            StartPhase(phaseIndex + 1);
+            return;
+        }
+
+        if (activeEnemies.Count < maxSpawned)
+            UpdateSpawning();
+
+        CheckEndCondition();
+    }
+
+    private void CleanupActiveEnemies()
+    {
         for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
             if (activeEnemies[i] == null || !activeEnemies[i].activeInHierarchy)
                 activeEnemies.RemoveAt(i);
         }
 
-        if (!spawningDone)
+        for (int i = 0; i < entryStates.Count; i++)
         {
-            stageTimer += Time.deltaTime;
-            entryElapsed += Time.deltaTime;
-            totalElapsed += Time.deltaTime;
-
-            UpdateSpawnRate();
-            TryAdvanceEntry();
-
-            if (activeEnemies.Count < maxSpawned)
+            List<GameObject> spawned = entryStates[i].spawned;
+            for (int j = spawned.Count - 1; j >= 0; j--)
             {
-                spawnTimer += currentSpawnRate * Time.deltaTime;
-                int spawnCount = Mathf.FloorToInt(spawnTimer);
-                if (spawnCount > 0)
-                {
-                    spawnTimer -= spawnCount;
-                    for (int i = 0; i < spawnCount; i++)
-                        SpawnEnemy();
-                }
-            }
-
-            if (totalElapsed >= totalStageDuration)
-                spawningDone = true;
-        }
-
-        CheckEndCondition();
-    }
-
-    private void ResetStageEntry()
-    {
-        stageTimer = 0f;
-        entryElapsed = 0f;
-        spawnTimer = 0f;
-    }
-
-    private void UpdateSpawnRate()
-    {
-        StageSO.StageEntry entry = CurrentEntry;
-        if (entry.SpawnIncrementInterval <= 0f) return;
-
-        float increments = Mathf.Floor(totalElapsed / entry.SpawnIncrementInterval);
-        currentSpawnRate = entry.SpawnPerSecond + increments * entry.SpawnIncrementAmount;
-    }
-
-    private void TryAdvanceEntry()
-    {
-        StageSO.StageEntry entry = CurrentEntry;
-        if (entry.Duration > 0f && stageTimer >= entry.Duration)
-        {
-            if (stageIndex < stage.Stages.Count - 1)
-            {
-                stageIndex++;
-                ResetStageEntry();
+                if (spawned[j] == null || !spawned[j].activeInHierarchy)
+                    spawned.RemoveAt(j);
             }
         }
+    }
+
+    private void UpdatePhaseTimerText()
+    {
+        if (phaseTimerText == null) return;
+
+        float remaining = Mathf.Max(0f, CurrentPhase.Duration - phaseTimer);
+        phaseTimerText.text = $"Wave {phaseIndex + 1}  {remaining:0}s";
+    }
+
+    private void UpdateSpawning()
+    {
+        StageSO.Phase phase = CurrentPhase;
+        for (int i = 0; i < phase.Enemies.Count && i < entryStates.Count; i++)
+        {
+            StageSO.PhaseEnemy entry = phase.Enemies[i];
+            if (entry.IsBoss) continue;
+
+            EntryState state = entryStates[i];
+            if (entry.SpawnLimit > 0 && state.spawned.Count >= entry.SpawnLimit)
+                continue;
+
+            state.spawnTimer += entry.SpawnPerSecond * Time.deltaTime;
+            while (state.spawnTimer >= 1f && (entry.SpawnLimit == 0 || state.spawned.Count < entry.SpawnLimit))
+            {
+                state.spawnTimer -= 1f;
+                if (activeEnemies.Count >= maxSpawned) return;
+
+                SpawnEnemy(entry.MobKey, state);
+            }
+        }
+    }
+
+    private void TryRetryPendingBosses()
+    {
+        bossRetryTimer += Time.deltaTime;
+        if (bossRetryTimer < 1f) return;
+
+        bossRetryTimer = 0f;
+        for (int i = pendingBosses.Count - 1; i >= 0; i--)
+            TrySpawnBoss(pendingBosses[i]);
     }
 
     private void CheckEndCondition()
     {
         if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameState.Playing) return;
-        if (!spawningDone || activeEnemies.Count > 0) return;
+        if (!IsFinalPhase) return;
 
-        GameManager.Instance.SetIsWin(true);
-        GameManager.Instance.SetState(GameState.GameOver);
+        for (int i = spawnedBosses.Count - 1; i >= 0; i--)
+        {
+            if (spawnedBosses[i] == null || !spawnedBosses[i].activeInHierarchy)
+                spawnedBosses.RemoveAt(i);
+        }
+
+        bool bossesCleared = spawnedBosses.Count == 0;
+        bool allEnemiesCleared = activeEnemies.Count == 0;
+
+        bool bossPhaseActive = phaseHasBoss && bossSpawnedCount > 0;
+
+        if (bossPhaseActive ? bossesCleared : allEnemiesCleared)
+        {
+            Debug.Log("Stage cleared!");
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.SetIsWin(true);
+                GameManager.Instance.SetState(GameState.GameOver);
+            }
+        }
     }
 
-    private void SpawnEnemy()
+    private void Lose()
+    {
+        Debug.Log("Timer ran out!");
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetIsWin(false);
+            GameManager.Instance.SetState(GameState.GameOver);
+        }
+    }
+
+    private GameObject SpawnEnemy(string mobKey, EntryState state)
     {
         Vector2 spawnPos = GetSpawnPosition();
-        GameObject enemy = ObjectPooling.Instance.Spawn(CurrentEntry.MobKey, spawnPos, Quaternion.identity);
+        GameObject enemy = ObjectPooling.Instance.Spawn(mobKey, spawnPos, Quaternion.identity);
         if (enemy != null)
+        {
             activeEnemies.Add(enemy);
+            state.spawned.Add(enemy);
+        }
+        return enemy;
     }
 
     private Vector2 GetSpawnPosition()
@@ -131,7 +241,7 @@ public class EnemySpawner : MonoBehaviour
         float halfW = halfH * targetCamera.aspect;
         float radius = Mathf.Max(halfW, halfH) + spawnMargin;
 
-        float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+        float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
         Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
 
         Vector3 camPos = targetCamera.transform.position;
