@@ -197,6 +197,58 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.BulletSizePercent:
                 weapon?.AddBulletSizePercent(pct);
                 break;
+            case UpgradeType.BulletInfinitePierceOnKill:
+                weapon?.AddBulletInfinitePierceOnKill(pct);
+                break;
+            case UpgradeType.BulletExplosionOnKill:
+                weapon?.AddBulletExplosionDamagePercent(pct);
+                weapon?.AddBulletExplosionRadius(1.5f);
+                break;
+            case UpgradeType.BulletSpread:
+                weapon?.AddBulletSpread(pct);
+                break;
+            case UpgradeType.BulletBounceCount:
+                weapon?.AddBulletBounceCount(Mathf.RoundToInt(amount));
+                break;
+            case UpgradeType.FreeShotChanceWhileStill:
+                weapon?.AddFreeShotChanceWhileStill(pct);
+                break;
+            case UpgradeType.AmmoRecoverOnXP:
+                PlayerXP.Instance?.AddAmmoRecoverChance(pct);
+                break;
+            case UpgradeType.FireRateBuffOnXP:
+                PlayerXP.Instance?.AddFireRateBuffOnXPChance(pct);
+                break;
+            case UpgradeType.LastAmmoBurst:
+                weapon?.AddLastAmmoBurst(pct);
+                break;
+            case UpgradeType.BackShot:
+                weapon?.AddBackShot(pct);
+                break;
+            case UpgradeType.DamageBuffAfterReload:
+                weapon?.AddDamageBuffAfterReload(pct);
+                break;
+            case UpgradeType.ReloadSpeedStackOnKill:
+                weapon?.AddReloadSpeedStackOnKill(pct);
+                break;
+            case UpgradeType.InvulnerableWhileReloading:
+                playerStats?.AddInvulnerableWhileReloading(pct);
+                break;
+            case UpgradeType.BurnAura:
+                playerStats?.AddBurnAuraChance(pct);
+                break;
+            case UpgradeType.StackingBuffOnTime:
+                playerStats?.AddStackingBuffPercent(pct);
+                break;
+            case UpgradeType.CharacterSizePercent:
+                playerStats?.AddCharacterSizePercent(pct);
+                break;
+            case UpgradeType.DamageTakenFireRatePercent:
+                playerStats?.AddDamageTakenFireRatePercent(pct);
+                break;
+            case UpgradeType.DamageTakenBulletDamagePercent:
+                playerStats?.AddDamageTakenBulletDamagePercent(pct);
+                break;
         }
     }
 }

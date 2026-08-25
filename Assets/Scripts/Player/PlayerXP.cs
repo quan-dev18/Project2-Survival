@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerXP : MonoBehaviour
 {
     [SerializeField] private PlayerStats playerStats;
+    [SerializeField] private WeaponController weapon;
 
     public static PlayerXP Instance { get; private set; }
 
@@ -13,6 +14,9 @@ public class PlayerXP : MonoBehaviour
     public float XPToNextLevel { get; private set; }
 
     public event Action<int> OnLevelUp;
+
+    public float AmmoRecoverChance { get; private set; }
+    public float FireRateBuffOnXPChance { get; private set; }
 
     private void Awake()
     {
@@ -27,6 +31,8 @@ public class PlayerXP : MonoBehaviour
 
         if (playerStats == null)
             playerStats = GetComponent<PlayerStats>();
+        if (weapon == null)
+            weapon = GetComponentInChildren<WeaponController>();
         XPToNextLevel = GetRequiredXP(CurrentLevel);
     }
 
@@ -35,6 +41,26 @@ public class PlayerXP : MonoBehaviour
         if (amount <= 0f) return;
 
         CurrentXP += amount;
+
+        // Chance to recover ammo on XP gain
+        if (AmmoRecoverChance > 0f && weapon != null)
+        {
+            if (UnityEngine.Random.value < AmmoRecoverChance)
+            {
+                weapon.AddAmmo(1);
+            }
+        }
+
+        // Chance for fire rate buff on XP gain
+        if (FireRateBuffOnXPChance > 0f && weapon != null)
+        {
+            if (UnityEngine.Random.value < FireRateBuffOnXPChance)
+            {
+                weapon.AddFireRatePercent(0.25f); // +25% fire rate
+                StartCoroutine(RemoveFireRateBuff());
+            }
+        }
+
         while (CurrentXP >= XPToNextLevel)
         {
             CurrentXP -= XPToNextLevel;
@@ -47,6 +73,17 @@ public class PlayerXP : MonoBehaviour
         }
     }
 
+    public void AddAmmoRecoverChance(float amount) => AmmoRecoverChance = Mathf.Clamp01(AmmoRecoverChance + amount);
+
+    public void AddFireRateBuffOnXPChance(float amount) => FireRateBuffOnXPChance = Mathf.Clamp01(FireRateBuffOnXPChance + amount);
+
+    private System.Collections.IEnumerator RemoveFireRateBuff()
+    {
+        yield return new WaitForSeconds(1f);
+        if (weapon != null)
+            weapon.AddFireRatePercent(-0.25f);
+    }
+
     public float PickupValue(float baseAmount)
     {
         return baseAmount * (1f + playerStats.GrowthRate);
@@ -54,6 +91,21 @@ public class PlayerXP : MonoBehaviour
 
     private float GetRequiredXP(int level)
     {
-        return 10 * level - 5;
+        if (level <= 3)
+        {
+            return 10;
+        }
+        else if (level <= 20)
+        {
+            return 10 * level - 5; //level+2;
+        }
+        else if (level <= 40)
+        {
+            return 10 * level + 8;
+        }
+        else
+        {
+            return 10 * level + 11;
+        }
     }
 }

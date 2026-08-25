@@ -11,6 +11,7 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private Transform weaponFront;
     [SerializeField] private Transform target;
     [SerializeField] private string bulletKey = "Bullet";
+    [SerializeField] private Rigidbody2D playerRigidbody;
 
     [Header("Hands")]
     [SerializeField] private Transform leftHand;
@@ -51,6 +52,19 @@ public class WeaponController : MonoBehaviour
     public float bonusBulletExecutePercent { get; private set; }
     public float bonusBulletKnockbackPercent { get; private set; }
     public float bonusBulletSizePercent { get; private set; }
+    public float bonusBulletSpread { get; private set; }
+    public int bonusBulletBounceCount { get; private set; }
+    public float bonusFreeShotChanceWhileStill { get; private set; }
+    public bool bonusLastAmmoBurst { get; private set; }
+    public bool bonusBackShot { get; private set; }
+    public float bonusDamageBuffAfterReload { get; private set; }
+    private float damageBuffTimer;
+    private float appliedDamageBuff;
+    public float bonusReloadSpeedStackOnKill { get; private set; }
+    private int killStacks;
+    public bool bonusBulletInfinitePierceOnKill { get; private set; }
+    public float bonusBulletExplosionDamagePercent { get; private set; }
+    public float bonusBulletExplosionRadius { get; private set; }
     #endregion
 
 
@@ -58,7 +72,7 @@ public class WeaponController : MonoBehaviour
     // fireRate là thời gian chờ giữa 2 phát -> bonus % làm bắn NHANH hơn nghĩa là fireRate giảm
     public float fireRate => Mathf.Max(0.1f, baseFireRate / Mathf.Max(0.01f, 1f + bonusFireRatePercent));
     public float fireRange => baseFireRange * (1f + bonusFireRangePercent);
-    public float reloadTime => Mathf.Max(0.1f, baseReloadTime / Mathf.Max(0.01f, 1f + bonusReloadSpeedPercent));
+    public float reloadTime => Mathf.Max(0.1f, baseReloadTime / Mathf.Max(0.01f, 1f + bonusReloadSpeedPercent + killStacks * 0.02f));
     public int magazineSize => Mathf.RoundToInt(baseMagazineSize * (1f + bonusMagazineSizePercent));
     private int spread => baseSpread;
     private int bulletCount => Mathf.Clamp(baseBulletCount + bonusBulletCountFlat,1,4);
@@ -100,6 +114,17 @@ public class WeaponController : MonoBehaviour
     {
         if (isReloading)
             HandleReloadTimer();
+
+        // Update damage buff timer
+        if (damageBuffTimer > 0f)
+        {
+            damageBuffTimer -= Time.deltaTime;
+            if (damageBuffTimer <= 0f)
+            {
+                bonusBulletDamagePercent -= appliedDamageBuff;
+                damageBuffTimer = 0f;
+            }
+        }
 
         bool hasTarget = target != null && IsTargetInRange();
 
@@ -167,9 +192,10 @@ public class WeaponController : MonoBehaviour
 
         for (int i = 0; i < bulletCount; i++)
         {
-            float spreadAngle = spread == 0 || bulletCount == 1
+            float currentSpread = spread + bonusBulletSpread;
+            float spreadAngle = currentSpread == 0f || bulletCount == 1
                 ? 0f
-                : Mathf.Lerp(-spread, spread, (float)i / (bulletCount - 1));
+                : Mathf.Lerp(-currentSpread, currentSpread, (float)i / (bulletCount - 1));
             Vector2 bulletDir = Quaternion.Euler(0, 0, spreadAngle) * barrelDir;
 
             Quaternion bulletRotation = Quaternion.FromToRotation(Vector3.right, bulletDir);
@@ -179,7 +205,85 @@ public class WeaponController : MonoBehaviour
             {
                 bullet.Init(bulletDir, transform.root, fireRange,
                     bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
-                    bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent); // damage do chính BulletSO quyết định
+                    bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
+                    bonusBulletInfinitePierceOnKill,
+                    bonusBulletExplosionDamagePercent, bonusBulletExplosionRadius,
+                    bonusBulletBounceCount,
+                    () => AddKillStack()); // damage do chính BulletSO quyết định
+            }
+        }
+
+        // Chance for free shot while standing still
+        if (bonusFreeShotChanceWhileStill > 0f && playerRigidbody != null)
+        {
+            if (playerRigidbody.velocity.sqrMagnitude < 0.01f) // standing still threshold
+            {
+                if (UnityEngine.Random.value < bonusFreeShotChanceWhileStill)
+                {
+                    currentAmmo++; // refund the ammo cost
+                    OnAmmoChanged?.Invoke(currentAmmo, magazineSize);
+                }
+            }
+        }
+
+        // Last ammo burst: when this shot consumed the last ammo
+        if (bonusLastAmmoBurst && currentAmmo == 0)
+        {
+            FireLastAmmoBurst();
+        }
+
+        // Back shot: fire additional bullet behind
+        if (bonusBackShot)
+        {
+            FireBackShot();
+        }
+    }
+
+    private void FireBackShot()
+    {
+        if (ObjectPooling.Instance == null) return;
+
+        Vector2 backDir = -(Vector2)(transform.rotation * weaponFront.localPosition).normalized;
+
+        Quaternion bulletRotation = Quaternion.FromToRotation(Vector3.right, backDir);
+        GameObject bulletObj = ObjectPooling.Instance.Spawn(bulletKey, weaponFront.position, bulletRotation);
+
+        if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
+        {
+            bullet.Init(backDir, transform.root, fireRange,
+                bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
+                bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
+                bonusBulletInfinitePierceOnKill,
+                bonusBulletExplosionDamagePercent, bonusBulletExplosionRadius,
+                bonusBulletBounceCount,
+                () => AddKillStack());
+        }
+    }
+
+    private void FireLastAmmoBurst()
+    {
+        if (ObjectPooling.Instance == null) return;
+
+        int burstCount = 10;
+        float burstDamageMultiplier = 0.5f;
+
+        for (int i = 0; i < burstCount; i++)
+        {
+            float angle = (360f / burstCount) * i;
+            Vector2 burstDir = Quaternion.Euler(0, 0, angle) * Vector2.right;
+
+            Quaternion bulletRotation = Quaternion.FromToRotation(Vector3.right, burstDir);
+            GameObject bulletObj = ObjectPooling.Instance.Spawn(bulletKey, transform.position, bulletRotation);
+
+            if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
+            {
+                bullet.Init(burstDir, transform.root, fireRange,
+                    0, 1f + bonusBulletSpeedPercent, burstDamageMultiplier,
+                    0f, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
+                    false,
+                    0f, 0f,
+                    0,
+                    () => AddKillStack()); // 50% damage, no pierce/execute/explosion/bounce
             }
         }
     }
@@ -203,6 +307,17 @@ public class WeaponController : MonoBehaviour
             isReloading = false;
             OnAmmoChanged?.Invoke(currentAmmo, magazineSize);
             OnReloadEnd?.Invoke();
+
+            // Apply damage buff after reload
+            if (bonusDamageBuffAfterReload > 0f)
+            {
+                appliedDamageBuff = bonusDamageBuffAfterReload;
+                bonusBulletDamagePercent += appliedDamageBuff;
+                damageBuffTimer = 3f;
+            }
+
+            // Reset kill stacks after reload
+            killStacks = 0;
         }
     }
 #endregion
@@ -234,6 +349,39 @@ public class WeaponController : MonoBehaviour
     public void AddBulletKnockbackPercent(float amount) => bonusBulletKnockbackPercent += amount;
 
     public void AddBulletSizePercent(float amount) => bonusBulletSizePercent += amount;
+
+    public void AddBulletSpread(float amount) => bonusBulletSpread += amount;
+
+    public void AddBulletBounceCount(int amount) => bonusBulletBounceCount += amount;
+
+    public void AddFreeShotChanceWhileStill(float amount) => bonusFreeShotChanceWhileStill = Mathf.Clamp01(bonusFreeShotChanceWhileStill + amount);
+
+    public void AddLastAmmoBurst(float amount) => bonusLastAmmoBurst = amount > 0f;
+
+    public void AddBackShot(float amount) => bonusBackShot = amount > 0f;
+
+    public void AddDamageBuffAfterReload(float amount) => bonusDamageBuffAfterReload += amount;
+
+    public void AddReloadSpeedStackOnKill(float amount) => bonusReloadSpeedStackOnKill += amount;
+
+    private void AddKillStack()
+    {
+        if (bonusReloadSpeedStackOnKill > 0f)
+        {
+            killStacks = Mathf.Min(killStacks + 1, 25); // 25 stacks * 2% = 50% max
+        }
+    }
+
+    public void AddBulletInfinitePierceOnKill(float amount) => bonusBulletInfinitePierceOnKill = amount > 0f;
+
+    public void AddBulletExplosionDamagePercent(float amount) => bonusBulletExplosionDamagePercent += amount;
+    public void AddBulletExplosionRadius(float amount) => bonusBulletExplosionRadius += amount;
+
+    public void AddAmmo(int amount)
+    {
+        currentAmmo = Mathf.Min(currentAmmo + amount, magazineSize);
+        OnAmmoChanged?.Invoke(currentAmmo, magazineSize);
+    }
 #endregion
     public void SetTarget(Transform newTarget) => target = newTarget;
 

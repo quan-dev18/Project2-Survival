@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce465405f9ad3c7428f2cb2de51a57c6, type: 3}
   m_Name: BossA
   m_EditorClassIdentifier: 
-  maxHealth: 150
-  movementSpeed: 6
+  maxHealth: 300
+  movementSpeed: 4
   attackDamage: 15
   attackRange: 1
   attackSpeed: 2

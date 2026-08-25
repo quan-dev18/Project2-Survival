@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb6a6c9e052f3224aa42128bd8cbfcde, type: 3}
+  m_Name: VB_3
+  m_EditorClassIdentifier: 
+  upgradeName: Vitality Boost III
+  description: Recover 5% HP every second
+  icon: {fileID: 0}
+  statMods:
+  - stat: 2
+    amount: 5
+  requires:
+  - {fileID: 11400000, guid: 5e8f819c7229a5c42818d5771f65691a, type: 2}
+  - {fileID: 11400000, guid: 1d34701a00f4f2045997fc06b12f8516, type: 2}
