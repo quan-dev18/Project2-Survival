@@ -20,7 +20,7 @@ MonoBehaviour:
   statMods:
   - stat: 0
     amount: 200
-  - stat: 19
-    amount: 50
+  - stat: 32
+    amount: 25
   requires:
   - {fileID: 11400000, guid: 5c73676f91bcd1e4eb6b25b3ebfb9594, type: 2}

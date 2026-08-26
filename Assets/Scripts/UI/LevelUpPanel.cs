@@ -201,14 +201,17 @@ public class LevelUpPanel : MonoBehaviour
                 weapon?.AddBulletInfinitePierceOnKill(pct);
                 break;
             case UpgradeType.BulletExplosionOnKill:
-                weapon?.AddBulletExplosionDamagePercent(pct);
-                weapon?.AddBulletExplosionRadius(1.5f);
+                weapon?.AddBulletExplosionDamagePercent(pct / 100f);
+                weapon?.AddBulletExplosionRadius(1.0f);
                 break;
-            case UpgradeType.BulletSpread:
-                weapon?.AddBulletSpread(pct);
+            case UpgradeType.CharacterSizePercent:
+                playerStats?.AddCharacterSizePercent(pct);
                 break;
-            case UpgradeType.BulletBounceCount:
-                weapon?.AddBulletBounceCount(Mathf.RoundToInt(amount));
+            case UpgradeType.DamageTakenFireRatePercent:
+                playerStats?.AddDamageTakenFireRatePercent(pct);
+                break;
+            case UpgradeType.DamageTakenBulletDamagePercent:
+                playerStats?.AddDamageTakenBulletDamagePercent(pct);
                 break;
             case UpgradeType.FreeShotChanceWhileStill:
                 weapon?.AddFreeShotChanceWhileStill(pct);
@@ -240,14 +243,30 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.StackingBuffOnTime:
                 playerStats?.AddStackingBuffPercent(pct);
                 break;
-            case UpgradeType.CharacterSizePercent:
-                playerStats?.AddCharacterSizePercent(pct);
+            case UpgradeType.BulletSpread:
+                weapon?.AddBulletSpread(amount); // flat degrees
                 break;
-            case UpgradeType.DamageTakenFireRatePercent:
-                playerStats?.AddDamageTakenFireRatePercent(pct);
+            case UpgradeType.MysteryCube:
+                playerStats?.AddMysteryCube(pct);
                 break;
-            case UpgradeType.DamageTakenBulletDamagePercent:
-                playerStats?.AddDamageTakenBulletDamagePercent(pct);
+            case UpgradeType.MysteryCubeDmgStack:
+                break; // intrinsic to cube
+            case UpgradeType.MysteryCubeAsStack:
+                break; // intrinsic to cube
+            case UpgradeType.ArmorRegenPerSecond:
+                playerStats?.AddArmorRegenPerSecond(amount); // raw armor/sec
+                break;
+            case UpgradeType.SpiritSummon:
+                playerStats?.AddSpiritSummon(pct);
+                break;
+            case UpgradeType.SpiritHeal:
+                playerStats?.AddSpiritHeal(pct);
+                break;
+            case UpgradeType.SpiritBurn:
+                playerStats?.AddSpiritBurn(pct);
+                break;
+            case UpgradeType.SpiritEmpowered:
+                playerStats?.AddSpiritEmpowered(pct);
                 break;
         }
     }
