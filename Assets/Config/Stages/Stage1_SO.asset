@@ -12,16 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: Stage1_SO
   m_EditorClassIdentifier: 
+  attackIncrementPercent: 10
+  speedIncrementPercent: 5
+  healthIncrementPercent: 10
+  statsIncrementInterval: 60
   phases:
   - phaseName: I
     duration: 30
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 1
-      spawnLimit: 8
+      spawnLimit: 1
       isBoss: 0
   - phaseName: II
-    duration: 45
+    duration: 60
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 2
@@ -29,10 +33,10 @@ MonoBehaviour:
       isBoss: 0
     - mobKey: Enemy2
       spawnPerSecond: 1
-      spawnLimit: 2
+      spawnLimit: 1
       isBoss: 0
   - phaseName: III
-    duration: 60
+    duration: 120
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3

@@ -4,6 +4,8 @@ public class PlayerStats : MonoBehaviour
 {
     [SerializeField] private CharacterSO characterStats;
     [SerializeField] private WeaponController weapon;
+    [SerializeField] private GameObject mysteryCubePrefab;
+    [SerializeField] private GameObject spiritPrefab;
 
     #region Base Stats 
     private float baseMaxHealth;
@@ -33,9 +35,15 @@ public class PlayerStats : MonoBehaviour
     public float bonusDamageTakenBulletDamagePercent { get; private set; }
     public bool bonusInvulnerableWhileReloading { get; private set; }
     public float bonusBurnAuraChance { get; private set; }
+    public float bonusArmorRegenPerSecond { get; private set; }
     private float burnAuraTimer;
     public float bonusStackingBuffPercent { get; private set; }
     private float stackingBuffPercent;
+    public bool bonusMysteryCube { get; private set; }
+    public bool bonusSpiritSummon { get; private set; }
+    public bool bonusSpiritHeal { get; private set; }
+    public bool bonusSpiritBurn { get; private set; }
+    public bool bonusSpiritEmpowered { get; private set; }
     #endregion
 
     #region Stat Caps
@@ -147,6 +155,13 @@ public class PlayerStats : MonoBehaviour
                 bonusMoveSpeedPercent += delta;
             }
         }
+
+        // Armor regen: if not at max armor, regenerate
+        if (bonusArmorRegenPerSecond > 0f && CurrentArmor < MaxArmor)
+        {
+            float regenAmount = bonusArmorRegenPerSecond * Time.deltaTime;
+            CurrentArmor = Mathf.Min(CurrentArmor + regenAmount, MaxArmor);
+        }
     }
 
     public void LoadFromSO()
@@ -185,7 +200,11 @@ public class PlayerStats : MonoBehaviour
 
     private void ApplyCharacterScale()
     {
-        transform.localScale = Vector3.one * (1f + bonusCharacterSizePercent);
+        // Scale the root container so hitbox (Collider2D) and visual both scale
+        Transform root = transform;
+        while (root.parent != null)
+            root = root.parent;
+        root.localScale = Vector3.one * (1f + bonusCharacterSizePercent);
     }
 
     public void AddDamageTakenFireRatePercent(float amount) => bonusDamageTakenFireRatePercent += amount;
@@ -196,7 +215,67 @@ public class PlayerStats : MonoBehaviour
 
     public void AddBurnAuraChance(float amount) => bonusBurnAuraChance += amount;
 
+    public void AddArmorRegenPerSecond(float amount) => bonusArmorRegenPerSecond += amount;
+
     public void AddStackingBuffPercent(float amount) => bonusStackingBuffPercent += amount;
+
+    public void AddMysteryCube(float amount)
+    {
+        bonusMysteryCube = amount > 0f;
+        if (bonusMysteryCube && mysteryCubePrefab != null)
+        {
+            GameObject cube = Instantiate(mysteryCubePrefab, transform.position, Quaternion.identity);
+            MysteryCube mc = cube.GetComponent<MysteryCube>();
+            if (mc != null)
+            {
+                mc.Initialize(transform);
+            }
+        }
+    }
+
+    public void AddSpiritSummon(float amount)
+    {
+        bonusSpiritSummon = amount > 0f;
+        if (bonusSpiritSummon && spiritPrefab != null)
+        {
+            GameObject spirit = Instantiate(spiritPrefab, transform.position, Quaternion.identity);
+            Spirit s = spirit.GetComponent<Spirit>();
+            if (s != null)
+            {
+                s.Initialize(transform);
+            }
+        }
+    }
+
+    public void AddSpiritHeal(float amount)
+    {
+        bonusSpiritHeal = amount > 0f;
+        Spirit[] spirits = FindObjectsByType<Spirit>(FindObjectsSortMode.None);
+        foreach (Spirit s in spirits)
+        {
+            s.EnableHolyHeal();
+        }
+    }
+
+    public void AddSpiritBurn(float amount)
+    {
+        bonusSpiritBurn = amount > 0f;
+        Spirit[] spirits = FindObjectsByType<Spirit>(FindObjectsSortMode.None);
+        foreach (Spirit s in spirits)
+        {
+            s.EnableHolyBurn();
+        }
+    }
+
+    public void AddSpiritEmpowered(float amount)
+    {
+        bonusSpiritEmpowered = amount > 0f;
+        Spirit[] spirits = FindObjectsByType<Spirit>(FindObjectsSortMode.None);
+        foreach (Spirit s in spirits)
+        {
+            s.EnableEmpowered();
+        }
+    }
 
     public void TakeDamage(float amount)
     {
@@ -247,6 +326,11 @@ public class PlayerStats : MonoBehaviour
     public void AddMaxHealthFlat(float amount)
     {
         bonusMaxHealthFlat += amount;
+        CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
+    }
+
+    public void Heal(float amount)
+    {
         CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
     }
 

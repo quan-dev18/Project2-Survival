@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BossA
   m_EditorClassIdentifier: 
   maxHealth: 300
-  movementSpeed: 4
+  movementSpeed: 3
   attackDamage: 15
   attackRange: 1
   attackSpeed: 2
