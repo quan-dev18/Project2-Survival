@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewHeroSelectData", menuName = "Game/Select Hero Data")]
+[CreateAssetMenu(fileName = "NewHeroSelectData", menuName = "Selection/Select Hero Data")]
 public class HeroSelectSO : ScriptableObject
 {
     public Sprite heroIcon;          // Icon Avatar mặt nhân vật
