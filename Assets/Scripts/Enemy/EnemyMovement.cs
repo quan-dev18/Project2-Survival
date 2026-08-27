@@ -7,6 +7,7 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float separationRadius = 0.6f;
     [SerializeField] private float separationForce = 2f;
+    [SerializeField] private Animator _animator;
 
     private Transform targetTransform;
     private Vector2 knockbackVelocity;
@@ -18,12 +19,16 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
     {
         if (enemyController == null)
             enemyController = GetComponent<EnemyController>();
+        if (_animator == null)
+            _animator = GetComponentInChildren<Animator>();
     }
 
     public void OnSpawned()
     {
         targetTransform = ObjectPooling.Instance.targetTransform;
         knockbackVelocity = Vector2.zero;
+        if (_animator != null)
+            _animator.SetBool("isAttack", false);
     }
 
     public void ApplyKnockback(Vector2 dir, float force)
@@ -81,7 +86,15 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
 
     private void Attack()
     {
+        if (_animator != null)
+            _animator.SetBool("isAttack", true);
         enemyController.Attack();
+    }
+
+    public void ResetAttack()
+    {
+        if (_animator != null)
+            _animator.SetBool("isAttack", false);
     }
 
     private void Wander()
