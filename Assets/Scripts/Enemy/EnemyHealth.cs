@@ -127,6 +127,12 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         }
     }
 
+    public void OnAttackAnimEnd()
+    {
+        if (enemyMovement != null)
+            enemyMovement.ResetAttack();
+    }
+
 
     private void DropXP()
     {

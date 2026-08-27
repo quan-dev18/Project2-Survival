@@ -55,11 +55,11 @@ TagManager:
   - name: Weapon
     uniqueID: 2156097695
     locked: 0
-  - name: Prob
-    uniqueID: 3726319671
-    locked: 0
   - name: Enemy
     uniqueID: 712935771
+    locked: 0
+  - name: Prob
+    uniqueID: 3726319671
     locked: 0
   - name: Bullet
     uniqueID: 3142360843
