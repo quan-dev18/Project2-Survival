@@ -153,7 +153,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'HP: 80'
+  m_text: 'HP: 60'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 50c284b314a218f4386507cf418d8709, type: 2}
   m_sharedMaterial: {fileID: 6465699484449904358, guid: 50c284b314a218f4386507cf418d8709, type: 2}
@@ -234,7 +234,7 @@ GameObject:
   - component: {fileID: 4289451722617657009}
   - component: {fileID: 5246893296229450574}
   m_Layer: 5
-  m_Name: Hero2
+  m_Name: Hero3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -253,8 +253,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4221947106112839153}
-  - {fileID: 7530386881766594645}
   - {fileID: 1863884854777432500}
+  - {fileID: 7530386881766594645}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -283,7 +283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 0.5953448, g: 0.9056604, b: 0.14097545, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -335,8 +335,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -219, y: -150}
-  m_SizeDelta: {x: 792.441, y: 1185.5513}
+  m_AnchoredPosition: {x: -238.49677, y: -171.17072}
+  m_SizeDelta: {x: 750.3661, y: 1122.6042}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2598117318479585664
 CanvasRenderer:
@@ -366,7 +366,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1816042856, guid: 6fea59696a2941347a3d6e80d2d93750, type: 3}
+  m_Sprite: {fileID: -1952058386, guid: bee212124ef22d041a36cad885082829, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -386,7 +386,7 @@ Animator:
   m_GameObject: {fileID: 6497385906367998564}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: a5136ad397615b74fb22605d0b1eb780, type: 2}
+  m_Controller: {fileID: 9100000, guid: 628c3b04fb540d94da0cfe5a6d2fff5b, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -462,11 +462,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "<color=#C0C0C0>//Subject Zero//</color>\n<color=#F33F55>[Codename]</color>
-    Shiro\r\n<color=#F33F55>[Age]</color> Unknown\n<color=#F33F55>[Gender]</color>
-    Male\n<color=#F33F55>[Height]</color> 1m61 \n<color=#F33F55>[Weight]</color> 
-    60kg \n<color=#F33F55>[Class]</color> Scout \n<color=#F33F55>[Trait]</color>
-    \n<color=#4CD1FF>Chrono-Reflex</color>"
+  m_text: "<color=#C0C0C0>//Null//</color>\n<color=#F33F55>[Codename]</color> Appledoggo\n<color=#F33F55>[Age]</color>
+    Unknown\n<color=#F33F55>[Gender]</color> Unknown\n<color=#F33F55>[Height]</color>
+    1m74 \n<color=#F33F55>[Weight]</color>  60kg \n<color=#F33F55>[Class]</color>
+    Support \n<color=#F33F55>[Trait]</color> \n<color=#98E724>Instant Heal </color>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 50c284b314a218f4386507cf418d8709, type: 2}
   m_sharedMaterial: {fileID: 6465699484449904358, guid: 50c284b314a218f4386507cf418d8709, type: 2}
@@ -689,7 +688,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Kurishi
+  m_text: Appledogg
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 50c284b314a218f4386507cf418d8709, type: 2}
   m_sharedMaterial: {fileID: 6465699484449904358, guid: 50c284b314a218f4386507cf418d8709, type: 2}
@@ -698,8 +697,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4283777011
-  m_fontColor: {r: 0.9528302, g: 0.24719654, b: 0.33492395, a: 1}
+    rgba: 4282502138
+  m_fontColor: {r: 0.9811321, g: 0.7969423, b: 0.254539, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -716,8 +715,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 90
-  m_fontSizeBase: 90
+  m_fontSize: 63
+  m_fontSizeBase: 63
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
