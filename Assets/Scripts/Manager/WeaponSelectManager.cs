@@ -83,7 +83,9 @@ public class WeaponSelectManager : MonoBehaviour
             }
 
             int weaponIndex = weaponList.IndexOf(currentSelectedWeapon);
+            PlayerEquipment.SelectedWeaponIndex = weaponIndex;
             PlayerPrefs.SetInt("SelectedWeaponIndex", weaponIndex);
+            PlayerPrefs.SetString("SelectedWeaponName", currentSelectedWeapon.name);
             PlayerPrefs.Save();
 
             Debug.Log("Đã chọn vũ khí: " + currentSelectedWeapon.WeaponName);

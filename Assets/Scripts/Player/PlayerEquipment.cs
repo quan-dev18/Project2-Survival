@@ -18,12 +18,16 @@ public class PlayerEquipment : MonoBehaviour
     private int activeWeaponIndex = -1;
 
     public static int SelectedHeroIndex = 0;
+    public static int SelectedWeaponIndex = 0;
 
     public int ActiveMeshIndex => activeMeshIndex;
     public int ActiveWeaponIndex => activeWeaponIndex;
 
     private void Awake()
     {
+        if (PlayerPrefs.HasKey("SelectedWeaponIndex"))
+            SelectedWeaponIndex = PlayerPrefs.GetInt("SelectedWeaponIndex");
+
         if (playerMovement == null)
             playerMovement = GetComponent<PlayerMovement>();
         if (playerStats == null)
@@ -45,19 +49,25 @@ public class PlayerEquipment : MonoBehaviour
 
         if (weapons.Count > 0)
         {
-            int weaponIdx = GetActiveWeaponIndex();
+            int weaponIdx = ResolveWeaponIndex();
             ActivateWeapon(weaponIdx);
         }
     }
 
-    private int GetActiveWeaponIndex()
+    private int ResolveWeaponIndex()
     {
-        for (int i = 0; i < weapons.Count; i++)
+        string savedName = PlayerPrefs.GetString("SelectedWeaponName", "");
+        if (!string.IsNullOrEmpty(savedName))
         {
-            if (weapons[i].activeSelf)
-                return i;
+            for (int i = 0; i < weapons.Count; i++)
+            {
+                WeaponController ctrl = weapons[i].GetComponentInChildren<WeaponController>(true);
+                if (ctrl != null && ctrl.WeaponStats != null && ctrl.WeaponStats.name == savedName)
+                    return i;
+            }
         }
-        return 0;
+
+        return Mathf.Clamp(SelectedWeaponIndex, 0, weapons.Count - 1);
     }
 
     private void AutoCollectMeshes()
