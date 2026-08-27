@@ -77,8 +77,8 @@ public class ObjectPooling : MonoBehaviour
         else
             return null;
 
-        obj.transform.SetPositionAndRotation(pos, rot);
         obj.SetActive(true);
+        obj.transform.SetPositionAndRotation(pos, rot);
         if (obj.TryGetComponent(out IPoolSpawnable spawnable))
             spawnable.OnSpawned();
         return obj;

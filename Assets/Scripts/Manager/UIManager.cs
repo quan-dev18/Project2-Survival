@@ -2,8 +2,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ExperienceUI : MonoBehaviour
+public class UIManager : MonoBehaviour
 {
+    [Header("HP")]
+    [SerializeField] private Image healthFill;
+    [SerializeField] private TMP_Text currentHPText;
+
     [Header("EXP")]
     [SerializeField] private Image expFill;
 
@@ -17,6 +21,8 @@ public class ExperienceUI : MonoBehaviour
     [SerializeField] private Button pauseBtn;
     [SerializeField] private PausePanel pausePanel;
 
+    private PlayerStats playerStats;
+
     private void Awake()
     {
         pauseBtn?.onClick.AddListener(OnPauseClicked);
@@ -26,6 +32,13 @@ public class ExperienceUI : MonoBehaviour
     {
         if (pausePanel == null)
             pausePanel = FindObjectOfType<PausePanel>(true);
+
+        playerStats = FindObjectOfType<PlayerStats>();
+        if (playerStats != null)
+        {
+            playerStats.OnHealthChanged += UpdateHealthUI;
+            UpdateHealthUI(playerStats.CurrentHealth, playerStats.MaxHealth);
+        }
 
         if (PlayerXP.Instance != null)
         {
@@ -48,6 +61,8 @@ public class ExperienceUI : MonoBehaviour
     {
         if (PlayerXP.Instance != null)
             PlayerXP.Instance.OnLevelUp -= OnLevelUp;
+        if (playerStats != null)
+            playerStats.OnHealthChanged -= UpdateHealthUI;
         GameManager.OnStateChanged -= OnGameStateChanged;
     }
 
@@ -60,6 +75,14 @@ public class ExperienceUI : MonoBehaviour
     {
         if (expFill != null && PlayerXP.Instance != null)
             expFill.fillAmount = (float)PlayerXP.Instance.CurrentXP / PlayerXP.Instance.XPToNextLevel;
+    }
+
+    private void UpdateHealthUI(float current, float max)
+    {
+        if (healthFill != null)
+            healthFill.fillAmount = current / max;
+        if (currentHPText != null)
+            currentHPText.text = $"{Mathf.CeilToInt(current)}/{Mathf.CeilToInt(max)}";
     }
 
     private void OnLevelUp(int newLevel)

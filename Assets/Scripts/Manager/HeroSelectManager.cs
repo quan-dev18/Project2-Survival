@@ -94,13 +94,16 @@ public class HeroSelectManager : MonoBehaviour
             // 1. Cập nhật Icon bên ngoài màn hình Equipment
             if (outsideHeroIcon != null)
             {
-                // Kiểm tra tên biến trong SO của bạn là 'icon' hay 'heroIcon'
                 outsideHeroIcon.sprite = currentSelectedHero.heroIcon; 
             }
 
+            // 2. Lưu index nhân vật qua scene khác
+            int heroIndex = heroList.IndexOf(currentSelectedHero);
+            PlayerEquipment.SelectedHeroIndex = heroIndex;
+
             Debug.Log("Đã chọn nhân vật: " + currentSelectedHero.name);
 
-            // 2. Tự động đóng bảng Chọn tướng
+            // 3. Tự động đóng bảng Chọn tướng
             gameObject.SetActive(false);
         }
     }

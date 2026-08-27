@@ -67,7 +67,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     public void TakeDamage(float amount)
     {
         if (CurrentHealth <= 0f) return;
-
+        GetComponent<SpriteFlashEffect>()?.Flash();
         float health = Mathf.Max(0f, CurrentHealth - amount);
         enemyController.SetCurrentHealth(health);
         OnHealthChanged?.Invoke(health, enemyController.maxHealth);

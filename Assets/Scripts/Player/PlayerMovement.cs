@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 movementInput; // Stores the player's movement input
     //animation dir
     private int lastDir = 0;
+    public int LastDir => lastDir;
     [SerializeField] private Transform mesh;
 
     void Awake()
@@ -100,6 +101,16 @@ public class PlayerMovement : MonoBehaviour
         {
             mesh.localScale = scale;
         }
+    }
+
+    public void SetMesh(Transform newMesh)
+    {
+        mesh = newMesh;
+    }
+
+    public void SetAnimator(Animator newAnimator)
+    {
+        animator = newAnimator;
     }
 }
 

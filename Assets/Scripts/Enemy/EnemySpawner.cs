@@ -263,6 +263,8 @@ public class EnemySpawner : MonoBehaviour
                     ec.AddMovementSpeedPercent(globalSpeedBonusPercent / 100f);
                 if (globalAttackBonusPercent > 0f)
                     ec.AddAttackDamagePercent(globalAttackBonusPercent / 100f);
+
+                enemy.GetComponent<EnemyColorVariant>()?.ApplyRandomColor();
                 
                 Debug.Log($"[EnemySpawner] Spawned {mobKey} with global buffs — Health: {ec.maxHealth:0}, Speed: {ec.movementSpeed:0.00}, Attack: {ec.attackDamage:0} (Total buffs: Health +{globalHealthBonusPercent}%, Speed +{globalSpeedBonusPercent}%, Attack +{globalAttackBonusPercent}%)");
             }
