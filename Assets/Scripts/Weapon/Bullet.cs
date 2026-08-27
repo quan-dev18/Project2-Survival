@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class Bullet : MonoBehaviour, IPoolSpawnable
 {
     [SerializeField] private BulletSO bulletStats;
     [SerializeField] private float hitRadius = 0.15f;
@@ -26,6 +26,7 @@ public class Bullet : MonoBehaviour
     private System.Action onKillCallback;
     private Collider2D lastHit;
     private float lastHitTime;
+    private TrailRenderer trail;
 
     public void Init(Vector2 dir, Transform owner, float maxDistance, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, float explosionRadius = 0f, int bounceCount = 0, System.Action onKillCallback = null)
     {
@@ -54,6 +55,13 @@ public class Bullet : MonoBehaviour
     {
         EnsurePhysics();
         baseScale = transform.localScale;
+        trail = GetComponent<TrailRenderer>();
+    }
+
+    public void OnSpawned()
+    {
+        if (trail != null)
+            trail.Clear();
     }
 
     private void EnsurePhysics()

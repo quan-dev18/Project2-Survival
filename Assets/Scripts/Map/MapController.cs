@@ -36,70 +36,33 @@ public class MapController : MonoBehaviour
         {
             return;
         }
-        if(playerMovement.movementInput.x > 0 && playerMovement.movementInput.y == 0) //right
+
+        Vector2 input = playerMovement.movementInput;
+        if (input.sqrMagnitude < 0.01f) return;
+
+        string direction = GetChunkDirection(input);
+        Transform spawnPoint = currentChunk.transform.Find(direction);
+        if (spawnPoint != null &&
+            !Physics2D.OverlapCircle(spawnPoint.position, checkerRadius, terrainLayer))
         {
-            if(!Physics2D.OverlapCircle(currentChunk.transform.Find("Right").position, checkerRadius, terrainLayer))
-            {
-                noTerrainChunk = currentChunk.transform.Find("Right").position;
-                SpawnChunk();
-            }
+            noTerrainChunk = spawnPoint.position;
+            SpawnChunk();
         }
-        else if(playerMovement.movementInput.x < 0 && playerMovement.movementInput.y == 0) //left
-        {
-            if(!Physics2D.OverlapCircle(currentChunk.transform.Find("Left").position, checkerRadius, terrainLayer))
-            {
-                noTerrainChunk = currentChunk.transform.Find("Left").position;
-                SpawnChunk();
-            }
-        }
-        else if(playerMovement.movementInput.x == 0 && playerMovement.movementInput.y > 0) //up
-        {
-            if(!Physics2D.OverlapCircle(currentChunk.transform.Find("Up").position, checkerRadius, terrainLayer))
-            {
-                noTerrainChunk = currentChunk.transform.Find("Up").position;
-                SpawnChunk();
-            }
-        }
-        else if(playerMovement.movementInput.x == 0 && playerMovement.movementInput.y < 0) //down
-        {
-            if(!Physics2D.OverlapCircle(currentChunk.transform.Find("Down").position, checkerRadius, terrainLayer))
-            {
-                noTerrainChunk = currentChunk.transform.Find("Down").position;
-                SpawnChunk();
-            }
-        }
-        else if(playerMovement.movementInput.x > 0 && playerMovement.movementInput.y > 0) //right up
-        {
-            if(!Physics2D.OverlapCircle(currentChunk.transform.Find("RightUp").position, checkerRadius, terrainLayer))
-            {
-                noTerrainChunk = currentChunk.transform.Find("RightUp").position;
-                SpawnChunk();
-            }
-        }
-        else if(playerMovement.movementInput.x > 0 && playerMovement.movementInput.y < 0) //right down
-        {
-            if(!Physics2D.OverlapCircle(currentChunk.transform.Find("RightDown").position, checkerRadius, terrainLayer))
-            {
-                noTerrainChunk = currentChunk.transform.Find("RightDown").position;
-                SpawnChunk();
-            }
-        }
-        else if(playerMovement.movementInput.x < 0 && playerMovement.movementInput.y > 0) //left up
-        {
-            if(!Physics2D.OverlapCircle(currentChunk.transform.Find("LeftUp").position, checkerRadius, terrainLayer))
-            {
-                noTerrainChunk = currentChunk.transform.Find("LeftUp").position;
-                SpawnChunk();
-            }
-        }
-        else if(playerMovement.movementInput.x < 0 && playerMovement.movementInput.y < 0) //left down
-        {
-            if(!Physics2D.OverlapCircle(currentChunk.transform.Find("LeftDown").position, checkerRadius, terrainLayer))
-            {
-                noTerrainChunk = currentChunk.transform.Find("LeftDown").position;
-                SpawnChunk();
-            }
-        }
+    }
+
+    string GetChunkDirection(Vector2 input)
+    {
+        float angle = Mathf.Atan2(input.y, input.x) * Mathf.Rad2Deg;
+        if (angle < 0f) angle += 360f;
+
+        if (angle < 22.5f || angle >= 337.5f) return "Right";
+        if (angle < 67.5f)  return "RightUp";
+        if (angle < 112.5f) return "Up";
+        if (angle < 157.5f) return "LeftUp";
+        if (angle < 202.5f) return "Left";
+        if (angle < 247.5f) return "LeftDown";
+        if (angle < 292.5f) return "Down";
+        return "RightDown";
     }
     void SpawnChunk()
     {

@@ -18,4 +18,4 @@ MonoBehaviour:
   reloadTime: 1
   magazineSize: 6
   bulletCount: 1
-  spread: 0
+  spread: 5

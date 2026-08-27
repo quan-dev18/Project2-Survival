@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: ShotGun
   fireRate: 1.3
-  fireRange: 5
+  fireRange: 3
   reloadTime: 1
   magazineSize: 2
   bulletCount: 4

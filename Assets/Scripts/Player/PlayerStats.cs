@@ -85,6 +85,17 @@ public class PlayerStats : MonoBehaviour
     private bool isDead;
     #endregion
 
+    #region Events
+    public event System.Action<float, float> OnHealthChanged;
+    #endregion
+
+    public WeaponController Weapon => weapon;
+
+    public void SetWeapon(WeaponController newWeapon)
+    {
+        weapon = newWeapon;
+    }
+
     #region Damage Taken Buff
     [SerializeField] private float damageTakenBuffDuration = 2f;
     private float damageTakenTimer;
@@ -177,6 +188,7 @@ public class PlayerStats : MonoBehaviour
 
         CurrentHealth = MaxHealth;
         CurrentArmor = MaxArmor;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
     //bonus percent
@@ -293,7 +305,8 @@ public class PlayerStats : MonoBehaviour
             remaining -= absorbed;
         }
         CurrentHealth = Mathf.Max(CurrentHealth - remaining, 0f);
-
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        GetComponentInChildren<SpriteFlashEffect>()?.Flash();
         // Reset stacking buff on hit
         if (stackingBuffPercent > 0f)
         {
@@ -327,11 +340,13 @@ public class PlayerStats : MonoBehaviour
     {
         bonusMaxHealthFlat += amount;
         CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
     public void Heal(float amount)
     {
         CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
     public void AddMaxArmorFlat(float amount)
@@ -347,6 +362,9 @@ public class PlayerStats : MonoBehaviour
     private void RegenOverTime()
     {
         if (CurrentHealth < MaxHealth)
+        {
             CurrentHealth = Mathf.Min(CurrentHealth + RecoveryRate * Time.deltaTime, MaxHealth);
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        }
     }
 }

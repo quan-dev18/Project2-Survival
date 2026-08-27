@@ -9,6 +9,7 @@ public class WeaponController : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform weaponPivot;
     [SerializeField] private Transform weaponFront;
+    public Transform WeaponFront => weaponFront;
     [SerializeField] private Transform target;
     [SerializeField] private string bulletKey = "Bullet";
     [SerializeField] private Rigidbody2D playerRigidbody;
@@ -30,6 +31,9 @@ public class WeaponController : MonoBehaviour
     [Header("Sprite")]
     [SerializeField] private SpriteRenderer weaponSprite;
     [SerializeField] private bool spriteFacesRight = true;
+
+    [Header("Sorting")]
+    [SerializeField] private PlayerMovement playerMovement;
 
     #region Base Stats (từ SO, không đổi)
     private float baseFireRate;
@@ -145,6 +149,24 @@ public class WeaponController : MonoBehaviour
 
         if (currentAmmo <= 0 && !isReloading)
             StartReload();
+
+        UpdateSortingLayer();
+    }
+
+    private void UpdateSortingLayer()
+    {
+        if (weaponSprite == null) return;
+
+        if (playerMovement != null && playerMovement.LastDir == 1)
+        {
+            weaponSprite.sortingLayerName = "Player";
+            weaponSprite.sortingOrder = -1;
+        }
+        else
+        {
+            weaponSprite.sortingLayerName = "Weapon";
+            weaponSprite.sortingOrder = 0;
+        }
     }
 
     private bool IsTargetInRange()
@@ -384,6 +406,7 @@ public class WeaponController : MonoBehaviour
     }
 #endregion
     public void SetTarget(Transform newTarget) => target = newTarget;
+    public void SetPlayerMovement(PlayerMovement pm) => playerMovement = pm;
 
     private void OnTriggerStay2D(Collider2D other)
     {
