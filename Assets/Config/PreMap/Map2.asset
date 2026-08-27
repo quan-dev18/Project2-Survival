@@ -12,6 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0872a92db1c2adc4d99e9532adbff59a, type: 3}
   m_Name: Map2
   m_EditorClassIdentifier: 
-  mapStage: Stage 2
   mapPreviewPrefab: {fileID: 3373100844807393815, guid: 4cabd9e57d6cb244cba60977b93f4d24, type: 3}
   sceneToLoad: LoadingScene
