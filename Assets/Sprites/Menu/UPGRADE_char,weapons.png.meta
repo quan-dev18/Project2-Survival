@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d58f4cbcc7fa23b43aad7fd92a629866
+guid: 734e6b363ade5ac48a6beca8265f29c3
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 50
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -123,421 +123,295 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 02 gameplay_4
+      name: UPGRADE_char,weapons_0
       rect:
         serializedVersion: 2
-        x: 69
-        y: 232
-        width: 49
-        height: 54
+        x: 13
+        y: 162
+        width: 36
+        height: 36
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 618314673249c844aad6a514cca62b83
-      internalID: -244646181
+      spriteID: 7b47aa6334a3e37498a640a45d95837a
+      internalID: 1132896952
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_5
+      name: UPGRADE_char,weapons_1
       rect:
         serializedVersion: 2
-        x: 134
-        y: 266
-        width: 19
-        height: 20
+        x: 60
+        y: 162
+        width: 36
+        height: 36
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 25cd59d5e242f894892017c9053457bd
-      internalID: 1683462892
+      spriteID: 9cb7bd910fe5c7044b43397a9c75a086
+      internalID: -671816584
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_6
+      name: UPGRADE_char,weapons_2
       rect:
         serializedVersion: 2
-        x: 166
-        y: 264
-        width: 21
-        height: 23
+        x: 106
+        y: 161
+        width: 36
+        height: 36
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d31da3fa9e65f8844b7a67eee391f24d
-      internalID: 1012021770
+      spriteID: 52757bcc82407334b85420e47102f1bf
+      internalID: -289453391
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_7
+      name: UPGRADE_char,weapons_3
       rect:
         serializedVersion: 2
-        x: 197
-        y: 173
-        width: 113
-        height: 113
+        x: 153
+        y: 160
+        width: 38
+        height: 38
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e89bcdec4e8e928448baad85b73e0135
-      internalID: 857696045
+      spriteID: 898ad21385a85da49828a48bfa15236a
+      internalID: 1346294522
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_8
+      name: UPGRADE_char,weapons_4
       rect:
         serializedVersion: 2
-        x: 3
-        y: 188
-        width: 63
-        height: 69
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 902221453b666b947bb6a74245fa0840
-      internalID: 600411441
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_9
-      rect:
-        serializedVersion: 2
-        x: 132
-        y: 232
-        width: 26
-        height: 26
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 83a9dac62c9c8654c98dfb480dd0c76d
-      internalID: -1449843290
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_10
-      rect:
-        serializedVersion: 2
-        x: 171
-        y: 240
-        width: 8
-        height: 7
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: b0e9232037ad7904fb44ce64b718a177
-      internalID: -1068924756
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_11
-      rect:
-        serializedVersion: 2
-        x: 324
-        y: 198
-        width: 59
-        height: 59
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d9e5731cc9fef034490d8e7632c408b5
-      internalID: -929875566
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_14
-      rect:
-        serializedVersion: 2
-        x: 141
-        y: 202
-        width: 6
-        height: 18
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 700f26f8e39355e4c9e376ef5368b94d
-      internalID: -1991225556
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_15
-      rect:
-        serializedVersion: 2
-        x: 165
-        y: 201
-        width: 24
+        x: 210
+        y: 171
+        width: 20
         height: 19
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6ae8899f33b349d488f7883d01d5a4d2
-      internalID: -1983671187
+      spriteID: d22ba2e781e675b4e907f9691553c753
+      internalID: 1515482486
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_17
+      name: UPGRADE_char,weapons_5
       rect:
         serializedVersion: 2
-        x: 95
-        y: 163
-        width: 33
-        height: 33
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f46d42307f79ee843b6ab29987ae6f9b
-      internalID: 921943187
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_18
-      rect:
-        serializedVersion: 2
-        x: 166
-        y: 170
-        width: 22
-        height: 17
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ebe9d0c49ab94854db2eb54695805c13
-      internalID: 1105953215
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_19
-      rect:
-        serializedVersion: 2
-        x: 7
-        y: 128
-        width: 245
+        x: 245
+        y: 172
+        width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9f64ad02e74762949ae25ea648052695
-      internalID: 79203770
+      spriteID: d4633c88560328444be48e1bc7edb4e9
+      internalID: 2062313844
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_20
+      name: UPGRADE_char,weapons_6
       rect:
         serializedVersion: 2
-        x: 288
+        x: 11
+        y: 108
+        width: 81
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e11515b4f4014e446a1069d35016025c
+      internalID: 1613359474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UPGRADE_char,weapons_7
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 109
+        width: 77
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bd3241217b97c9548870a281ccacd690
+      internalID: 1321855564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UPGRADE_char,weapons_8
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 128
+        width: 22
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f0a4bf3055a94f44972aff511038c7e
+      internalID: -1945291573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UPGRADE_char,weapons_9
+      rect:
+        serializedVersion: 2
+        x: 246
         y: 131
-        width: 33
-        height: 33
+        width: 18
+        height: 20
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5808ea870a39a0944afd1791ae73b004
-      internalID: 1669891295
+      spriteID: 3da9f48c35b3d724e92ea059c2830364
+      internalID: -818308818
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_21
+      name: UPGRADE_char,weapons_10
       rect:
         serializedVersion: 2
-        x: 8
-        y: 106
-        width: 243
-        height: 14
+        x: 13
+        y: 8
+        width: 76
+        height: 85
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ad8c3a96ca3b0ca498ca2423d7d65a5f
-      internalID: 780254878
+      spriteID: 92d80e17423582d4586df0a066edfddd
+      internalID: -1366309378
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_22
+      name: UPGRADE_char,weapons_11
       rect:
         serializedVersion: 2
-        x: 19
+        x: 212
+        y: 90
+        width: 20
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cdc3cd974c677df4f8e6cc3da3975a61
+      internalID: 1536148257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UPGRADE_char,weapons_12
+      rect:
+        serializedVersion: 2
+        x: 107
         y: 73
-        width: 7
-        height: 9
+        width: 76
+        height: 13
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e0f27615f0493344b82723b7d63c30c4
-      internalID: -1651920389
+      spriteID: 2105bfa14d3d8404090e9a47c69e95c2
+      internalID: -1957315758
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 02 gameplay_23
+      name: UPGRADE_char,weapons_13
       rect:
         serializedVersion: 2
-        x: 37
-        y: 76
-        width: 45
-        height: 4
+        x: 109
+        y: 48
+        width: 74
+        height: 11
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 44304d73a67a8b2408eee7cc75a1b22f
-      internalID: 976924185
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_24
-      rect:
-        serializedVersion: 2
-        x: 160
-        y: 23
-        width: 142
-        height: 67
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: c53b4c0a45b2952458b1643d9584dd20
-      internalID: -1510949472
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_25
-      rect:
-        serializedVersion: 2
-        x: 41
-        y: 22
-        width: 42
-        height: 45
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 60aa794f6a96a6149b206126ea4a2845
-      internalID: 517616275
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: 02 gameplay_26
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 23
-        width: 47
-        height: 47
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f7f039f1aa9196c4190c54b7987fb5c3
-      internalID: -400522739
+      spriteID: 34326bf4709237d47b207b3c9b92091a
+      internalID: 16406738
       vertices: []
       indices: 
       edges: []
@@ -553,34 +427,20 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      02 gameplay_0: 648851174
-      02 gameplay_1: 1009387221
-      02 gameplay_10: -1068924756
-      02 gameplay_11: -929875566
-      02 gameplay_12: -1822596579
-      02 gameplay_13: -1374172234
-      02 gameplay_14: -1991225556
-      02 gameplay_15: -1983671187
-      02 gameplay_16: 702120798
-      02 gameplay_17: 921943187
-      02 gameplay_18: 1105953215
-      02 gameplay_19: 79203770
-      02 gameplay_2: -1955211316
-      02 gameplay_20: 1669891295
-      02 gameplay_21: 780254878
-      02 gameplay_22: -1651920389
-      02 gameplay_23: 976924185
-      02 gameplay_24: -1510949472
-      02 gameplay_25: 517616275
-      02 gameplay_26: -400522739
-      02 gameplay_27: -1425170799
-      02 gameplay_3: -1715339735
-      02 gameplay_4: -244646181
-      02 gameplay_5: 1683462892
-      02 gameplay_6: 1012021770
-      02 gameplay_7: 857696045
-      02 gameplay_8: 600411441
-      02 gameplay_9: -1449843290
+      UPGRADE_char,weapons_0: 1132896952
+      UPGRADE_char,weapons_1: -671816584
+      UPGRADE_char,weapons_10: -1366309378
+      UPGRADE_char,weapons_11: 1536148257
+      UPGRADE_char,weapons_12: -1957315758
+      UPGRADE_char,weapons_13: 16406738
+      UPGRADE_char,weapons_2: -289453391
+      UPGRADE_char,weapons_3: 1346294522
+      UPGRADE_char,weapons_4: 1515482486
+      UPGRADE_char,weapons_5: 2062313844
+      UPGRADE_char,weapons_6: 1613359474
+      UPGRADE_char,weapons_7: 1321855564
+      UPGRADE_char,weapons_8: -1945291573
+      UPGRADE_char,weapons_9: -818308818
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

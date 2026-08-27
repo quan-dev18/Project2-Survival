@@ -94,7 +94,8 @@ public class HeroSelectManager : MonoBehaviour
             // 1. Cập nhật Icon bên ngoài màn hình Equipment
             if (outsideHeroIcon != null)
             {
-                outsideHeroIcon.sprite = currentSelectedHero.heroIcon; 
+                outsideHeroIcon.sprite = currentSelectedHero.heroIcon;
+                selectButtonText.text = "Đã chọn"; 
             }
 
             // 2. Lưu index nhân vật qua scene khác

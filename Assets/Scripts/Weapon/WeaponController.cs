@@ -5,6 +5,7 @@ public class WeaponController : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] private WeaponSO weaponStats;
+    public WeaponSO WeaponStats => weaponStats;
 
     [Header("References")]
     [SerializeField] private Transform weaponPivot;
