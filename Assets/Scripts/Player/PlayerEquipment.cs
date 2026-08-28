@@ -130,7 +130,7 @@ public class PlayerEquipment : MonoBehaviour
             weaponCtrl = weapons[index].GetComponent<WeaponController>();
 
         if (playerStats != null)
-            playerStats.SetWeapon(weaponCtrl);
+            playerStats.SetWeapons(new[] { weaponCtrl });
 
         if (playerUI != null)
             playerUI.SetWeapon(weaponCtrl);

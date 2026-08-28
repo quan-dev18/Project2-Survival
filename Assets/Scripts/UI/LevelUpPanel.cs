@@ -177,6 +177,9 @@ public class LevelUpPanel : MonoBehaviour
         foreach (UpgradeSO.StatMod mod in upgrade.StatMods)
             ApplyStat(mod.Stat, mod.Amount);
 
+        // Register max-level upgrades for synergies
+        SynergyManager.Instance?.RegisterMaxLevelUpgrade(upgrade.UpgradeName);
+
         Debug.Log($"Applied upgrade: {upgrade.UpgradeName}");
     }
 

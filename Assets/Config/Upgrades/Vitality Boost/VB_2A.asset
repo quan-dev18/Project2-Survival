@@ -16,9 +16,9 @@ MonoBehaviour:
   description: Increase bullet dmg and fire rate by 50% when hit for 2s
   icon: {fileID: 0}
   statMods:
-  - stat: 33
+  - stat: 41
     amount: 50
-  - stat: 34
+  - stat: 42
     amount: 50
   requires:
   - {fileID: 11400000, guid: 5c73676f91bcd1e4eb6b25b3ebfb9594, type: 2}

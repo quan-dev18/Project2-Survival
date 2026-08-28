@@ -22,7 +22,7 @@ MonoBehaviour:
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 1
-      spawnLimit: 1
+      spawnLimit: 5
       isBoss: 0
   - phaseName: II
     duration: 60

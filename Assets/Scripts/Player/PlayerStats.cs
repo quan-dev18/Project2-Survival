@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerStats : MonoBehaviour
 {
     [SerializeField] private CharacterSO characterStats;
-    [SerializeField] private WeaponController weapon;
+    [SerializeField] private WeaponController[] weapons;
     [SerializeField] private GameObject mysteryCubePrefab;
     [SerializeField] private GameObject spiritPrefab;
 
@@ -89,11 +89,12 @@ public class PlayerStats : MonoBehaviour
     public event System.Action<float, float> OnHealthChanged;
     #endregion
 
-    public WeaponController Weapon => weapon;
+    public WeaponController[] Weapons => weapons;
+    public WeaponController ActiveWeapon => weapons != null && weapons.Length > 0 ? weapons[0] : null;
 
-    public void SetWeapon(WeaponController newWeapon)
+    public void SetWeapons(WeaponController[] newWeapons)
     {
-        weapon = newWeapon;
+        weapons = newWeapons;
     }
 
     #region Damage Taken Buff
@@ -106,7 +107,10 @@ public class PlayerStats : MonoBehaviour
 
     private void Awake()
     {
-        if (weapon == null) weapon = GetComponentInChildren<WeaponController>();
+        if ((weapons == null || weapons.Length == 0) && GetComponentInChildren<WeaponController>() != null)
+        {
+            weapons = GetComponentsInChildren<WeaponController>();
+        }
         LoadFromSO();
     }
 
@@ -122,10 +126,16 @@ public class PlayerStats : MonoBehaviour
             if (damageTakenTimer <= 0f)
             {
                 // Remove the temporary buffs using exactly what was applied
-                if (weapon != null && isDamageBuffActive)
+                if (weapons != null && isDamageBuffActive)
                 {
-                    weapon.AddFireRatePercent(-appliedFireRateBuff);
-                    weapon.AddBulletDamagePercent(-appliedDamageBuff);
+                    foreach (var w in weapons)
+                    {
+                        if (w != null)
+                        {
+                            w.AddFireRatePercent(-appliedFireRateBuff);
+                            w.AddBulletDamagePercent(-appliedDamageBuff);
+                        }
+                    }
                     isDamageBuffActive = false;
                 }
                 damageTakenTimer = 0f;
@@ -161,8 +171,13 @@ public class PlayerStats : MonoBehaviour
             if (delta > 0f)
             {
                 stackingBuffPercent = targetPercent;
-                if (weapon != null)
-                    weapon.AddBulletDamagePercent(delta);
+                if (weapons != null)
+                {
+                    foreach (var w in weapons)
+                    {
+                        if (w != null) w.AddBulletDamagePercent(delta);
+                    }
+                }
                 bonusMoveSpeedPercent += delta;
             }
         }
@@ -294,8 +309,13 @@ public class PlayerStats : MonoBehaviour
         if (isDead || amount <= 0f) return;
 
         // Invulnerable while reloading
-        if (bonusInvulnerableWhileReloading && weapon != null && weapon.IsReloading)
-            return;
+        if (bonusInvulnerableWhileReloading && weapons != null)
+            {
+                foreach (var w in weapons)
+                {
+                    if (w != null && w.IsReloading) return;
+                }
+            }
 
         float remaining = amount;
         if (CurrentArmor > 0f)
@@ -307,11 +327,18 @@ public class PlayerStats : MonoBehaviour
         CurrentHealth = Mathf.Max(CurrentHealth - remaining, 0f);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         GetComponentInChildren<SpriteFlashEffect>()?.Flash();
+        // Trigger synergies on hit
+        SynergyManager.Instance?.OnPlayerHit();
         // Reset stacking buff on hit
         if (stackingBuffPercent > 0f)
         {
-            if (weapon != null)
-                weapon.AddBulletDamagePercent(-stackingBuffPercent);
+            if (weapons != null)
+            {
+                foreach (var w in weapons)
+                {
+                    if (w != null) w.AddBulletDamagePercent(-stackingBuffPercent);
+                }
+            }
             bonusMoveSpeedPercent -= stackingBuffPercent;
             stackingBuffPercent = 0f;
         }
@@ -323,12 +350,18 @@ public class PlayerStats : MonoBehaviour
     public void OnDamageTaken()
     {
         // Apply the damage-taken buffs for the duration (only if not already active)
-        if (weapon != null && !isDamageBuffActive)
+        if (weapons != null && !isDamageBuffActive)
         {
             appliedFireRateBuff = bonusDamageTakenFireRatePercent;
             appliedDamageBuff = bonusDamageTakenBulletDamagePercent;
-            weapon.AddFireRatePercent(appliedFireRateBuff);
-            weapon.AddBulletDamagePercent(appliedDamageBuff);
+            foreach (var w in weapons)
+            {
+                if (w != null)
+                {
+                    w.AddFireRatePercent(appliedFireRateBuff);
+                    w.AddBulletDamagePercent(appliedDamageBuff);
+                }
+            }
             isDamageBuffActive = true;
         }
         // Always refresh the timer

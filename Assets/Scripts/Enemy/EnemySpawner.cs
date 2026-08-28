@@ -122,8 +122,6 @@ public class EnemySpawner : MonoBehaviour
                 globalHealthBonusPercent += stage.HealthIncrementPercent;
                 globalSpeedBonusPercent += stage.SpeedIncrementPercent;
                 globalAttackBonusPercent += stage.AttackIncrementPercent;
-                
-                Debug.Log($"[EnemySpawner] Global stats increased — Health: +{stage.HealthIncrementPercent}%, Speed: +{stage.SpeedIncrementPercent}%, Attack: +{stage.AttackIncrementPercent}% | Total: Health {globalHealthBonusPercent}%, Speed {globalSpeedBonusPercent}%, Attack {globalAttackBonusPercent}%");
             }
         }
 
@@ -265,8 +263,6 @@ public class EnemySpawner : MonoBehaviour
                     ec.AddAttackDamagePercent(globalAttackBonusPercent / 100f);
 
                 enemy.GetComponent<EnemyColorVariant>()?.ApplyRandomColor();
-                
-                Debug.Log($"[EnemySpawner] Spawned {mobKey} with global buffs — Health: {ec.maxHealth:0}, Speed: {ec.movementSpeed:0.00}, Attack: {ec.attackDamage:0} (Total buffs: Health +{globalHealthBonusPercent}%, Speed +{globalSpeedBonusPercent}%, Attack +{globalAttackBonusPercent}%)");
             }
 
             activeEnemies.Add(enemy);
