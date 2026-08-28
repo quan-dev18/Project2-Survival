@@ -94,12 +94,11 @@ public class PlayerXP : MonoBehaviour
 
     private float GetRequiredXP(int level)
     {
-        /*if (level <= 3)
+        if (level <= 3)
         {
             return 8;
         }
-        else if (level <= 20)*/
-        if (level <= 20)
+        else if (level <= 20)
         {
             return level+2; //10 * level - 5; //level+2;
         }
