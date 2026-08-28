@@ -16,7 +16,7 @@ MonoBehaviour:
   isUnlocked: 1
   weaponName: ShotGun
   fireRate: 1.3
-  fireRange: 3
+  fireRange: 4
   reloadTime: 1
   magazineSize: 2
   bulletCount: 4

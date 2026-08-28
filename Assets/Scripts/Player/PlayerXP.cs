@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerXP : MonoBehaviour
 {
     [SerializeField] private PlayerStats playerStats;
-    [SerializeField] private WeaponController weapon;
 
     public static PlayerXP Instance { get; private set; }
 
@@ -31,10 +30,10 @@ public class PlayerXP : MonoBehaviour
 
         if (playerStats == null)
             playerStats = GetComponent<PlayerStats>();
-        if (weapon == null)
-            weapon = GetComponentInChildren<WeaponController>();
         XPToNextLevel = GetRequiredXP(CurrentLevel);
     }
+
+    private WeaponController[] Weapons => playerStats?.Weapons;
 
     public void AddExperience(float amount)
     {
@@ -43,20 +42,22 @@ public class PlayerXP : MonoBehaviour
         CurrentXP += amount;
 
         // Chance to recover ammo on XP gain
-        if (AmmoRecoverChance > 0f && weapon != null)
+        if (AmmoRecoverChance > 0f && Weapons != null)
         {
             if (UnityEngine.Random.value < AmmoRecoverChance)
             {
-                weapon.AddAmmo(1);
+                foreach (var w in Weapons)
+                    if (w != null) w.AddAmmo(1);
             }
         }
 
         // Chance for fire rate buff on XP gain
-        if (FireRateBuffOnXPChance > 0f && weapon != null)
+        if (FireRateBuffOnXPChance > 0f && Weapons != null)
         {
             if (UnityEngine.Random.value < FireRateBuffOnXPChance)
             {
-                weapon.AddFireRatePercent(0.25f); // +25% fire rate
+                foreach (var w in Weapons)
+                    if (w != null) w.AddFireRatePercent(0.25f); // +25% fire rate
                 StartCoroutine(RemoveFireRateBuff());
             }
         }
@@ -80,8 +81,10 @@ public class PlayerXP : MonoBehaviour
     private System.Collections.IEnumerator RemoveFireRateBuff()
     {
         yield return new WaitForSeconds(1f);
-        if (weapon != null)
-            weapon.AddFireRatePercent(-0.25f);
+        var weapons = Weapons;
+        if (weapons != null)
+            foreach (var w in weapons)
+                if (w != null) w.AddFireRatePercent(-0.25f);
     }
 
     public float PickupValue(float baseAmount)
@@ -97,7 +100,7 @@ public class PlayerXP : MonoBehaviour
         }
         else if (level <= 20)
         {
-            return 10 * level - 5; //level+2;
+            return level+2; //10 * level - 5; //level+2;
         }
         else if (level <= 40)
         {

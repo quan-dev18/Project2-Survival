@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeName: Multi Shot I
   description: 'Bullet count +1
 
-    Bullet spread +8
+    Bullet spread +5
 
     Bullet damage -20%
 
@@ -25,7 +25,7 @@ MonoBehaviour:
   - stat: 10
     amount: 1
   - stat: 31
-    amount: 8
+    amount: 5
   - stat: 13
     amount: -20
   requires: []

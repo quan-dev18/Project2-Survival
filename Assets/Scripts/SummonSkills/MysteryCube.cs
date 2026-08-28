@@ -26,8 +26,12 @@ public class MysteryCube : MonoBehaviour
     private bool isActive;
     private float fireTimer;
     private float stackTimer;
-    private int dmgStacks;
+private int dmgStacks;
     private float aspdStacks;
+
+    // Synergy multipliers
+    private float synergyDamageMultiplier = 1f;
+    private float synergyAspdMultiplier = 1f;
     
     private void Awake()
     {
@@ -60,6 +64,12 @@ public class MysteryCube : MonoBehaviour
         currentAngle = 0f;
         isActive = false;
         fireTimer = 0f;
+    }
+
+    public void ApplySynergyMultipliers(float damageMultiplier, float aspdMultiplier)
+    {
+        synergyDamageMultiplier = damageMultiplier;
+        synergyAspdMultiplier = aspdMultiplier;
     }
     
     private void Update()
@@ -95,7 +105,7 @@ public class MysteryCube : MonoBehaviour
         }
         
         // Fire logic
-        float currentFireRate = baseFireRate * (1f + aspdStacks);
+        float currentFireRate = baseFireRate * (1f + aspdStacks) * synergyAspdMultiplier;
         fireTimer += Time.deltaTime;
         if (fireTimer >= 1f / currentFireRate)
         {
@@ -143,7 +153,7 @@ private void Fire()
             
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                float damageMultiplier = 1f + dmgStacks / 20f; // base damage from BulletSO + stacks
+                float damageMultiplier = (1f + dmgStacks / 20f) * synergyDamageMultiplier; // base damage + stacks + synergy
                 bullet.Init(fireDir, transform.root, 100f,
                     pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0f, 0, null);
             }
