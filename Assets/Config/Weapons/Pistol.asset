@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da6a1bb76031b4e45971f2ea8c4a3762, type: 3}
   m_Name: Pistol
   m_EditorClassIdentifier: 
+  weaponIcon: {fileID: -1941400246, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
+  isUnlocked: 1
   weaponName: Piss tool
   fireRate: 0.5
   fireRange: 5
   reloadTime: 1
   magazineSize: 6
   bulletCount: 1
-  spread: 0
+  spread: 5

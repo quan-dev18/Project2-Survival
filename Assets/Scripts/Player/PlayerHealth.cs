@@ -2,11 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerHealth : MonoBehaviour
+public class PlayerHealth : MonoBehaviour, IDamageable
 {
     [SerializeField] private PlayerStats playerStats;
 
     public float CurrentHealth => playerStats != null ? playerStats.CurrentHealth : 0f;
+
+    public void TakeDamage(float amount)
+    {
+        DealDamage(amount);
+    }
 
     public void DealDamage(float amount)
     {

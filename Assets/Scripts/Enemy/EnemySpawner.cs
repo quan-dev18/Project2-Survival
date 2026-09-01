@@ -22,6 +22,12 @@ public class EnemySpawner : MonoBehaviour
     private int bossSpawnedCount;
     private float bossRetryTimer;
     private bool bossRetryWarningShown;
+    
+    // Global stat scaling (linear: adds flat % per interval)
+    private float globalStatTimer;
+    private float globalHealthBonusPercent = 0f;
+    private float globalSpeedBonusPercent = 0f;
+    private float globalAttackBonusPercent = 0f;
 
     private class EntryState
     {
@@ -104,6 +110,20 @@ public class EnemySpawner : MonoBehaviour
         CleanupActiveEnemies();
         UpdatePhaseTimerText();
         phaseTimer += Time.deltaTime;
+
+        // Global stat scaling (linear: adds flat % per interval)
+        if (stage != null)
+        {
+            globalStatTimer += Time.deltaTime;
+            float interval = stage.StatsIncrementInterval;
+            if (interval > 0f && globalStatTimer >= interval)
+            {
+                globalStatTimer = 0f;
+                globalHealthBonusPercent += stage.HealthIncrementPercent;
+                globalSpeedBonusPercent += stage.SpeedIncrementPercent;
+                globalAttackBonusPercent += stage.AttackIncrementPercent;
+            }
+        }
 
         if (pendingBosses.Count > 0)
             TryRetryPendingBosses();
@@ -229,6 +249,22 @@ public class EnemySpawner : MonoBehaviour
         GameObject enemy = ObjectPooling.Instance.Spawn(mobKey, spawnPos, Quaternion.identity);
         if (enemy != null)
         {
+            // Apply global stat scaling (linear: flat % bonus)
+            EnemyController ec = enemy.GetComponent<EnemyController>();
+            if (ec != null)
+            {
+                // Reset bonuses from previous spawn, then apply current global values
+                ec.ResetBonuses();
+                if (globalHealthBonusPercent > 0f)
+                    ec.AddMaxHealthPercent(globalHealthBonusPercent / 100f);
+                if (globalSpeedBonusPercent > 0f)
+                    ec.AddMovementSpeedPercent(globalSpeedBonusPercent / 100f);
+                if (globalAttackBonusPercent > 0f)
+                    ec.AddAttackDamagePercent(globalAttackBonusPercent / 100f);
+
+                enemy.GetComponent<EnemyColorVariant>()?.ApplyRandomColor();
+            }
+
             activeEnemies.Add(enemy);
             state.spawned.Add(enemy);
         }

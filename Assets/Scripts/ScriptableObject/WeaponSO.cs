@@ -2,7 +2,14 @@ using UnityEngine;
 
 [CreateAssetMenu(fileName = "WeaponSO", menuName = "WeaponStats")]
 public class WeaponSO : ScriptableObject
-{
+{   
+    [Header("UI & Display Info")]
+    [SerializeField] private Sprite weaponIcon;
+    public Sprite WeaponIcon => weaponIcon;
+    [SerializeField] private bool isUnlocked;
+    public bool IsUnlocked => isUnlocked;
+
+    [Header("Weapon Stats")]
     [SerializeField] private string weaponName;
     public string WeaponName => weaponName;
     [SerializeField] private float fireRate;

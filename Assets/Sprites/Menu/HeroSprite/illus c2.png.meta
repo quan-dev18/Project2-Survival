@@ -1,0 +1,782 @@
+fileFormatVersion: 2
+guid: 6fea59696a2941347a3d6e80d2d93750
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: illus c2_0
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 434
+        width: 256
+        height: 384
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d0c0f28aa8fae014c998393c776c9e16
+      internalID: 1816042856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_2
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 433
+        width: 257
+        height: 384
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 32952f4935468b24d97baaccb28cf418
+      internalID: 1331471982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_4
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 432
+        width: 257
+        height: 382
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9b8491def23e44f438ec91626fa2ac31
+      internalID: -858569285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_6
+      rect:
+        serializedVersion: 2
+        x: 798
+        y: 430
+        width: 257
+        height: 381
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6cd2b203c7d73f24b903d2e46bc97adf
+      internalID: -1107445205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_8
+      rect:
+        serializedVersion: 2
+        x: 1062
+        y: 428
+        width: 257
+        height: 380
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f22f29487e23a314bb3b7c163e01a27d
+      internalID: -455213536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_10
+      rect:
+        serializedVersion: 2
+        x: 1327
+        y: 427
+        width: 256
+        height: 378
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cbaf077944b12314e9d4d39d91b06c89
+      internalID: -1640821721
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_12
+      rect:
+        serializedVersion: 2
+        x: 1591
+        y: 426
+        width: 255
+        height: 377
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f72f9db34c69144cb0cdd5fe375f754
+      internalID: 2100339807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_14
+      rect:
+        serializedVersion: 2
+        x: 1855
+        y: 426
+        width: 254
+        height: 377
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8fa8d23f8418d1e4a9c3c80df3107881
+      internalID: 1731420605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_16
+      rect:
+        serializedVersion: 2
+        x: 2119
+        y: 425
+        width: 254
+        height: 379
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 709b1ea7c3616cd49adbc17d3f5f37c2
+      internalID: -1116252775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_18
+      rect:
+        serializedVersion: 2
+        x: 2383
+        y: 426
+        width: 253
+        height: 380
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81ac93215e734e042a1d219b2f886a80
+      internalID: -678265811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_20
+      rect:
+        serializedVersion: 2
+        x: 2646
+        y: 427
+        width: 255
+        height: 381
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: baede20b0db25be4f94ad0b33bc5d23e
+      internalID: -1169248177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_22
+      rect:
+        serializedVersion: 2
+        x: 2910
+        y: 429
+        width: 255
+        height: 382
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5c1b275d8bd45f74c8200bce9de75db8
+      internalID: -2141397876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_24
+      rect:
+        serializedVersion: 2
+        x: 3173
+        y: 431
+        width: 257
+        height: 382
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7d4a2181e878a204d9d06138f4f41dd9
+      internalID: 194085059
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_26
+      rect:
+        serializedVersion: 2
+        x: 3437
+        y: 432
+        width: 257
+        height: 382
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 85aec6136edbcd041a64d9a178e23606
+      internalID: 1462296188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_27
+      rect:
+        serializedVersion: 2
+        x: 3700
+        y: 435
+        width: 257
+        height: 382
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b483df646f4b02643ba0f27ac51d0d66
+      internalID: 282771458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_28
+      rect:
+        serializedVersion: 2
+        x: 3964
+        y: 434
+        width: 257
+        height: 384
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: adcec2d6ccec1a44c83cdc77f4925396
+      internalID: -2065026803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_30
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 19
+        width: 238
+        height: 389
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e6b8572b8656e34082081a1fafc3a00
+      internalID: 1172695583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_32
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 20
+        width: 238
+        height: 385
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2275548a5afe8ac448178525a62d34a5
+      internalID: 1135908161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_34
+      rect:
+        serializedVersion: 2
+        x: 529
+        y: 20
+        width: 238
+        height: 382
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9cc969de9fd750c4b876921ab6b0c71a
+      internalID: 171850112
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_36
+      rect:
+        serializedVersion: 2
+        x: 782
+        y: 19
+        width: 241
+        height: 378
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a547a71cd7730de4cb9d83fc55d79684
+      internalID: -399820218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_38
+      rect:
+        serializedVersion: 2
+        x: 1034
+        y: 18
+        width: 245
+        height: 379
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a9f3a16bcd1af2546ae6c3e578065075
+      internalID: 943765335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_40
+      rect:
+        serializedVersion: 2
+        x: 1288
+        y: 17
+        width: 247
+        height: 384
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b65840e71412b3642804bc4a72320e8d
+      internalID: -471504541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_42
+      rect:
+        serializedVersion: 2
+        x: 1543
+        y: 15
+        width: 249
+        height: 386
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 51360efebd902f34fbb4b66f3adccf88
+      internalID: -117463686
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_44
+      rect:
+        serializedVersion: 2
+        x: 1796
+        y: 15
+        width: 251
+        height: 386
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c10a467024aefcc4d93bc77d10c99532
+      internalID: -209532466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_46
+      rect:
+        serializedVersion: 2
+        x: 2052
+        y: 15
+        width: 251
+        height: 386
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bff32a0e6bcceba4188d19a3ef9c6c03
+      internalID: 1758794650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_48
+      rect:
+        serializedVersion: 2
+        x: 2308
+        y: 15
+        width: 251
+        height: 384
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6baeb277781a10c4ea517b7de06ed982
+      internalID: 731654209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_50
+      rect:
+        serializedVersion: 2
+        x: 2564
+        y: 15
+        width: 251
+        height: 384
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 42d6f55ff2000e5459a739cd8b5df942
+      internalID: -1718620390
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: illus c2_52
+      rect:
+        serializedVersion: 2
+        x: 2821
+        y: 16
+        width: 251
+        height: 383
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c9dd571f9e246cc48b7ebae50d3737f5
+      internalID: -1055936395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      illus c2_0: 1816042856
+      illus c2_1: 2052742973
+      illus c2_10: -1640821721
+      illus c2_11: -565555973
+      illus c2_12: 2100339807
+      illus c2_13: 38830147
+      illus c2_14: 1731420605
+      illus c2_15: 1779199404
+      illus c2_16: -1116252775
+      illus c2_17: -339465964
+      illus c2_18: -678265811
+      illus c2_19: 2028549245
+      illus c2_2: 1331471982
+      illus c2_20: -1169248177
+      illus c2_21: -541571040
+      illus c2_22: -2141397876
+      illus c2_23: -994610686
+      illus c2_24: 194085059
+      illus c2_25: 482496124
+      illus c2_26: 1462296188
+      illus c2_27: 282771458
+      illus c2_28: -2065026803
+      illus c2_29: -1912302938
+      illus c2_3: -1406370471
+      illus c2_30: 1172695583
+      illus c2_31: 1006223136
+      illus c2_32: 1135908161
+      illus c2_33: -1389450873
+      illus c2_34: 171850112
+      illus c2_35: 1967821907
+      illus c2_36: -399820218
+      illus c2_37: 327090096
+      illus c2_38: 943765335
+      illus c2_39: -1553817675
+      illus c2_4: -858569285
+      illus c2_40: -471504541
+      illus c2_41: 1858495141
+      illus c2_42: -117463686
+      illus c2_43: 38783317
+      illus c2_44: -209532466
+      illus c2_45: 889295192
+      illus c2_46: 1758794650
+      illus c2_47: 205045452
+      illus c2_48: 731654209
+      illus c2_49: -1003152516
+      illus c2_5: -1366607977
+      illus c2_50: -1718620390
+      illus c2_51: -417049588
+      illus c2_52: -1055936395
+      illus c2_53: -919455120
+      illus c2_6: -1107445205
+      illus c2_7: -2138575036
+      illus c2_8: -455213536
+      illus c2_9: -77847295
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

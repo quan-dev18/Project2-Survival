@@ -5,8 +5,19 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "StageSO", menuName = "StageStats")]
 public class StageSO : ScriptableObject
 {
+    [Header("Global Stat Scaling (applied over entire stage)")]
+    [SerializeField] private float attackIncrementPercent = 0f; // % increase per interval
+    [SerializeField] private float speedIncrementPercent = 0f; // % increase per interval
+    [SerializeField] private float healthIncrementPercent = 0f; // % increase per interval
+    [SerializeField] private float statsIncrementInterval = 90f; // seconds (e.g., 90 = 1.5 minutes)
+    
     [SerializeField] private List<Phase> phases;
     public List<Phase> Phases => phases;
+
+    public float AttackIncrementPercent => attackIncrementPercent;
+    public float SpeedIncrementPercent => speedIncrementPercent;
+    public float HealthIncrementPercent => healthIncrementPercent;
+    public float StatsIncrementInterval => statsIncrementInterval;
 
     [Serializable]
     public class Phase

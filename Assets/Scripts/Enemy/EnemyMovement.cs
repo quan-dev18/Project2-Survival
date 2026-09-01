@@ -7,9 +7,11 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float separationRadius = 0.6f;
     [SerializeField] private float separationForce = 2f;
+    [SerializeField] private Animator _animator;
 
     private Transform targetTransform;
     private Vector2 knockbackVelocity;
+    private bool hasAttackParam;
 
     private Vector2 wanderDir;
     private float wanderTimer;
@@ -18,12 +20,17 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
     {
         if (enemyController == null)
             enemyController = GetComponent<EnemyController>();
+        if (_animator == null)
+            _animator = GetComponentInChildren<Animator>();
+        hasAttackParam = HasAnimatorParam(_animator, "isAttack");
     }
 
     public void OnSpawned()
     {
         targetTransform = ObjectPooling.Instance.targetTransform;
         knockbackVelocity = Vector2.zero;
+        if (hasAttackParam)
+            _animator.SetBool("isAttack", false);
     }
 
     public void ApplyKnockback(Vector2 dir, float force)
@@ -81,7 +88,15 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
 
     private void Attack()
     {
+        if (hasAttackParam)
+            _animator.SetBool("isAttack", true);
         enemyController.Attack();
+    }
+
+    public void ResetAttack()
+    {
+        if (hasAttackParam)
+            _animator.SetBool("isAttack", false);
     }
 
     private void Wander()
@@ -108,5 +123,15 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
         {
             mesh.localScale = scale;
         }
+    }
+
+    private static bool HasAnimatorParam(Animator animator, string paramName)
+    {
+        if (animator == null) return false;
+        foreach (var p in animator.parameters)
+        {
+            if (p.name == paramName) return true;
+        }
+        return false;
     }
 }

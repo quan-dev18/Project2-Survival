@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb6a6c9e052f3224aa42128bd8cbfcde, type: 3}
+  m_Name: GS_3
+  m_EditorClassIdentifier: 
+  upgradeName: Guardian Summon III
+  description: The guardian slowly regenerate armor if not full (3 armor every second)
+  icon: {fileID: 0}
+  statMods:
+  - stat: 35
+    amount: 3
+  requires:
+  - {fileID: 11400000, guid: 476435af5af4190488302e086cdf974d, type: 2}
+  - {fileID: 11400000, guid: aaa0dbba5143d614dba99ce805485202, type: 2}

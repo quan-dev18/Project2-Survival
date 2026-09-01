@@ -90,6 +90,16 @@ public class EnemyController : MonoBehaviour
     public void SetCurrentHealth(float value) => currentHealth = Mathf.Max(0f, value);
     public void ResetHealth() => currentHealth = maxHealth;
 
+    public void ResetBonuses()
+    {
+        bonusMaxHealthPercent = 0f;
+        bonusMovementSpeedPercent = 0f;
+        bonusAttackDamagePercent = 0f;
+        bonusAttackSpeedPercent = 0f;
+        bonusMaxHealthFlat = 0f;
+        bonusAttackDamageFlat = 0f;
+    }
+
     public void Attack()
     {
         if (ObjectPooling.Instance == null)

@@ -13,13 +13,47 @@ public class PlayerUI : MonoBehaviour
 
     private void Start()
     {
-        if (weapon == null) return;
+        if (weapon != null)
+            SubscribeEvents();
 
+        if (reloadPanel != null)
+            reloadPanel.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (weapon != null)
+            UnsubscribeEvents();
+    }
+
+    public void SetWeapon(WeaponController newWeapon)
+    {
+        if (weapon == newWeapon) return;
+
+        if (weapon != null)
+            UnsubscribeEvents();
+
+        weapon = newWeapon;
+
+        if (weapon != null)
+        {
+            SubscribeEvents();
+            OnAmmoChanged(weapon.CurrentAmmo, weapon.MagazineSize);
+        }
+    }
+
+    private void SubscribeEvents()
+    {
         weapon.OnAmmoChanged += OnAmmoChanged;
         weapon.OnReloadStart += OnReloadStart;
         weapon.OnReloadEnd += OnReloadEnd;
+    }
 
-        reloadPanel.SetActive(false);
+    private void UnsubscribeEvents()
+    {
+        weapon.OnAmmoChanged -= OnAmmoChanged;
+        weapon.OnReloadStart -= OnReloadStart;
+        weapon.OnReloadEnd -= OnReloadEnd;
     }
 
     private void Update()
