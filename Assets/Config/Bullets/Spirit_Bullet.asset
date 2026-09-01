@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Spirit_Bullet
   m_EditorClassIdentifier: 
   damage: 8
-  speed: 10
+  speed: 16
   speedCurve:
     serializedVersion: 2
     m_Curve:
