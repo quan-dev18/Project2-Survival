@@ -21,7 +21,6 @@ public class LevelUpPanel : MonoBehaviour
     private readonly List<UpgradeSO> choices = new List<UpgradeSO>();
     private readonly HashSet<UpgradeSO> ownedUpgrades = new HashSet<UpgradeSO>();
     private PlayerStats playerStats;
-    private WeaponController weapon;
 
     private void Awake()
     {
@@ -32,7 +31,6 @@ public class LevelUpPanel : MonoBehaviour
         if (player != null)
         {
             playerStats = player.GetComponent<PlayerStats>();
-            weapon = player.GetComponentInChildren<WeaponController>();
         }
 
         button1.onClick.AddListener(() => Choose(0));
@@ -83,7 +81,14 @@ public class LevelUpPanel : MonoBehaviour
         {
             RollChoices();
             gameObject.SetActive(true);
-            rainEffect?.Play();
+            if(rainEffect != null)
+            {
+                rainEffect.gameObject.SetActive(true);
+                var main = rainEffect.main;
+                main.useUnscaledTime = true;
+                rainEffect.Play();
+            }
+            
         }
         else
         {
@@ -163,6 +168,7 @@ public class LevelUpPanel : MonoBehaviour
         ApplyUpgrade(upgrade);
         ownedUpgrades.Add(upgrade);
         choices.Clear();
+        if (rainEffect != null) rainEffect.gameObject.SetActive(false);
         GameManager.Instance.SetState(GameState.Playing);
     }
 
@@ -186,6 +192,7 @@ public class LevelUpPanel : MonoBehaviour
     private void ApplyStat(UpgradeType stat, float amount)
     {
         float pct = amount / 100f;
+        WeaponController[] allWeapons = playerStats?.Weapons;
 
         switch (stat)
         {
@@ -208,44 +215,43 @@ public class LevelUpPanel : MonoBehaviour
                 playerStats?.AddGrowthRatePercent(pct);
                 break;
             case UpgradeType.FireRatePercent:
-                weapon?.AddFireRatePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRatePercent(pct));
                 break;
             case UpgradeType.FireRangePercent:
-                weapon?.AddFireRangePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRangePercent(pct));
                 break;
             case UpgradeType.ReloadSpeedPercent:
-                weapon?.AddReloadSpeedPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedPercent(pct));
                 break;
             case UpgradeType.MagazineSizePercent:
-                weapon?.AddMagazineSizePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddMagazineSizePercent(pct));
                 break;
             case UpgradeType.BulletCount:
-                weapon?.AddBulletCount(Mathf.RoundToInt(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletPierce:
-                weapon?.AddBulletPierce(Mathf.RoundToInt(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletPierce(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletSpeedPercent:
-                weapon?.AddBulletSpeedPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpeedPercent(pct));
                 break;
             case UpgradeType.BulletDamagePercent:
-                weapon?.AddBulletDamagePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletDamagePercent(pct));
                 break;
             case UpgradeType.BulletExecutePercent:
-                weapon?.AddBulletExecutePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletExecutePercent(pct));
                 break;
             case UpgradeType.BulletKnockbackPercent:
-                weapon?.AddBulletKnockbackPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletKnockbackPercent(pct));
                 break;
             case UpgradeType.BulletSizePercent:
-                weapon?.AddBulletSizePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSizePercent(pct));
                 break;
             case UpgradeType.BulletInfinitePierceOnKill:
-                weapon?.AddBulletInfinitePierceOnKill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletInfinitePierceOnKill(pct));
                 break;
             case UpgradeType.BulletExplosionOnKill:
-                weapon?.AddBulletExplosionDamagePercent(pct / 100f);
-                weapon?.AddBulletExplosionRadius(1.0f);
+                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct / 100f); w.AddBulletExplosionRadius(1.0f); });
                 break;
             case UpgradeType.CharacterSizePercent:
                 playerStats?.AddCharacterSizePercent(pct);
@@ -257,7 +263,7 @@ public class LevelUpPanel : MonoBehaviour
                 playerStats?.AddDamageTakenBulletDamagePercent(pct);
                 break;
             case UpgradeType.FreeShotChanceWhileStill:
-                weapon?.AddFreeShotChanceWhileStill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFreeShotChanceWhileStill(pct));
                 break;
             case UpgradeType.AmmoRecoverOnXP:
                 PlayerXP.Instance?.AddAmmoRecoverChance(pct);
@@ -266,16 +272,16 @@ public class LevelUpPanel : MonoBehaviour
                 PlayerXP.Instance?.AddFireRateBuffOnXPChance(pct);
                 break;
             case UpgradeType.LastAmmoBurst:
-                weapon?.AddLastAmmoBurst(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddLastAmmoBurst(pct));
                 break;
             case UpgradeType.BackShot:
-                weapon?.AddBackShot(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBackShot(pct));
                 break;
             case UpgradeType.DamageBuffAfterReload:
-                weapon?.AddDamageBuffAfterReload(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddDamageBuffAfterReload(pct));
                 break;
             case UpgradeType.ReloadSpeedStackOnKill:
-                weapon?.AddReloadSpeedStackOnKill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedStackOnKill(pct));
                 break;
             case UpgradeType.InvulnerableWhileReloading:
                 playerStats?.AddInvulnerableWhileReloading(pct);
@@ -287,17 +293,17 @@ public class LevelUpPanel : MonoBehaviour
                 playerStats?.AddStackingBuffPercent(pct);
                 break;
             case UpgradeType.BulletSpread:
-                weapon?.AddBulletSpread(amount); // flat degrees
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpread(amount));
                 break;
             case UpgradeType.MysteryCube:
                 playerStats?.AddMysteryCube(pct);
                 break;
             case UpgradeType.MysteryCubeDmgStack:
-                break; // intrinsic to cube
+                break;
             case UpgradeType.MysteryCubeAsStack:
-                break; // intrinsic to cube
+                break;
             case UpgradeType.ArmorRegenPerSecond:
-                playerStats?.AddArmorRegenPerSecond(amount); // raw armor/sec
+                playerStats?.AddArmorRegenPerSecond(amount);
                 break;
             case UpgradeType.SpiritSummon:
                 playerStats?.AddSpiritSummon(pct);
@@ -314,6 +320,13 @@ public class LevelUpPanel : MonoBehaviour
         }
     }
 
+    private static void ApplyToAllWeapons(WeaponController[] weapons, System.Action<WeaponController> action)
+    {
+        if (weapons == null) return;
+        foreach (var w in weapons)
+            if (w != null) action(w);
+    }
+
     public static void ApplyUpgradeDirect(UpgradeSO upgrade)
     {
         if (upgrade == null || upgrade.StatMods == null || upgrade.StatMods.Count == 0) return;
@@ -322,13 +335,13 @@ public class LevelUpPanel : MonoBehaviour
         if (player == null) return;
 
         PlayerStats ps = player.GetComponent<PlayerStats>();
-        WeaponController wc = player.GetComponentInChildren<WeaponController>();
+        WeaponController[] allWeapons = ps?.Weapons;
 
         foreach (UpgradeSO.StatMod mod in upgrade.StatMods)
-            ApplyStatDirect(ps, wc, mod.Stat, mod.Amount);
+            ApplyStatDirect(ps, allWeapons, mod.Stat, mod.Amount);
     }
 
-    private static void ApplyStatDirect(PlayerStats ps, WeaponController wc, UpgradeType stat, float amount)
+    private static void ApplyStatDirect(PlayerStats ps, WeaponController[] allWeapons, UpgradeType stat, float amount)
     {
         float pct = amount / 100f;
 
@@ -353,44 +366,43 @@ public class LevelUpPanel : MonoBehaviour
                 ps?.AddGrowthRatePercent(pct);
                 break;
             case UpgradeType.FireRatePercent:
-                wc?.AddFireRatePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRatePercent(pct));
                 break;
             case UpgradeType.FireRangePercent:
-                wc?.AddFireRangePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRangePercent(pct));
                 break;
             case UpgradeType.ReloadSpeedPercent:
-                wc?.AddReloadSpeedPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedPercent(pct));
                 break;
             case UpgradeType.MagazineSizePercent:
-                wc?.AddMagazineSizePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddMagazineSizePercent(pct));
                 break;
             case UpgradeType.BulletCount:
-                wc?.AddBulletCount(Mathf.RoundToInt(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletPierce:
-                wc?.AddBulletPierce(Mathf.RoundToInt(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletPierce(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletSpeedPercent:
-                wc?.AddBulletSpeedPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpeedPercent(pct));
                 break;
             case UpgradeType.BulletDamagePercent:
-                wc?.AddBulletDamagePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletDamagePercent(pct));
                 break;
             case UpgradeType.BulletExecutePercent:
-                wc?.AddBulletExecutePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletExecutePercent(pct));
                 break;
             case UpgradeType.BulletKnockbackPercent:
-                wc?.AddBulletKnockbackPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletKnockbackPercent(pct));
                 break;
             case UpgradeType.BulletSizePercent:
-                wc?.AddBulletSizePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSizePercent(pct));
                 break;
             case UpgradeType.BulletInfinitePierceOnKill:
-                wc?.AddBulletInfinitePierceOnKill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletInfinitePierceOnKill(pct));
                 break;
             case UpgradeType.BulletExplosionOnKill:
-                wc?.AddBulletExplosionDamagePercent(pct / 100f);
-                wc?.AddBulletExplosionRadius(1.0f);
+                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct / 100f); w.AddBulletExplosionRadius(1.0f); });
                 break;
             case UpgradeType.CharacterSizePercent:
                 ps?.AddCharacterSizePercent(pct);
@@ -402,7 +414,7 @@ public class LevelUpPanel : MonoBehaviour
                 ps?.AddDamageTakenBulletDamagePercent(pct);
                 break;
             case UpgradeType.FreeShotChanceWhileStill:
-                wc?.AddFreeShotChanceWhileStill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFreeShotChanceWhileStill(pct));
                 break;
             case UpgradeType.AmmoRecoverOnXP:
                 PlayerXP.Instance?.AddAmmoRecoverChance(pct);
@@ -411,16 +423,16 @@ public class LevelUpPanel : MonoBehaviour
                 PlayerXP.Instance?.AddFireRateBuffOnXPChance(pct);
                 break;
             case UpgradeType.LastAmmoBurst:
-                wc?.AddLastAmmoBurst(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddLastAmmoBurst(pct));
                 break;
             case UpgradeType.BackShot:
-                wc?.AddBackShot(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBackShot(pct));
                 break;
             case UpgradeType.DamageBuffAfterReload:
-                wc?.AddDamageBuffAfterReload(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddDamageBuffAfterReload(pct));
                 break;
             case UpgradeType.ReloadSpeedStackOnKill:
-                wc?.AddReloadSpeedStackOnKill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedStackOnKill(pct));
                 break;
             case UpgradeType.InvulnerableWhileReloading:
                 ps?.AddInvulnerableWhileReloading(pct);
@@ -432,7 +444,7 @@ public class LevelUpPanel : MonoBehaviour
                 ps?.AddStackingBuffPercent(pct);
                 break;
             case UpgradeType.BulletSpread:
-                wc?.AddBulletSpread(amount);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpread(amount));
                 break;
             case UpgradeType.MysteryCube:
                 ps?.AddMysteryCube(pct);

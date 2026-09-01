@@ -75,7 +75,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 712935771
-  m_SortingLayer: 6
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: -161434396, guid: 91a64d498fc42c947865c534cc2ce43f, type: 3}
   m_Color: {r: 1, g: 0, b: 0.63343525, a: 1}
@@ -118,7 +118,7 @@ MonoBehaviour:
   - {x: -0.094807744, y: -0.018222451, z: 0}
   m_ShapePathHash: -879002412
   m_Mesh: {fileID: 0}
-  m_InstanceId: 179494
+  m_InstanceId: 55776
   m_LocalBounds:
     m_Center: {x: -0.08896297, y: -0.067828834, z: 0}
     m_Extent: {x: 0.38456827, y: 0.3895632, z: 0}
@@ -211,6 +211,7 @@ GameObject:
   - component: {fileID: 8069974498983253383}
   - component: {fileID: 2980252082715626386}
   - component: {fileID: 8432877540041160173}
+  - component: {fileID: 4581818489072389241}
   m_Layer: 6
   m_Name: Enemy2
   m_TagString: Enemy
@@ -309,6 +310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: 2ce2d7ff422196e49a2019af6364fd11, type: 2}
+  speedMultiplier: 1
 --- !u!114 &2980252082715626386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,6 +330,7 @@ MonoBehaviour:
     m_Bits: 64
   separationRadius: 0.6
   separationForce: 2
+  _animator: {fileID: 0}
 --- !u!114 &8432877540041160173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,6 +349,25 @@ MonoBehaviour:
   - {r: 0, g: 0.4431373, b: 0.86274517, a: 1}
   - {r: 0.10980393, g: 0, b: 0.86274517, a: 1}
   - {r: 0.7960785, g: 0, b: 0.54509807, a: 1}
+--- !u!114 &4581818489072389241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407889229624869330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff88d5f0ea73ca34e914ab919fac864d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyController: {fileID: 8069974498983253383}
+  animator: {fileID: 3573617302963360978}
+  spriteRenderer: {fileID: 6811339878856143682}
+  shadowComponent: {fileID: 2606339582260125365}
+  offScreenSpeedMultiplier: 3
+  checkInterval: 0.3
+  viewportMargin: 0.1
 --- !u!1 &3925370710927403832
 GameObject:
   m_ObjectHideFlags: 0

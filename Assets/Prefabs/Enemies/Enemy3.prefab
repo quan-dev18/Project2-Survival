@@ -75,7 +75,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 712935771
-  m_SortingLayer: 6
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 1674113300, guid: ddcc2d9a8ae80f545809d925067f8a26, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -201,7 +201,7 @@ MonoBehaviour:
   - {x: -0.3600458, y: -0.9462879, z: 0}
   m_ShapePathHash: 1304831797
   m_Mesh: {fileID: 0}
-  m_InstanceId: -440700
+  m_InstanceId: 55506
   m_LocalBounds:
     m_Center: {x: -0.07406342, y: 0.05326438, z: 0}
     m_Extent: {x: 0.54817075, y: 1.0202525, z: 0}
@@ -251,6 +251,7 @@ GameObject:
   - component: {fileID: 8298347144249896835}
   - component: {fileID: 7679873897306249650}
   - component: {fileID: 1052266512774764790}
+  - component: {fileID: 6424453912247500648}
   m_Layer: 6
   m_Name: Enemy3
   m_TagString: Enemy
@@ -349,6 +350,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: fe2a6e4199f134d4e88183935d81f393, type: 2}
+  speedMultiplier: 1
 --- !u!114 &7679873897306249650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,6 +370,7 @@ MonoBehaviour:
     m_Bits: 64
   separationRadius: 0.6
   separationForce: 2
+  _animator: {fileID: 0}
 --- !u!114 &1052266512774764790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,3 +389,22 @@ MonoBehaviour:
   - {r: 0, g: 0.4431373, b: 0.86274517, a: 1}
   - {r: 0.10980393, g: 0, b: 0.86274517, a: 1}
   - {r: 0.7960785, g: 0, b: 0.54509807, a: 1}
+--- !u!114 &6424453912247500648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8764486352836026953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff88d5f0ea73ca34e914ab919fac864d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyController: {fileID: 8298347144249896835}
+  animator: {fileID: 5927996260865282772}
+  spriteRenderer: {fileID: 8997696068008855821}
+  shadowComponent: {fileID: 7425540249320190753}
+  offScreenSpeedMultiplier: 3
+  checkInterval: 0.3
+  viewportMargin: 0.1

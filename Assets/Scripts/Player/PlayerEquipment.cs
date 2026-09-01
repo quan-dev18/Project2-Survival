@@ -41,6 +41,9 @@ public class PlayerEquipment : MonoBehaviour
 
     private void Start()
     {
+        if (playerStats != null)
+            playerStats.RegisterAllWeapons();
+
         if (characterMeshes.Count > 0)
         {
             int heroIdx = Mathf.Clamp(SelectedHeroIndex, 0, characterMeshes.Count - 1);
@@ -130,7 +133,7 @@ public class PlayerEquipment : MonoBehaviour
             weaponCtrl = weapons[index].GetComponent<WeaponController>();
 
         if (playerStats != null)
-            playerStats.SetWeapons(new[] { weaponCtrl });
+            playerStats.SetActiveWeaponIndex(index);
 
         if (playerUI != null)
             playerUI.SetWeapon(weaponCtrl);

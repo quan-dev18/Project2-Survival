@@ -90,11 +90,18 @@ public class PlayerStats : MonoBehaviour
     #endregion
 
     public WeaponController[] Weapons => weapons;
-    public WeaponController ActiveWeapon => weapons != null && weapons.Length > 0 ? weapons[0] : null;
+    public int ActiveWeaponIndex { get; private set; }
+    public WeaponController ActiveWeapon => weapons != null && ActiveWeaponIndex >= 0 && ActiveWeaponIndex < weapons.Length
+        ? weapons[ActiveWeaponIndex] : null;
 
-    public void SetWeapons(WeaponController[] newWeapons)
+    public void SetActiveWeaponIndex(int index)
     {
-        weapons = newWeapons;
+        ActiveWeaponIndex = index;
+    }
+
+    public void RegisterAllWeapons()
+    {
+        weapons = GetComponentsInChildren<WeaponController>(true);
     }
 
     #region Damage Taken Buff

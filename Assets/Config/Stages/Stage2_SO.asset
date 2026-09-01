@@ -24,6 +24,15 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 1
       isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 20
+      endRadius: 3
+      shrinkDuration: 60
+      wallEnemyCount: 30
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 250
+      wallEnemyDamage: 10
   - phaseName: II
     duration: 60
     enemies:
@@ -35,6 +44,15 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 1
       isBoss: 0
+    circleWall:
+      enabled: 1
+      startRadius: 20
+      endRadius: 10
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 250
+      wallEnemyDamage: 15
   - phaseName: III
     duration: 120
     enemies:
@@ -46,6 +64,15 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 3
       isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 20
+      endRadius: 3
+      shrinkDuration: 60
+      wallEnemyCount: 30
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 250
+      wallEnemyDamage: 10
   - phaseName: IV
     duration: 60
     enemies:
@@ -57,3 +84,12 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 4
       isBoss: 0
+    circleWall:
+      enabled: 1
+      startRadius: 20
+      endRadius: 3
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 250
+      wallEnemyDamage: 15

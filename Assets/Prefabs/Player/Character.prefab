@@ -929,6 +929,7 @@ GameObject:
   - component: {fileID: 7321741506684919708}
   - component: {fileID: 585351823340672582}
   - component: {fileID: 4749898244735348490}
+  - component: {fileID: 2778441330438497163}
   m_Layer: 3
   m_Name: Character
   m_TagString: Untagged
@@ -1047,7 +1048,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterStats: {fileID: 11400000, guid: 376e75f03e8f6244e88007c65e6a5ce1, type: 2}
-  weapon: {fileID: 0}
+  weapons: []
   mysteryCubePrefab: {fileID: 0}
   spiritPrefab: {fileID: 0}
   minMoveSpeed: 1
@@ -1069,7 +1070,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerStats: {fileID: 7321741506684919708}
-  weapon: {fileID: 0}
 --- !u!114 &4749898244735348490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1092,10 +1092,22 @@ MonoBehaviour:
   - {fileID: 6094082169807008426}
   - {fileID: 4040837066156318204}
   - {fileID: 8485870949654943506}
-  weaponCatalog: []
   playerMovement: {fileID: 1321052552799082689}
   playerStats: {fileID: 7321741506684919708}
   playerUI: {fileID: 5260760281590308743}
+--- !u!114 &2778441330438497163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4433484011092503045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bee2cf6a623c6a4495a5f5bcc47010d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerStats: {fileID: 7321741506684919708}
 --- !u!1 &5577347399162994389
 GameObject:
   m_ObjectHideFlags: 0
@@ -1313,6 +1325,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2644285144624402181}
     - target: {fileID: 1234998774397380696, guid: bed87f4befefee14fb17d08704452c87, type: 3}
+      propertyPath: weaponSprite
+      value: 
+      objectReference: {fileID: 6003127130990174393}
+    - target: {fileID: 1234998774397380696, guid: bed87f4befefee14fb17d08704452c87, type: 3}
       propertyPath: playerMovement
       value: 
       objectReference: {fileID: 1321052552799082689}
@@ -1374,6 +1390,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: bed87f4befefee14fb17d08704452c87, type: 3}
   m_PrefabInstance: {fileID: 619796374296673981}
   m_PrefabAsset: {fileID: 0}
+--- !u!212 &6003127130990174393 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: bed87f4befefee14fb17d08704452c87, type: 3}
+  m_PrefabInstance: {fileID: 619796374296673981}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6179229169856489443 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6726404993617762654, guid: bed87f4befefee14fb17d08704452c87, type: 3}
@@ -1399,6 +1420,10 @@ PrefabInstance:
       propertyPath: rightHand
       value: 
       objectReference: {fileID: 2644285144624402181}
+    - target: {fileID: 1234998774397380696, guid: cd08f826496580843b859de8abed5d90, type: 3}
+      propertyPath: weaponSprite
+      value: 
+      objectReference: {fileID: 5235226615578525698}
     - target: {fileID: 1234998774397380696, guid: cd08f826496580843b859de8abed5d90, type: 3}
       propertyPath: playerMovement
       value: 
@@ -1456,6 +1481,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cd08f826496580843b859de8abed5d90, type: 3}
+--- !u!212 &5235226615578525698 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: cd08f826496580843b859de8abed5d90, type: 3}
+  m_PrefabInstance: {fileID: 1401133005687250438}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5632084209747117912 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6726404993617762654, guid: cd08f826496580843b859de8abed5d90, type: 3}
@@ -1486,6 +1516,10 @@ PrefabInstance:
       propertyPath: rightHand
       value: 
       objectReference: {fileID: 2644285144624402181}
+    - target: {fileID: 1234998774397380696, guid: 7db267284677f6c44896766443fb386a, type: 3}
+      propertyPath: weaponSprite
+      value: 
+      objectReference: {fileID: 5533470102082225895}
     - target: {fileID: 1234998774397380696, guid: 7db267284677f6c44896766443fb386a, type: 3}
       propertyPath: playerMovement
       value: 
@@ -1548,6 +1582,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6726404993617762654, guid: 7db267284677f6c44896766443fb386a, type: 3}
   m_PrefabInstance: {fileID: 1665281178287069411}
   m_PrefabAsset: {fileID: 0}
+--- !u!212 &5533470102082225895 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: 7db267284677f6c44896766443fb386a, type: 3}
+  m_PrefabInstance: {fileID: 1665281178287069411}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6094082169807008426 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: 7db267284677f6c44896766443fb386a, type: 3}
@@ -1573,6 +1612,10 @@ PrefabInstance:
       propertyPath: rightHand
       value: 
       objectReference: {fileID: 2644285144624402181}
+    - target: {fileID: 1234998774397380696, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
+      propertyPath: weaponSprite
+      value: 
+      objectReference: {fileID: 7898060735757230943}
     - target: {fileID: 1234998774397380696, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
       propertyPath: playerMovement
       value: 
@@ -1635,6 +1678,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6726404993617762654, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
   m_PrefabInstance: {fileID: 3912816300026494299}
   m_PrefabAsset: {fileID: 0}
+--- !u!212 &7898060735757230943 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
+  m_PrefabInstance: {fileID: 3912816300026494299}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8485870949654943506 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
@@ -1660,6 +1708,10 @@ PrefabInstance:
       propertyPath: rightHand
       value: 
       objectReference: {fileID: 2644285144624402181}
+    - target: {fileID: 1234998774397380696, guid: 4b0b4479c5738014bba839c9bc31d618, type: 3}
+      propertyPath: weaponSprite
+      value: 
+      objectReference: {fileID: 7475856457631209135}
     - target: {fileID: 1234998774397380696, guid: 4b0b4479c5738014bba839c9bc31d618, type: 3}
       propertyPath: playerMovement
       value: 
@@ -1722,6 +1774,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6726404993617762654, guid: 4b0b4479c5738014bba839c9bc31d618, type: 3}
   m_PrefabInstance: {fileID: 4353012731029342379}
   m_PrefabAsset: {fileID: 0}
+--- !u!212 &7475856457631209135 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: 4b0b4479c5738014bba839c9bc31d618, type: 3}
+  m_PrefabInstance: {fileID: 4353012731029342379}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7322018772398973343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1742,6 +1799,10 @@ PrefabInstance:
       propertyPath: rightHand
       value: 
       objectReference: {fileID: 2644285144624402181}
+    - target: {fileID: 1234998774397380696, guid: fba383a1020f4b94b82f9c6608ca6e87, type: 3}
+      propertyPath: weaponSprite
+      value: 
+      objectReference: {fileID: 4488849208664653723}
     - target: {fileID: 1234998774397380696, guid: fba383a1020f4b94b82f9c6608ca6e87, type: 3}
       propertyPath: playerMovement
       value: 
@@ -1804,6 +1865,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6726404993617762654, guid: fba383a1020f4b94b82f9c6608ca6e87, type: 3}
   m_PrefabInstance: {fileID: 7322018772398973343}
   m_PrefabAsset: {fileID: 0}
+--- !u!212 &4488849208664653723 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: fba383a1020f4b94b82f9c6608ca6e87, type: 3}
+  m_PrefabInstance: {fileID: 7322018772398973343}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8907325105477531573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1824,6 +1890,10 @@ PrefabInstance:
       propertyPath: rightHand
       value: 
       objectReference: {fileID: 2644285144624402181}
+    - target: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+      propertyPath: weaponSprite
+      value: 
+      objectReference: {fileID: 2327161614408804785}
     - target: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
       propertyPath: playerMovement
       value: 
@@ -1881,6 +1951,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+--- !u!212 &2327161614408804785 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+  m_PrefabInstance: {fileID: 8907325105477531573}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2793869258250530539 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6726404993617762654, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
