@@ -16,6 +16,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     public float MaxHealth => enemyController != null ? enemyController.maxHealth : 0f;
 
     public event System.Action<float, float> OnHealthChanged;
+    public event System.Action OnDeath;
 
     private void Awake()
     {
@@ -91,6 +92,8 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        OnDeath?.Invoke();
+
         if (GameManager.Instance != null)
             GameManager.Instance.AddKill();
 

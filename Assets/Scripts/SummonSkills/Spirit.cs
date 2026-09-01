@@ -154,7 +154,7 @@ public class Spirit : MonoBehaviour
             
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(fireDir, transform.root, attackRange,
+                bullet.Init(fireDir, transform.root,
                     pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0f, 0, null);
             }
         }

@@ -231,7 +231,7 @@ public class WeaponController : MonoBehaviour
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(bulletDir, transform.root, fireRange,
+                bullet.Init(bulletDir, transform.root,
                     bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
                     bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                     bonusBulletInfinitePierceOnKill,
@@ -278,7 +278,7 @@ public class WeaponController : MonoBehaviour
 
         if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
         {
-            bullet.Init(backDir, transform.root, fireRange,
+            bullet.Init(backDir, transform.root,
                 bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
                 bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                 bonusBulletInfinitePierceOnKill,
@@ -305,7 +305,7 @@ public class WeaponController : MonoBehaviour
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(burstDir, transform.root, fireRange,
+                bullet.Init(burstDir, transform.root,
                     0, 1f + bonusBulletSpeedPercent, burstDamageMultiplier,
                     0f, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                     false,
