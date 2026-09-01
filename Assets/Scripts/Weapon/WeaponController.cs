@@ -31,7 +31,6 @@ public class WeaponController : MonoBehaviour
 
     [Header("Sprite")]
     [SerializeField] private SpriteRenderer weaponSprite;
-    [SerializeField] private bool spriteFacesRight = true;
 
     [Header("Sorting")]
     [SerializeField] private PlayerMovement playerMovement;
@@ -113,6 +112,8 @@ public class WeaponController : MonoBehaviour
 
         if (TryGetComponent(out CircleCollider2D rangeTrigger))
             rangeTrigger.radius = fireRange;
+        if(weaponSprite == null)
+            weaponSprite = GetComponentInChildren<SpriteRenderer>();
     }
 
     private void Update()
@@ -178,21 +179,25 @@ public class WeaponController : MonoBehaviour
 #region Aim
     private void Aim()
     {
-        Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
-        Transform desiredHand = toTarget.x >= 0 ? rightHand : leftHand;
+        Vector2 toTargetRaw = (Vector2)target.position - (Vector2)transform.position;
+        Transform desiredHand = toTargetRaw.x >= 0 ? rightHand : leftHand;
+
         if (currentHand == null)
             currentHand = desiredHand;
-        else if (desiredHand != currentHand && Mathf.Abs(toTarget.x) > handSwitchDeadZone)
+        else if (desiredHand != currentHand && Mathf.Abs(toTargetRaw.x) > handSwitchDeadZone)
             currentHand = desiredHand;
-        transform.position = currentHand.position;
-        transform.rotation = Quaternion.FromToRotation(weaponFront.localPosition, toTarget);
 
-        if (weaponSprite != null)
-        {
-            bool aimingRight = toTarget.x >= 0;
-            weaponSprite.flipY = spriteFacesRight && !aimingRight;
-            weaponSprite.flipX = !spriteFacesRight && aimingRight;
-        }
+        transform.position = currentHand.position;
+
+        // Recompute AFTER moving, so direction matches the new position
+        Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
+        float targetAngle = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
+
+        // Offset so weaponFront's resting angle lines up with 0°
+        float frontOffset = Mathf.Atan2(weaponFront.localPosition.y, weaponFront.localPosition.x) * Mathf.Rad2Deg;
+
+        transform.rotation = Quaternion.Euler(0f, 0f, targetAngle - frontOffset);
+
     }
 #endregion
 #region Fire

@@ -90,7 +90,7 @@ public class GameOverPanel : MonoBehaviour
             GameManager.Instance.SetState(GameState.Playing);
         }
 
-        LoadingSceneController.targetScene = "GameMap1";
+        LoadingSceneController.targetScene = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene("LoadingScene");
     }
 

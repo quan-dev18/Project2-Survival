@@ -89,6 +89,8 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
                 dmg.TakeDamage(explosionDamage);
         }
 
+        CameraShake.Shake(0.6f, 0.35f);
+
         if (explosionVFX != null)
             Instantiate(explosionVFX, transform.position, Quaternion.identity);
 

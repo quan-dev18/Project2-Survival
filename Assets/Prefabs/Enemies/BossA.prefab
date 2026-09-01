@@ -74,7 +74,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 712935771
-  m_SortingLayer: 6
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 934338712, guid: 91a64d498fc42c947865c534cc2ce43f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -123,7 +123,7 @@ MonoBehaviour:
   - {x: -0.0010104422, y: -0.60809374, z: 0}
   m_ShapePathHash: -516976637
   m_Mesh: {fileID: 0}
-  m_InstanceId: 178440
+  m_InstanceId: 54682
   m_LocalBounds:
     m_Center: {x: 0.0046569705, y: 0.15542561, z: 0}
     m_Extent: {x: 0.5666887, y: 0.76351935, z: 0}
@@ -177,6 +177,7 @@ GameObject:
   - component: {fileID: 7413526097315178125}
   - component: {fileID: 8069974498983253383}
   - component: {fileID: 2980252082715626386}
+  - component: {fileID: 5324283210219310843}
   m_Layer: 6
   m_Name: BossA
   m_TagString: Enemy
@@ -275,6 +276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: 113196b1300e15a41b42a153502fa1c4, type: 2}
+  speedMultiplier: 1
 --- !u!114 &2980252082715626386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294,6 +296,26 @@ MonoBehaviour:
     m_Bits: 64
   separationRadius: 0.6
   separationForce: 2
+  _animator: {fileID: 0}
+--- !u!114 &5324283210219310843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407889229624869330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff88d5f0ea73ca34e914ab919fac864d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyController: {fileID: 8069974498983253383}
+  animator: {fileID: 2757306944947068797}
+  spriteRenderer: {fileID: 6811339878856143682}
+  shadowComponent: {fileID: 2606339582260125365}
+  offScreenSpeedMultiplier: 3
+  checkInterval: 0.3
+  viewportMargin: 0.1
 --- !u!1 &3925370710927403832
 GameObject:
   m_ObjectHideFlags: 0

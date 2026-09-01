@@ -105,7 +105,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 712935771
-  m_SortingLayer: 6
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 1674113300, guid: ddcc2d9a8ae80f545809d925067f8a26, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -168,6 +168,7 @@ GameObject:
   - component: {fileID: 7245188033703023546}
   - component: {fileID: 3143163054908503243}
   - component: {fileID: 3087991773922581642}
+  - component: {fileID: 3335020993149092541}
   m_Layer: 6
   m_Name: BossB
   m_TagString: Enemy
@@ -266,6 +267,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: 113196b1300e15a41b42a153502fa1c4, type: 2}
+  speedMultiplier: 1
 --- !u!114 &3087991773922581642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,3 +288,22 @@ MonoBehaviour:
   separationRadius: 0.6
   separationForce: 2
   _animator: {fileID: 0}
+--- !u!114 &3335020993149092541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7868454239049078632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff88d5f0ea73ca34e914ab919fac864d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyController: {fileID: 3143163054908503243}
+  animator: {fileID: 4259908614016499602}
+  spriteRenderer: {fileID: 1612855635373936002}
+  shadowComponent: {fileID: 0}
+  offScreenSpeedMultiplier: 3
+  checkInterval: 0.3
+  viewportMargin: 0.1

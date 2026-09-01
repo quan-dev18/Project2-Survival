@@ -79,6 +79,9 @@ public class EnemySpawner : MonoBehaviour
             phaseHasBoss = true;
             TrySpawnBoss(i);
         }
+
+        if (CircleWallManager.Instance != null)
+            CircleWallManager.Instance.TryActivate(stage, index);
     }
 
     private void TrySpawnBoss(int entryIndex)
