@@ -169,6 +169,7 @@ GameObject:
   - component: {fileID: 3143163054908503243}
   - component: {fileID: 3087991773922581642}
   - component: {fileID: 3335020993149092541}
+  - component: {fileID: 7390304193808682020}
   m_Layer: 6
   m_Name: BossB
   m_TagString: Enemy
@@ -302,8 +303,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyController: {fileID: 3143163054908503243}
   animator: {fileID: 4259908614016499602}
-  spriteRenderer: {fileID: 1612855635373936002}
   shadowComponent: {fileID: 0}
   offScreenSpeedMultiplier: 3
   checkInterval: 0.3
   viewportMargin: 0.1
+--- !u!114 &7390304193808682020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7868454239049078632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed5bcab8fd3f9094c935f4a4886e74ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyController: {fileID: 3143163054908503243}
+  enemyHealth: {fileID: 354987551768733966}
+  enemyMovement: {fileID: 3087991773922581642}

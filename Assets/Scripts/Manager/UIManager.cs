@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private PausePanel pausePanel;
 
     private PlayerStats playerStats;
+    private EnemySpawner enemySpawner;
 
     private void Awake()
     {
@@ -53,6 +54,10 @@ public class UIManager : MonoBehaviour
             UpdateKillCount();
         }
 
+        enemySpawner = FindObjectOfType<EnemySpawner>();
+        if (enemySpawner != null)
+            enemySpawner.OnBossSpawned += OnBossSpawned;
+
         GameManager.OnStateChanged += OnGameStateChanged;
         pausePanel?.Hide();
     }
@@ -63,6 +68,8 @@ public class UIManager : MonoBehaviour
             PlayerXP.Instance.OnLevelUp -= OnLevelUp;
         if (playerStats != null)
             playerStats.OnHealthChanged -= UpdateHealthUI;
+        if (enemySpawner != null)
+            enemySpawner.OnBossSpawned -= OnBossSpawned;
         GameManager.OnStateChanged -= OnGameStateChanged;
     }
 
@@ -115,6 +122,11 @@ public class UIManager : MonoBehaviour
 
         if (GameManager.Instance.CurrentState == GameState.Playing)
             GameManager.Instance.SetState(GameState.Paused);
+    }
+
+    private void OnBossSpawned(EnemyHealth boss)
+    {
+        BossHPUI.Instance?.Show(boss);
     }
 
     private void OnGameStateChanged(GameState state)

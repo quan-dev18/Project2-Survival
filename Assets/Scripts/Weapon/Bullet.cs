@@ -9,8 +9,6 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     private Vector2 direction;
     private float age;
-    private float maxDistance;
-    private float travelledDistance;
     private Transform owner;
     private int pierceRemaining;
     private float speedMultiplier = 1f;
@@ -27,12 +25,13 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private Collider2D lastHit;
     private float lastHitTime;
     private TrailRenderer trail;
+    private bool trailReady;
+    private float trailOriginalTime;
 
-    public void Init(Vector2 dir, Transform owner, float maxDistance, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, float explosionRadius = 0f, int bounceCount = 0, System.Action onKillCallback = null)
+    public void Init(Vector2 dir, Transform owner, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, float explosionRadius = 0f, int bounceCount = 0, System.Action onKillCallback = null)
     {
         direction = dir.normalized;
         this.owner = owner;
-        this.maxDistance = maxDistance;
         pierceRemaining = pierce;
         this.speedMultiplier = speedMultiplier;
         this.damageMultiplier = damageMultiplier;
@@ -46,7 +45,6 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         this.onKillCallback = onKillCallback;
         transform.localScale = baseScale * sizeMultiplier;
         age = 0f;
-        travelledDistance = 0f;
         lastHit = null;
         lastHitTime = 0f;
     }
@@ -56,12 +54,19 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         EnsurePhysics();
         baseScale = transform.localScale;
         trail = GetComponent<TrailRenderer>();
+        if (trail != null)
+            trailOriginalTime = trail.time;
+        Debug.Log($"Trail found: {trail != null}");
     }
 
     public void OnSpawned()
     {
         if (trail != null)
+        {
+            trail.emitting = false;
             trail.Clear();
+        }
+        trailReady = false;
     }
 
     private void EnsurePhysics()
@@ -80,6 +85,14 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private void Update()
     {
         age += Time.deltaTime;
+
+        if (!trailReady && trail != null)
+        {
+            trail.time = trailOriginalTime;
+            trail.emitting = true;
+            trailReady = true;
+        }
+
         if (age >= bulletStats.LifeTime)
         {
             DespawnSelf();
@@ -90,12 +103,6 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         float speed = bulletStats.Speed * bulletStats.SpeedCurve.Evaluate(t) * speedMultiplier;
 
         float step = speed * Time.deltaTime;
-        travelledDistance += step;
-        if (travelledDistance >= maxDistance)
-        {
-            DespawnSelf();
-            return;
-        }
 
         transform.position += (Vector3)(direction * step);
         transform.up = direction;

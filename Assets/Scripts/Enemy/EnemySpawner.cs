@@ -22,6 +22,8 @@ public class EnemySpawner : MonoBehaviour
     private int bossSpawnedCount;
     private float bossRetryTimer;
     private bool bossRetryWarningShown;
+
+    public event System.Action<EnemyHealth> OnBossSpawned;
     
     // Global stat scaling (linear: adds flat % per interval)
     private float globalStatTimer;
@@ -93,6 +95,10 @@ public class EnemySpawner : MonoBehaviour
             spawnedBosses.Add(boss);
             bossSpawnedCount++;
             pendingBosses.Remove(entryIndex);
+
+            EnemyHealth bossHealth = boss.GetComponent<EnemyHealth>();
+            if (bossHealth != null)
+                OnBossSpawned?.Invoke(bossHealth);
         }
         else
         {
