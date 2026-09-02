@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c4853062ed381948b34579449ee1030, type: 3}
   m_Name: Badthing
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1082828930580708440, guid: 91d064beaaa41a348aa5614e101ee8f9, type: 3}
+  poolKey: Bomb
+  quantity: 1
   weight: 0.5

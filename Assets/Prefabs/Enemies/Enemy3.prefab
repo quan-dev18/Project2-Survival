@@ -82,7 +82,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 2}
+  m_Size: {x: 1.4333333, y: 2.1333334}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -201,7 +201,7 @@ MonoBehaviour:
   - {x: -0.3600458, y: -0.9462879, z: 0}
   m_ShapePathHash: 1304831797
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55506
+  m_InstanceId: 45586
   m_LocalBounds:
     m_Center: {x: -0.07406342, y: 0.05326438, z: 0}
     m_Extent: {x: 0.54817075, y: 1.0202525, z: 0}
@@ -268,7 +268,7 @@ Transform:
   m_GameObject: {fileID: 8764486352836026953}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.033, z: 0}
   m_LocalScale: {x: 0.90000004, y: 0.90000004, z: 0.90000004}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -403,7 +403,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyController: {fileID: 8298347144249896835}
   animator: {fileID: 5927996260865282772}
-  spriteRenderer: {fileID: 8997696068008855821}
   shadowComponent: {fileID: 7425540249320190753}
   offScreenSpeedMultiplier: 3
   checkInterval: 0.3

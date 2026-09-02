@@ -43,7 +43,6 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
 
     public void OnSpawned()
     {
-        StartFuse();
     }
 
     private void StartFuse()
@@ -92,9 +91,9 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
         CameraShake.Shake(0.6f, 0.35f);
 
         if (explosionVFX != null)
-            Instantiate(explosionVFX, transform.position, Quaternion.identity);
+            ObjectPooling.Instance.Spawn(explosionVFX, transform.position, Quaternion.identity);
 
-        Destroy(gameObject);
+        ObjectPooling.Instance.Despawn(gameObject);
     }
 
     private IEnumerator FlashRoutine()

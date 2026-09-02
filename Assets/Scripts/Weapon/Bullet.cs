@@ -19,7 +19,6 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private Vector3 baseScale = Vector3.one;
     private bool infinitePierceOnKill = false;
     private float explosionDamagePercent = 0f;
-    private float explosionRadius = 0f;
     private int bounceRemaining = 0;
     private System.Action onKillCallback;
     private Collider2D lastHit;
@@ -28,7 +27,7 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private bool trailReady;
     private float trailOriginalTime;
 
-    public void Init(Vector2 dir, Transform owner, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, float explosionRadius = 0f, int bounceCount = 0, System.Action onKillCallback = null)
+    public void Init(Vector2 dir, Transform owner, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, int bounceCount = 0, System.Action onKillCallback = null)
     {
         direction = dir.normalized;
         this.owner = owner;
@@ -40,7 +39,6 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         this.sizeMultiplier = sizeMultiplier;
         this.infinitePierceOnKill = infinitePierceOnKill;
         this.explosionDamagePercent = explosionDamagePercent;
-        this.explosionRadius = explosionRadius;
         this.bounceRemaining = bounceCount;
         this.onKillCallback = onKillCallback;
         transform.localScale = baseScale * sizeMultiplier;
@@ -56,7 +54,6 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         trail = GetComponent<TrailRenderer>();
         if (trail != null)
             trailOriginalTime = trail.time;
-        Debug.Log($"Trail found: {trail != null}");
     }
 
     public void OnSpawned()
@@ -160,10 +157,10 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         }
 
         // Explosion on kill
-        if (wouldKill && explosionDamagePercent > 0f && explosionRadius > 0f)
+        if (wouldKill && explosionDamagePercent > 0f && bulletStats.ExplosionRadius > 0f)
         {
             float explosionDamage = finalDamage * explosionDamagePercent;
-            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, explosionRadius);
+            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, bulletStats.ExplosionRadius);
             foreach (Collider2D hit in hits)
             {
                 if (hit == other) continue;
@@ -172,6 +169,22 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
                 if (dmg != null && dmg != damageable)
                     dmg.TakeDamage(explosionDamage);
             }
+        }
+
+        // Multiple damage: AOE on every hit
+        if (bulletStats.IsMultipleDamage)
+        {
+            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, bulletStats.ExplosionRadius);
+            foreach (Collider2D hit in hits)
+            {
+                if (hit == other) continue;
+                if (owner != null && hit.transform.IsChildOf(owner)) continue;
+                IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
+                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                if (dmg != null)
+                    dmg.TakeDamage(finalDamage);
+            }
+            ObjectPooling.Instance.Spawn("VFX_NO", other.transform.position, Quaternion.identity);
         }
 
         if (!consumedPierce && pierceRemaining <= 0)
