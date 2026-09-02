@@ -235,7 +235,7 @@ public class WeaponController : MonoBehaviour
                     bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
                     bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                     bonusBulletInfinitePierceOnKill,
-                    bonusBulletExplosionDamagePercent, bonusBulletExplosionRadius,
+                    bonusBulletExplosionDamagePercent,
                     bonusBulletBounceCount,
                     () => AddKillStack()); // damage do chính BulletSO quyết định
             }
@@ -282,7 +282,7 @@ public class WeaponController : MonoBehaviour
                 bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
                 bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                 bonusBulletInfinitePierceOnKill,
-                bonusBulletExplosionDamagePercent, bonusBulletExplosionRadius,
+                bonusBulletExplosionDamagePercent,
                 bonusBulletBounceCount,
                 () => AddKillStack());
         }
@@ -309,7 +309,7 @@ public class WeaponController : MonoBehaviour
                     0, 1f + bonusBulletSpeedPercent, burstDamageMultiplier,
                     0f, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                     false,
-                    0f, 0f,
+                    0f,
                     0,
                     () => AddKillStack()); // 50% damage, no pierce/execute/explosion/bounce
             }

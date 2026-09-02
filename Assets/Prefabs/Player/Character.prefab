@@ -527,7 +527,7 @@ MonoBehaviour:
   - {x: -0.023922458, y: -0.5147414, z: 0}
   m_ShapePathHash: -62189087
   m_Mesh: {fileID: 0}
-  m_InstanceId: 76698
+  m_InstanceId: 33928
   m_LocalBounds:
     m_Center: {x: 0.0073542893, y: 0.021676421, z: 0}
     m_Extent: {x: 0.36422572, y: 0.5395007, z: 0}
@@ -1314,7 +1314,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1197292690123641654, guid: bed87f4befefee14fb17d08704452c87, type: 3}
       propertyPath: maxIntensity
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1234998774397380696, guid: bed87f4befefee14fb17d08704452c87, type: 3}
       propertyPath: leftHand
@@ -1410,7 +1410,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1197292690123641654, guid: cd08f826496580843b859de8abed5d90, type: 3}
       propertyPath: maxIntensity
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1234998774397380696, guid: cd08f826496580843b859de8abed5d90, type: 3}
       propertyPath: leftHand
@@ -1506,7 +1506,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1197292690123641654, guid: 7db267284677f6c44896766443fb386a, type: 3}
       propertyPath: maxIntensity
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1234998774397380696, guid: 7db267284677f6c44896766443fb386a, type: 3}
       propertyPath: leftHand
@@ -1602,7 +1602,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1197292690123641654, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
       propertyPath: maxIntensity
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1234998774397380696, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
       propertyPath: leftHand
@@ -1698,7 +1698,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1197292690123641654, guid: 4b0b4479c5738014bba839c9bc31d618, type: 3}
       propertyPath: maxIntensity
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1234998774397380696, guid: 4b0b4479c5738014bba839c9bc31d618, type: 3}
       propertyPath: leftHand
@@ -1880,7 +1880,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1197292690123641654, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
       propertyPath: maxIntensity
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1234998774397380696, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
       propertyPath: leftHand

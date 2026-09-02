@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c4853062ed381948b34579449ee1030, type: 3}
   m_Name: SmallReward
   m_EditorClassIdentifier: 
-  prefab: {fileID: 296294771682459973, guid: 189f0fab1e938ec4ea52390596dbe654, type: 3}
+  poolKey: XPGem
+  quantity: 5
   weight: 1
