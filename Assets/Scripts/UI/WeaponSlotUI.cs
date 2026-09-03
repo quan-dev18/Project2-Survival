@@ -7,6 +7,7 @@ public class WeaponSlotUI : MonoBehaviour
     [SerializeField] private Image weaponIcon;
     [SerializeField] private TextMeshProUGUI weaponNameText; // Text hiển thị tên/title của từng súng
     [SerializeField] private GameObject lockOverlay; 
+    [SerializeField] private GameObject selectedFrameObj; // GameObject khung viền khi được chọn
     [SerializeField] private Button slotButton;
 
     public void Setup(WeaponSO data, System.Action<WeaponSO> onClickCallback)
@@ -28,5 +29,10 @@ public class WeaponSlotUI : MonoBehaviour
             slotButton.onClick.RemoveAllListeners();
             slotButton.onClick.AddListener(() => onClickCallback?.Invoke(data));
         }
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (selectedFrameObj != null) selectedFrameObj.SetActive(selected);
     }
 }

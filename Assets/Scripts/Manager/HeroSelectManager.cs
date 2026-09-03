@@ -24,9 +24,15 @@ public class HeroSelectManager : MonoBehaviour
 
     private GameObject currentPreviewInstance;
     private HeroSelectSO currentSelectedHero; // Lưu nhân vật đang xem
+    private HeroSlotUI currentSelectedSlot;
 
     private void Start()
     {
+        if (PlayerPrefs.HasKey("SelectedHeroIndex"))
+            PlayerEquipment.SelectedHeroIndex = PlayerPrefs.GetInt("SelectedHeroIndex");
+
+        RestoreSelectedHeroIcon();
+
         GenerateListUI();
 
         // Đăng ký sự kiện bấm nút "Chọn"
@@ -34,6 +40,16 @@ public class HeroSelectManager : MonoBehaviour
         {
             selectButton.onClick.RemoveAllListeners();
             selectButton.onClick.AddListener(OnConfirmSelect);
+        }
+    }
+
+    // Khôi phục Icon nhân vật đã chọn lên màn hình Equipment khi mở panel
+    private void RestoreSelectedHeroIcon()
+    {
+        int savedIndex = PlayerPrefs.GetInt("SelectedHeroIndex", PlayerEquipment.SelectedHeroIndex);
+        if (savedIndex >= 0 && savedIndex < heroList.Count && heroList[savedIndex] != null)
+        {
+            if (outsideHeroIcon != null) outsideHeroIcon.sprite = heroList[savedIndex].heroIcon;
         }
     }
 
@@ -52,6 +68,7 @@ public class HeroSelectManager : MonoBehaviour
             if (slotScript != null)
             {
                 slotScript.Setup(hero, OnSelectHero);
+                if (hero == heroList[0]) currentSelectedSlot = slotScript;
             }
 
             slotObj.transform.localScale = Vector3.one;
@@ -66,6 +83,20 @@ public class HeroSelectManager : MonoBehaviour
     {
         currentSelectedHero = data; // Lưu nhân vật vừa bấm xem
 
+        // 0. Tìm slot tương ứng và cập nhật selectedFrame
+        if (currentSelectedSlot != null) currentSelectedSlot.SetSelected(false);
+        int index = heroList.IndexOf(data);
+        if (index >= 0)
+        {
+            Transform slotTransform = slotContainer.GetChild(index);
+            HeroSlotUI slotScript = slotTransform.GetComponent<HeroSlotUI>();
+            if (slotScript != null)
+            {
+                currentSelectedSlot = slotScript;
+                if (data.isUnlocked) slotScript.SetSelected(true);
+            }
+        }
+
         // 1. Xóa Prefab cũ, spawn Prefab nhân vật mới (chứa cả Sprite + Des) vào HeroPreview
         if (currentPreviewInstance != null) Destroy(currentPreviewInstance);
         if (data.previewPrefab != null)
@@ -76,8 +107,12 @@ public class HeroSelectManager : MonoBehaviour
         // 2. Cập nhật trạng thái nút Chọn
         if (data.isUnlocked)
         {
-            selectButton.interactable = true;
-            if (selectButtonText != null) selectButtonText.text = "Chọn";
+            int heroIndex = heroList.IndexOf(data);
+            bool isAlreadySelected = (heroIndex == PlayerEquipment.SelectedHeroIndex);
+
+            selectButton.interactable = !isAlreadySelected;
+            if (selectButtonText != null)
+                selectButtonText.text = isAlreadySelected ? "Đã chọn" : "Chọn";
         }
         else
         {
@@ -95,12 +130,17 @@ public class HeroSelectManager : MonoBehaviour
             if (outsideHeroIcon != null)
             {
                 outsideHeroIcon.sprite = currentSelectedHero.heroIcon;
-                selectButtonText.text = "Đã chọn"; 
             }
+
+            // 2. Hiển thị trạng thái "Đã chọn" và chặn bấm lại
+            if (selectButton != null) selectButton.interactable = false;
+            if (selectButtonText != null) selectButtonText.text = "Đã chọn";
 
             // 2. Lưu index nhân vật qua scene khác
             int heroIndex = heroList.IndexOf(currentSelectedHero);
             PlayerEquipment.SelectedHeroIndex = heroIndex;
+            PlayerPrefs.SetInt("SelectedHeroIndex", heroIndex);
+            PlayerPrefs.Save();
 
             Debug.Log("Đã chọn nhân vật: " + currentSelectedHero.name);
 
