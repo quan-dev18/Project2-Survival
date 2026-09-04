@@ -7,39 +7,40 @@ using DG.Tweening;
 public class HeroSelectManager : MonoBehaviour
 {
     [Header("Data")]
-    [SerializeField] private List<HeroSelectSO> heroList; // Kéo các file Data vào đây
+    [SerializeField] private List<HeroSelectSO> heroList;
 
     [Header("UI Containers")]
-    [SerializeField] private Transform slotContainer; // Kéo GameObject 'Heroes' vào đây
-    [SerializeField] private GameObject slotPrefab;   // Prefab ô chọn tướng
+    [SerializeField] private Transform slotContainer;
+    [SerializeField] private GameObject slotPrefab;
 
     [Header("Preview Parent")]
-    [SerializeField] private Transform previewParent; // Kéo 'HeroPreview' vào đây
+    [SerializeField] private Transform previewParent;
 
     [Header("Select Button")]
     [SerializeField] private Button selectButton;
     [SerializeField] private TextMeshProUGUI selectButtonText;
 
     [Header("Outside Equipment UI")]
-    [SerializeField] private Image outsideHeroIcon; // Kéo GameObject 'Icon' bên ngoài Equipment vào đây
+    [SerializeField] private Image outsideHeroIcon;
 
     [Header("Tween Animation")]
     [SerializeField] private UISlideTween slideTween;
 
     private GameObject currentPreviewInstance;
-    private HeroSelectSO currentSelectedHero; // Lưu nhân vật đang xem
+    private HeroSelectSO currentSelectedHero;
     private HeroSlotUI currentSelectedSlot;
 
-    private void Start()
+    private void OnEnable()
     {
         if (PlayerPrefs.HasKey("SelectedHeroIndex"))
             PlayerEquipment.SelectedHeroIndex = PlayerPrefs.GetInt("SelectedHeroIndex");
 
         RestoreSelectedHeroIcon();
-
         GenerateListUI();
+    }
 
-        // Đăng ký sự kiện bấm nút "Chọn"
+    private void Start()
+    {
         if (selectButton != null)
         {
             selectButton.onClick.RemoveAllListeners();
@@ -47,7 +48,6 @@ public class HeroSelectManager : MonoBehaviour
         }
     }
 
-    // Khôi phục Icon nhân vật đã chọn lên màn hình Equipment khi mở panel
     private void RestoreSelectedHeroIcon()
     {
         int savedIndex = PlayerPrefs.GetInt("SelectedHeroIndex", PlayerEquipment.SelectedHeroIndex);
@@ -59,15 +59,17 @@ public class HeroSelectManager : MonoBehaviour
 
     private void GenerateListUI()
     {
-        // 1. Dọn dẹp danh sách cũ
-        foreach (Transform child in slotContainer) Destroy(child.gameObject);
+        foreach (Transform child in slotContainer) DestroyImmediate(child.gameObject);
 
-        // 2. Lấy hero đã chọn trước đó
         int savedIndex = PlayerPrefs.GetInt("SelectedHeroIndex", PlayerEquipment.SelectedHeroIndex);
+        savedIndex = Mathf.Clamp(savedIndex, 0, Mathf.Max(0, heroList.Count - 1));
 
-        // 3. Sinh các ô nút bấm từ Data
-        foreach (var hero in heroList)
+        currentSelectedHero = null;
+        currentSelectedSlot = null;
+
+        for (int i = 0; i < heroList.Count; i++)
         {
+            var hero = heroList[i];
             if (hero == null) continue;
 
             GameObject slotObj = Instantiate(slotPrefab, slotContainer);
@@ -76,9 +78,7 @@ public class HeroSelectManager : MonoBehaviour
             {
                 slotScript.Setup(hero, OnSelectHero);
 
-                // Hero đã chọn trước đó: bật khung, mờ icon 45%, còn lại ngược lại
-                int heroIndex = heroList.IndexOf(hero);
-                bool isSavedSelected = (heroIndex == savedIndex);
+                bool isSavedSelected = (i == savedIndex);
                 slotScript.SetSelected(isSavedSelected);
                 slotScript.SetIconAlpha(isSavedSelected ? 0.45f : 1f);
 
@@ -89,29 +89,33 @@ public class HeroSelectManager : MonoBehaviour
             slotObj.transform.localPosition = Vector3.zero;
         }
 
-        // 4. Hiển thị tướng đã chọn mặc định (hoặc tướng đầu tiên)
+        ResetToSavedHero();
+    }
+
+    // Hàm trả giao diện về nhân vật đã lưu gần nhất
+    public void ResetToSavedHero()
+    {
+        int savedIndex = PlayerPrefs.GetInt("SelectedHeroIndex", PlayerEquipment.SelectedHeroIndex);
+        savedIndex = Mathf.Clamp(savedIndex, 0, Mathf.Max(0, heroList.Count - 1));
+
         if (savedIndex >= 0 && savedIndex < heroList.Count && heroList[savedIndex] != null)
         {
             OnSelectHero(heroList[savedIndex]);
-        }
-        else if (heroList.Count > 0 && heroList[0] != null)
-        {
-            OnSelectHero(heroList[0]);
         }
     }
 
     private void OnSelectHero(HeroSelectSO data)
     {
-        currentSelectedHero = data; // Lưu nhân vật vừa bấm xem
+        currentSelectedHero = data;
 
-        // 0. Tìm slot tương ứng và cập nhật selectedFrame + alpha
         if (currentSelectedSlot != null)
         {
             currentSelectedSlot.SetSelected(false);
             currentSelectedSlot.SetIconAlpha(1f);
         }
+
         int index = heroList.IndexOf(data);
-        if (index >= 0)
+        if (index >= 0 && index < slotContainer.childCount)
         {
             Transform slotTransform = slotContainer.GetChild(index);
             HeroSlotUI slotScript = slotTransform.GetComponent<HeroSlotUI>();
@@ -122,19 +126,16 @@ public class HeroSelectManager : MonoBehaviour
                 {
                     slotScript.SetSelected(true);
                     slotScript.SetIconAlpha(0.69f);
-                    
                 }
             }
         }
 
-        // 1. Xóa Prefab cũ, spawn Prefab nhân vật mới (chứa cả Sprite + Des) vào HeroPreview
-        if (currentPreviewInstance != null) Destroy(currentPreviewInstance);
+        foreach (Transform child in previewParent) DestroyImmediate(child.gameObject);
         if (data.previewPrefab != null)
         {
             currentPreviewInstance = Instantiate(data.previewPrefab, previewParent);
         }
 
-        // 2. Cập nhật trạng thái nút Chọn
         if (data.isUnlocked)
         {
             int heroIndex = heroList.IndexOf(data);
@@ -151,38 +152,30 @@ public class HeroSelectManager : MonoBehaviour
         }
     }
 
-    // Hàm thực thi khi bấm nút "Chọn"
     private void OnConfirmSelect()
     {
         if (currentSelectedHero != null && currentSelectedHero.isUnlocked)
         {
-            // 1. Cập nhật Icon bên ngoài màn hình Equipment
             if (outsideHeroIcon != null)
-            {
                 outsideHeroIcon.sprite = currentSelectedHero.heroIcon;
-            }
 
-            // 2. Hiển thị trạng thái "Đã chọn" và chặn bấm lại
             if (selectButton != null) selectButton.interactable = false;
             if (selectButtonText != null) selectButtonText.text = "Đã chọn";
 
-            // 2. Lưu index nhân vật qua scene khác
             int heroIndex = heroList.IndexOf(currentSelectedHero);
             PlayerEquipment.SelectedHeroIndex = heroIndex;
             PlayerPrefs.SetInt("SelectedHeroIndex", heroIndex);
             PlayerPrefs.Save();
 
             Debug.Log("Đã chọn nhân vật: " + currentSelectedHero.name);
-
-            // 3. Tự động đóng bảng Chọn tướng với hiệu ứng
-            if (slideTween != null)
-                slideTween.Hide();
-            else
-                gameObject.SetActive(false);
         }
     }
+
     public void ClosePanel()
     {
+        // Khôi phục lại nhân vật đã lưu trước khi đóng Panel
+        ResetToSavedHero();
+
         if (slideTween != null)
             slideTween.Hide();
         else

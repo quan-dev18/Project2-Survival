@@ -24,7 +24,8 @@ public class UISlideTween : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         rectTransform = target != null ? target : GetComponent<RectTransform>();
-        originalPosition = rectTransform.anchoredPosition;
+        if (rectTransform != null)
+            originalPosition = rectTransform.anchoredPosition;
     }
 
     private void OnEnable()
@@ -37,6 +38,12 @@ public class UISlideTween : MonoBehaviour
 
     public void PlaySlideIn()
     {
+        if (rectTransform == null)
+        {
+            if (useFade && canvasGroup != null) canvasGroup.alpha = 1f;
+            return;
+        }
+
         rectTransform.DOKill();
 
         rectTransform.anchoredPosition = originalPosition + slideOffset;
@@ -55,9 +62,28 @@ public class UISlideTween : MonoBehaviour
 
     public void Hide()
     {
+        if (canvasGroup != null)
+        {
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
+
+        // Nếu không có RectTransform thì chỉ fade rồi đóng ngay (không slide được)
+        if (rectTransform == null)
+        {
+            if (useFade && canvasGroup != null)
+            {
+                canvasGroup.DOFade(0f, duration).SetUpdate(true)
+                    .OnComplete(() => { if (gameObject != null) gameObject.SetActive(false); });
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
+            return;
+        }
+
         rectTransform.DOKill();
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
 
         Sequence seq = DOTween.Sequence();
         seq.Join(rectTransform.DOAnchorPos(originalPosition + slideOffset, duration).SetEase(ease));
@@ -66,6 +92,10 @@ public class UISlideTween : MonoBehaviour
             seq.Join(canvasGroup.DOFade(0f, duration));
 
         seq.SetUpdate(true);
-        seq.OnComplete(() => gameObject.SetActive(false));
+        seq.OnComplete(() =>
+        {
+            if (gameObject != null)
+                gameObject.SetActive(false);
+        });
     }
 }
