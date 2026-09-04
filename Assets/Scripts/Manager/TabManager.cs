@@ -7,9 +7,10 @@ public class TabManager : MonoBehaviour
     public List<TabItem> tabList = new List<TabItem>();
     public int defaultTabIndex = 0;
 
+    private int currentTabIndex = -1;
+
     private void Start()
     {
-        // Đăng ký sự kiện Click cho từng TabItem
         for (int i = 0; i < tabList.Count; i++)
         {
             int index = i;
@@ -19,23 +20,27 @@ public class TabManager : MonoBehaviour
             }
         }
 
-        // Mở Tab mặc định
-        SelectTab(defaultTabIndex);
+        SelectTab(defaultTabIndex, false);
     }
 
-    public void SelectTab(int indexToOpen)
+    public void SelectTab(int indexToOpen, bool animate = true)
     {
+        if (indexToOpen == currentTabIndex) return;
+
+        int direction = (currentTabIndex < 0 || indexToOpen > currentTabIndex) ? 1 : -1;
+        currentTabIndex = indexToOpen;
+
         for (int i = 0; i < tabList.Count; i++)
         {
             if (tabList[i] == null) continue;
 
             if (i == indexToOpen)
             {
-                tabList[i].Select();   // Kick hoạt UI / Animation được chọn
+                tabList[i].Select(direction, animate);
             }
             else
             {
-                tabList[i].Deselect(); // Trở về trạng thái bình thường
+                tabList[i].Deselect(animate);
             }
         }
     }

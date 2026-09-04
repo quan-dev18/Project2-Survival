@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class HeroSelectManager : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class HeroSelectManager : MonoBehaviour
 
     [Header("Outside Equipment UI")]
     [SerializeField] private Image outsideHeroIcon; // Kéo GameObject 'Icon' bên ngoài Equipment vào đây
+
+    [Header("Tween Animation")]
+    [SerializeField] private UISlideTween slideTween;
 
     private GameObject currentPreviewInstance;
     private HeroSelectSO currentSelectedHero; // Lưu nhân vật đang xem
@@ -170,8 +174,18 @@ public class HeroSelectManager : MonoBehaviour
 
             Debug.Log("Đã chọn nhân vật: " + currentSelectedHero.name);
 
-            // 3. Tự động đóng bảng Chọn tướng
-            gameObject.SetActive(false);
+            // 3. Tự động đóng bảng Chọn tướng với hiệu ứng
+            if (slideTween != null)
+                slideTween.Hide();
+            else
+                gameObject.SetActive(false);
         }
+    }
+    public void ClosePanel()
+    {
+        if (slideTween != null)
+            slideTween.Hide();
+        else
+            gameObject.SetActive(false);
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class WeaponSelectManager : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class WeaponSelectManager : MonoBehaviour
 
     [Header("Outside Equipment UI")]
     [SerializeField] private Image outsideWeaponIcon; 
+
+    [Header("Tween Animation")]
+    [SerializeField] private UISlideTween slideTween;
 
     private WeaponSO currentSelectedWeapon;
     private List<WeaponSlotUI> allSlots = new List<WeaponSlotUI>();
@@ -169,7 +173,19 @@ public class WeaponSelectManager : MonoBehaviour
 
             Debug.Log("Đã chọn vũ khí: " + currentSelectedWeapon.WeaponName);
 
-            gameObject.SetActive(false);
+            // Đóng panel với hiệu ứng
+            if (slideTween != null)
+                slideTween.Hide();
+            else
+                gameObject.SetActive(false);
         }
+    }
+
+    public void ClosePanel()
+    {
+        if (slideTween != null)
+            slideTween.Hide();
+        else
+            gameObject.SetActive(false);
     }
 }
