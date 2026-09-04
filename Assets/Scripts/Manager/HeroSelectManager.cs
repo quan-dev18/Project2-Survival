@@ -58,7 +58,10 @@ public class HeroSelectManager : MonoBehaviour
         // 1. Dọn dẹp danh sách cũ
         foreach (Transform child in slotContainer) Destroy(child.gameObject);
 
-        // 2. Sinh các ô nút bấm từ Data
+        // 2. Lấy hero đã chọn trước đó
+        int savedIndex = PlayerPrefs.GetInt("SelectedHeroIndex", PlayerEquipment.SelectedHeroIndex);
+
+        // 3. Sinh các ô nút bấm từ Data
         foreach (var hero in heroList)
         {
             if (hero == null) continue;
@@ -68,23 +71,41 @@ public class HeroSelectManager : MonoBehaviour
             if (slotScript != null)
             {
                 slotScript.Setup(hero, OnSelectHero);
-                if (hero == heroList[0]) currentSelectedSlot = slotScript;
+
+                // Hero đã chọn trước đó: bật khung, mờ icon 45%, còn lại ngược lại
+                int heroIndex = heroList.IndexOf(hero);
+                bool isSavedSelected = (heroIndex == savedIndex);
+                slotScript.SetSelected(isSavedSelected);
+                slotScript.SetIconAlpha(isSavedSelected ? 0.45f : 1f);
+
+                if (isSavedSelected) currentSelectedSlot = slotScript;
             }
 
             slotObj.transform.localScale = Vector3.one;
             slotObj.transform.localPosition = Vector3.zero;
         }
 
-        // 3. Hiển thị tướng đầu tiên mặc định
-        if (heroList.Count > 0 && heroList[0] != null) OnSelectHero(heroList[0]);
+        // 4. Hiển thị tướng đã chọn mặc định (hoặc tướng đầu tiên)
+        if (savedIndex >= 0 && savedIndex < heroList.Count && heroList[savedIndex] != null)
+        {
+            OnSelectHero(heroList[savedIndex]);
+        }
+        else if (heroList.Count > 0 && heroList[0] != null)
+        {
+            OnSelectHero(heroList[0]);
+        }
     }
 
     private void OnSelectHero(HeroSelectSO data)
     {
         currentSelectedHero = data; // Lưu nhân vật vừa bấm xem
 
-        // 0. Tìm slot tương ứng và cập nhật selectedFrame
-        if (currentSelectedSlot != null) currentSelectedSlot.SetSelected(false);
+        // 0. Tìm slot tương ứng và cập nhật selectedFrame + alpha
+        if (currentSelectedSlot != null)
+        {
+            currentSelectedSlot.SetSelected(false);
+            currentSelectedSlot.SetIconAlpha(1f);
+        }
         int index = heroList.IndexOf(data);
         if (index >= 0)
         {
@@ -93,7 +114,12 @@ public class HeroSelectManager : MonoBehaviour
             if (slotScript != null)
             {
                 currentSelectedSlot = slotScript;
-                if (data.isUnlocked) slotScript.SetSelected(true);
+                if (data.isUnlocked)
+                {
+                    slotScript.SetSelected(true);
+                    slotScript.SetIconAlpha(0.69f);
+                    
+                }
             }
         }
 
