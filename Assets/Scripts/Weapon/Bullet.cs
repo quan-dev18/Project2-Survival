@@ -107,7 +107,8 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (owner != null && other.transform.IsChildOf(owner))
+        // Ignore any hit on owner hierarchy (player, weapons, etc.) or any WeaponController
+        if (owner != null && (other.transform.IsChildOf(owner) || other.transform == owner || other.transform.root == owner || other.GetComponentInParent<WeaponController>() != null))
             return;
         if (other.TryGetComponent(out Bullet _))
             return;
@@ -145,10 +146,11 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             knockbackable.ApplyKnockback(direction, knockbackForce * knockbackMultiplier);
         }
 
+        bool infinitePierced = false;
         bool consumedPierce = false;
         if (infinitePierceOnKill && wouldKill)
         {
-            // Don't consume pierce if the hit kills
+            infinitePierced = true; // pierce for free, don't consume count
         }
         else if (pierceRemaining > 0)
         {
@@ -187,7 +189,13 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             ObjectPooling.Instance.Spawn("VFX_NO", other.transform.position, Quaternion.identity);
         }
 
-        if (!consumedPierce && pierceRemaining <= 0)
+        if (infinitePierced)
+        {
+            lastHit = other;
+            lastHitTime = Time.time;
+            // piercing for free - don't bounce, just continue
+        }
+        else if (!consumedPierce && pierceRemaining <= 0)
         {
             // Try bounce if no pierce left
             if (bounceRemaining > 0)
@@ -198,8 +206,7 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             DespawnSelf();
             return;
         }
-
-        if (consumedPierce)
+        else if (consumedPierce)
         {
             lastHit = other;
             lastHitTime = Time.time;
@@ -214,17 +221,26 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     private void BounceToNewTarget(Transform excludeTarget)
     {
+        // Resolve exclude root to avoid matching child colliders of same enemy
+        IDamageable excludeDmg = excludeTarget.GetComponentInParent<IDamageable>();
+        if (excludeDmg == null) excludeDmg = excludeTarget.GetComponentInChildren<IDamageable>();
+        Transform excludeRoot = excludeDmg != null ? (excludeDmg as Component)?.transform : excludeTarget;
+
         // Find all valid enemies in range
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 10f);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 12f);
         List<Transform> validTargets = new List<Transform>();
 
         foreach (Collider2D hit in hits)
         {
-            if (hit.transform == excludeTarget) continue;
+            if (hit == null) continue;
             if (hit.transform.IsChildOf(owner)) continue;
             IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
             if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
             if (dmg == null) continue;
+            if (dmg == excludeDmg) continue;
+            // Also skip if same root transform (handles child collider vs parent)
+            Transform hitRoot = (dmg as Component)?.transform;
+            if (hitRoot != null && excludeRoot != null && (hitRoot == excludeRoot || hitRoot.IsChildOf(excludeRoot) || excludeRoot.IsChildOf(hitRoot))) continue;
 
             validTargets.Add(hit.transform);
         }
@@ -237,6 +253,8 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             bounceRemaining--;
             lastHit = null;
             lastHitTime = 0f;
+            // Nudge out of current collider to avoid immediate re-hit
+            transform.position += (Vector3)(direction * 0.3f);
             return;
         }
 

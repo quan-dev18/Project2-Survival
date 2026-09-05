@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Guardian Summon III
   description: The guardian slowly regenerate armor if not full (3 armor every second)
-  icon: {fileID: 0}
+  icon: {fileID: -521324626, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 35
     amount: 3

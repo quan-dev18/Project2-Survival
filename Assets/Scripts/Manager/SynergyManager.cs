@@ -139,11 +139,12 @@ public class SynergyManager : MonoBehaviour
     {
         if (gottaGoFastActive == active) return;
         gottaGoFastActive = active;
+        Debug.Log($"[Synergy] Gotta Go Fast {(active ? "ACTIVATED" : "DEACTIVATED")}");
         if (!active)
         {
             ApplyToAllWeapons(w =>
             {
-                w.AddFireRatePercent(-gottaGoFastStacks * 10f);
+                w.AddFireRatePercent(-gottaGoFastStacks * 0.10f);
                 w.AddBulletPierce(-gottaGoFastStacks);
             });
             gottaGoFastStacks = 0;

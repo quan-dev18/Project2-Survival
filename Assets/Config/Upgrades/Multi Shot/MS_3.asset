@@ -18,7 +18,7 @@ MonoBehaviour:
     Bullet spread +8
 
     Bullet dmg -20%'
-  icon: {fileID: 0}
+  icon: {fileID: 183395098, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 10
     amount: 3

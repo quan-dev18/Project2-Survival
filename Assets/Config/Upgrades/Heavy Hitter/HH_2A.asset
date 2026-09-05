@@ -16,7 +16,7 @@ MonoBehaviour:
   description: 'Bullet Damage +40%
 
     Bullet Size +20%'
-  icon: {fileID: 0}
+  icon: {fileID: -530952059, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 13
     amount: 20

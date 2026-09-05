@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponIcon: {fileID: -536087438, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
   isUnlocked: 1
-  weaponName: AK-47
-  fireRate: 0.2
+  weaponName: AWP
+  fireRate: 1
   fireRange: 7
-  reloadTime: 2
-  magazineSize: 5
+  reloadTime: 1
+  magazineSize: 1
   bulletCount: 1
-  spread: 5
+  spread: 1

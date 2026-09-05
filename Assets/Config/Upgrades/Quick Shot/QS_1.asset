@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Quick Shot I
   description: Fire rate +25%
-  icon: {fileID: 0}
+  icon: {fileID: 1470440963, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 6
     amount: 25

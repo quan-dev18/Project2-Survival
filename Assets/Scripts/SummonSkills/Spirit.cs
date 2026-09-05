@@ -78,7 +78,6 @@ public class Spirit : MonoBehaviour
 
     public void ApplySynergyMultipliers(float damageMultiplier, float aspdMultiplier)
     {
-        Debug.Log($"[Spirit] ApplySynergyMultipliers: dmg={damageMultiplier}, aspd={aspdMultiplier}");
         synergyDamageMultiplier = damageMultiplier;
         synergyAspdMultiplier = aspdMultiplier;
     }
@@ -138,8 +137,6 @@ public class Spirit : MonoBehaviour
         
         // Apply synergy to fire rate
         float currentFireRate = fireRate * safeAspdMultiplier;
-        
-        Debug.Log($"[Spirit] Fire: empowered={empoweredEnabled}, synergyDmg={synergyDamageMultiplier:F2}, safeDmg={safeDamageMultiplier:F2}, finalMult={damageMultiplier:F2}");
         
         for (int i = 0; i < currentProjectileCount; i++)
         {
