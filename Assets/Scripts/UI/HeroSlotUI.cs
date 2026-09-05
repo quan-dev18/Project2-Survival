@@ -9,8 +9,32 @@ public class HeroSlotUI : MonoBehaviour
     [SerializeField] private Button button;
     [SerializeField] private GameObject selectedFrameObj; // GameObject khung viền khi được chọn
 
+    private HeroSelectSO heroData;
+
+    public HeroSelectSO GetHeroData()
+    {
+        return heroData;
+    }
+
+    public void SetIconAlpha(float alpha)
+    {
+        if (heroIconImage != null)
+        {
+            Transform parent = heroIconImage.transform.parent;
+            Image parentImage = parent != null ? parent.GetComponent<Image>() : null;
+            if (parentImage != null)
+            {
+                Color c = Color.black;
+                c.a = alpha;
+                parentImage.color = c;
+            }
+        }
+    }
+
     public void Setup(HeroSelectSO data, System.Action<HeroSelectSO> onClickCallback)
     {
+        heroData = data;
+
         // Xử lý bật/tắt Icon theo trạng thái Mở Khóa
         if (data.isUnlocked)
         {

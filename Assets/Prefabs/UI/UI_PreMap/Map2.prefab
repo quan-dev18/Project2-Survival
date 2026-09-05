@@ -303,8 +303,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000020981, y: 0.0000076294}
-  m_SizeDelta: {x: 163.7751, y: 350.9463}
+  m_AnchoredPosition: {x: 0.000026703, y: -0.0000076294}
+  m_SizeDelta: {x: 308.4156, y: 246.7298}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8937553180928690870
 CanvasRenderer:
@@ -334,7 +334,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 515048908, guid: 91a64d498fc42c947865c534cc2ce43f, type: 3}
+  m_Sprite: {fileID: -33682308, guid: f45688542e7bfec44af3bd184bf2ece4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1285,7 +1285,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: GhostBuster
+  m_text: Redliner
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 50c284b314a218f4386507cf418d8709, type: 2}
   m_sharedMaterial: {fileID: 6465699484449904358, guid: 50c284b314a218f4386507cf418d8709, type: 2}

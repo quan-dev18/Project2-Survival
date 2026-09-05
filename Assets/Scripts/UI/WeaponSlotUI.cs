@@ -10,8 +10,17 @@ public class WeaponSlotUI : MonoBehaviour
     [SerializeField] private GameObject selectedFrameObj; // GameObject khung viền khi được chọn
     [SerializeField] private Button slotButton;
 
+    private WeaponSO weaponData;
+
+    public WeaponSO GetWeaponData()
+    {
+        return weaponData;
+    }
+
     public void Setup(WeaponSO data, System.Action<WeaponSO> onClickCallback)
     {
+        weaponData = data;
+
         if (data != null)
         {
             // Cập nhật Icon súng
@@ -33,6 +42,6 @@ public class WeaponSlotUI : MonoBehaviour
 
     public void SetSelected(bool selected)
     {
-        if (selectedFrameObj != null) selectedFrameObj.SetActive(selected);
+        if (selectedFrameObj != null) selectedFrameObj.SetActive(!selected);
     }
 }
