@@ -153,8 +153,9 @@ private void Fire()
             
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
+                Transform bulletOwner = playerTransform != null ? playerTransform : transform.root;
                 float damageMultiplier = (1f + dmgStacks / 20f) * synergyDamageMultiplier; // base damage + stacks + synergy
-                bullet.Init(fireDir, transform.root,
+                bullet.Init(fireDir, bulletOwner,
                     pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0, null);
             }
             else

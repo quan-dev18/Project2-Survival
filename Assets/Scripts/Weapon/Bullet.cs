@@ -120,6 +120,10 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         if (damageable == null)
             return;
 
+        // Never damage the player (including from summons)
+        if (other.GetComponentInParent<PlayerStats>() != null)
+            return;
+
         if (lastHit == other && Time.time - lastHitTime < 0.1f)
             return;
 
@@ -158,7 +162,7 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             consumedPierce = true;
         }
 
-        // Explosion on kill
+        // Explosion on kill - skip owner/player
         if (wouldKill && explosionDamagePercent > 0f && bulletStats.ExplosionRadius > 0f)
         {
             float explosionDamage = finalDamage * explosionDamagePercent;
@@ -166,6 +170,8 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             foreach (Collider2D hit in hits)
             {
                 if (hit == other) continue;
+                if (owner != null && (hit.transform == owner || hit.transform.IsChildOf(owner) || hit.transform.root == owner)) continue;
+                if (hit.GetComponentInParent<PlayerStats>() != null) continue;
                 IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
                 if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
                 if (dmg != null && dmg != damageable)
