@@ -12,6 +12,21 @@ public class LevelUpPanel : MonoBehaviour
     [SerializeField] private Button button2;
     [SerializeField] private Button button3;
 
+    [Header("Titles (separate from description)")]
+    [SerializeField] private TMP_Text title1;
+    [SerializeField] private TMP_Text title2;
+    [SerializeField] private TMP_Text title3;
+
+    [Header("Descriptions")]
+    [SerializeField] private TMP_Text desc1;
+    [SerializeField] private TMP_Text desc2;
+    [SerializeField] private TMP_Text desc3;
+
+    [Header("Icons (placeholder)")]
+    [SerializeField] private Image icon1;
+    [SerializeField] private Image icon2;
+    [SerializeField] private Image icon3;
+
     [Header("Upgrade Pool")]
     [SerializeField] private List<UpgradeSO> upgradePool;
 
@@ -153,9 +168,43 @@ public class LevelUpPanel : MonoBehaviour
         }
 
         UpgradeSO upgrade = choices[choiceIndex];
-        TMP_Text label = button.GetComponentInChildren<TMP_Text>();
-        if (label != null)
-            label.text = $"<b>{upgrade.UpgradeName}</b>\n{upgrade.Description}";
+
+        // Resolve per-slot title/desc/icon
+        TMP_Text title = choiceIndex == 0 ? title1 : choiceIndex == 1 ? title2 : title3;
+        TMP_Text desc = choiceIndex == 0 ? desc1 : choiceIndex == 1 ? desc2 : desc3;
+        Image icon = choiceIndex == 0 ? icon1 : choiceIndex == 1 ? icon2 : icon3;
+
+        bool hasSplitFields = title != null || desc != null || icon != null;
+
+        if (hasSplitFields)
+        {
+            if (title != null)
+                title.text = $"<b>{upgrade.UpgradeName}</b>";
+            if (desc != null)
+                desc.text = upgrade.Description;
+            if (icon != null)
+                icon.sprite = upgrade.Icon; // placeholder - assign icons in UpgradeSO
+            // If title assigned, clear legacy combined label to avoid duplicate text
+            if (title != null)
+            {
+                var legacyLabels = button.GetComponentsInChildren<TMP_Text>(true);
+                foreach (var lbl in legacyLabels)
+                {
+                    if (lbl != title && lbl != desc)
+                    {
+                        // Keep legacy label empty when split fields are used (optional)
+                        // lbl.text = string.Empty;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Fallback: old combined label behavior
+            TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+            if (label != null)
+                label.text = $"<b>{upgrade.UpgradeName}</b>\n{upgrade.Description}";
+        }
 
         button.gameObject.SetActive(true);
     }
@@ -192,7 +241,15 @@ public class LevelUpPanel : MonoBehaviour
     private void ApplyStat(UpgradeType stat, float amount)
     {
         float pct = amount / 100f;
-        WeaponController[] allWeapons = playerStats?.Weapons;
+        // Always fetch ALL weapons in scene including inactive (5 prefabs) - don't rely on cached single
+        WeaponController[] allWeapons = FindObjectsByType<WeaponController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (allWeapons == null || allWeapons.Length == 0)
+            allWeapons = playerStats?.Weapons;
+        if (allWeapons == null || allWeapons.Length == 0)
+        {
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null) allWeapons = player.GetComponentsInChildren<WeaponController>(true);
+        }
 
         switch (stat)
         {
@@ -251,7 +308,7 @@ public class LevelUpPanel : MonoBehaviour
                 ApplyToAllWeapons(allWeapons, w => w.AddBulletInfinitePierceOnKill(pct));
                 break;
             case UpgradeType.BulletExplosionOnKill:
-                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct / 100f); w.AddBulletExplosionRadius(1.0f); });
+                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct); w.AddBulletExplosionRadius(1.5f); });
                 break;
             case UpgradeType.CharacterSizePercent:
                 playerStats?.AddCharacterSizePercent(pct);
@@ -292,8 +349,12 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.StackingBuffOnTime:
                 playerStats?.AddStackingBuffPercent(pct);
                 break;
+            case UpgradeType.BulletSpreadPercent:
             case UpgradeType.BulletSpread:
                 ApplyToAllWeapons(allWeapons, w => w.AddBulletSpread(amount));
+                break;
+            case UpgradeType.BulletBounceCount:
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletBounceCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.MysteryCube:
                 playerStats?.AddMysteryCube(pct);
@@ -402,7 +463,7 @@ public class LevelUpPanel : MonoBehaviour
                 ApplyToAllWeapons(allWeapons, w => w.AddBulletInfinitePierceOnKill(pct));
                 break;
             case UpgradeType.BulletExplosionOnKill:
-                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct / 100f); w.AddBulletExplosionRadius(1.0f); });
+                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct); w.AddBulletExplosionRadius(1.5f); });
                 break;
             case UpgradeType.CharacterSizePercent:
                 ps?.AddCharacterSizePercent(pct);
@@ -443,8 +504,12 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.StackingBuffOnTime:
                 ps?.AddStackingBuffPercent(pct);
                 break;
+            case UpgradeType.BulletSpreadPercent:
             case UpgradeType.BulletSpread:
                 ApplyToAllWeapons(allWeapons, w => w.AddBulletSpread(amount));
+                break;
+            case UpgradeType.BulletBounceCount:
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletBounceCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.MysteryCube:
                 ps?.AddMysteryCube(pct);

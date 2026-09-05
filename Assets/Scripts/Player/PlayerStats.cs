@@ -89,19 +89,42 @@ public class PlayerStats : MonoBehaviour
     public event System.Action<float, float> OnHealthChanged;
     #endregion
 
-    public WeaponController[] Weapons => weapons;
+    public WeaponController[] Weapons
+    {
+        get
+        {
+            // Always return ALL weapons (including inactive) to avoid single-weapon cache bug
+            var all = FindObjectsByType<WeaponController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (all != null && all.Length > 0)
+            {
+                weapons = all;
+                return weapons;
+            }
+            if (weapons == null || weapons.Length == 0)
+                weapons = GetComponentsInChildren<WeaponController>(true);
+            return weapons;
+        }
+    }
+    private WeaponController[] GetAllWeapons() => Weapons;
     public int ActiveWeaponIndex { get; private set; }
-    public WeaponController ActiveWeapon => weapons != null && ActiveWeaponIndex >= 0 && ActiveWeaponIndex < weapons.Length
-        ? weapons[ActiveWeaponIndex] : null;
+    public WeaponController ActiveWeapon => Weapons != null && ActiveWeaponIndex >= 0 && ActiveWeaponIndex < Weapons.Length
+        ? Weapons[ActiveWeaponIndex] : null;
 
     public void SetActiveWeaponIndex(int index)
     {
         ActiveWeaponIndex = index;
     }
 
+    public void SetWeapons(WeaponController[] newWeapons)
+    {
+        weapons = newWeapons;
+    }
+
     public void RegisterAllWeapons()
     {
-        weapons = GetComponentsInChildren<WeaponController>(true);
+        var found = GetComponentsInChildren<WeaponController>(true);
+        if (found != null && found.Length > 0)
+            weapons = found;
     }
 
     #region Damage Taken Buff
@@ -114,9 +137,11 @@ public class PlayerStats : MonoBehaviour
 
     private void Awake()
     {
-        if ((weapons == null || weapons.Length == 0) && GetComponentInChildren<WeaponController>() != null)
+        if (weapons == null || weapons.Length == 0)
         {
-            weapons = GetComponentsInChildren<WeaponController>();
+            var found = GetComponentsInChildren<WeaponController>(true);
+            if (found != null && found.Length > 0)
+                weapons = found;
         }
         LoadFromSO();
     }
@@ -133,9 +158,10 @@ public class PlayerStats : MonoBehaviour
             if (damageTakenTimer <= 0f)
             {
                 // Remove the temporary buffs using exactly what was applied
-                if (weapons != null && isDamageBuffActive)
+                var allW = GetAllWeapons();
+                if (allW != null && isDamageBuffActive)
                 {
-                    foreach (var w in weapons)
+                    foreach (var w in allW)
                     {
                         if (w != null)
                         {
@@ -173,14 +199,15 @@ public class PlayerStats : MonoBehaviour
         // Stacking buff: +2% per second, max 30%
         if (bonusStackingBuffPercent > 0f)
         {
-            float targetPercent = Mathf.Min(stackingBuffPercent + 0.02f * Time.deltaTime * 60f, 0.3f); // 2% per second
+            float targetPercent = Mathf.Min(stackingBuffPercent + 0.02f * Time.deltaTime, 0.3f); // 2% per second
             float delta = targetPercent - stackingBuffPercent;
             if (delta > 0f)
             {
                 stackingBuffPercent = targetPercent;
-                if (weapons != null)
+                var allW2 = GetAllWeapons();
+                if (allW2 != null)
                 {
-                    foreach (var w in weapons)
+                    foreach (var w in allW2)
                     {
                         if (w != null) w.AddBulletDamagePercent(delta);
                     }
@@ -214,7 +241,14 @@ public class PlayerStats : MonoBehaviour
     }
 
     //bonus percent
-    public void AddMaxHealthPercent(float amount) => bonusMaxHealthPercent += amount;
+    public void AddMaxHealthPercent(float amount)
+    {
+        float oldMax = MaxHealth;
+        bonusMaxHealthPercent += amount;
+        float newMax = MaxHealth;
+        CurrentHealth = newMax; //Mathf.Min(CurrentHealth + (newMax - oldMax), newMax);
+        OnHealthChanged?.Invoke(CurrentHealth, newMax);
+    }
 
     public void AddMaxArmorPercent(float amount) => bonusMaxArmorPercent += amount;
 
@@ -315,14 +349,17 @@ public class PlayerStats : MonoBehaviour
     {
         if (isDead || amount <= 0f) return;
 
-        // Invulnerable while reloading
-        if (bonusInvulnerableWhileReloading && weapons != null)
+        // Invulnerable while reloading - any weapon reloading = invuln
+        {
+            var allWInv = GetAllWeapons();
+            if (bonusInvulnerableWhileReloading && allWInv != null)
             {
-                foreach (var w in weapons)
+                foreach (var w in allWInv)
                 {
                     if (w != null && w.IsReloading) return;
                 }
             }
+        }
 
         float remaining = amount;
         if (CurrentArmor > 0f)
@@ -339,9 +376,10 @@ public class PlayerStats : MonoBehaviour
         // Reset stacking buff on hit
         if (stackingBuffPercent > 0f)
         {
-            if (weapons != null)
+            var allWReset = GetAllWeapons();
+            if (allWReset != null)
             {
-                foreach (var w in weapons)
+                foreach (var w in allWReset)
                 {
                     if (w != null) w.AddBulletDamagePercent(-stackingBuffPercent);
                 }
@@ -357,11 +395,12 @@ public class PlayerStats : MonoBehaviour
     public void OnDamageTaken()
     {
         // Apply the damage-taken buffs for the duration (only if not already active)
-        if (weapons != null && !isDamageBuffActive)
+        var allWDmg = GetAllWeapons();
+        if (allWDmg != null && !isDamageBuffActive)
         {
             appliedFireRateBuff = bonusDamageTakenFireRatePercent;
             appliedDamageBuff = bonusDamageTakenBulletDamagePercent;
-            foreach (var w in weapons)
+            foreach (var w in allWDmg)
             {
                 if (w != null)
                 {

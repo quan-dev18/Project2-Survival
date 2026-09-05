@@ -17,7 +17,7 @@ MonoBehaviour:
 
     Inflict burn on nearby enemies (higher move
     speed = higher chance)'
-  icon: {fileID: 0}
+  icon: {fileID: 812657760, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 3
     amount: 10

@@ -16,7 +16,7 @@ MonoBehaviour:
   description: 'Bullet explodes on kill
 
     (AoE dmg is 100% of bullet dmg)'
-  icon: {fileID: 0}
+  icon: {fileID: -1041289639, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 18
     amount: 100

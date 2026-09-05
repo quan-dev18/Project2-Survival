@@ -96,11 +96,11 @@ public class PlayerXP : MonoBehaviour
     {
         if (level <= 3)
         {
-            return 8;
+            return level*2 + 3;
         }
         else if (level <= 20)
         {
-            return level+2; //10 * level - 5; //level+2;
+            return 10 * level - 5; //level+2;
         }
         else if (level <= 40)
         {

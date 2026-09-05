@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Quick Shot III
   description: 35% chance of not consuming ammo while standing still
-  icon: {fileID: 0}
+  icon: {fileID: -299713645, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 21
     amount: 35

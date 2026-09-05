@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Holy Spirit I
   description: Summon a Holy spirit that shoot projectiles at enemy for 8 dmg
-  icon: {fileID: 0}
+  icon: {fileID: -172952565, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 36
     amount: 1

@@ -31,6 +31,7 @@ public class WeaponController : MonoBehaviour
 
     [Header("Sprite")]
     [SerializeField] private SpriteRenderer weaponSprite;
+    [SerializeField] private bool spriteFacesRight = true;
 
     [Header("Sorting")]
     [SerializeField] private PlayerMovement playerMovement;
@@ -114,6 +115,16 @@ public class WeaponController : MonoBehaviour
             rangeTrigger.radius = fireRange;
         if(weaponSprite == null)
             weaponSprite = GetComponentInChildren<SpriteRenderer>();
+        if (playerRigidbody == null)
+        {
+            playerRigidbody = GetComponentInParent<Rigidbody2D>();
+            if (playerRigidbody == null)
+            {
+                var player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null)
+                    playerRigidbody = player.GetComponent<Rigidbody2D>() ?? player.GetComponentInChildren<Rigidbody2D>();
+            }
+        }
     }
 
     private void Update()
@@ -197,6 +208,14 @@ public class WeaponController : MonoBehaviour
         float frontOffset = Mathf.Atan2(weaponFront.localPosition.y, weaponFront.localPosition.x) * Mathf.Rad2Deg;
 
         transform.rotation = Quaternion.Euler(0f, 0f, targetAngle - frontOffset);
+
+        // Mirror sprite so it doesn't appear upside-down on the left side
+        if (weaponSprite != null)
+        {
+            bool aimingRight = toTarget.x >= 0f;
+            weaponSprite.flipY = spriteFacesRight && !aimingRight;
+            weaponSprite.flipX = !spriteFacesRight && aimingRight;
+        }
 
     }
 #endregion

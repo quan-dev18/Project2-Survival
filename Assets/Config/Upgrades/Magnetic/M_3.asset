@@ -16,11 +16,11 @@ MonoBehaviour:
   description: 'Pickup range +25%
 
     XP pickup increase fire rate by 25% for 1s'
-  icon: {fileID: 0}
+  icon: {fileID: -1139949675, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
-  - stat: 23
+  - stat: 4
     amount: 25
-  - stat: 5
+  - stat: 23
     amount: 25
   requires:
   - {fileID: 11400000, guid: c7aa1b419547d6f4fa86467364518553, type: 2}
