@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class WeaponSelectManager : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class WeaponSelectManager : MonoBehaviour
     [SerializeField] private List<WeaponSO> weaponList;
 
     [Header("UI Containers")]
-    [SerializeField] private Transform slotContainer; 
+    [SerializeField] private List<Transform> slotContainer; 
     [SerializeField] private GameObject weaponSlotPrefab; 
 
     [Header("Select Button")]
@@ -19,15 +20,26 @@ public class WeaponSelectManager : MonoBehaviour
     [Header("Outside Equipment UI")]
     [SerializeField] private Image outsideWeaponIcon; 
 
+    [Header("Tween Animation")]
+    [SerializeField] private UISlideTween slideTween;
+
     private WeaponSO currentSelectedWeapon;
-    private WeaponSlotUI currentSelectedSlot;
+    private List<WeaponSlotUI> allSlots = new List<WeaponSlotUI>();
+    private int selectedIndex = -1;
+    private Transform lastClickedContainer;
+    private Dictionary<Transform, int> containerSelectedIndex = new Dictionary<Transform, int>();
+
+    private void OnEnable()
+    {
+        if (PlayerPrefs.HasKey("SelectedWeaponIndex"))
+            PlayerEquipment.SelectedWeaponIndex = PlayerPrefs.GetInt("SelectedWeaponIndex");
+
+        RestoreSelectedWeaponIcon();
+        GenerateListUI();
+    }
 
     private void Start()
     {
-        RestoreSelectedWeaponIcon();
-
-        GenerateListUI();
-
         if (selectButton != null)
         {
             selectButton.onClick.RemoveAllListeners();
@@ -45,49 +57,119 @@ public class WeaponSelectManager : MonoBehaviour
         }
     }
 
+    private int GetSavedSelectedIndex()
+    {
+        return PlayerPrefs.GetInt("SelectedWeaponIndex", PlayerEquipment.SelectedWeaponIndex);
+    }
+
     private void GenerateListUI()
     {
-        foreach (Transform child in slotContainer) Destroy(child.gameObject);
-
-        foreach (var weapon in weaponList)
+        foreach (Transform container in slotContainer)
         {
-            if (weapon == null) continue;
-
-            GameObject slotObj = Instantiate(weaponSlotPrefab, slotContainer);
-            WeaponSlotUI slotScript = slotObj.GetComponent<WeaponSlotUI>();
-            
-            if (slotScript != null)
-            {
-                slotScript.Setup(weapon, OnSelectWeapon);
-                if (weapon == weaponList[0]) currentSelectedSlot = slotScript;
-            }
-
-            slotObj.transform.localScale = Vector3.one;
-            slotObj.transform.localPosition = Vector3.zero;
+            foreach (Transform child in container) DestroyImmediate(child.gameObject);
         }
 
-        if (weaponList.Count > 0 && weaponList[0] != null) OnSelectWeapon(weaponList[0]);
+        if (weaponList.Count == 0) return;
+
+        allSlots.Clear();
+        containerSelectedIndex.Clear();
+
+        foreach (Transform container in slotContainer)
+        {
+            if (container == null) continue;
+            containerSelectedIndex[container] = -1;
+
+            for (int i = 0; i < weaponList.Count; i++)
+            {
+                WeaponSO weapon = weaponList[i];
+                if (weapon == null) continue;
+
+                GameObject slotObj = Instantiate(weaponSlotPrefab, container);
+                WeaponSlotUI slotScript = slotObj.GetComponent<WeaponSlotUI>();
+
+                if (slotScript != null)
+                {
+                    Transform capturedContainer = container;
+                    slotScript.Setup(weapon, (WeaponSO data) =>
+                    {
+                        lastClickedContainer = capturedContainer;
+                        OnSelectWeapon(data);
+                    });
+                    allSlots.Add(slotScript);
+                }
+
+                slotObj.transform.localScale = Vector3.one;
+                slotObj.transform.localPosition = Vector3.zero;
+            }
+        }
+
+        // Đưa trạng thái chọn về vũ khí đã confirm
+        ResetToSavedWeapon();
+    }
+
+    // Hàm trả giao diện về vũ khí đã lưu gần nhất trong PlayerPrefs
+    public void ResetToSavedWeapon()
+    {
+        if (weaponList.Count == 0) return;
+
+        int savedIndex = GetSavedSelectedIndex();
+        savedIndex = Mathf.Clamp(savedIndex, 0, weaponList.Count - 1);
+
+        if (savedIndex >= 0 && savedIndex < weaponList.Count && weaponList[savedIndex] != null)
+        {
+            lastClickedContainer = null;
+            OnSelectWeapon(weaponList[savedIndex]);
+        }
+    }
+
+    // Đồng bộ khung: tắt (chọn) vũ khí ở selectedIndex, bật tất cả còn lại — trên mọi container
+    private void RefreshAllFrames()
+    {
+        foreach (WeaponSlotUI slot in allSlots)
+        {
+            if (slot == null) continue;
+
+            WeaponSO weapon = slot.GetWeaponData();
+            int index = weapon != null ? weaponList.IndexOf(weapon) : -1;
+            bool isSelected = (index == selectedIndex);
+
+            slot.SetSelected(isSelected);
+        }
+    }
+
+    private void RefreshContainerFrames(Transform container)
+    {
+        if (!containerSelectedIndex.ContainsKey(container)) return;
+        int selectedIdx = containerSelectedIndex[container];
+
+        foreach (WeaponSlotUI slot in allSlots)
+        {
+            if (slot == null) continue;
+            if (slot.transform.parent != container) continue;
+
+            WeaponSO weapon = slot.GetWeaponData();
+            int index = weapon != null ? weaponList.IndexOf(weapon) : -1;
+            slot.SetSelected(index == selectedIdx);
+        }
     }
 
     private void OnSelectWeapon(WeaponSO data)
     {
         currentSelectedWeapon = data;
+        selectedIndex = weaponList.IndexOf(data);
 
-        // Tìm slot tương ứng và cập nhật selectedFrame
-        if (currentSelectedSlot != null) currentSelectedSlot.SetSelected(false);
-        int index = weaponList.IndexOf(data);
-        if (index >= 0)
+        if (lastClickedContainer != null)
         {
-            Transform slotTransform = slotContainer.GetChild(index);
-            WeaponSlotUI slotScript = slotTransform.GetComponent<WeaponSlotUI>();
-            if (slotScript != null)
-            {
-                currentSelectedSlot = slotScript;
-                if (data.IsUnlocked) slotScript.SetSelected(true);
-            }
+            containerSelectedIndex[lastClickedContainer] = selectedIndex;
+            RefreshContainerFrames(lastClickedContainer);
+        }
+        else
+        {
+            foreach (Transform container in slotContainer)
+                containerSelectedIndex[container] = selectedIndex;
+            RefreshAllFrames();
         }
 
-        // Cập nhật trạng thái nút bấm
         if (data.IsUnlocked)
         {
             int weaponIndex = weaponList.IndexOf(data);
@@ -108,10 +190,9 @@ public class WeaponSelectManager : MonoBehaviour
     {
         if (currentSelectedWeapon != null && currentSelectedWeapon.IsUnlocked)
         {
+            // Cập nhật Icon bên ngoài
             if (outsideWeaponIcon != null)
-            {
                 outsideWeaponIcon.sprite = currentSelectedWeapon.WeaponIcon;
-            }
 
             // Hiển thị trạng thái "Đã chọn" và chặn bấm lại
             if (selectButton != null) selectButton.interactable = false;
@@ -125,7 +206,22 @@ public class WeaponSelectManager : MonoBehaviour
 
             Debug.Log("Đã chọn vũ khí: " + currentSelectedWeapon.WeaponName);
 
-            gameObject.SetActive(false);
+            // Đóng panel với hiệu ứng
+            if (slideTween != null)
+                slideTween.Hide();
+            else
+                gameObject.SetActive(false);
         }
+    }
+
+    public void ClosePanel()
+    {
+        // Khôi phục lại trạng thái vũ khí đã lưu trước khi trượt ẩn panel
+        ResetToSavedWeapon();
+
+        if (slideTween != null)
+            slideTween.Hide();
+        else
+            gameObject.SetActive(false);
     }
 }
