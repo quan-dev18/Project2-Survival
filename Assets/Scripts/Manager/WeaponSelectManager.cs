@@ -34,8 +34,20 @@ public class WeaponSelectManager : MonoBehaviour
         if (PlayerPrefs.HasKey("SelectedWeaponIndex"))
             PlayerEquipment.SelectedWeaponIndex = PlayerPrefs.GetInt("SelectedWeaponIndex");
 
+        ApplyUnlockStateFromPrefs();
+
         RestoreSelectedWeaponIcon();
         GenerateListUI();
+    }
+
+    private void ApplyUnlockStateFromPrefs()
+    {
+        for (int i = 0; i < weaponList.Count; i++)
+        {
+            if (weaponList[i] == null) continue;
+            bool unlocked = PlayerPrefs.GetInt($"UnlockedWeapon_{i}", weaponList[i].IsUnlocked ? 1 : 0) == 1;
+            weaponList[i].SetUnlocked(unlocked);
+        }
     }
 
     private void Start()

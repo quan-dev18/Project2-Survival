@@ -154,6 +154,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 342ceb7217fdff342bd8d107cf90b5c4, type: 2}
   - {fileID: 11400000, guid: 4d792c9991bc8314fa987f4a21b517fa, type: 2}
   - {fileID: 11400000, guid: 2b64f1cae0bfba14c96697f52bf738be, type: 2}
+  - {fileID: 11400000, guid: 11bfd63fb1f028540a17b2e3c08f313b, type: 2}
   dropChance: 0.3
   spreadRadius: 0.5
 --- !u!114 &7855888998185248012

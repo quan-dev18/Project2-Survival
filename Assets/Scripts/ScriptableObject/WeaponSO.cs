@@ -8,6 +8,10 @@ public class WeaponSO : ScriptableObject
     public Sprite WeaponIcon => weaponIcon;
     [SerializeField] private bool isUnlocked;
     public bool IsUnlocked => isUnlocked;
+    public void SetUnlocked(bool val) => isUnlocked = val;
+
+    [SerializeField] private int goldCost = 100;
+    public int GoldCost => goldCost;
 
     [Header("Weapon Stats")]
     [SerializeField] private string weaponName;

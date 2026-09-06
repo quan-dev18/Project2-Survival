@@ -9,14 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2391c1e03f155a469b3457ccedc6818, type: 3}
-  m_Name: Character1
+  m_Script: {fileID: 11500000, guid: 7c4853062ed381948b34579449ee1030, type: 3}
+  m_Name: GoldDrop
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  maxArmor: 0
-  recoveryRate: 0
-  movementSpeed: 4
-  collectRange: 2
-  growthRate: 0
-  isUnlocked: 0
-  goldCost: 0
+  poolKey: Gold
+  quantity: 5
+  weight: 0.5

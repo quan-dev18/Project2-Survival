@@ -7,6 +7,7 @@ public class GameOverPanel : MonoBehaviour
 {
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text statsText;
+    [SerializeField] private TMP_Text goldText;
 
     [SerializeField] private float floatDistance = 40f;
     [SerializeField] private float floatDuration = 1f;
@@ -41,6 +42,12 @@ public class GameOverPanel : MonoBehaviour
 
             if (statsText != null)
                 statsText.text = $"Time Alive: {minutes:D2}:{seconds:D2}\nKills: {GameManager.Instance.KillCount}";
+
+            if (goldText != null)
+            {
+                int sessionGold = GoldManager.Instance != null ? GoldManager.Instance.SessionGold : 0;
+                goldText.text = $"Gold Earned: {sessionGold}";
+            }
         }
 
         PlayTitleFloat();
