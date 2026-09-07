@@ -15,6 +15,8 @@ MonoBehaviour:
   weaponIcon: {fileID: -1941400246, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
   isUnlocked: 1
   goldCost: 0
+  shootSFX: {fileID: 8300000, guid: 89f75350cafb2a4428386df166291fcb, type: 3}
+  reloadSFX: {fileID: 8300000, guid: 3921ab477835b824986627f0939a751c, type: 3}
   weaponName: Piss tool
   fireRate: 0.5
   fireRange: 5

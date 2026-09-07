@@ -109,8 +109,18 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
 
         if (target.TryGetComponent(out PlayerXP playerXP))
             playerXP.AddExperience(playerXP.PickupValue(xpAmount));
+        PlayCollectSFX();
         if (ObjectPooling.Instance != null)
             ObjectPooling.Instance.Despawn(gameObject);
+    }
+
+    /// <summary>
+    /// Phát tiếng thu thập. GoldGem ghi đè phương thức này để dùng clip riêng.
+    /// Clip được cấu hình tập trung trong AudioManager.
+    /// </summary>
+    protected virtual void PlayCollectSFX()
+    {
+        AudioManager.Instance?.PlayXPCollect();
     }
 
     private void OnDisable()

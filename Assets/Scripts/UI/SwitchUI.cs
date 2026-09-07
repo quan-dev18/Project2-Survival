@@ -38,6 +38,8 @@ public class CustomSwitchUI : MonoBehaviour, IPointerClickHandler
 
         if (triggerEvent)
         {
+            // Phát tiếng toggle on/off theo trạng thái mới (bắt buộc có AudioManager).
+            AudioManager.Instance?.PlayUIToggle(isOn);
             onValueChanged?.Invoke(isOn);
         }
     }

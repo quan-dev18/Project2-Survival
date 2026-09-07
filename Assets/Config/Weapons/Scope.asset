@@ -15,6 +15,8 @@ MonoBehaviour:
   weaponIcon: {fileID: -536087438, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
   isUnlocked: 0
   goldCost: 9999
+  shootSFX: {fileID: 8300000, guid: 40f0d6f08672bef42ab5cd6e23a106d5, type: 3}
+  reloadSFX: {fileID: 8300000, guid: f0ec494150d06c64eb431e14ad64d872, type: 3}
   weaponName: AWP
   fireRate: 1
   fireRange: 7

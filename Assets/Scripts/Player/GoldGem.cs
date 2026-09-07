@@ -22,7 +22,18 @@ public class GoldGem : XPGem
         if (UserData.Instance != null)
             UserData.Instance.AddGold(goldAmount);
 
+        PlayCollectSFX();
+
         if (ObjectPooling.Instance != null)
             ObjectPooling.Instance.Despawn(gameObject);
+    }
+
+    /// <summary>
+    /// Thu thập vàng dùng tiếng GOLD riêng (cấu hình trong AudioManager)
+    /// thay vì tiếng exp mặc định của XPGem.
+    /// </summary>
+    protected override void PlayCollectSFX()
+    {
+        AudioManager.Instance?.PlayGoldCollect();
     }
 }
