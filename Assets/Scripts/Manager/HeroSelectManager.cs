@@ -20,6 +20,10 @@ public class HeroSelectManager : MonoBehaviour
     [SerializeField] private Button selectButton;
     [SerializeField] private TextMeshProUGUI selectButtonText;
 
+    [Header("Gold Cost Display")]
+    [SerializeField] private TextMeshProUGUI goldCostText;
+    [SerializeField] private GameObject goldCostContainer;
+
     [Header("Outside Equipment UI")]
     [SerializeField] private Image outsideHeroIcon;
 
@@ -32,23 +36,14 @@ public class HeroSelectManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if (PlayerPrefs.HasKey("SelectedHeroIndex"))
-            PlayerEquipment.SelectedHeroIndex = PlayerPrefs.GetInt("SelectedHeroIndex");
-
-        ApplyUnlockStateFromPrefs();
+        if (UserData.Instance != null)
+        {
+            UserData.Instance.InitHeroDefaults(heroList);
+            PlayerEquipment.SelectedHeroIndex = UserData.Instance.SelectedHeroIndex;
+        }
 
         RestoreSelectedHeroIcon();
         GenerateListUI();
-    }
-
-    private void ApplyUnlockStateFromPrefs()
-    {
-        for (int i = 0; i < heroList.Count; i++)
-        {
-            if (heroList[i] == null) continue;
-            bool unlocked = PlayerPrefs.GetInt($"UnlockedHero_{i}", heroList[i].isUnlocked ? 1 : 0) == 1;
-            heroList[i].SetUnlocked(unlocked);
-        }
     }
 
     private void Start()
@@ -60,9 +55,18 @@ public class HeroSelectManager : MonoBehaviour
         }
     }
 
+    private bool IsHeroUnlocked(int index)
+    {
+        if (UserData.Instance != null)
+            return UserData.Instance.IsHeroUnlocked(index);
+        if (index >= 0 && index < heroList.Count && heroList[index] != null)
+            return heroList[index].isUnlocked;
+        return false;
+    }
+
     private void RestoreSelectedHeroIcon()
     {
-        int savedIndex = PlayerPrefs.GetInt("SelectedHeroIndex", PlayerEquipment.SelectedHeroIndex);
+        int savedIndex = UserData.Instance != null ? UserData.Instance.SelectedHeroIndex : 0;
         if (savedIndex >= 0 && savedIndex < heroList.Count && heroList[savedIndex] != null)
         {
             if (outsideHeroIcon != null) outsideHeroIcon.sprite = heroList[savedIndex].heroIcon;
@@ -73,7 +77,7 @@ public class HeroSelectManager : MonoBehaviour
     {
         foreach (Transform child in slotContainer) DestroyImmediate(child.gameObject);
 
-        int savedIndex = PlayerPrefs.GetInt("SelectedHeroIndex", PlayerEquipment.SelectedHeroIndex);
+        int savedIndex = UserData.Instance != null ? UserData.Instance.SelectedHeroIndex : 0;
         savedIndex = Mathf.Clamp(savedIndex, 0, Mathf.Max(0, heroList.Count - 1));
 
         currentSelectedHero = null;
@@ -84,11 +88,13 @@ public class HeroSelectManager : MonoBehaviour
             var hero = heroList[i];
             if (hero == null) continue;
 
+            bool unlocked = IsHeroUnlocked(i);
+
             GameObject slotObj = Instantiate(slotPrefab, slotContainer);
             HeroSlotUI slotScript = slotObj.GetComponent<HeroSlotUI>();
             if (slotScript != null)
             {
-                slotScript.Setup(hero, OnSelectHero);
+                slotScript.Setup(hero, unlocked, OnSelectHero);
 
                 bool isSavedSelected = (i == savedIndex);
                 slotScript.SetSelected(isSavedSelected);
@@ -104,10 +110,9 @@ public class HeroSelectManager : MonoBehaviour
         ResetToSavedHero();
     }
 
-    // Hàm trả giao diện về nhân vật đã lưu gần nhất
     public void ResetToSavedHero()
     {
-        int savedIndex = PlayerPrefs.GetInt("SelectedHeroIndex", PlayerEquipment.SelectedHeroIndex);
+        int savedIndex = UserData.Instance != null ? UserData.Instance.SelectedHeroIndex : 0;
         savedIndex = Mathf.Clamp(savedIndex, 0, Mathf.Max(0, heroList.Count - 1));
 
         if (savedIndex >= 0 && savedIndex < heroList.Count && heroList[savedIndex] != null)
@@ -134,7 +139,8 @@ public class HeroSelectManager : MonoBehaviour
             if (slotScript != null)
             {
                 currentSelectedSlot = slotScript;
-                if (data.isUnlocked)
+                bool unlocked = IsHeroUnlocked(index);
+                if (unlocked)
                 {
                     slotScript.SetSelected(true);
                     slotScript.SetIconAlpha(0.69f);
@@ -148,44 +154,75 @@ public class HeroSelectManager : MonoBehaviour
             currentPreviewInstance = Instantiate(data.previewPrefab, previewParent);
         }
 
-        if (data.isUnlocked)
+        bool isUnlocked = IsHeroUnlocked(index);
+        if (isUnlocked)
         {
-            int heroIndex = heroList.IndexOf(data);
-            bool isAlreadySelected = (heroIndex == PlayerEquipment.SelectedHeroIndex);
+            bool isAlreadySelected = UserData.Instance != null && (index == UserData.Instance.SelectedHeroIndex);
 
             selectButton.interactable = !isAlreadySelected;
             if (selectButtonText != null)
                 selectButtonText.text = isAlreadySelected ? "Đã chọn" : "Chọn";
+
+            if (goldCostContainer != null)
+                goldCostContainer.SetActive(false);
         }
         else
         {
-            selectButton.interactable = false;
-            if (selectButtonText != null) selectButtonText.text = "Đã khóa";
+            selectButton.interactable = UserData.Instance != null && UserData.Instance.HasEnoughGold(data.GoldCost);
+            if (selectButtonText != null)
+                selectButtonText.text = $"Mua {FormatHelper.FormatGold(data.GoldCost)}";
+
+            if (goldCostContainer != null)
+                goldCostContainer.SetActive(true);
+            if (goldCostText != null)
+                goldCostText.text = FormatHelper.FormatGold(data.GoldCost);
         }
     }
 
     private void OnConfirmSelect()
     {
-        if (currentSelectedHero != null && currentSelectedHero.isUnlocked)
+        if (currentSelectedHero == null || UserData.Instance == null) return;
+
+        int heroIndex = heroList.IndexOf(currentSelectedHero);
+        bool unlocked = IsHeroUnlocked(heroIndex);
+
+        if (!unlocked)
         {
+            if (!UserData.Instance.HasEnoughGold(currentSelectedHero.GoldCost))
+                return;
+
+            UserData.Instance.UnlockHero(heroIndex, currentSelectedHero.GoldCost);
+
+            if (currentSelectedSlot != null)
+                currentSelectedSlot.SetUnlocked(true);
+
+            if (selectButtonText != null)
+                selectButtonText.text = "Đã chọn";
+            selectButton.interactable = false;
+
+            if (goldCostContainer != null)
+                goldCostContainer.SetActive(false);
+
             if (outsideHeroIcon != null)
                 outsideHeroIcon.sprite = currentSelectedHero.heroIcon;
 
-            if (selectButton != null) selectButton.interactable = false;
-            if (selectButtonText != null) selectButtonText.text = "Đã chọn";
-
-            int heroIndex = heroList.IndexOf(currentSelectedHero);
+            UserData.Instance.SelectedHeroIndex = heroIndex;
             PlayerEquipment.SelectedHeroIndex = heroIndex;
-            PlayerPrefs.SetInt("SelectedHeroIndex", heroIndex);
-            PlayerPrefs.Save();
-
-            Debug.Log("Đã chọn nhân vật: " + currentSelectedHero.name);
+            return;
         }
+
+        if (outsideHeroIcon != null)
+            outsideHeroIcon.sprite = currentSelectedHero.heroIcon;
+
+        if (selectButton != null) selectButton.interactable = false;
+        if (selectButtonText != null) selectButtonText.text = "Đã chọn";
+
+        UserData.Instance.SelectedHeroIndex = heroIndex;
+        PlayerEquipment.SelectedHeroIndex = heroIndex;
     }
 
     public void ClosePanel()
     {
-        // Khôi phục lại nhân vật đã lưu trước khi đóng Panel
         ResetToSavedHero();
 
         if (slideTween != null)

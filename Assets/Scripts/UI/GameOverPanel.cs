@@ -45,8 +45,21 @@ public class GameOverPanel : MonoBehaviour
 
             if (goldText != null)
             {
-                int sessionGold = GoldManager.Instance != null ? GoldManager.Instance.SessionGold : 0;
+                int kills = GameManager.Instance.KillCount;
+                int timeSeconds = Mathf.FloorToInt(GameManager.Instance.TotalElapsedTime);
+                GoldConfig config = Resources.Load<GoldConfig>("GoldConfig");
+                int sessionGold = 0;
+                if (config != null)
+                    sessionGold = (kills * config.goldPerKill) + (timeSeconds * config.goldPerSecond);
+                else
+                    sessionGold = kills + timeSeconds;
                 goldText.text = $"Gold Earned: {sessionGold}";
+
+                if (UserData.Instance != null)
+                {
+                    UserData.Instance.AddSessionGold(sessionGold);
+                    UserData.Instance.ClaimSessionGold();
+                }
             }
         }
 
