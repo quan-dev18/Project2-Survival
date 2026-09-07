@@ -15,12 +15,4 @@ public class CharacterSO : ScriptableObject
     public float CollectRange => collectRange;
     [SerializeField] private float growthRate; // The rate at which the character levels up
     public float GrowthRate => growthRate;
-
-    [Header("Unlock & Shop")]
-    [SerializeField] private bool isUnlocked = true;
-    public bool IsUnlocked => isUnlocked;
-    public void SetUnlocked(bool val) => isUnlocked = val;
-
-    [SerializeField] private int goldCost = 100;
-    public int GoldCost => goldCost;
 }

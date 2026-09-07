@@ -15,3 +15,4 @@ MonoBehaviour:
   heroIcon: {fileID: 21300000, guid: 40cf41b0f6f7a6949b4ecf9bf3328a1e, type: 3}
   previewPrefab: {fileID: 3593286478924560057, guid: fd74520a45a2e7a46a0da73365df4e8c, type: 3}
   isUnlocked: 1
+  goldCost: 0

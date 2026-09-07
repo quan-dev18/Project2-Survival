@@ -25,8 +25,11 @@ public class PlayerEquipment : MonoBehaviour
 
     private void Awake()
     {
-        if (PlayerPrefs.HasKey("SelectedWeaponIndex"))
-            SelectedWeaponIndex = PlayerPrefs.GetInt("SelectedWeaponIndex");
+        if (UserData.Instance != null)
+        {
+            SelectedHeroIndex = UserData.Instance.SelectedHeroIndex;
+            SelectedWeaponIndex = UserData.Instance.SelectedWeaponIndex;
+        }
 
         if (playerMovement == null)
             playerMovement = GetComponent<PlayerMovement>();

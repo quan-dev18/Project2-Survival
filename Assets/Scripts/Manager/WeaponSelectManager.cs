@@ -10,15 +10,19 @@ public class WeaponSelectManager : MonoBehaviour
     [SerializeField] private List<WeaponSO> weaponList;
 
     [Header("UI Containers")]
-    [SerializeField] private List<Transform> slotContainer; 
-    [SerializeField] private GameObject weaponSlotPrefab; 
+    [SerializeField] private List<Transform> slotContainer;
+    [SerializeField] private GameObject weaponSlotPrefab;
 
     [Header("Select Button")]
     [SerializeField] private Button selectButton;
     [SerializeField] private TextMeshProUGUI selectButtonText;
 
+    [Header("Gold Cost Display")]
+    [SerializeField] private TextMeshProUGUI goldCostText;
+    [SerializeField] private GameObject goldCostContainer;
+
     [Header("Outside Equipment UI")]
-    [SerializeField] private Image outsideWeaponIcon; 
+    [SerializeField] private Image outsideWeaponIcon;
 
     [Header("Tween Animation")]
     [SerializeField] private UISlideTween slideTween;
@@ -31,23 +35,14 @@ public class WeaponSelectManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if (PlayerPrefs.HasKey("SelectedWeaponIndex"))
-            PlayerEquipment.SelectedWeaponIndex = PlayerPrefs.GetInt("SelectedWeaponIndex");
-
-        ApplyUnlockStateFromPrefs();
+        if (UserData.Instance != null)
+        {
+            UserData.Instance.InitWeaponDefaults(weaponList);
+            PlayerEquipment.SelectedWeaponIndex = UserData.Instance.SelectedWeaponIndex;
+        }
 
         RestoreSelectedWeaponIcon();
         GenerateListUI();
-    }
-
-    private void ApplyUnlockStateFromPrefs()
-    {
-        for (int i = 0; i < weaponList.Count; i++)
-        {
-            if (weaponList[i] == null) continue;
-            bool unlocked = PlayerPrefs.GetInt($"UnlockedWeapon_{i}", weaponList[i].IsUnlocked ? 1 : 0) == 1;
-            weaponList[i].SetUnlocked(unlocked);
-        }
     }
 
     private void Start()
@@ -59,10 +54,18 @@ public class WeaponSelectManager : MonoBehaviour
         }
     }
 
-    // Khôi phục Icon vũ khí đã chọn lên màn hình Equipment khi mở panel
+    private bool IsWeaponUnlocked(int index)
+    {
+        if (UserData.Instance != null)
+            return UserData.Instance.IsWeaponUnlocked(index);
+        if (index >= 0 && index < weaponList.Count && weaponList[index] != null)
+            return weaponList[index].IsUnlocked;
+        return false;
+    }
+
     private void RestoreSelectedWeaponIcon()
     {
-        int savedIndex = PlayerPrefs.GetInt("SelectedWeaponIndex", PlayerEquipment.SelectedWeaponIndex);
+        int savedIndex = UserData.Instance != null ? UserData.Instance.SelectedWeaponIndex : 0;
         if (savedIndex >= 0 && savedIndex < weaponList.Count && weaponList[savedIndex] != null)
         {
             if (outsideWeaponIcon != null) outsideWeaponIcon.sprite = weaponList[savedIndex].WeaponIcon;
@@ -71,7 +74,7 @@ public class WeaponSelectManager : MonoBehaviour
 
     private int GetSavedSelectedIndex()
     {
-        return PlayerPrefs.GetInt("SelectedWeaponIndex", PlayerEquipment.SelectedWeaponIndex);
+        return UserData.Instance != null ? UserData.Instance.SelectedWeaponIndex : 0;
     }
 
     private void GenerateListUI()
@@ -96,13 +99,15 @@ public class WeaponSelectManager : MonoBehaviour
                 WeaponSO weapon = weaponList[i];
                 if (weapon == null) continue;
 
+                bool unlocked = IsWeaponUnlocked(i);
+
                 GameObject slotObj = Instantiate(weaponSlotPrefab, container);
                 WeaponSlotUI slotScript = slotObj.GetComponent<WeaponSlotUI>();
 
                 if (slotScript != null)
                 {
                     Transform capturedContainer = container;
-                    slotScript.Setup(weapon, (WeaponSO data) =>
+                    slotScript.Setup(weapon, unlocked, (WeaponSO data) =>
                     {
                         lastClickedContainer = capturedContainer;
                         OnSelectWeapon(data);
@@ -115,11 +120,9 @@ public class WeaponSelectManager : MonoBehaviour
             }
         }
 
-        // Đưa trạng thái chọn về vũ khí đã confirm
         ResetToSavedWeapon();
     }
 
-    // Hàm trả giao diện về vũ khí đã lưu gần nhất trong PlayerPrefs
     public void ResetToSavedWeapon()
     {
         if (weaponList.Count == 0) return;
@@ -134,18 +137,14 @@ public class WeaponSelectManager : MonoBehaviour
         }
     }
 
-    // Đồng bộ khung: tắt (chọn) vũ khí ở selectedIndex, bật tất cả còn lại — trên mọi container
     private void RefreshAllFrames()
     {
         foreach (WeaponSlotUI slot in allSlots)
         {
             if (slot == null) continue;
-
             WeaponSO weapon = slot.GetWeaponData();
             int index = weapon != null ? weaponList.IndexOf(weapon) : -1;
-            bool isSelected = (index == selectedIndex);
-
-            slot.SetSelected(isSelected);
+            slot.SetSelected(index == selectedIndex);
         }
     }
 
@@ -158,7 +157,6 @@ public class WeaponSelectManager : MonoBehaviour
         {
             if (slot == null) continue;
             if (slot.transform.parent != container) continue;
-
             WeaponSO weapon = slot.GetWeaponData();
             int index = weapon != null ? weaponList.IndexOf(weapon) : -1;
             slot.SetSelected(index == selectedIdx);
@@ -182,53 +180,88 @@ public class WeaponSelectManager : MonoBehaviour
             RefreshAllFrames();
         }
 
-        if (data.IsUnlocked)
+        bool unlocked = IsWeaponUnlocked(selectedIndex);
+        if (unlocked)
         {
-            int weaponIndex = weaponList.IndexOf(data);
-            bool isAlreadySelected = (weaponIndex == PlayerEquipment.SelectedWeaponIndex);
+            bool isAlreadySelected = UserData.Instance != null && (selectedIndex == UserData.Instance.SelectedWeaponIndex);
 
             selectButton.interactable = !isAlreadySelected;
             if (selectButtonText != null)
                 selectButtonText.text = isAlreadySelected ? "Đã chọn" : "Chọn";
+
+            if (goldCostContainer != null)
+                goldCostContainer.SetActive(false);
         }
         else
         {
-            selectButton.interactable = false;
-            if (selectButtonText != null) selectButtonText.text = "Đã khóa";
+            selectButton.interactable = UserData.Instance != null && UserData.Instance.HasEnoughGold(data.GoldCost);
+            if (selectButtonText != null)
+                selectButtonText.text = $"Mua {FormatHelper.FormatGold(data.GoldCost)}";
+
+            if (goldCostContainer != null)
+                goldCostContainer.SetActive(true);
+            if (goldCostText != null)
+                goldCostText.text = FormatHelper.FormatGold(data.GoldCost);
         }
     }
 
     private void OnConfirmSelect()
     {
-        if (currentSelectedWeapon != null && currentSelectedWeapon.IsUnlocked)
+        if (currentSelectedWeapon == null || UserData.Instance == null) return;
+
+        int weaponIndex = weaponList.IndexOf(currentSelectedWeapon);
+        bool unlocked = IsWeaponUnlocked(weaponIndex);
+
+        if (!unlocked)
         {
-            // Cập nhật Icon bên ngoài
+            if (!UserData.Instance.HasEnoughGold(currentSelectedWeapon.GoldCost))
+                return;
+
+            UserData.Instance.UnlockWeapon(weaponIndex, currentSelectedWeapon.GoldCost);
+
+            foreach (WeaponSlotUI slot in allSlots)
+            {
+                if (slot != null && slot.GetWeaponData() == currentSelectedWeapon)
+                {
+                    slot.SetUnlocked(true);
+                    break;
+                }
+            }
+
+            if (selectButtonText != null)
+                selectButtonText.text = "Đã chọn";
+            selectButton.interactable = false;
+
+            if (goldCostContainer != null)
+                goldCostContainer.SetActive(false);
+
             if (outsideWeaponIcon != null)
                 outsideWeaponIcon.sprite = currentSelectedWeapon.WeaponIcon;
 
-            // Hiển thị trạng thái "Đã chọn" và chặn bấm lại
-            if (selectButton != null) selectButton.interactable = false;
-            if (selectButtonText != null) selectButtonText.text = "Đã chọn";
-
-            int weaponIndex = weaponList.IndexOf(currentSelectedWeapon);
+            UserData.Instance.SelectedWeaponIndex = weaponIndex;
             PlayerEquipment.SelectedWeaponIndex = weaponIndex;
-            PlayerPrefs.SetInt("SelectedWeaponIndex", weaponIndex);
-            PlayerPrefs.SetString("SelectedWeaponName", currentSelectedWeapon.name);
-            PlayerPrefs.Save();
-
-            Debug.Log("Đã chọn vũ khí: " + currentSelectedWeapon.WeaponName);
-
-            // Đóng panel với hiệu ứng
-            if (slideTween != null)
-                slideTween.Hide();
-            else
-                gameObject.SetActive(false);
+            return;
         }
+
+        if (outsideWeaponIcon != null)
+            outsideWeaponIcon.sprite = currentSelectedWeapon.WeaponIcon;
+
+        if (selectButton != null) selectButton.interactable = false;
+        if (selectButtonText != null) selectButtonText.text = "Đã chọn";
+
+        UserData.Instance.SelectedWeaponIndex = weaponIndex;
+        PlayerEquipment.SelectedWeaponIndex = weaponIndex;
+
+        UserData.Instance.Save();
+
+        if (slideTween != null)
+            slideTween.Hide();
+        else
+            gameObject.SetActive(false);
     }
 
     public void ClosePanel()
     {
-        // Khôi phục lại trạng thái vũ khí đã lưu trước khi trượt ẩn panel
         ResetToSavedWeapon();
 
         if (slideTween != null)

@@ -19,8 +19,8 @@ public class GoldGem : XPGem
             return;
         }
 
-        if (GoldManager.Instance != null)
-            GoldManager.Instance.AddGold(goldAmount);
+        if (UserData.Instance != null)
+            UserData.Instance.AddGold(goldAmount);
 
         if (ObjectPooling.Instance != null)
             ObjectPooling.Instance.Despawn(gameObject);

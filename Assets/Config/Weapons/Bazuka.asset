@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Bazuka
   m_EditorClassIdentifier: 
   weaponIcon: {fileID: -475155561, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
-  isUnlocked: 1
+  isUnlocked: 0
+  goldCost: 300000
   weaponName: Bazuka
   fireRate: 1
   fireRange: 6
