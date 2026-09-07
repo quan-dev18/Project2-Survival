@@ -254,6 +254,13 @@ public sealed class AudioManager : MonoBehaviour
     /// </summary>
     public void PlayBGM(AudioClip clip, float volume, bool loop, float fadeDuration)
     {
+        // Đang phát chính clip này rồi => KHÔNG làm gì, giữ nguyên nhạc
+        // (không cắt ngang fade đang chạy, không khởi động lại). Nhờ vậy các
+        // lần gọi LẶP LẠI (SceneBGM gọi ở cả OnEnable + Start, hoặc 2 scene
+        // vẫn dùng chung 1 nhạc) là vô hại, nhạc phát liền mạch.
+        if (clip != null && currentBGM == clip && bgmSource.isPlaying)
+            return;
+
         StopCurrentFade();
         currentBGMVolume = Mathf.Clamp01(volume);
 
@@ -263,10 +270,6 @@ public sealed class AudioManager : MonoBehaviour
             bgmFadeRoutine = StartCoroutine(FadeOutRoutine(Mathf.Max(0.01f, fadeDuration)));
             return;
         }
-
-        // Đang phát chính clip này rồi thì không khởi động lại (đỡ giật, đỡ ngắt quãng).
-        if (currentBGM == clip && bgmSource.isPlaying)
-            return;
 
         currentBGM = clip;
         bgmSource.clip = clip;

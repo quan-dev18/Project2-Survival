@@ -78,6 +78,25 @@ public class SceneBGM : MonoBehaviour
     }
 
     /// <summary>
+    /// Start BẢO ĐẢM BGM của scene đầu tiên được phát.
+    ///
+    /// ▐▌ VÌ SAO CẦN Start()?
+    ///   - Với scene MỞ ĐẦU (bấm Play), sự kiện `sceneLoaded` có thể KHÔNG
+    ///     được gọi đúng, và AudioManager nếu được tự động tạo (EnsureInstance)
+    ///     thì chỉ xuất hiện SAU khi sceneLoaded + OnEnable đã chạy xong.
+    ///   - => Ở lần vào game đầu, chưa có chỗ nào gọi PlayBGMForScene => im lặng.
+    ///   - Start() chạy TRƯỚC frame đầu tiên, khi mọi thứ đã sẵn sàng
+    ///     (AudioManager.Instance tồn tại, scene đã chính thức active).
+    ///   - Nếu OnEnable/OnSceneLoaded ĐÃ phát đúng nhạc rồi, PlayBGM bỏ qua
+    ///     (idempotent) nên không ngắt giữa chừng fade.
+    /// </summary>
+    private void Start()
+    {
+        if (AudioManager.Instance != null)
+            PlayBGMForScene(SceneManager.GetActiveScene().name);
+    }
+
+    /// <summary>
     /// Sự kiện Unity gọi mỗi khi 1 scene được load xong.
     /// Tự kiểm tra tên scene và đổi nhạc nền cho đúng.
     /// </summary>
