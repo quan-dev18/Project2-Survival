@@ -15,6 +15,8 @@ MonoBehaviour:
   weaponIcon: {fileID: -475155561, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
   isUnlocked: 0
   goldCost: 300000
+  shootSFX: {fileID: 8300000, guid: f9c73c2aac0d0b34189d45aa766f042d, type: 3}
+  reloadSFX: {fileID: 0}
   weaponName: Bazuka
   fireRate: 1
   fireRange: 6

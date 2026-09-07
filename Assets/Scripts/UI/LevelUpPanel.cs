@@ -30,6 +30,12 @@ public class LevelUpPanel : MonoBehaviour
     [Header("Upgrade Pool")]
     [SerializeField] private List<UpgradeSO> upgradePool;
 
+    [Header("Startup Upgrades (Testing)")]
+    [Tooltip("Auto-applied 3s after stage starts (Playing). For testing.")]
+    [SerializeField] private List<UpgradeSO> startupUpgrades;
+    private bool startupApplied;
+    private Coroutine startupRoutine;
+
     [Header("Rain Effect")]
     [SerializeField] private ParticleSystem rainEffect;
 
@@ -110,6 +116,45 @@ public class LevelUpPanel : MonoBehaviour
             gameObject.SetActive(false);
             rainEffect?.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         }
+
+        if (state == GameState.Playing && !startupApplied && startupUpgrades != null && startupUpgrades.Count > 0)
+        {
+            // LevelUpPanel is inactive at start, so StartCoroutine on this fails -> run on GameManager
+            var runner = GameManager.Instance != null ? GameManager.Instance : (MonoBehaviour)this;
+            if (startupRoutine != null) runner.StopCoroutine(startupRoutine);
+            startupRoutine = runner.StartCoroutine(ApplyStartupUpgradesRoutine());
+        }
+        else if (state != GameState.Playing && startupRoutine != null)
+        {
+            var runner = GameManager.Instance != null ? GameManager.Instance : (MonoBehaviour)this;
+            runner.StopCoroutine(startupRoutine);
+            startupRoutine = null;
+        }
+    }
+
+    private System.Collections.IEnumerator ApplyStartupUpgradesRoutine()
+    {
+        // Wait 3s after stage actually starts to avoid init races
+        yield return new WaitForSecondsRealtime(3f);
+        if (startupApplied) yield break;
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing) yield break;
+
+        // Ensure playerStats resolved (player may spawn late)
+        if (playerStats == null)
+        {
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null) playerStats = player.GetComponent<PlayerStats>();
+        }
+
+        foreach (var up in startupUpgrades)
+        {
+            if (up == null || ownedUpgrades.Contains(up)) continue;
+            ApplyUpgrade(up);
+            ownedUpgrades.Add(up);
+            Debug.Log($"[Startup] Applied {up.UpgradeName}");
+        }
+        startupApplied = true;
+        startupRoutine = null;
     }
 
     private void RollChoices()

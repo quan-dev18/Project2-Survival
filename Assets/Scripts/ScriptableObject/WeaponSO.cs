@@ -13,6 +13,15 @@ public class WeaponSO : ScriptableObject
     [SerializeField] private int goldCost = 100;
     public int GoldCost => goldCost;
 
+    [Header("Audio")]
+    [Tooltip("Tiếng bắn (SFX) của loại súng này. GunAudio sẽ tự đọc.")]
+    [SerializeField] private AudioClip shootSFX;
+    public AudioClip ShootSFX => shootSFX;
+
+    [Tooltip("Tiếng lên đạn (SFX) của loại súng này.")]
+    [SerializeField] private AudioClip reloadSFX;
+    public AudioClip ReloadSFX => reloadSFX;
+
     [Header("Weapon Stats")]
     [SerializeField] private string weaponName;
     public string WeaponName => weaponName;

@@ -1060,6 +1060,7 @@ MonoBehaviour:
   maxCollectRange: 20
   maxGrowthRate: 5
   damageTakenBuffDuration: 2
+  passiveHealPerSecond: 1
 --- !u!114 &585351823340672582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1386,13 +1387,46 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4868042765978741321, guid: bed87f4befefee14fb17d08704452c87, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4528786983921580114}
   m_SourcePrefab: {fileID: 100100000, guid: bed87f4befefee14fb17d08704452c87, type: 3}
+--- !u!114 &1853914401191007973 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1234998774397380696, guid: bed87f4befefee14fb17d08704452c87, type: 3}
+  m_PrefabInstance: {fileID: 619796374296673981}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5410853530792989940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c50da0a5c2b066b46b06af390538fa6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5410853530792989940 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: bed87f4befefee14fb17d08704452c87, type: 3}
   m_PrefabInstance: {fileID: 619796374296673981}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4528786983921580114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5410853530792989940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a499db4d04933024292ca49d2cdb058c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponController: {fileID: 1853914401191007973}
+  shootSFX: {fileID: 0}
+  reloadSFX: {fileID: 0}
+  volume: 1
+  minPitch: 0.95
+  maxPitch: 1.05
+  playReloadEndClick: 0
 --- !u!212 &6003127130990174393 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: bed87f4befefee14fb17d08704452c87, type: 3}
@@ -1482,7 +1516,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4868042765978741321, guid: cd08f826496580843b859de8abed5d90, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4692594913086156402}
   m_SourcePrefab: {fileID: 100100000, guid: cd08f826496580843b859de8abed5d90, type: 3}
 --- !u!212 &5235226615578525698 stripped
 SpriteRenderer:
@@ -1499,6 +1536,25 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: cd08f826496580843b859de8abed5d90, type: 3}
   m_PrefabInstance: {fileID: 1401133005687250438}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4692594913086156402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5836401307405186127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a499db4d04933024292ca49d2cdb058c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponController: {fileID: 0}
+  shootSFX: {fileID: 0}
+  reloadSFX: {fileID: 0}
+  volume: 1
+  minPitch: 0.95
+  maxPitch: 1.05
+  playReloadEndClick: 0
 --- !u!1001 &1665281178287069411
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1578,7 +1634,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4868042765978741321, guid: 7db267284677f6c44896766443fb386a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8087464669246642297}
   m_SourcePrefab: {fileID: 100100000, guid: 7db267284677f6c44896766443fb386a, type: 3}
 --- !u!4 &5351606614970450365 stripped
 Transform:
@@ -1595,6 +1654,25 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: 7db267284677f6c44896766443fb386a, type: 3}
   m_PrefabInstance: {fileID: 1665281178287069411}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8087464669246642297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6094082169807008426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a499db4d04933024292ca49d2cdb058c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponController: {fileID: 0}
+  shootSFX: {fileID: 0}
+  reloadSFX: {fileID: 0}
+  volume: 1
+  minPitch: 0.95
+  maxPitch: 1.05
+  playReloadEndClick: 0
 --- !u!1001 &3912816300026494299
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1674,7 +1752,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4868042765978741321, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3078187396815833631}
   m_SourcePrefab: {fileID: 100100000, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
 --- !u!4 &7716319850904151045 stripped
 Transform:
@@ -1691,6 +1772,25 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: 5a7eeff8e5ae9c14a9fc501850f8c422, type: 3}
   m_PrefabInstance: {fileID: 3912816300026494299}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3078187396815833631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8485870949654943506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a499db4d04933024292ca49d2cdb058c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponController: {fileID: 0}
+  shootSFX: {fileID: 0}
+  reloadSFX: {fileID: 0}
+  volume: 1
+  minPitch: 0.95
+  maxPitch: 1.05
+  playReloadEndClick: 0
 --- !u!1001 &4353012731029342379
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1952,7 +2052,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4868042765978741321, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5603492183203774471}
   m_SourcePrefab: {fileID: 100100000, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
 --- !u!212 &2327161614408804785 stripped
 SpriteRenderer:
@@ -1969,3 +2072,22 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: d59107caa12000f4897bc2c60c5a5f8a, type: 3}
   m_PrefabInstance: {fileID: 8907325105477531573}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5603492183203774471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4040837066156318204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a499db4d04933024292ca49d2cdb058c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponController: {fileID: 0}
+  shootSFX: {fileID: 0}
+  reloadSFX: {fileID: 0}
+  volume: 1
+  minPitch: 0.95
+  maxPitch: 1.05
+  playReloadEndClick: 0

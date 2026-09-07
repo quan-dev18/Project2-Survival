@@ -446,11 +446,16 @@ public class PlayerStats : MonoBehaviour
 
     public void AddCollectRangeFlat(float amount) => bonusCollectRangeFlat += amount;
 
+    [Header("Passive Heal")]
+    [SerializeField] private float passiveHealPerSecond = 1f;
+
     private void RegenOverTime()
     {
+        if (isDead) return;
         if (CurrentHealth < MaxHealth)
         {
-            CurrentHealth = Mathf.Min(CurrentHealth + RecoveryRate * Time.deltaTime, MaxHealth);
+            float heal = (RecoveryRate + passiveHealPerSecond) * Time.deltaTime;
+            CurrentHealth = Mathf.Min(CurrentHealth + heal, MaxHealth);
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         }
     }

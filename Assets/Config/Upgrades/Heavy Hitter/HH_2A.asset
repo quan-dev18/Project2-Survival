@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HH_2A
   m_EditorClassIdentifier: 
   upgradeName: Heavy Hitter II
-  description: 'Bullet Damage +40%
+  description: 'Bullet Damage +20%
 
     Bullet Size +20%'
   icon: {fileID: -530952059, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}

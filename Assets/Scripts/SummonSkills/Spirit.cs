@@ -15,7 +15,7 @@ public class Spirit : MonoBehaviour
     [SerializeField] private int pierce = 3;
     
     [Header("Holy Upgrades")]
-    [SerializeField] private float healPerSecond = 5f;
+    [SerializeField] private float healPerSecond = 2f;
     [SerializeField] private float burnDuration = 3f;
     [SerializeField] private float empoweredDamagePercent = 0.15f; // 15%
     [SerializeField] private int empoweredExtraProjectiles = 1;
@@ -122,9 +122,10 @@ public class Spirit : MonoBehaviour
         Vector2 aimDir = FindNearestEnemyDirection(out Transform targetEnemy);
         if (aimDir == Vector2.zero) return;
         
-        // Rotate spirit to face aim direction
+        // Rotate only firePart, not the whole summon
         float aimAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, aimAngle);
+        if (firePoint != null && firePoint != transform)
+            firePoint.rotation = Quaternion.Euler(0, 0, aimAngle);
         
         int currentProjectileCount = projectileCount + (empoweredEnabled ? empoweredExtraProjectiles : 0);
         float currentSpread = spread + (empoweredEnabled ? empoweredExtraSpread : 0f);

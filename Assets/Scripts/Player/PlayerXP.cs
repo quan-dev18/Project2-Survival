@@ -68,6 +68,10 @@ public class PlayerXP : MonoBehaviour
             CurrentLevel++;
             XPToNextLevel = GetRequiredXP(CurrentLevel);
             OnLevelUp?.Invoke(CurrentLevel);
+
+            // Phát tiếng lên cấp (clip cấu hình trong AudioManager).
+            AudioManager.Instance?.PlayLevelUp();
+
             Debug.Log($"Level up! Now level {CurrentLevel}");
             if (GameManager.Instance != null)
                 GameManager.Instance.SetState(GameState.LevelUp);
