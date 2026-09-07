@@ -35,8 +35,20 @@ public class HeroSelectManager : MonoBehaviour
         if (PlayerPrefs.HasKey("SelectedHeroIndex"))
             PlayerEquipment.SelectedHeroIndex = PlayerPrefs.GetInt("SelectedHeroIndex");
 
+        ApplyUnlockStateFromPrefs();
+
         RestoreSelectedHeroIcon();
         GenerateListUI();
+    }
+
+    private void ApplyUnlockStateFromPrefs()
+    {
+        for (int i = 0; i < heroList.Count; i++)
+        {
+            if (heroList[i] == null) continue;
+            bool unlocked = PlayerPrefs.GetInt($"UnlockedHero_{i}", heroList[i].isUnlocked ? 1 : 0) == 1;
+            heroList[i].SetUnlocked(unlocked);
+        }
     }
 
     private void Start()

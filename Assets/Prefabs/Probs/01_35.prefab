@@ -187,5 +187,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5edab0cb109b9ed418ddc3552a34068c, type: 2}
   - {fileID: 11400000, guid: 5edab0cb109b9ed418ddc3552a34068c, type: 2}
   - {fileID: 11400000, guid: 4d792c9991bc8314fa987f4a21b517fa, type: 2}
+  - {fileID: 11400000, guid: 11bfd63fb1f028540a17b2e3c08f313b, type: 2}
   dropChance: 0.5
   spreadRadius: 0.5

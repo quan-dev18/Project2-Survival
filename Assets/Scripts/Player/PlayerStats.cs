@@ -1,11 +1,14 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [SerializeField] private CharacterSO characterStats;
+    [SerializeField] private List<CharacterSO> characterList = new List<CharacterSO>();
     [SerializeField] private WeaponController[] weapons;
     [SerializeField] private GameObject mysteryCubePrefab;
     [SerializeField] private GameObject spiritPrefab;
+
+    private CharacterSO characterStats;
 
     #region Base Stats 
     private float baseMaxHealth;
@@ -143,6 +146,11 @@ public class PlayerStats : MonoBehaviour
             if (found != null && found.Length > 0)
                 weapons = found;
         }
+
+        int heroIndex = PlayerPrefs.GetInt("SelectedHeroIndex", 0);
+        if (characterList != null && heroIndex >= 0 && heroIndex < characterList.Count)
+            characterStats = characterList[heroIndex];
+
         LoadFromSO();
     }
 

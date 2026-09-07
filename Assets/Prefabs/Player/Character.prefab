@@ -527,7 +527,7 @@ MonoBehaviour:
   - {x: -0.023922458, y: -0.5147414, z: 0}
   m_ShapePathHash: -62189087
   m_Mesh: {fileID: 0}
-  m_InstanceId: 33928
+  m_InstanceId: 52692
   m_LocalBounds:
     m_Center: {x: 0.0073542893, y: 0.021676421, z: 0}
     m_Extent: {x: 0.36422572, y: 0.5395007, z: 0}
@@ -1047,7 +1047,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef969fbb0a5f60546b11e6e74c4e4b0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterStats: {fileID: 11400000, guid: 376e75f03e8f6244e88007c65e6a5ce1, type: 2}
+  characterList:
+  - {fileID: 11400000, guid: 376e75f03e8f6244e88007c65e6a5ce1, type: 2}
+  - {fileID: 11400000, guid: 06cde15a71c7d0f44af559932d227067, type: 2}
+  - {fileID: 11400000, guid: 04ccf026db8529f43a81e5f3633293bd, type: 2}
   weapons: []
   mysteryCubePrefab: {fileID: 0}
   spiritPrefab: {fileID: 0}

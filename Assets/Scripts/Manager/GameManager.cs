@@ -66,7 +66,11 @@ public class GameManager : MonoBehaviour
         Time.timeScale = currentState == GameState.Playing ? 1f : 0f;
 
         if (currentState == GameState.Playing)
+        {
             IsWin = false;
+            if (GoldManager.Instance != null)
+                GoldManager.Instance.ResetSessionGold();
+        }
 
         if (currentState == GameState.GameOver)
         {

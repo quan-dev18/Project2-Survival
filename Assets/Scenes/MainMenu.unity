@@ -7019,9 +7019,6 @@ MonoBehaviour:
   ease: 27
   target: {fileID: 485777834}
   useFade: 1
-  onShow:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!225 &485777838
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -9115,21 +9112,6 @@ MonoBehaviour:
   ease: 8
   target: {fileID: 1893228329}
   useFade: 1
-  onShow:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 657887031}
-        m_TargetAssemblyTypeName: HeroSelectManager, Assembly-CSharp
-        m_MethodName: RefreshSelection
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!225 &661449771
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -11024,21 +11006,6 @@ MonoBehaviour:
   ease: 20
   target: {fileID: 566577183}
   useFade: 1
-  onShow:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 741724511}
-        m_TargetAssemblyTypeName: WeaponSelectManager, Assembly-CSharp
-        m_MethodName: RefreshSelection
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!225 &769966336
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -14953,6 +14920,7 @@ GameObject:
   - component: {fileID: 1054886817}
   - component: {fileID: 1054886819}
   - component: {fileID: 1054886818}
+  - component: {fileID: 1054886820}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -15076,6 +15044,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1054886816}
   m_CullTransparentMesh: 1
+--- !u!114 &1054886820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054886816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2c8650b2da676488e34cd0bd2ff581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  goldText: {fileID: 1054886818}
+  prefix: 0
 --- !u!1 &1059141727
 GameObject:
   m_ObjectHideFlags: 0
