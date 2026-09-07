@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[DefaultExecutionOrder(-100)]
 public class UserData : MonoBehaviour
 {
     public static UserData Instance { get; private set; }
@@ -45,6 +46,9 @@ public class UserData : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         data = SaveSystem.Load();
+        if (data == null) data = new GameData();
+        data.unlockedHeroes ??= new bool[0];
+        data.unlockedWeapons ??= new bool[0];
         MigrateFromPlayerPrefs();
     }
 
@@ -131,25 +135,40 @@ public class UserData : MonoBehaviour
         SaveSystem.Save(data);
     }
 
+    private void SyncArray(ref bool[] arr, int targetSize, System.Func<int,bool> defaultFactory)
+    {
+        if (arr == null) arr = new bool[0];
+        if (arr.Length == targetSize) return;
+        bool[] next = new bool[targetSize];
+        for (int i = 0; i < targetSize; i++)
+        {
+            if (i < arr.Length) next[i] = arr[i];
+            else next[i] = defaultFactory(i);
+        }
+        // also promote any default-unlocked that should be true even if previously false
+        for (int i = 0; i < System.Math.Min(arr.Length, targetSize); i++)
+            if (defaultFactory(i)) next[i] = true;
+        arr = next;
+    }
+
     public void InitHeroDefaults(List<HeroSelectSO> heroes)
     {
-        if (data.unlockedHeroes != null && data.unlockedHeroes.Length > 0) return;
-        data.unlockedHeroes = new bool[heroes.Count];
-        for (int i = 0; i < heroes.Count; i++)
-        {
-            data.unlockedHeroes[i] = heroes[i] != null && heroes[i].isUnlocked;
-        }
+        if (heroes == null) return;
+        int count = heroes.Count;
+        SyncArray(ref data.unlockedHeroes, count, i => heroes[i] != null && heroes[i].isUnlocked);
+        // clamp selected index
+        if (data.selectedHeroIndex < 0 || data.selectedHeroIndex >= count)
+            data.selectedHeroIndex = 0;
         Save();
     }
 
     public void InitWeaponDefaults(List<WeaponSO> weapons)
     {
-        if (data.unlockedWeapons != null && data.unlockedWeapons.Length > 0) return;
-        data.unlockedWeapons = new bool[weapons.Count];
-        for (int i = 0; i < weapons.Count; i++)
-        {
-            data.unlockedWeapons[i] = weapons[i] != null && weapons[i].IsUnlocked;
-        }
+        if (weapons == null) return;
+        int count = weapons.Count;
+        SyncArray(ref data.unlockedWeapons, count, i => weapons[i] != null && weapons[i].IsUnlocked);
+        if (data.selectedWeaponIndex < 0 || data.selectedWeaponIndex >= count)
+            data.selectedWeaponIndex = 0;
         Save();
     }
 
@@ -202,7 +221,7 @@ public class UserData : MonoBehaviour
 
     public bool IsHeroUnlocked(int index)
     {
-        if (data.unlockedHeroes == null || index < 0 || index >= data.unlockedHeroes.Length)
+        if (data == null || data.unlockedHeroes == null || index < 0 || index >= data.unlockedHeroes.Length)
             return false;
         return data.unlockedHeroes[index];
     }
@@ -248,7 +267,7 @@ public class UserData : MonoBehaviour
 
     public bool IsWeaponUnlocked(int index)
     {
-        if (data.unlockedWeapons == null || index < 0 || index >= data.unlockedWeapons.Length)
+        if (data == null || data.unlockedWeapons == null || index < 0 || index >= data.unlockedWeapons.Length)
             return false;
         return data.unlockedWeapons[index];
     }

@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orbitRadius: 1.25
-  orbitSpeed: 69
+  orbitSpeed: 150
   attackRange: 5
   fireRate: 1
   projectileCount: 1
