@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HS_2A
   m_EditorClassIdentifier: 
   upgradeName: Holy Spirit II
-  description: Holy spirit can heal the player for 5 HP every second
+  description: Holy spirit can heal the player for 2 HP every second
   icon: {fileID: 1051910547, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 37

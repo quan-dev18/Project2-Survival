@@ -210,12 +210,12 @@ public class WeaponController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, 0f, targetAngle - frontOffset);
 
         // Mirror sprite so it doesn't appear upside-down on the left side
-        // if (weaponSprite != null)
-        // {
-        //     bool aimingRight = toTarget.x >= 0f;
-        //     weaponSprite.flipY = spriteFacesRight && !aimingRight;
-        //     weaponSprite.flipX = !spriteFacesRight && aimingRight;
-        // }
+        if (weaponSprite != null)
+        {
+            bool aimingRight = toTarget.x >= 0f;
+            weaponSprite.flipY = spriteFacesRight && !aimingRight;
+            weaponSprite.flipX = !spriteFacesRight && aimingRight;
+        }
     }
 #endregion
 #region Fire
