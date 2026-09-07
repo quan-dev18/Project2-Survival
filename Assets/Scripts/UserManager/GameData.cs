@@ -3,6 +3,7 @@ using System;
 [Serializable]
 public class GameData
 {
+    public int version;
     public int playerGold;
     public int selectedHeroIndex;
     public int selectedWeaponIndex;
@@ -11,6 +12,7 @@ public class GameData
 
     public GameData()
     {
+        version = 1;
         playerGold = 9999;
         selectedHeroIndex = 0;
         selectedWeaponIndex = 0;
