@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd543525296b84244b120122bb1802bf, type: 3}
+  m_Name: PerkColorConfig
+  m_EditorClassIdentifier: 
+  levelColors:
+  - minLevel: 0
+    backgroundColor: {r: 0.3018868, g: 0.2388666, b: 0.20647918, a: 1}
+    selectionColor: {r: 0, g: 0, b: 0, a: 1}
+  - minLevel: 12
+    backgroundColor: {r: 0.19335175, g: 0.745283, b: 0.36478135, a: 1}
+    selectionColor: {r: 0, g: 0, b: 0, a: 1}
+  - minLevel: 18
+    backgroundColor: {r: 0.0141509175, g: 0.06383561, b: 1, a: 1}
+    selectionColor: {r: 0.8047928, g: 0.19241722, b: 0.8679245, a: 1}
+  - minLevel: 24
+    backgroundColor: {r: 0.40075117, g: 0.19241722, b: 0.8679245, a: 1}
+    selectionColor: {r: 1, g: 0.7665792, b: 0.1273585, a: 1}
+  - minLevel: 36
+    backgroundColor: {r: 0.99215686, g: 0.5486055, b: 0.05098037, a: 1}
+    selectionColor: {r: 0.9339623, g: 0.12775902, b: 0.25688213, a: 1}
