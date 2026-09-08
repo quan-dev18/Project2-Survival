@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class GameData
@@ -9,6 +10,8 @@ public class GameData
     public int selectedWeaponIndex;
     public bool[] unlockedHeroes;
     public bool[] unlockedWeapons;
+    public List<string> perkIds;
+    public List<int> perkLevels;
 
     public GameData()
     {
@@ -18,5 +21,7 @@ public class GameData
         selectedWeaponIndex = 0;
         unlockedHeroes = new bool[0];
         unlockedWeapons = new bool[0];
+        perkIds = new List<string>();
+        perkLevels = new List<int>();
     }
 }

@@ -50,6 +50,7 @@ public class UserData : MonoBehaviour
         data.unlockedHeroes ??= new bool[0];
         data.unlockedWeapons ??= new bool[0];
         MigrateFromPlayerPrefs();
+        MigratePerkLevelsFromPlayerPrefs();
     }
 
     private void MigrateFromPlayerPrefs()
@@ -305,6 +306,95 @@ public class UserData : MonoBehaviour
 
         data.unlockedWeapons[index] = unlocked;
         Save();
+    }
+
+    #endregion
+
+    #region Perk Levels
+
+    /// <summary>Lấy level của 1 Perk theo PerkID (mặc định 0 nếu chưa nâng).</summary>
+    public int GetPerkLevel(string perkId)
+    {
+        if (string.IsNullOrEmpty(perkId) || data.perkIds == null) return 0;
+        int index = data.perkIds.IndexOf(perkId);
+        return index >= 0 && index < data.perkLevels.Count ? data.perkLevels[index] : 0;
+    }
+
+    /// <summary>Ghi level 1 Perk và lưu ngay vào gamedata.json. Level ≤ 0 sẽ bị xóa.</summary>
+    public void SetPerkLevel(string perkId, int level)
+    {
+        if (string.IsNullOrEmpty(perkId)) return;
+        data.perkIds ??= new List<string>();
+        data.perkLevels ??= new List<int>();
+
+        int index = data.perkIds.IndexOf(perkId);
+        if (level <= 0)
+        {
+            if (index >= 0)
+            {
+                data.perkIds.RemoveAt(index);
+                data.perkLevels.RemoveAt(index);
+            }
+            Save();
+            return;
+        }
+
+        if (index >= 0) data.perkLevels[index] = level;
+        else
+        {
+            data.perkIds.Add(perkId);
+            data.perkLevels.Add(level);
+        }
+        Save();
+    }
+
+    /// <summary>
+    /// Nâng cấp 1 lần (thêm 1 cấp) và lưu. Dùng cho luồng mua Perk.
+    /// </summary>
+    public void AddPerkLevel(string perkId, int maxLevel)
+    {
+        int next = GetPerkLevel(perkId) + 1;
+        SetPerkLevel(perkId, Mathf.Min(next, maxLevel));
+    }
+
+    [Serializable]
+    private class PerkLevelSave
+    {
+        public List<string> ids = new List<string>();
+        public List<int> levels = new List<int>();
+    }
+
+    /// <summary>Chuyển dữ liệu perk lưu cũ (PlayerPrefs) sang gamedata.json một lần, rồi xóa key cũ.</summary>
+    private void MigratePerkLevelsFromPlayerPrefs()
+    {
+        const string oldKey = "PerkLevels";
+        if (!PlayerPrefs.HasKey(oldKey)) return;
+
+        try
+        {
+            PerkLevelSave old = JsonUtility.FromJson<PerkLevelSave>(PlayerPrefs.GetString(oldKey));
+            PlayerPrefs.DeleteKey(oldKey);
+            if (old == null || old.ids == null || old.levels == null) return;
+
+            bool changed = false;
+            for (int i = 0; i < old.ids.Count && i < old.levels.Count; i++)
+            {
+                string id = old.ids[i];
+                int level = old.levels[i];
+                if (string.IsNullOrEmpty(id) || level <= 0) continue;
+                int existing = GetPerkLevel(id);
+                if (level > existing)
+                {
+                    SetPerkLevel(id, level);
+                    changed = true;
+                }
+            }
+            if (changed) Debug.Log("[UserData] Đã nhập perk level từ dữ liệu cũ.");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[UserData] Migrate perk levels failed: {e.Message}");
+        }
     }
 
     #endregion
