@@ -20,7 +20,11 @@ public class GoldGem : XPGem
         }
 
         if (UserData.Instance != null)
-            UserData.Instance.AddGold(goldAmount);
+        {
+            PlayerStats ps = target != null ? target.GetComponent<PlayerStats>() : null;
+            int amount = ps != null ? ps.GetGoldGainAmount(goldAmount) : goldAmount;
+            UserData.Instance.AddGold(amount);
+        }
 
         PlayCollectSFX();
 

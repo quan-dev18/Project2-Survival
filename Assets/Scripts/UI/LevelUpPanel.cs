@@ -423,6 +423,9 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.SpiritEmpowered:
                 playerStats?.AddSpiritEmpowered(pct);
                 break;
+            case UpgradeType.GoldGainPercent:
+                playerStats?.AddGoldGainPercent(pct);
+                break;
         }
     }
 
@@ -577,6 +580,9 @@ public class LevelUpPanel : MonoBehaviour
                 break;
             case UpgradeType.SpiritEmpowered:
                 ps?.AddSpiritEmpowered(pct);
+                break;
+            case UpgradeType.GoldGainPercent:
+                ps?.AddGoldGainPercent(pct);
                 break;
         }
     }

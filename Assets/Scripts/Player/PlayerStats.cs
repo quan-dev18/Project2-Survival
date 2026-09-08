@@ -47,6 +47,7 @@ public class PlayerStats : MonoBehaviour
     public bool bonusSpiritHeal { get; private set; }
     public bool bonusSpiritBurn { get; private set; }
     public bool bonusSpiritEmpowered { get; private set; }
+    public float bonusGoldGainPercent { get; private set; }
     #endregion
 
     #region Stat Caps
@@ -352,6 +353,12 @@ public class PlayerStats : MonoBehaviour
             s.EnableEmpowered();
         }
     }
+
+    public void AddGoldGainPercent(float amount) => bonusGoldGainPercent += amount;
+
+    /// <summary>Tính số vàng thực nhận sau khi cộng buff +% vàng.</summary>
+    public int GetGoldGainAmount(int baseAmount)
+        => Mathf.RoundToInt(baseAmount * (1f + bonusGoldGainPercent));
 
     public void TakeDamage(float amount)
     {
