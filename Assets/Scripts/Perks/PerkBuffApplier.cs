@@ -5,7 +5,7 @@ using UnityEngine;
 /// (Hướng 2) Persist-Singleton: TỰ tạo 1 GameObject DontDestroyOnLoad khi game bắt đầu
 /// (RuntimeInitializeOnLoadMethod), nên KHÔNG phụ thuộc panel/tab có bị ẩn hay không.
 /// Cứ mỗi 0.25s kiểm tra:
-/// - Level Perk đã lưu (PlayerPrefs, do PerksManager ghi) có tăng không -> áp đúng phần tăng
+/// - Level Perk (được lưu trong GameData qua UserData) có tăng không -> áp đúng phần tăng
 ///   lên PlayerStats / WeaponController của player hiện tại.
 /// - Player MỚI xuất hiện (đầu run / respawn) -> áp toàn bộ level đã lưu một lần.
 /// Không cần tham chiếu PerksManager nên chạy được ở bất kỳ scene nào.
@@ -25,21 +25,12 @@ public class PerkBuffApplier : MonoBehaviour
     private GameObject _lastPlayer;
     private float _timer;
 
-    private string _lastSaveRaw; // Cache chuỗi save để tránh parse lại mỗi tick khi không đổi.
     private bool _poolResolved;
 
-    private const string SaveKey = "PerkLevels";
     private const float CheckInterval = 0.25f;
 
     private static bool _pendingAutoSpawn;
     private bool _isAutoSpawned;
-
-    [System.Serializable]
-    private class PerkLevelSave
-    {
-        public List<string> ids = new List<string>();
-        public List<int> levels = new List<int>();
-    }
 
     /// <summary>Nếu chưa ai gắn tay trong scene, tự tạo 1 instance bền vững khi game start.</summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -157,25 +148,16 @@ public class PerkBuffApplier : MonoBehaviour
         _poolResolved = perkPool != null && perkPool.Count > 0;
     }
 
-    /// <summary>Đọc save level (cùng format với PerksManager) từ PlayerPrefs.</summary>
+    /// <summary>Đọc level từ GameData (UserData) cho từng Perk trong pool. Pool nhỏ nên rebuild mỗi tick là rẻ.</summary>
     private void LoadLevels()
     {
-        string raw = PlayerPrefs.HasKey(SaveKey) ? PlayerPrefs.GetString(SaveKey) : null;
-        if (raw == _lastSaveRaw) return; // Không đổi -> giữ dict cũ.
-        _lastSaveRaw = raw;
+        if (UserData.Instance == null) return;
         _levelByID.Clear();
-        if (string.IsNullOrEmpty(raw)) return;
-
-        try
+        foreach (PerkDataSO perk in perkPool)
         {
-            PerkLevelSave data = JsonUtility.FromJson<PerkLevelSave>(raw);
-            if (data == null || data.ids == null || data.levels == null) return;
-            for (int i = 0; i < data.ids.Count && i < data.levels.Count; i++)
-                _levelByID[data.ids[i]] = data.levels[i];
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning($"[PerkBuff] Lỗi đọc level: {e.Message}");
+            if (perk == null) continue;
+            int level = UserData.Instance.GetPerkLevel(perk.PerkID);
+            if (level > 0) _levelByID[perk.PerkID] = level;
         }
     }
 

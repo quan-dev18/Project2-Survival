@@ -42,19 +42,10 @@ public class PerksManager : MonoBehaviour
     private int _currentGold;
     private bool _initialized;
 
-    private const string SaveKey = "PerkLevels";
-
-    [System.Serializable]
-    private class PerkSaveData
-    {
-        public List<string> ids = new List<string>();
-        public List<int> levels = new List<int>();
-    }
-
     public PerkSlotUI SelectedSlot => _selectedSlot;
     public IReadOnlyList<PerkDataSO> PerkPool => perkPool;
 
-    /// <summary>Nạp level đã lưu (PlayerPrefs) khi khởi tạo, chạy cả khi panel đang ẩn.</summary>
+    /// <summary>Nạp level đã lưu (trong gamedata.json qua UserData) khi khởi tạo, chạy cả khi panel đang ẩn.</summary>
     private void Awake()
     {
         LoadPerkLevels();
@@ -199,7 +190,7 @@ public class PerksManager : MonoBehaviour
         }
 
         _perkLevels[perk] = level + 1;
-        SavePerkLevels();
+        UserData.Instance?.AddPerkLevel(perk.PerkID, perk.MaxLevel);
         OnPerkUpgraded?.Invoke(perk, level + 1); // Thông báo để cập nhật chỉ số Player
 
         RefreshSlot(_selectedSlot);              // Cập nhật cấp hiển thị trên Slot
@@ -260,11 +251,12 @@ public class PerksManager : MonoBehaviour
         return _perkLevels.TryGetValue(perk, out int level) ? level : 0;
     }
 
-    /// <summary>Setter dành cho hệ thống nạp dữ liệu (Save/Load) nếu cần.</summary>
+    /// <summary>Setter dành cho hệ thống nạp dữ liệu (Save/Load) nếu cần. Ghi thẳng xuống GameData.</summary>
     public void SetLevel(PerkDataSO perk, int level)
     {
         if (perk == null) return;
         _perkLevels[perk] = Mathf.Clamp(level, 0, perk.MaxLevel);
+        UserData.Instance?.SetPerkLevel(perk.PerkID, _perkLevels[perk]);
     }
 
     /// <summary>Khi vàng của Player thay đổi -> cập nhật lại Slot đang chọn và trạng thái Nút.</summary>
@@ -288,38 +280,19 @@ public class PerksManager : MonoBehaviour
         upgradeButton.interactable = enabled;
     }
 
-    /// <summary>Lưu level của tất cả Perk vào PlayerPrefs để giữ qua các scene.</summary>
-    private void SavePerkLevels()
-    {
-        PerkSaveData data = new PerkSaveData();
-        foreach (KeyValuePair<PerkDataSO, int> kvp in _perkLevels)
-        {
-            if (kvp.Key == null || kvp.Value <= 0) continue;
-            data.ids.Add(kvp.Key.PerkID);
-            data.levels.Add(kvp.Value);
-        }
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
-    }
-
-    /// <summary>Nạp level đã lưu theo PerkID; khớp với perk trong pool.</summary>
+    /// <summary>
+    /// Nạp level đã lưu từ GameData (qua UserData) theo PerkID và khớp với perk trong pool.
+    /// Sau này muốn nhiều profile thì chỉ cần đổi nguồn dữ liệu ở UserData.
+    /// </summary>
     private void LoadPerkLevels()
     {
-        if (!PlayerPrefs.HasKey(SaveKey)) return;
-        try
+        if (UserData.Instance == null) return;
+        _perkLevels.Clear();
+        foreach (PerkDataSO perk in perkPool)
         {
-            PerkSaveData data = JsonUtility.FromJson<PerkSaveData>(PlayerPrefs.GetString(SaveKey));
-            if (data == null || data.ids == null || data.levels == null) return;
-
-            for (int i = 0; i < data.ids.Count && i < data.levels.Count; i++)
-            {
-                PerkDataSO perk = perkPool.Find(p => p != null && p.PerkID == data.ids[i]);
-                if (perk != null)
-                    _perkLevels[perk] = Mathf.Clamp(data.levels[i], 0, perk.MaxLevel);
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning($"[PerksManager] Lỗi nạp dữ liệu level: {e.Message}");
+            if (perk == null) continue;
+            int level = Mathf.Clamp(UserData.Instance.GetPerkLevel(perk.PerkID), 0, perk.MaxLevel);
+            if (level > 0) _perkLevels[perk] = level;
         }
     }
 }
