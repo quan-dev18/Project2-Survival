@@ -43,6 +43,9 @@ public class StageSO : ScriptableObject
         public int SpawnLimit => spawnLimit;
         [SerializeField] private bool isBoss;
         public bool IsBoss => isBoss;
+        [Tooltip("Mini-boss: spawned once per phase like boss, but doesn't block win condition when killed")]
+        [SerializeField] private bool isElite;
+        public bool IsElite => isElite;
     }
 
     [Serializable]

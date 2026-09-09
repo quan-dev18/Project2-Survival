@@ -354,9 +354,11 @@ public class WeaponController : MonoBehaviour
             OnAmmoChanged?.Invoke(currentAmmo, magazineSize);
             OnReloadEnd?.Invoke();
 
-            // Apply damage buff after reload
+            // Apply damage buff after reload (refresh, don't stack)
             if (bonusDamageBuffAfterReload > 0f)
             {
+                if (damageBuffTimer > 0f)
+                    bonusBulletDamagePercent -= appliedDamageBuff; // remove previous instance before re-applying
                 appliedDamageBuff = bonusDamageBuffAfterReload;
                 bonusBulletDamagePercent += appliedDamageBuff;
                 damageBuffTimer = 3f;

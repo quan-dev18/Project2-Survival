@@ -5,6 +5,7 @@ public class PlayerStats : MonoBehaviour
 {
     [SerializeField] private List<CharacterSO> characterList = new List<CharacterSO>();
     [SerializeField] private WeaponController[] weapons;
+    [SerializeField] private FlamethrowerController[] flamethrowers;
     [SerializeField] private GameObject mysteryCubePrefab;
     [SerializeField] private GameObject spiritPrefab;
 
@@ -97,8 +98,8 @@ public class PlayerStats : MonoBehaviour
     {
         get
         {
-            // Always return ALL weapons (including inactive) to avoid single-weapon cache bug
-            var all = FindObjectsByType<WeaponController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            // Use hierarchy order (Player/Weapons) so ActiveWeaponIndex matches PlayerEquipment order
+            var all = GetComponentsInChildren<WeaponController>(true);
             if (all != null && all.Length > 0)
             {
                 weapons = all;
@@ -109,7 +110,23 @@ public class PlayerStats : MonoBehaviour
             return weapons;
         }
     }
+    public FlamethrowerController[] Flamethrowers
+    {
+        get
+        {
+            var all = GetComponentsInChildren<FlamethrowerController>(true);
+            if (all != null && all.Length > 0)
+            {
+                flamethrowers = all;
+                return flamethrowers;
+            }
+            if (flamethrowers == null || flamethrowers.Length == 0)
+                flamethrowers = GetComponentsInChildren<FlamethrowerController>(true);
+            return flamethrowers;
+        }
+    }
     private WeaponController[] GetAllWeapons() => Weapons;
+    private FlamethrowerController[] GetAllFlamethrowers() => Flamethrowers;
     public int ActiveWeaponIndex { get; private set; }
     public WeaponController ActiveWeapon => Weapons != null && ActiveWeaponIndex >= 0 && ActiveWeaponIndex < Weapons.Length
         ? Weapons[ActiveWeaponIndex] : null;
@@ -129,6 +146,9 @@ public class PlayerStats : MonoBehaviour
         var found = GetComponentsInChildren<WeaponController>(true);
         if (found != null && found.Length > 0)
             weapons = found;
+        var foundFlame = GetComponentsInChildren<FlamethrowerController>(true);
+        if (foundFlame != null && foundFlame.Length > 0)
+            flamethrowers = foundFlame;
     }
 
     #region Damage Taken Buff
@@ -146,6 +166,12 @@ public class PlayerStats : MonoBehaviour
             var found = GetComponentsInChildren<WeaponController>(true);
             if (found != null && found.Length > 0)
                 weapons = found;
+        }
+        if (flamethrowers == null || flamethrowers.Length == 0)
+        {
+            var foundF = GetComponentsInChildren<FlamethrowerController>(true);
+            if (foundF != null && foundF.Length > 0)
+                flamethrowers = foundF;
         }
 
         int heroIndex = PlayerPrefs.GetInt("SelectedHeroIndex", 0);
@@ -168,16 +194,11 @@ public class PlayerStats : MonoBehaviour
             {
                 // Remove the temporary buffs using exactly what was applied
                 var allW = GetAllWeapons();
-                if (allW != null && isDamageBuffActive)
+                var allF = GetAllFlamethrowers();
+                if (isDamageBuffActive)
                 {
-                    foreach (var w in allW)
-                    {
-                        if (w != null)
-                        {
-                            w.AddFireRatePercent(-appliedFireRateBuff);
-                            w.AddBulletDamagePercent(-appliedDamageBuff);
-                        }
-                    }
+                    if (allW != null) foreach (var w in allW) if (w != null) { w.AddFireRatePercent(-appliedFireRateBuff); w.AddBulletDamagePercent(-appliedDamageBuff); }
+                    if (allF != null) foreach (var f in allF) if (f != null) { f.AddFireRatePercent(-appliedFireRateBuff); f.AddBulletDamagePercent(-appliedDamageBuff); }
                     isDamageBuffActive = false;
                 }
                 damageTakenTimer = 0f;
@@ -214,13 +235,9 @@ public class PlayerStats : MonoBehaviour
             {
                 stackingBuffPercent = targetPercent;
                 var allW2 = GetAllWeapons();
-                if (allW2 != null)
-                {
-                    foreach (var w in allW2)
-                    {
-                        if (w != null) w.AddBulletDamagePercent(delta);
-                    }
-                }
+                if (allW2 != null) foreach (var w in allW2) if (w != null) w.AddBulletDamagePercent(delta);
+                var allF2 = GetAllFlamethrowers();
+                if (allF2 != null) foreach (var f in allF2) if (f != null) f.AddBulletDamagePercent(delta);
                 bonusMoveSpeedPercent += delta;
             }
         }
@@ -368,12 +385,10 @@ public class PlayerStats : MonoBehaviour
         {
             var allWInv = GetAllWeapons();
             if (bonusInvulnerableWhileReloading && allWInv != null)
-            {
-                foreach (var w in allWInv)
-                {
-                    if (w != null && w.IsReloading) return;
-                }
-            }
+                foreach (var w in allWInv) if (w != null && w.IsReloading) return;
+            var allFInv = GetAllFlamethrowers();
+            if (bonusInvulnerableWhileReloading && allFInv != null)
+                foreach (var f in allFInv) if (f != null && f.IsReloading) return;
         }
 
         float remaining = amount;
@@ -392,13 +407,9 @@ public class PlayerStats : MonoBehaviour
         if (stackingBuffPercent > 0f)
         {
             var allWReset = GetAllWeapons();
-            if (allWReset != null)
-            {
-                foreach (var w in allWReset)
-                {
-                    if (w != null) w.AddBulletDamagePercent(-stackingBuffPercent);
-                }
-            }
+            if (allWReset != null) foreach (var w in allWReset) if (w != null) w.AddBulletDamagePercent(-stackingBuffPercent);
+            var allFReset = GetAllFlamethrowers();
+            if (allFReset != null) foreach (var f in allFReset) if (f != null) f.AddBulletDamagePercent(-stackingBuffPercent);
             bonusMoveSpeedPercent -= stackingBuffPercent;
             stackingBuffPercent = 0f;
         }
@@ -410,20 +421,16 @@ public class PlayerStats : MonoBehaviour
     public void OnDamageTaken()
     {
         // Apply the damage-taken buffs for the duration (only if not already active)
-        var allWDmg = GetAllWeapons();
-        if (allWDmg != null && !isDamageBuffActive)
+        if (!isDamageBuffActive)
         {
             appliedFireRateBuff = bonusDamageTakenFireRatePercent;
             appliedDamageBuff = bonusDamageTakenBulletDamagePercent;
-            foreach (var w in allWDmg)
-            {
-                if (w != null)
-                {
-                    w.AddFireRatePercent(appliedFireRateBuff);
-                    w.AddBulletDamagePercent(appliedDamageBuff);
-                }
-            }
-            isDamageBuffActive = true;
+            var allWDmg = GetAllWeapons();
+            if (allWDmg != null) foreach (var w in allWDmg) if (w != null) { w.AddFireRatePercent(appliedFireRateBuff); w.AddBulletDamagePercent(appliedDamageBuff); }
+            var allFDmg = GetAllFlamethrowers();
+            if (allFDmg != null) foreach (var f in allFDmg) if (f != null) { f.AddFireRatePercent(appliedFireRateBuff); f.AddBulletDamagePercent(appliedDamageBuff); }
+            if ((allWDmg != null && allWDmg.Length > 0) || (allFDmg != null && allFDmg.Length > 0))
+                isDamageBuffActive = true;
         }
         // Always refresh the timer
         damageTakenTimer = damageTakenBuffDuration;

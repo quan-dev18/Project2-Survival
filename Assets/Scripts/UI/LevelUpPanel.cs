@@ -286,15 +286,21 @@ public class LevelUpPanel : MonoBehaviour
     private void ApplyStat(UpgradeType stat, float amount)
     {
         float pct = amount / 100f;
-        // Always fetch ALL weapons in scene including inactive (5 prefabs) - don't rely on cached single
-        WeaponController[] allWeapons = FindObjectsByType<WeaponController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        // Fetch via Player hierarchy so order matches PlayerEquipment (avoids scene-wide stray WeaponControllers)
+        var player = GameObject.FindGameObjectWithTag("Player");
+        WeaponController[] allWeapons = null;
+        FlamethrowerController[] allFlames = null;
+        if (player != null)
+        {
+            allWeapons = player.GetComponentsInChildren<WeaponController>(true);
+            allFlames = player.GetComponentsInChildren<FlamethrowerController>(true);
+        }
         if (allWeapons == null || allWeapons.Length == 0)
             allWeapons = playerStats?.Weapons;
-        if (allWeapons == null || allWeapons.Length == 0)
-        {
-            var player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) allWeapons = player.GetComponentsInChildren<WeaponController>(true);
-        }
+        if (allFlames == null || allFlames.Length == 0)
+            allFlames = playerStats?.Flamethrowers;
+        System.Action<System.Action<WeaponController>> applyWeapons = act => ApplyToAllWeapons(allWeapons, act);
+        System.Action<System.Action<FlamethrowerController>> applyFlames = act => { if(allFlames!=null) foreach(var f in allFlames) if(f!=null) act(f); };
 
         switch (stat)
         {
@@ -317,43 +323,43 @@ public class LevelUpPanel : MonoBehaviour
                 playerStats?.AddGrowthRatePercent(pct);
                 break;
             case UpgradeType.FireRatePercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddFireRatePercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRatePercent(pct)); applyFlames(f => f.AddFireRatePercent(pct));
                 break;
             case UpgradeType.FireRangePercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddFireRangePercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRangePercent(pct)); applyFlames(f => f.AddFireRangePercent(pct));
                 break;
             case UpgradeType.ReloadSpeedPercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedPercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedPercent(pct)); applyFlames(f => f.AddReloadSpeedPercent(pct));
                 break;
             case UpgradeType.MagazineSizePercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddMagazineSizePercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddMagazineSizePercent(pct)); applyFlames(f => f.AddMagazineSizePercent(pct));
                 break;
             case UpgradeType.BulletCount:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletCount(Mathf.RoundToInt(amount)));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletCount(Mathf.RoundToInt(amount))); applyFlames(f => f.AddBulletCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletPierce:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletPierce(Mathf.RoundToInt(amount)));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletPierce(Mathf.RoundToInt(amount))); applyFlames(f => f.AddBulletPierce(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletSpeedPercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpeedPercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpeedPercent(pct)); applyFlames(f => f.AddBulletSpeedPercent(pct));
                 break;
             case UpgradeType.BulletDamagePercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletDamagePercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletDamagePercent(pct)); applyFlames(f => f.AddBulletDamagePercent(pct));
                 break;
             case UpgradeType.BulletExecutePercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletExecutePercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletExecutePercent(pct)); applyFlames(f => f.AddBulletExecutePercent(pct));
                 break;
             case UpgradeType.BulletKnockbackPercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletKnockbackPercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletKnockbackPercent(pct)); applyFlames(f => f.AddBulletKnockbackPercent(pct));
                 break;
             case UpgradeType.BulletSizePercent:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletSizePercent(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSizePercent(pct)); applyFlames(f => f.AddBulletSizePercent(pct));
                 break;
             case UpgradeType.BulletInfinitePierceOnKill:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletInfinitePierceOnKill(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletInfinitePierceOnKill(pct)); applyFlames(f => f.AddBulletInfinitePierceOnKill(pct));
                 break;
             case UpgradeType.BulletExplosionOnKill:
-                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct); w.AddBulletExplosionRadius(1.5f); });
+                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct); w.AddBulletExplosionRadius(1.5f); }); applyFlames(f => { f.AddBulletExplosionDamagePercent(pct); f.AddBulletExplosionRadius(1.5f); });
                 break;
             case UpgradeType.CharacterSizePercent:
                 playerStats?.AddCharacterSizePercent(pct);
@@ -365,7 +371,7 @@ public class LevelUpPanel : MonoBehaviour
                 playerStats?.AddDamageTakenBulletDamagePercent(pct);
                 break;
             case UpgradeType.FreeShotChanceWhileStill:
-                ApplyToAllWeapons(allWeapons, w => w.AddFreeShotChanceWhileStill(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddFreeShotChanceWhileStill(pct)); applyFlames(f => f.AddFreeShotChanceWhileStill(pct));
                 break;
             case UpgradeType.AmmoRecoverOnXP:
                 PlayerXP.Instance?.AddAmmoRecoverChance(pct);
@@ -374,16 +380,16 @@ public class LevelUpPanel : MonoBehaviour
                 PlayerXP.Instance?.AddFireRateBuffOnXPChance(pct);
                 break;
             case UpgradeType.LastAmmoBurst:
-                ApplyToAllWeapons(allWeapons, w => w.AddLastAmmoBurst(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddLastAmmoBurst(pct)); applyFlames(f => f.AddLastAmmoBurst(pct));
                 break;
             case UpgradeType.BackShot:
-                ApplyToAllWeapons(allWeapons, w => w.AddBackShot(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddBackShot(pct)); applyFlames(f => f.AddBackShot(pct));
                 break;
             case UpgradeType.DamageBuffAfterReload:
-                ApplyToAllWeapons(allWeapons, w => w.AddDamageBuffAfterReload(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddDamageBuffAfterReload(pct)); applyFlames(f => f.AddDamageBuffAfterReload(pct));
                 break;
             case UpgradeType.ReloadSpeedStackOnKill:
-                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedStackOnKill(pct));
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedStackOnKill(pct)); applyFlames(f => f.AddReloadSpeedStackOnKill(pct));
                 break;
             case UpgradeType.InvulnerableWhileReloading:
                 playerStats?.AddInvulnerableWhileReloading(pct);
@@ -396,10 +402,10 @@ public class LevelUpPanel : MonoBehaviour
                 break;
             case UpgradeType.BulletSpreadPercent:
             case UpgradeType.BulletSpread:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpread(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpread(amount)); applyFlames(f => f.AddBulletSpread(amount));
                 break;
             case UpgradeType.BulletBounceCount:
-                ApplyToAllWeapons(allWeapons, w => w.AddBulletBounceCount(Mathf.RoundToInt(amount)));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletBounceCount(Mathf.RoundToInt(amount))); applyFlames(f => f.AddBulletBounceCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.MysteryCube:
                 playerStats?.AddMysteryCube(pct);
