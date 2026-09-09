@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Collect_Range
   m_EditorClassIdentifier: 
   perkID: 8
-  perkName: Collect Range
+  perkName: "T\u0103ng t\u1EA7m thu gom"
   icon: {fileID: 463795053, guid: ec7cfbc94d3ab244b9c1a460fecb729c, type: 3}
-  description: 
+  description: "T\u0103ng t\u1EA7m thu gom"
   maxLevel: 5
   baseCost: 2000
   costMultiplier: 1.5

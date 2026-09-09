@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Regen
   m_EditorClassIdentifier: 
   perkID: 6
-  perkName: Regen
+  perkName: "T\u0103ng t\u1ED1c \u0111\u1ED9 h\u1ED3i m\xE1u"
   icon: {fileID: 1814580921, guid: ec7cfbc94d3ab244b9c1a460fecb729c, type: 3}
-  description: 
+  description: "T\u0103ng t\u1ED1c \u0111\u1ED9 h\u1ED3i m\xE1u"
   maxLevel: 5
   baseCost: 7000
   costMultiplier: 1.5

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Revive
   m_EditorClassIdentifier: 
   perkID: 10
-  perkName: REVIVE
+  perkName: "H\u1ED2I SINH"
   icon: {fileID: 1179377837, guid: a9b7a57dc785eeb4597b51dd6474e170, type: 3}
-  description: 
+  description: "H\xD4I SINH"
   maxLevel: 1
   baseCost: 10000
   costMultiplier: 1

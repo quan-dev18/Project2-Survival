@@ -33,6 +33,12 @@ public class PerkColorConfigSO : ScriptableObject
     [Tooltip("Danh sách mốc màu tăng dần theo MinLevel. (0 = màu gốc, 12, 18, 24, 36...).")]
     [SerializeField] private List<PerkLevelColor> levelColors = new List<PerkLevelColor>();
 
+    [Tooltip("Bộ màu RIÊNG khi Perk đạt MAX Level (cấp tối đa). Nếu để trống, Slot sẽ dùng màu theo ngưỡng level bình thường.")]
+    [SerializeField] private PerkLevelColor maxLevelColor;
+
+    /// <summary>Bộ màu dành riêng cho Perk đã đạt cấp tối đa (max level).</summary>
+    public PerkLevelColor MaxLevelColor => maxLevelColor;
+
     /// <summary>
     /// Lấy màu tương ứng cho 1 level: chọn mốc có MinLevel lớn nhất nhưng &lt;= level.
     /// Nếu level = 0 sẽ chọn entry MinLevel = 0 (màu gốc).

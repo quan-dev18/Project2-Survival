@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Increase_HP
   m_EditorClassIdentifier: 
   perkID: 5
-  perkName: Increase HP
+  perkName: "T\u0103ng m\xE1u"
   icon: {fileID: -940565479, guid: ec7cfbc94d3ab244b9c1a460fecb729c, type: 3}
-  description: Increase HP
+  description: "T\u0103ng m\xE1u"
   maxLevel: 5
   baseCost: 2000
   costMultiplier: 1.2
