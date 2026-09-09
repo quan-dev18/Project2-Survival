@@ -24,3 +24,4 @@ MonoBehaviour:
   magazineSize: 2
   bulletCount: 4
   spread: 15
+  bulletSO: {fileID: 11400000, guid: 945e346cca3380d42b8c431c5011e1c6, type: 2}
