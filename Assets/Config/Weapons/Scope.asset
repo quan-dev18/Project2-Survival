@@ -18,7 +18,7 @@ MonoBehaviour:
   shootSFX: {fileID: 8300000, guid: 40f0d6f08672bef42ab5cd6e23a106d5, type: 3}
   reloadSFX: {fileID: 8300000, guid: f0ec494150d06c64eb431e14ad64d872, type: 3}
   weaponName: AWP
-  fireRate: 1
+  fireRate: 1.5
   fireRange: 7
   reloadTime: 1
   magazineSize: 1

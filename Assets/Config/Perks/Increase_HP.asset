@@ -16,9 +16,9 @@ MonoBehaviour:
   perkName: Increase HP
   icon: {fileID: -940565479, guid: ec7cfbc94d3ab244b9c1a460fecb729c, type: 3}
   description: Increase HP
-  maxLevel: 36
-  baseCost: 10
-  costMultiplier: 1.5
+  maxLevel: 5
+  baseCost: 2000
+  costMultiplier: 1.2
   statMods:
   - stat: 0
-    amountPerLevel: 5
+    amountPerLevel: 10

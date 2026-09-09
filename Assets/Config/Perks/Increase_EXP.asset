@@ -16,9 +16,9 @@ MonoBehaviour:
   perkName: Increase EXP
   icon: {fileID: 1250023105, guid: ec7cfbc94d3ab244b9c1a460fecb729c, type: 3}
   description: 
-  maxLevel: 36
-  baseCost: 10
+  maxLevel: 5
+  baseCost: 5000
   costMultiplier: 1.5
   statMods:
   - stat: 5
-    amountPerLevel: 5
+    amountPerLevel: 10

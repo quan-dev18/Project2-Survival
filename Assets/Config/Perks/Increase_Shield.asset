@@ -16,8 +16,8 @@ MonoBehaviour:
   perkName: Increase Shield
   icon: {fileID: -1231023296, guid: ec7cfbc94d3ab244b9c1a460fecb729c, type: 3}
   description: 
-  maxLevel: 36
-  baseCost: 10
+  maxLevel: 5
+  baseCost: 2000
   costMultiplier: 1.5
   statMods:
   - stat: 1

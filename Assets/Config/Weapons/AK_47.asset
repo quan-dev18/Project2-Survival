@@ -21,6 +21,6 @@ MonoBehaviour:
   fireRate: 0.2
   fireRange: 5
   reloadTime: 1.5
-  magazineSize: 18
+  magazineSize: 12
   bulletCount: 1
   spread: 5

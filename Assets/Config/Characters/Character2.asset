@@ -12,11 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2391c1e03f155a469b3457ccedc6818, type: 3}
   m_Name: Character2
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  maxArmor: 0
+  maxHealth: 200
+  maxArmor: 15
   recoveryRate: 0
-  movementSpeed: 4
+  movementSpeed: 3
   collectRange: 2
   growthRate: 0
-  isUnlocked: 0
-  goldCost: 2000

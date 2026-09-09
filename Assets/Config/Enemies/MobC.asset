@@ -17,5 +17,5 @@ MonoBehaviour:
   attackDamage: 5
   attackRange: 1
   attackSpeed: 1
-  xpReward: 1
+  xpReward: 2
   enemyType: 0
