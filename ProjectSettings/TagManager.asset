@@ -64,6 +64,9 @@ TagManager:
   - name: Bullet
     uniqueID: 3142360843
     locked: 0
+  - name: VFX
+    uniqueID: 568925103
+    locked: 0
   - name: DamagePopup
     uniqueID: 3616860571
     locked: 0

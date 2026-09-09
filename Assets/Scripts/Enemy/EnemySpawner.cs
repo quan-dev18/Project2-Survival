@@ -14,14 +14,18 @@ public class EnemySpawner : MonoBehaviour
 
     private readonly List<GameObject> activeEnemies = new List<GameObject>();
     private readonly List<GameObject> spawnedBosses = new List<GameObject>();
+    private readonly List<GameObject> spawnedElites = new List<GameObject>();
     private readonly List<EntryState> entryStates = new List<EntryState>();
     private readonly List<int> pendingBosses = new List<int>();
+    private readonly List<int> pendingElites = new List<int>();
     private int phaseIndex;
     private float phaseTimer;
     private bool phaseHasBoss;
     private int bossSpawnedCount;
     private float bossRetryTimer;
+    private float eliteRetryTimer;
     private bool bossRetryWarningShown;
+    private bool eliteRetryWarningShown;
 
     public event System.Action<EnemyHealth> OnBossSpawned;
     
@@ -64,10 +68,14 @@ public class EnemySpawner : MonoBehaviour
         phaseHasBoss = false;
         bossSpawnedCount = 0;
         bossRetryTimer = 0f;
+        eliteRetryTimer = 0f;
         bossRetryWarningShown = false;
+        eliteRetryWarningShown = false;
         spawnedBosses.Clear();
+        spawnedElites.Clear();
         entryStates.Clear();
         pendingBosses.Clear();
+        pendingElites.Clear();
 
         StageSO.Phase phase = CurrentPhase;
         for (int i = 0; i < phase.Enemies.Count; i++)
@@ -76,10 +84,15 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < phase.Enemies.Count; i++)
         {
             StageSO.PhaseEnemy entry = phase.Enemies[i];
-            if (!entry.IsBoss) continue;
-
-            phaseHasBoss = true;
-            TrySpawnBoss(i);
+            if (entry.IsBoss)
+            {
+                phaseHasBoss = true;
+                TrySpawnBoss(i);
+            }
+            else if (entry.IsElite)
+            {
+                TrySpawnElite(i);
+            }
         }
 
         if (CircleWallManager.Instance != null)
@@ -112,6 +125,27 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    private void TrySpawnElite(int entryIndex)
+    {
+        StageSO.PhaseEnemy entry = CurrentPhase.Enemies[entryIndex];
+        GameObject elite = SpawnEnemy(entry.MobKey, entryStates[entryIndex]);
+        if (elite != null)
+        {
+            spawnedElites.Add(elite);
+            pendingElites.Remove(entryIndex);
+        }
+        else
+        {
+            if (!pendingElites.Contains(entryIndex))
+                pendingElites.Add(entryIndex);
+            if (!eliteRetryWarningShown)
+            {
+                eliteRetryWarningShown = true;
+                Debug.LogWarning($"EnemySpawner: elite '{entry.MobKey}' failed to spawn — check it is registered in ObjectPooling with that key");
+            }
+        }
+    }
+
     private void Update()
     {
         if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameState.Playing) return;
@@ -136,6 +170,8 @@ public class EnemySpawner : MonoBehaviour
 
         if (pendingBosses.Count > 0)
             TryRetryPendingBosses();
+        if (pendingElites.Count > 0)
+            TryRetryPendingElites();
 
         if (CurrentPhase.Duration > 0f && phaseTimer >= CurrentPhase.Duration)
         {
@@ -188,7 +224,7 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < phase.Enemies.Count && i < entryStates.Count; i++)
         {
             StageSO.PhaseEnemy entry = phase.Enemies[i];
-            if (entry.IsBoss) continue;
+            if (entry.IsBoss || entry.IsElite) continue;
 
             EntryState state = entryStates[i];
             if (entry.SpawnLimit > 0 && state.spawned.Count >= entry.SpawnLimit)
@@ -213,6 +249,16 @@ public class EnemySpawner : MonoBehaviour
         bossRetryTimer = 0f;
         for (int i = pendingBosses.Count - 1; i >= 0; i--)
             TrySpawnBoss(pendingBosses[i]);
+    }
+
+    private void TryRetryPendingElites()
+    {
+        eliteRetryTimer += Time.deltaTime;
+        if (eliteRetryTimer < 1f) return;
+
+        eliteRetryTimer = 0f;
+        for (int i = pendingElites.Count - 1; i >= 0; i--)
+            TrySpawnElite(pendingElites[i]);
     }
 
     private void CheckEndCondition()
