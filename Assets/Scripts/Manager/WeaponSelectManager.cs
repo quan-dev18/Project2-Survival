@@ -24,6 +24,10 @@ public class WeaponSelectManager : MonoBehaviour
     [Header("Outside Equipment UI")]
     [SerializeField] private Image outsideWeaponIcon;
 
+    [Header("Gun Showcase Popup")]
+    [Tooltip("Pop-up hiển thị chi tiết thông số súng. Hiện lên ngay khi chọn 1 súng (OnSelectWeapon).")]
+    [SerializeField] private GunShowcaseUI gunShowcase;
+
     [Header("Tween Animation")]
     [SerializeField] private UISlideTween slideTween;
 
@@ -203,6 +207,11 @@ public class WeaponSelectManager : MonoBehaviour
             if (goldCostText != null)
                 goldCostText.text = FormatHelper.FormatGold(data.GoldCost);
         }
+
+        // Hiện pop-up chi tiết súng ngay sau khi chọn 1 súng.
+        // Súng LOCKED sẽ hiện toàn bộ stat dưới dạng "?".
+        if (gunShowcase != null)
+            gunShowcase.Show(data, unlocked);
     }
 
     private void OnConfirmSelect()
@@ -237,6 +246,10 @@ public class WeaponSelectManager : MonoBehaviour
 
             if (outsideWeaponIcon != null)
                 outsideWeaponIcon.sprite = currentSelectedWeapon.WeaponIcon;
+
+            // Sau khi mua thành công: mở lại pop-up để hiện chỉ số thật (thay cho "?").
+            if (gunShowcase != null)
+                gunShowcase.Show(currentSelectedWeapon, true);
 
             UserData.Instance.SelectedWeaponIndex = weaponIndex;
             PlayerEquipment.SelectedWeaponIndex = weaponIndex;
