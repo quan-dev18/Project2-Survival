@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: MoveSpeed
   m_EditorClassIdentifier: 
   perkID: 3
-  perkName: Increase_Movement
+  perkName: "T\u0103ng t\u1ED1c \u0111\u1ED9 di chuy\u1EC3n"
   icon: {fileID: -1353436860, guid: a9b7a57dc785eeb4597b51dd6474e170, type: 3}
-  description: Increase movement speed
+  description: "T\u0103ng t\u1ED1c \u0111\u1ED9 di chuy\u1EC3n"
   maxLevel: 5
   baseCost: 1000
   costMultiplier: 1.5

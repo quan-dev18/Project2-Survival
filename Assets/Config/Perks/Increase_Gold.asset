@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Increase_Gold
   m_EditorClassIdentifier: 
   perkID: 4
-  perkName: Increase Gold
+  perkName: "T\u0103ng s\u1ED1 v\xE0ng \u0111\u01B0\u1EE3c nh\u1EADn"
   icon: {fileID: 1325042645, guid: a9b7a57dc785eeb4597b51dd6474e170, type: 3}
-  description: Increase gold aftermath
+  description: "T\u0103ng s\u1ED1 v\xE0ng \u0111\u01B0\u1EE3c nh\u1EADn"
   maxLevel: 5
   baseCost: 1000
   costMultiplier: 1.1

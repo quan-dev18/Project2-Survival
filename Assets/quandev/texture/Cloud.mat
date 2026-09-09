@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Fog
-  m_Shader: {fileID: 4800000, guid: fa6a2c7bc17b2f04684c1cf2fcef84d1, type: 3}
+  m_Name: Cloud
+  m_Shader: {fileID: 4800000, guid: e260cfa7296ee7642b167f1eb5be5023, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -28,7 +28,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 311fe53dbbde9654cbeb8d31c65e02ae, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskTex:
@@ -41,26 +41,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _EdgeSoftness: 2
     - _EnableExternalAlpha: 0
-    - _ExploredDensity: 0.55
-    - _FlashAngle: 50
-    - _FlashRadius: 10
-    - _FlashStrength: 0.8352403
-    - _FogDensity: 0.7
-    - _InnerRadius: 3.6
-    - _NoiseScale: 0.3
-    - _NoiseStrength: 2.4
-    - _OuterRadius: 8.6
-    - _WispyAmount: 0.4
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ExploredColor: {r: 0.9811321, g: 0.47668213, b: 0.5914197, a: 1}
-    - _FlashDir: {r: -0.63476, g: 0.77270937, b: 0, a: 0}
-    - _FlashPos: {r: 2.2135198, g: 2.3708203, b: 0, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _FogColor: {r: 0, g: 0, b: 0, a: 1}
-    - _NoiseSpeed: {r: 0.07, g: 0.07, b: 0, a: 0}
-    - _PlayerPos: {r: 2.7031631, g: 2.3119628, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

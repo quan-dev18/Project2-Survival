@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Increase_Shield
   m_EditorClassIdentifier: 
   perkID: 7
-  perkName: Increase Shield
+  perkName: "T\u0103ng gi\xE1p"
   icon: {fileID: -1231023296, guid: ec7cfbc94d3ab244b9c1a460fecb729c, type: 3}
-  description: 
+  description: "T\u0103ng gi\xE1p"
   maxLevel: 5
   baseCost: 2000
   costMultiplier: 1.5

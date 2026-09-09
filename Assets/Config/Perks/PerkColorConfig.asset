@@ -16,15 +16,15 @@ MonoBehaviour:
   - minLevel: 0
     backgroundColor: {r: 0.3018868, g: 0.2388666, b: 0.20647918, a: 1}
     selectionColor: {r: 0, g: 0, b: 0, a: 1}
-  - minLevel: 12
+  - minLevel: 2
     backgroundColor: {r: 0.19335175, g: 0.745283, b: 0.36478135, a: 1}
     selectionColor: {r: 0, g: 0, b: 0, a: 1}
-  - minLevel: 18
+  - minLevel: 3
     backgroundColor: {r: 0.0141509175, g: 0.06383561, b: 1, a: 1}
     selectionColor: {r: 0.8047928, g: 0.19241722, b: 0.8679245, a: 1}
-  - minLevel: 24
+  - minLevel: 4
     backgroundColor: {r: 0.40075117, g: 0.19241722, b: 0.8679245, a: 1}
     selectionColor: {r: 1, g: 0.7665792, b: 0.1273585, a: 1}
-  - minLevel: 36
+  - minLevel: 5
     backgroundColor: {r: 0.99215686, g: 0.5486055, b: 0.05098037, a: 1}
     selectionColor: {r: 0.9339623, g: 0.12775902, b: 0.25688213, a: 1}

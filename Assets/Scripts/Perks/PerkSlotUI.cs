@@ -72,9 +72,10 @@ public class PerkSlotUI : MonoBehaviour, IPointerClickHandler
 
     /// <summary>
     /// Đổi màu nền Slot theo ngưỡng level hiện tại + màu viền chọn tương ứng.
+    /// Perk đạt MAX level sẽ dùng bộ màu riêng (maxLevelColor) trong colorConfig.
     /// Text % đồng màu với viền (SelectionColor). Slot chưa nâng (level 0) dùng màu xám.
     /// </summary>
-    private void ApplyColorForLevel(int level)
+    private void ApplyColorForLevel(int level, bool isMaxLevel)
     {
         if (!_isOwned)
         {
@@ -86,7 +87,9 @@ public class PerkSlotUI : MonoBehaviour, IPointerClickHandler
         }
 
         if (colorConfig == null) return;
-        PerkLevelColor entry = colorConfig.GetColorForLevel(level);
+        PerkLevelColor entry = isMaxLevel && colorConfig.MaxLevelColor != null
+            ? colorConfig.MaxLevelColor
+            : colorConfig.GetColorForLevel(level);
         if (entry == null) return;
 
         if (backgroundImage != null)
@@ -120,7 +123,7 @@ public class PerkSlotUI : MonoBehaviour, IPointerClickHandler
         }
 
         _isOwned = isMaxLevel || currentLevel > 0;
-        ApplyColorForLevel(currentLevel);
+        ApplyColorForLevel(currentLevel, isMaxLevel);
         ApplyBorderState();
 
         bool affordable = isMaxLevel || gold >= _data.GetCostForLevel(currentLevel);

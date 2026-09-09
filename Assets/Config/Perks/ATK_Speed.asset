@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ATK_Speed
   m_EditorClassIdentifier: 
   perkID: 1
-  perkName: ATK Speed
+  perkName: "T\u0103ng t\u1ED1c \u0111\u1ED9 b\u1EAFn"
   icon: {fileID: 2145252786, guid: a9b7a57dc785eeb4597b51dd6474e170, type: 3}
-  description: increase ATK speed
+  description: "T\u0103ng t\u1ED1c \u0111\u1ED9 b\u1EAFn"
   maxLevel: 5
   baseCost: 5000
   costMultiplier: 1.5
