@@ -16,7 +16,7 @@ MonoBehaviour:
   perkName: REVIVE
   icon: {fileID: 1179377837, guid: a9b7a57dc785eeb4597b51dd6474e170, type: 3}
   description: 
-  maxLevel: 36
-  baseCost: 999
+  maxLevel: 1
+  baseCost: 10000
   costMultiplier: 1
   statMods: []

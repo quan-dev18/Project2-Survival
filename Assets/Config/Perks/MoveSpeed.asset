@@ -16,9 +16,9 @@ MonoBehaviour:
   perkName: Increase_Movement
   icon: {fileID: -1353436860, guid: a9b7a57dc785eeb4597b51dd6474e170, type: 3}
   description: Increase movement speed
-  maxLevel: 36
-  baseCost: 10
+  maxLevel: 5
+  baseCost: 1000
   costMultiplier: 1.5
   statMods:
   - stat: 3
-    amountPerLevel: 5
+    amountPerLevel: 10

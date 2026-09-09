@@ -16,9 +16,9 @@ MonoBehaviour:
   perkName: Increase Gold
   icon: {fileID: 1325042645, guid: a9b7a57dc785eeb4597b51dd6474e170, type: 3}
   description: Increase gold aftermath
-  maxLevel: 36
-  baseCost: 10
-  costMultiplier: 1.5
+  maxLevel: 5
+  baseCost: 1000
+  costMultiplier: 1.1
   statMods:
   - stat: 43
-    amountPerLevel: 5
+    amountPerLevel: 10

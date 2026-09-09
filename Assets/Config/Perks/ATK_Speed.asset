@@ -16,8 +16,8 @@ MonoBehaviour:
   perkName: ATK Speed
   icon: {fileID: 2145252786, guid: a9b7a57dc785eeb4597b51dd6474e170, type: 3}
   description: increase ATK speed
-  maxLevel: 36
-  baseCost: 10
+  maxLevel: 5
+  baseCost: 5000
   costMultiplier: 1.5
   statMods:
   - stat: 12

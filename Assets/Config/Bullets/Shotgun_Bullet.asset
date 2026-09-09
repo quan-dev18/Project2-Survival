@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3ab172e0351ef8c4a9053eac30f82763, type: 3}
-  m_Name: Bullet1
+  m_Name: Shotgun_Bullet
   m_EditorClassIdentifier: 
-  damage: 10
+  damage: 5
   speed: 15
   speedCurve:
     serializedVersion: 2
@@ -39,3 +39,5 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   lifeTime: 3
+  explosionRadius: 3
+  isMultipleDamage: 0
