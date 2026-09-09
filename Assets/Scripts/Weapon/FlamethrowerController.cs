@@ -124,11 +124,25 @@ public class FlamethrowerController : MonoBehaviour
                     playerRigidbody = player.GetComponent<Rigidbody2D>() ?? player.GetComponentInChildren<Rigidbody2D>();
             }
         }
-        if (fireEffect != null) fireEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        if (fireEffect == null)
+            fireEffect = GetComponentInChildren<ParticleSystem>(true);
+        if (fireEffect != null)
+        {
+            fireEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            var main = fireEffect.main;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            // Ensure it starts at muzzle, not at prefab origin
+            if (weaponFront != null)
+                fireEffect.transform.SetPositionAndRotation(weaponFront.position, weaponFront.rotation);
+        }
     }
 
     private void Update()
     {
+        // Keep fire VFX glued to muzzle even in World space
+        if (fireEffect != null && weaponFront != null)
+            fireEffect.transform.SetPositionAndRotation(weaponFront.position, weaponFront.rotation);
+
         if (isReloading)
             HandleReloadTimer();
 
@@ -145,8 +159,8 @@ public class FlamethrowerController : MonoBehaviour
         bool hasTarget = target != null && IsTargetInRange();
         if (hasTarget) Aim();
 
-        // Handle fire effect + ammo + cone damage
-        bool shouldFire = hasTarget && !isReloading && currentAmmo > 0;
+        // Flamethrower fires whenever not reloading/has ammo, not only when hasTarget - so particles show even without lock
+        bool shouldFire = !isReloading && currentAmmo > 0;
         UpdateFireEffect(shouldFire);
 
         if (shouldFire)

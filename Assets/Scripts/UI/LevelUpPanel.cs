@@ -286,16 +286,19 @@ public class LevelUpPanel : MonoBehaviour
     private void ApplyStat(UpgradeType stat, float amount)
     {
         float pct = amount / 100f;
-        // Always fetch ALL weapons in scene including inactive (5 prefabs) - don't rely on cached single
-        WeaponController[] allWeapons = FindObjectsByType<WeaponController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        FlamethrowerController[] allFlames = FindObjectsByType<FlamethrowerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        // Fetch via Player hierarchy so order matches PlayerEquipment (avoids scene-wide stray WeaponControllers)
+        var player = GameObject.FindGameObjectWithTag("Player");
+        WeaponController[] allWeapons = null;
+        FlamethrowerController[] allFlames = null;
+        if (player != null)
+        {
+            allWeapons = player.GetComponentsInChildren<WeaponController>(true);
+            allFlames = player.GetComponentsInChildren<FlamethrowerController>(true);
+        }
         if (allWeapons == null || allWeapons.Length == 0)
             allWeapons = playerStats?.Weapons;
-        if (allWeapons == null || allWeapons.Length == 0)
-        {
-            var player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) allWeapons = player.GetComponentsInChildren<WeaponController>(true);
-        }
+        if (allFlames == null || allFlames.Length == 0)
+            allFlames = playerStats?.Flamethrowers;
         System.Action<System.Action<WeaponController>> applyWeapons = act => ApplyToAllWeapons(allWeapons, act);
         System.Action<System.Action<FlamethrowerController>> applyFlames = act => { if(allFlames!=null) foreach(var f in allFlames) if(f!=null) act(f); };
 

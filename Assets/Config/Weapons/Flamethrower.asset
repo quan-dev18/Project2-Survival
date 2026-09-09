@@ -19,8 +19,9 @@ MonoBehaviour:
   reloadSFX: {fileID: 8300000, guid: 25e9d8f99b150fa4182b386d002f79ca, type: 3}
   weaponName: Flamethrower
   fireRate: 0.2
-  fireRange: 1
+  fireRange: 3
   reloadTime: 2
-  magazineSize: 20
+  magazineSize: 15
   bulletCount: 1
   spread: 0
+  bulletSO: {fileID: 11400000, guid: d050ec4de6e4a7b44a8bbcfaff689128, type: 2}

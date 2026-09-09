@@ -151,6 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weapon: {fileID: 0}
+  flamethrower: {fileID: 0}
   ammoText: {fileID: 2660806666718277728}
   reloadFill: {fileID: 5305043132437194169}
   reloadPanel: {fileID: 2709334579490155210}
@@ -254,8 +255,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: <color=red>0</color>/0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
+  m_sharedMaterial: {fileID: -1269213483947345980, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -527,7 +528,7 @@ MonoBehaviour:
   - {x: -0.023922458, y: -0.5147414, z: 0}
   m_ShapePathHash: -62189087
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55062
+  m_InstanceId: 102836
   m_LocalBounds:
     m_Center: {x: 0.0073542893, y: 0.021676421, z: 0}
     m_Extent: {x: 0.36422572, y: 0.5395007, z: 0}
@@ -771,9 +772,9 @@ Transform:
   - {fileID: 5351606614970450365}
   - {fileID: 2793869258250530539}
   - {fileID: 7716319850904151045}
+  - {fileID: 4255719937864803576}
   - {fileID: 7003660060668842485}
   - {fileID: 4090945164197312705}
-  - {fileID: 4255719937864803576}
   m_Father: {fileID: 1383182683960027192}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 88.864}
 --- !u!1 &2709334579490155210
@@ -1053,8 +1054,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 06cde15a71c7d0f44af559932d227067, type: 2}
   - {fileID: 11400000, guid: 04ccf026db8529f43a81e5f3633293bd, type: 2}
   weapons: []
-  mysteryCubePrefab: {fileID: 0}
-  spiritPrefab: {fileID: 0}
+  flamethrowers: []
+  mysteryCubePrefab: {fileID: 7271410636520746747, guid: cd5fabfcf3571a94796c2e55b26905b9, type: 3}
+  spiritPrefab: {fileID: 7271410636520746747, guid: 8ca2d8f8084b1d440a464e9848755047, type: 3}
   minMoveSpeed: 1
   maxMoveSpeed: 15
   maxRecoveryRate: 50
@@ -1097,6 +1099,9 @@ MonoBehaviour:
   - {fileID: 6094082169807008426}
   - {fileID: 4040837066156318204}
   - {fileID: 8485870949654943506}
+  - {fileID: 8518321746849164052}
+  - {fileID: 9216547477540528866}
+  - {fileID: 2743759099149126614}
   playerMovement: {fileID: 1321052552799082689}
   playerStats: {fileID: 7321741506684919708}
   playerUI: {fileID: 5260760281590308743}
@@ -1734,6 +1739,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7480191753787478351, guid: 73cca891e2bce3144b1b591be9e8dd74, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 67
+      objectReference: {fileID: 0}
     - target: {fileID: 8944604261492663571, guid: 73cca891e2bce3144b1b591be9e8dd74, type: 3}
       propertyPath: m_Name
       value: Fire
@@ -1962,6 +1971,11 @@ SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 6617637046937378308, guid: 4b0b4479c5738014bba839c9bc31d618, type: 3}
   m_PrefabInstance: {fileID: 4353012731029342379}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &9216547477540528866 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: 4b0b4479c5738014bba839c9bc31d618, type: 3}
+  m_PrefabInstance: {fileID: 4353012731029342379}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7238431820671615841
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2047,6 +2061,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6880174080247375769, guid: 9f9cc322295801b48b35105124f5ead5, type: 3}
   m_PrefabInstance: {fileID: 7238431820671615841}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8518321746849164052 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1315960511617689717, guid: 9f9cc322295801b48b35105124f5ead5, type: 3}
+  m_PrefabInstance: {fileID: 7238431820671615841}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7322018772398973343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2128,6 +2147,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fba383a1020f4b94b82f9c6608ca6e87, type: 3}
+--- !u!1 &2743759099149126614 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4868042765978741321, guid: fba383a1020f4b94b82f9c6608ca6e87, type: 3}
+  m_PrefabInstance: {fileID: 7322018772398973343}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4090945164197312705 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6726404993617762654, guid: fba383a1020f4b94b82f9c6608ca6e87, type: 3}
