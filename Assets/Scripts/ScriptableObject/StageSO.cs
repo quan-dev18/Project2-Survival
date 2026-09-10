@@ -5,6 +5,15 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "StageSO", menuName = "StageStats")]
 public class StageSO : ScriptableObject
 {
+    [Header("Stage ID & Progress")]
+    [Tooltip("ID duy nhất của stage. Được dùng làm khóa đọc/ghi kỷ lục trong UserData.")]
+    [SerializeField] private string stageID;
+    public string StageID => stageID;
+
+    [Tooltip("Mốc tiến trình tối đa = 100%. Nên đặt bằng Số Phase (Wave) của stage: mỗi wave qua = +1, giết boss = MaxProgress => 100%.")]
+    [SerializeField] private float maxProgress;
+    public float MaxProgress => maxProgress;
+
     [Header("Global Stat Scaling (applied over entire stage)")]
     [SerializeField] private float attackIncrementPercent = 0f;
     [SerializeField] private float speedIncrementPercent = 0f;

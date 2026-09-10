@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,12 @@ public class MapSelectionManager : MonoBehaviour
     [Header("--- UI BUTTON ---")]
     public Button startButton; // Nút "Bắt đầu" ngoài màn hình main menu
 
+    [Header("--- LOCKED MAP ---")]
+    [Tooltip("Text của nút Bắt đầu (tự tìm nếu để trống). Bị xóa khi map bị khóa.")]
+    public TextMeshProUGUI startButtonText;
+    [Tooltip("Màu của nút Bắt đầu khi map bị khóa (xám).")]
+    public Color lockedButtonColor = new Color(0.45f, 0.45f, 0.45f, 1f);
+
     [Header("--- SWIPE SETTINGS ---")]
     public float swipeThreshold = 50f;
 
@@ -28,16 +35,32 @@ public class MapSelectionManager : MonoBehaviour
     private Vector2 dragStartPos;
     private bool isDragging = false;
 
+    private string defaultStartText;      // Text gốc của nút để khôi phục lại
+    private ColorBlock defaultButtonColors; // Màu gốc của nút để khôi phục lại
+
     private void Start()
     {
-        // Gán sự kiện cho Nút Bắt đầu
-        if (startButton != null) 
-            startButton.onClick.AddListener(OnStartButtonClicked);
+        // Lưu trạng thái gốc của nút Bắt đầu (trước khi bị đổi do khóa map).
+        if (startButton != null)
+        {
+            defaultButtonColors = startButton.colors;
+            if (startButtonText == null)
+                startButtonText = startButton.GetComponentInChildren<TextMeshProUGUI>();
+            if (startButtonText != null)
+                defaultStartText = startButtonText.text;
 
-        // Load Map đã chọn gần nhất (mặc định 0)
-        currentIndex = Mathf.Clamp(PlayerPrefs.GetInt("SelectedMapIndex", 0), 0, mapList.Count - 1);
-        
+            // Gán sự kiện cho Nút Bắt đầu
+            startButton.onClick.AddListener(OnStartButtonClicked);
+        }
+
+        // Load Map đã chọn gần nhất (mặc định 0), nhưng không vượt quá map hiển thị được.
+        if (mapList.Count > 0)
+        {
+            currentIndex = Mathf.Clamp(PlayerPrefs.GetInt("SelectedMapIndex", 0), 0, GetMaxVisibleIndex());
+        }
+
         SpawnInitialMap();
+        RefreshStartButton();
     }
 
     private void Update()
@@ -55,9 +78,10 @@ public class MapSelectionManager : MonoBehaviour
             isDragging = false;
             float deltaX = Input.mousePosition.x - dragStartPos.x;
 
+            int maxVisible = GetMaxVisibleIndex();
             if (Mathf.Abs(deltaX) > swipeThreshold)
             {
-                if (deltaX < 0 && currentIndex < mapList.Count - 1)
+                if (deltaX < 0 && currentIndex < maxVisible)
                 {
                     ChangeMap(1);
                 }
@@ -75,12 +99,15 @@ public class MapSelectionManager : MonoBehaviour
 
         currentMapInstance = Instantiate(mapList[currentIndex].mapPreviewPrefab, mapContainer);
         ResetRectTransform(currentMapInstance.GetComponent<RectTransform>());
+
+        ShowCurrentMapProgress();
     }
 
     private void ChangeMap(int direction)
     {
         int targetIndex = currentIndex + direction;
-        if (targetIndex < 0 || targetIndex >= mapList.Count) return;
+        // Không cho swipe tới các map nằm sau map khóa đầu tiên.
+        if (targetIndex < 0 || targetIndex > GetMaxVisibleIndex()) return;
 
         isTransitioning = true;
         GameObject oldMap = currentMapInstance;
@@ -127,8 +154,106 @@ public class MapSelectionManager : MonoBehaviour
             PlayerPrefs.SetInt("SelectedMapIndex", currentIndex);
             PlayerPrefs.Save();
 
+            ShowCurrentMapProgress();
+            RefreshStartButton(); // Cập nhật trạng thái khóa/trống của nút theo map mới
+
             isTransitioning = false;
         });
+    }
+
+    /// <summary>
+    /// Hiển thị kỷ lục tiến trình của map đang hiển thị lên thanh progress.
+    /// Thanh progress (StageProgressBarUI) nằm BÊN TRONG prefab map preview,
+    /// nên được tự động tìm qua GetComponentInChildren trên map instance.
+    /// </summary>
+    private void ShowCurrentMapProgress()
+    {
+        if (mapList.Count == 0 || mapList[currentIndex] == null) return;
+        if (currentMapInstance == null) return;
+
+        StageProgressBarUI progressUI = currentMapInstance.GetComponentInChildren<StageProgressBarUI>();
+        if (progressUI == null) return;
+
+        StageSO stage = mapList[currentIndex].stageData;
+        progressUI.DisplayStageProgress(stage);
+    }
+
+    /// <summary>
+    /// Kiểm tra map có được mở khóa hay không.
+    /// Map đầu tiên (index 0) luôn mở. Map sau chỉ mở khi map trước đó
+    /// hoàn thành 100% (best progress >= MaxProgress).
+    /// </summary>
+    private bool IsMapUnlocked(int index)
+    {
+        if (mapList == null || mapList.Count == 0 || index < 0 || index >= mapList.Count) return false;
+        if (index == 0) return true; // Map đầu tiên luôn mở.
+
+        // Map trước đó không có StageData => không có điều kiện khóa, xem như mở.
+        PreMapSO prev = mapList[index - 1];
+        if (prev == null || prev.stageData == null) return true;
+
+        float best = UserData.Instance != null
+            ? UserData.Instance.GetStageBestProgress(prev.stageData.StageID)
+            : 0f;
+
+        return best >= prev.stageData.MaxProgress; // 100% hoặc hơn.
+    }
+
+    /// <summary>
+    /// Trả về index cao nhất được phép xem/chọn.
+    /// Chỉ hiển thị: toàn bộ map đã mở + MAP KHÓA ĐẦU TIÊN (i+1) làm gợi ý.
+    /// Các map nằm sau map khóa đầu tiên sẽ không được swipe tới (bị tắt).
+    /// </summary>
+    private int GetMaxVisibleIndex()
+    {
+        if (mapList == null || mapList.Count == 0) return 0;
+
+        int lastUnlocked = -1;
+        for (int i = 0; i < mapList.Count; i++)
+        {
+            if (IsMapUnlocked(i))
+                lastUnlocked = i;
+            else
+                break; // Gặp map khóa đầu tiên thì dừng lại.
+        }
+
+        // maxVisible = map khóa đầu tiên (lastUnlocked + 1), nhưng không vượt quá danh sách.
+        return Mathf.Clamp(lastUnlocked + 1, 0, mapList.Count - 1);
+    }
+
+    /// <summary>
+    /// Cập nhật trạng thái nút Bắt đầu theo map đang hiển thị:
+    /// - Map KHÓA  : nút màu xám + xóa text + không bấm được.
+    /// - Map MỞ    : khôi phục màu + text gốc.
+    /// </summary>
+    private void RefreshStartButton()
+    {
+        if (startButton == null) return;
+
+        bool unlocked = IsMapUnlocked(currentIndex);
+
+        // Chặn/bật bấm nút.
+        startButton.interactable = unlocked;
+
+        // Đổi màu nút theo trạng thái.
+        ColorBlock cb = startButton.colors;
+        if (unlocked)
+        {
+            startButton.colors = defaultButtonColors;
+        }
+        else
+        {
+            cb.normalColor = lockedButtonColor;
+            cb.highlightedColor = lockedButtonColor;
+            cb.pressedColor = lockedButtonColor;
+            cb.selectedColor = lockedButtonColor;
+            cb.disabledColor = lockedButtonColor;
+            startButton.colors = cb;
+        }
+
+        // Xóa / khôi phục text trên nút.
+        if (startButtonText != null)
+            startButtonText.text = unlocked ? defaultStartText : string.Empty;
     }
 
     private void ResetRectTransform(RectTransform rt)
@@ -154,6 +279,13 @@ public class MapSelectionManager : MonoBehaviour
     private void OnStartButtonClicked()
     {
         if (mapList.Count == 0 || mapList[currentIndex] == null) return;
+
+        // Map đang bị khóa thì không cho vào (phòng trường hợp nút vẫn bị bấm).
+        if (!IsMapUnlocked(currentIndex))
+        {
+            Debug.Log($"[MapSelection] Map '{currentIndex}' đang khóa - cần hoàn thành 100% map trước.");
+            return;
+        }
 
         // Lưu thông tin Map đã chọn
         PlayerPrefs.SetInt("SelectedMapIndex", currentIndex);

@@ -7,12 +7,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Fog
-  m_Shader: {fileID: 4800000, guid: fa6a2c7bc17b2f04684c1cf2fcef84d1, type: 3}
+  m_Name: Weapon_outline
+  m_Shader: {fileID: 4800000, guid: 305afc5637551654c8ec7bb6ce1689e0, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _OUTLINEENABLED_ON
+  - _OUTLINEQUALITY_MID16
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -41,26 +43,24 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _EdgeSoftness: 2
+    - _ColorMask: 15
     - _EnableExternalAlpha: 0
-    - _ExploredDensity: 0.55
-    - _FlashAngle: 50
-    - _FlashRadius: 10
-    - _FlashStrength: 0.69868165
-    - _FogDensity: 0.7
-    - _InnerRadius: 3.6
-    - _NoiseScale: 0.3
-    - _NoiseStrength: 2.4
-    - _OuterRadius: 8.6
-    - _WispyAmount: 0.4
+    - _OutlineEnabled: 1
+    - _OutlineQuality: 1
+    - _OutlineWidth: 1.42
+    - _RainbowSaturation: 0.456
+    - _RainbowSpeed: 2.39
+    - _RainbowValue: 1
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseRainbow: 0
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ExploredColor: {r: 0.9811321, g: 0.47668213, b: 0.5914197, a: 1}
-    - _FlashDir: {r: -0.9735976, g: -0.2282713, b: 0, a: 0}
-    - _FlashPos: {r: 6.379736, g: -15.368416, b: 0, a: 0}
+    - _Color: {r: 0.8705505, g: 0.8705505, b: 0.8705505, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _FogColor: {r: 0, g: 0, b: 0, a: 1}
-    - _NoiseSpeed: {r: 0.07, g: 0.07, b: 0, a: 0}
-    - _PlayerPos: {r: 7.848182, g: -14.077741, b: 0, a: 0}
+    - _OutlineColor: {r: 0.11654918, g: 0.5448388, b: 0.9883372, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SpriteRect: {r: 0, g: 0, b: 1, a: 1}
   m_BuildTextureStacks: []

@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: Stage2_SO
   m_EditorClassIdentifier: 
+  stageID: 2
+  maxProgress: 0
   attackIncrementPercent: 10
   speedIncrementPercent: 5
   healthIncrementPercent: 10
@@ -24,14 +26,17 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy1
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -48,14 +53,17 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy1
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -72,14 +80,17 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 7
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 7
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 7
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -96,18 +107,22 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -124,14 +139,17 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 1
       spawnLimit: 10
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 1
       spawnLimit: 10
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -148,6 +166,7 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -164,14 +183,17 @@ MonoBehaviour:
       spawnPerSecond: 3
       spawnLimit: 10
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 2
       spawnLimit: 2
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy1
       spawnPerSecond: 2
       spawnLimit: 10
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 1
       startRadius: 60
@@ -188,14 +210,17 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 15
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 2
       isBoss: 0
+      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -212,6 +237,7 @@ MonoBehaviour:
       spawnPerSecond: 15
       spawnLimit: 50
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -228,10 +254,12 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 12
       isBoss: 0
+      isElite: 0
     - mobKey: BossA
       spawnPerSecond: 1
       spawnLimit: 1
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -248,6 +276,7 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -264,6 +293,7 @@ MonoBehaviour:
       spawnPerSecond: 5
       spawnLimit: 20
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -280,6 +310,7 @@ MonoBehaviour:
       spawnPerSecond: 6
       spawnLimit: 20
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -296,6 +327,7 @@ MonoBehaviour:
       spawnPerSecond: 6
       spawnLimit: 20
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -312,6 +344,7 @@ MonoBehaviour:
       spawnPerSecond: 6
       spawnLimit: 20
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -328,6 +361,7 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 10
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -344,6 +378,7 @@ MonoBehaviour:
       spawnPerSecond: 20
       spawnLimit: 50
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 1
       startRadius: 60
@@ -360,6 +395,7 @@ MonoBehaviour:
       spawnPerSecond: 7
       spawnLimit: 20
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 60
@@ -376,6 +412,7 @@ MonoBehaviour:
       spawnPerSecond: 8
       spawnLimit: 20
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 60
@@ -392,6 +429,7 @@ MonoBehaviour:
       spawnPerSecond: 8
       spawnLimit: 20
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 60
@@ -408,6 +446,7 @@ MonoBehaviour:
       spawnPerSecond: 10
       spawnLimit: 20
       isBoss: 0
+      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 60
@@ -424,10 +463,12 @@ MonoBehaviour:
       spawnPerSecond: 4
       spawnLimit: 12
       isBoss: 0
+      isElite: 0
     - mobKey: BossB
       spawnPerSecond: 1
       spawnLimit: 1
       isBoss: 1
+      isElite: 0
     circleWall:
       enabled: 1
       startRadius: 60

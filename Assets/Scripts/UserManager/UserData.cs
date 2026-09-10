@@ -398,4 +398,53 @@ public class UserData : MonoBehaviour
     }
 
     #endregion
+
+    #region Stage Best Progress
+
+    /// <summary>
+    /// Lấy kỷ lục tiến trình cao nhất của 1 Stage theo stageID.
+    /// Trả về 0 nếu chưa có kỷ lục hoặc stageID không hợp lệ.
+    /// </summary>
+    /// <param name="stageId">ID duy nhất của stage (StageSO.StageID).</param>
+    public float GetStageBestProgress(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId) || data.stageIds == null) return 0f;
+
+        int index = data.stageIds.IndexOf(stageId);
+        return index >= 0 && index < data.stageBestProgress.Count ? data.stageBestProgress[index] : 0f;
+    }
+
+    /// <summary>
+    /// Ghi kỷ lục tiến trình mới cho 1 Stage và lưu ngay vào gamedata.json.
+    /// Chỉ ghi nhận nếu newProgress lớn hơn kỷ lục hiện tại.
+    /// </summary>
+    /// <param name="stageId">ID duy nhất của stage (StageSO.StageID).</param>
+    /// <param name="newProgress">Tiến trình mới nhất đạt được (>= 0).</param>
+    public void SetStageBestProgress(string stageId, float newProgress)
+    {
+        if (string.IsNullOrEmpty(stageId) || newProgress <= 0f) return;
+
+        data.stageIds ??= new List<string>();
+        data.stageBestProgress ??= new List<float>();
+
+        int index = data.stageIds.IndexOf(stageId);
+        if (index >= 0)
+        {
+            // Đã có kỷ lục: chỉ cập nhật nếu cao hơn, không ghi đè xuống thấp hơn.
+            if (newProgress > data.stageBestProgress[index])
+            {
+                data.stageBestProgress[index] = newProgress;
+                Save();
+            }
+        }
+        else
+        {
+            // Chưa từng chơi stage này: thêm kỷ lục mới.
+            data.stageIds.Add(stageId);
+            data.stageBestProgress.Add(newProgress);
+            Save();
+        }
+    }
+
+    #endregion
 }
