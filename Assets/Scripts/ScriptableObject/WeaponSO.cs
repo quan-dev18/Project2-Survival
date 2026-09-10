@@ -8,6 +8,19 @@ public class WeaponSO : ScriptableObject
     public Sprite WeaponIcon => weaponIcon;
     [SerializeField] private bool isUnlocked;
     public bool IsUnlocked => isUnlocked;
+    public void SetUnlocked(bool val) => isUnlocked = val;
+
+    [SerializeField] private int goldCost = 100;
+    public int GoldCost => goldCost;
+
+    [Header("Audio")]
+    [Tooltip("Tiếng bắn (SFX) của loại súng này. GunAudio sẽ tự đọc.")]
+    [SerializeField] private AudioClip shootSFX;
+    public AudioClip ShootSFX => shootSFX;
+
+    [Tooltip("Tiếng lên đạn (SFX) của loại súng này.")]
+    [SerializeField] private AudioClip reloadSFX;
+    public AudioClip ReloadSFX => reloadSFX;
 
     [Header("Weapon Stats")]
     [SerializeField] private string weaponName;
@@ -24,5 +37,9 @@ public class WeaponSO : ScriptableObject
     public int BulletCount => bulletCount;
     [SerializeField] private int spread; // The number of bullets fired in a spread pattern
     public int Spread => spread;
-    
+
+    [Header("Bullet Data")]
+    [Tooltip("BulletSO chứa chỉ số đạn (damage, speed...). GunShowcaseUI sẽ đọc ATK từ đây.")]
+    [SerializeField] private BulletSO bulletSO;
+    public BulletSO BulletSO => bulletSO;
 }

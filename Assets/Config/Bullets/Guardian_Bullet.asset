@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Guardian_Bullet
   m_EditorClassIdentifier: 
   damage: 12
-  speed: 12
+  speed: 18
   speedCurve:
     serializedVersion: 2
     m_Curve:

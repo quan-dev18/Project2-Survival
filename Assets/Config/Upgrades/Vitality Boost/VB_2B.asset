@@ -16,11 +16,11 @@ MonoBehaviour:
   description: 'Max HP +200%
 
     Character Size +50%'
-  icon: {fileID: 0}
+  icon: {fileID: 1506831793, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 0
     amount: 200
-  - stat: 32
+  - stat: 40
     amount: 25
   requires:
   - {fileID: 11400000, guid: 5c73676f91bcd1e4eb6b25b3ebfb9594, type: 2}

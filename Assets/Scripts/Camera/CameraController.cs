@@ -7,18 +7,14 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Vector3 offset = new Vector3(0, 0, -10);
 
     private Vector3 velocity;
-    private Vector3 shakeOffsetAccumulator;
 
-    public void ApplyShakeOffset(Vector3 amount)
-    {
-        shakeOffsetAccumulator += amount;
-    }
+    public Vector3 ShakeOffset { get; set; }
 
     private void LateUpdate()
     {
         if (target == null) return;
 
-        Vector3 targetPos = target.position + offset + shakeOffsetAccumulator;
+        Vector3 targetPos = target.position + offset + ShakeOffset;
         targetPos.z = transform.position.z;
 
         transform.position = Vector3.SmoothDamp(
@@ -27,7 +23,5 @@ public class CameraController : MonoBehaviour
             ref velocity,
             smoothTime
         );
-
-        shakeOffsetAccumulator = Vector3.zero;
     }
 }

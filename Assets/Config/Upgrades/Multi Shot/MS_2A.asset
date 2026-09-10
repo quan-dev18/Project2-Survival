@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeName: Multi Shot II
   description: When shooting last ammo, additionally shoot 10 bullets around you
     for 50% dmg
-  icon: {fileID: 0}
+  icon: {fileID: 160484283, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 24
     amount: 1

@@ -22,38 +22,258 @@ MonoBehaviour:
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 1
-      spawnLimit: 1
-      isBoss: 0
-  - phaseName: II
-    duration: 60
-    enemies:
-    - mobKey: Enemy
-      spawnPerSecond: 2
-      spawnLimit: 15
+      spawnLimit: 3
       isBoss: 0
     - mobKey: Enemy2
-      spawnPerSecond: 1
-      spawnLimit: 1
+      spawnPerSecond: 2
+      spawnLimit: 5
       isBoss: 0
-  - phaseName: III
-    duration: 120
+    - mobKey: Enemy
+      spawnPerSecond: 1
+      spawnLimit: 2
+      isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 20
+      endRadius: 3
+      shrinkDuration: 60
+      wallEnemyCount: 30
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 250
+      wallEnemyDamage: 10
+  - phaseName: II
+    duration: 30
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3
-      spawnLimit: 12
+      spawnLimit: 6
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 2
+      spawnLimit: 5
+      isBoss: 0
+    - mobKey: Enemy
+      spawnPerSecond: 1
+      spawnLimit: 4
+      isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 30
+      endRadius: 10
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 250
+      wallEnemyDamage: 15
+  - phaseName: Rest_I
+    duration: 10
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 2
+      spawnLimit: 5
+      isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 40
+      endRadius: 20
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 250
+      wallEnemyDamage: 15
+  - phaseName: III
+    duration: 30
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 3
+      spawnLimit: 8
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 3
+      spawnLimit: 3
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 2
+      spawnLimit: 4
+      isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 20
+      endRadius: 3
+      shrinkDuration: 60
+      wallEnemyCount: 30
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 250
+      wallEnemyDamage: 10
+  - phaseName: IV
+    duration: 30
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 2
+      spawnLimit: 5
+      isBoss: 0
+    - mobKey: Enemy
+      spawnPerSecond: 2
+      spawnLimit: 3
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 2
+      spawnLimit: 3
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 2
+      spawnLimit: 4
+      isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 40
+      endRadius: 20
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy
+      wallEnemyHP: 200
+      wallEnemyDamage: 15
+  - phaseName: V
+    duration: 30
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 3
+      spawnLimit: 5
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 3
+      spawnLimit: 5
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 2
+      spawnLimit: 5
+      isBoss: 0
+    circleWall:
+      enabled: 1
+      startRadius: 40
+      endRadius: 20
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy
+      wallEnemyHP: 200
+      wallEnemyDamage: 15
+  - phaseName: VI
+    duration: 30
+    enemies:
+    - mobKey: Enemy2
+      spawnPerSecond: 3
+      spawnLimit: 6
+      isBoss: 0
+    - mobKey: Enemy
+      spawnPerSecond: 2
+      spawnLimit: 4
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 2
+      spawnLimit: 4
+      isBoss: 0
+    - mobKey: Enemy
+      spawnPerSecond: 1
+      spawnLimit: 3
       isBoss: 0
     - mobKey: Enemy2
       spawnPerSecond: 1
       spawnLimit: 3
       isBoss: 0
-  - phaseName: IV
-    duration: 60
+    - mobKey: Enemy
+      spawnPerSecond: 2
+      spawnLimit: 5
+      isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 40
+      endRadius: 20
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 250
+      wallEnemyDamage: 15
+  - phaseName: VII
+    duration: 30
     enemies:
-    - mobKey: BossA
+    - mobKey: Enemy
+      spawnPerSecond: 3
+      spawnLimit: 10
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 3
+      spawnLimit: 10
+      isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 40
+      endRadius: 20
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 250
+      wallEnemyDamage: 15
+  - phaseName: Rest_II
+    duration: 10
+    enemies:
+    - mobKey: Enemy
       spawnPerSecond: 1
-      spawnLimit: 1
-      isBoss: 1
+      spawnLimit: 2
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 1
+      spawnLimit: 3
+      isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 40
+      endRadius: 20
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 250
+      wallEnemyDamage: 15
+  - phaseName: VIII
+    duration: 10
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 3
+      spawnLimit: 6
+      isBoss: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 4
       isBoss: 0
+    circleWall:
+      enabled: 0
+      startRadius: 40
+      endRadius: 20
+      shrinkDuration: 60
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 100
+      wallEnemyDamage: 15
+  - phaseName: IX
+    duration: 60
+    enemies:
+    - mobKey: Enemy
+      spawnPerSecond: 1
+      spawnLimit: 2
+      isBoss: 0
+    - mobKey: Enemy2
+      spawnPerSecond: 2
+      spawnLimit: 2
+      isBoss: 0
+    - mobKey: BossA
+      spawnPerSecond: 1
+      spawnLimit: 1
+      isBoss: 1
+    circleWall:
+      enabled: 1
+      startRadius: 60
+      endRadius: 40
+      shrinkDuration: 60
+      wallEnemyCount: 150
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 100
+      wallEnemyDamage: 15

@@ -7,6 +7,7 @@ public class GameOverPanel : MonoBehaviour
 {
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text statsText;
+    [SerializeField] private TMP_Text goldText;
 
     [SerializeField] private float floatDistance = 40f;
     [SerializeField] private float floatDuration = 1f;
@@ -41,6 +42,25 @@ public class GameOverPanel : MonoBehaviour
 
             if (statsText != null)
                 statsText.text = $"Time Alive: {minutes:D2}:{seconds:D2}\nKills: {GameManager.Instance.KillCount}";
+
+            if (goldText != null)
+            {
+                int kills = GameManager.Instance.KillCount;
+                int timeSeconds = Mathf.FloorToInt(GameManager.Instance.TotalElapsedTime);
+                GoldConfig config = Resources.Load<GoldConfig>("GoldConfig");
+                int sessionGold = 0;
+                if (config != null)
+                    sessionGold = (kills * config.goldPerKill) + (timeSeconds * config.goldPerSecond);
+                else
+                    sessionGold = kills + timeSeconds;
+                goldText.text = $"Gold Earned: {sessionGold}";
+
+                if (UserData.Instance != null)
+                {
+                    UserData.Instance.AddSessionGold(sessionGold);
+                    UserData.Instance.ClaimSessionGold();
+                }
+            }
         }
 
         PlayTitleFloat();
@@ -90,7 +110,7 @@ public class GameOverPanel : MonoBehaviour
             GameManager.Instance.SetState(GameState.Playing);
         }
 
-        LoadingSceneController.targetScene = "GameMap1";
+        LoadingSceneController.targetScene = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene("LoadingScene");
     }
 

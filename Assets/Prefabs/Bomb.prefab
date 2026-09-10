@@ -101,5 +101,6 @@ MonoBehaviour:
   explosionRadius: 3
   explosionDamage: 50
   explosionVFX: {fileID: 4507683760078369115, guid: 85da4c24629e8174b8d643605be2e774, type: 3}
+  explosionSound: {fileID: 8300000, guid: f2f5db4acf13e5644b0665bc3bdd646b, type: 3}
   flashRed: {r: 1, g: 0, b: 0, a: 1}
   flashWhite: {r: 1, g: 1, b: 1, a: 0}

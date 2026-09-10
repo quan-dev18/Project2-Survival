@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Haste II
   description: Move speed +25%
-  icon: {fileID: 0}
+  icon: {fileID: -281790299, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 3
     amount: 25

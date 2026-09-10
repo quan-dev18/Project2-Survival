@@ -13,11 +13,15 @@ MonoBehaviour:
   m_Name: AK_47
   m_EditorClassIdentifier: 
   weaponIcon: {fileID: -1570423850, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
-  isUnlocked: 1
+  isUnlocked: 0
+  goldCost: 8000
+  shootSFX: {fileID: 8300000, guid: 23b5c9143c69cdd47952785bc961c1c3, type: 3}
+  reloadSFX: {fileID: 8300000, guid: 25e9d8f99b150fa4182b386d002f79ca, type: 3}
   weaponName: AK-47
   fireRate: 0.2
   fireRange: 5
   reloadTime: 1.5
-  magazineSize: 18
+  magazineSize: 12
   bulletCount: 1
   spread: 5
+  bulletSO: {fileID: 11400000, guid: 7d2e8960fe4aa8d4193f87ff8b46dd77, type: 2}

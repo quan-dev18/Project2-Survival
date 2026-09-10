@@ -15,12 +15,12 @@ MonoBehaviour:
   upgradeName: Fast Hands II
   description: 'Reload speed +10%
 
-    Increase bullet dmg by 80% for 3s after reload'
-  icon: {fileID: 0}
+    Increase bullet dmg by 50% for 3s after reload'
+  icon: {fileID: -1441250766, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 8
     amount: 10
   - stat: 26
-    amount: 80
+    amount: 50
   requires:
   - {fileID: 11400000, guid: b954538e3d72381428c5bfc8d4e0a73c, type: 2}

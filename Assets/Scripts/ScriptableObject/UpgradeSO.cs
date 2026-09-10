@@ -79,5 +79,6 @@ FreeShotChanceWhileStill,
     SpiritEmpowered,
     CharacterSizePercent,
     DamageTakenFireRatePercent,
-    DamageTakenBulletDamagePercent
+    DamageTakenBulletDamagePercent,
+    GoldGainPercent
 }

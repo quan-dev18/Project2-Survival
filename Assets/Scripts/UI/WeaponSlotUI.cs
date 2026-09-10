@@ -5,28 +5,44 @@ using UnityEngine.UI;
 public class WeaponSlotUI : MonoBehaviour
 {
     [SerializeField] private Image weaponIcon;
-    [SerializeField] private TextMeshProUGUI weaponNameText; // Text hiển thị tên/title của từng súng
-    [SerializeField] private GameObject lockOverlay; 
+    [SerializeField] private TextMeshProUGUI weaponNameText;
+    [SerializeField] private GameObject lockOverlay;
+    [SerializeField] private GameObject selectedFrameObj;
     [SerializeField] private Button slotButton;
 
-    public void Setup(WeaponSO data, System.Action<WeaponSO> onClickCallback)
+    private WeaponSO weaponData;
+    private bool isUnlocked;
+
+    public WeaponSO GetWeaponData() => weaponData;
+
+    public void Setup(WeaponSO data, bool unlocked, System.Action<WeaponSO> onClickCallback)
     {
-        if (data != null)
-        {
-            // Cập nhật Icon súng
-            if (weaponIcon != null) weaponIcon.sprite = data.WeaponIcon;
-
-            // Cập nhật Title/Tên súng ngay trên ô slot
-            if (weaponNameText != null) weaponNameText.text = data.WeaponName;
-
-            // Bật/tắt ổ khóa
-            if (lockOverlay != null) lockOverlay.SetActive(!data.IsUnlocked);
-        }
-
+        weaponData = data;
+        isUnlocked = unlocked;
+        ApplyVisual();
         if (slotButton != null)
         {
             slotButton.onClick.RemoveAllListeners();
             slotButton.onClick.AddListener(() => onClickCallback?.Invoke(data));
         }
+    }
+
+    public void SetUnlocked(bool unlocked)
+    {
+        isUnlocked = unlocked;
+        ApplyVisual();
+    }
+
+    private void ApplyVisual()
+    {
+        if (weaponData == null) return;
+        if (weaponIcon != null) weaponIcon.sprite = weaponData.WeaponIcon;
+        if (weaponNameText != null) weaponNameText.text = weaponData.WeaponName;
+        if (lockOverlay != null) lockOverlay.SetActive(!isUnlocked);
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (selectedFrameObj != null) selectedFrameObj.SetActive(selected);
     }
 }

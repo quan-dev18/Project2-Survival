@@ -15,7 +15,7 @@ public class Spirit : MonoBehaviour
     [SerializeField] private int pierce = 3;
     
     [Header("Holy Upgrades")]
-    [SerializeField] private float healPerSecond = 5f;
+    [SerializeField] private float healPerSecond = 2f;
     [SerializeField] private float burnDuration = 3f;
     [SerializeField] private float empoweredDamagePercent = 0.15f; // 15%
     [SerializeField] private int empoweredExtraProjectiles = 1;
@@ -24,6 +24,10 @@ public class Spirit : MonoBehaviour
     private bool holyHealEnabled;
     private bool holyBurnEnabled;
     private bool empoweredEnabled;
+
+    // Synergy multipliers
+    private float synergyDamageMultiplier = 1f;
+    private float synergyAspdMultiplier = 1f;
     
     [Header("References")]
     [SerializeField] private string bulletKey = "Bullet";
@@ -71,6 +75,12 @@ public class Spirit : MonoBehaviour
     public void EnableHolyHeal() => holyHealEnabled = true;
     public void EnableHolyBurn() => holyBurnEnabled = true;
     public void EnableEmpowered() => empoweredEnabled = true;
+
+    public void ApplySynergyMultipliers(float damageMultiplier, float aspdMultiplier)
+    {
+        synergyDamageMultiplier = damageMultiplier;
+        synergyAspdMultiplier = aspdMultiplier;
+    }
     
     private void Update()
     {
@@ -94,9 +104,10 @@ public class Spirit : MonoBehaviour
             }
         }
         
-        // Fire logic
+        // Fire logic with synergy fire rate
+        float currentFireRate = fireRate * synergyAspdMultiplier;
         fireTimer += Time.deltaTime;
-        if (fireTimer >= 1f / fireRate)
+        if (fireTimer >= 1f / currentFireRate)
         {
             fireTimer = 0f;
             Fire();
@@ -111,13 +122,22 @@ public class Spirit : MonoBehaviour
         Vector2 aimDir = FindNearestEnemyDirection(out Transform targetEnemy);
         if (aimDir == Vector2.zero) return;
         
-        // Rotate spirit to face aim direction
+        // Rotate only firePart, not the whole summon
         float aimAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, aimAngle);
+        if (firePoint != null && firePoint != transform)
+            firePoint.rotation = Quaternion.Euler(0, 0, aimAngle);
         
         int currentProjectileCount = projectileCount + (empoweredEnabled ? empoweredExtraProjectiles : 0);
         float currentSpread = spread + (empoweredEnabled ? empoweredExtraSpread : 0f);
-        float damageMultiplier = empoweredEnabled ? (1f + empoweredDamagePercent) : 1f;
+        
+        // Safety: ensure synergy multipliers are positive
+        float safeDamageMultiplier = Mathf.Max(0.01f, synergyDamageMultiplier);
+        float safeAspdMultiplier = Mathf.Max(0.01f, synergyAspdMultiplier);
+        
+        float damageMultiplier = (empoweredEnabled ? (1f + empoweredDamagePercent) : 1f) * safeDamageMultiplier;
+        
+        // Apply synergy to fire rate
+        float currentFireRate = fireRate * safeAspdMultiplier;
         
         for (int i = 0; i < currentProjectileCount; i++)
         {
@@ -132,8 +152,9 @@ public class Spirit : MonoBehaviour
             
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(fireDir, transform.root, attackRange,
-                    pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0f, 0, null);
+                Transform bulletOwner = playerTransform != null ? playerTransform : transform.root;
+                bullet.Init(fireDir, bulletOwner,
+                    pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0, null);
             }
         }
         
@@ -159,7 +180,7 @@ public class Spirit : MonoBehaviour
         activeBurns[enemy] = burnDuration;
         
         float timer = 0f;
-        float tickInterval = 0.1667f; // ~6 ticks per second = 6 dmg/s
+        float tickInterval = 1f; // ~6 ticks per second = 6 dmg/s
         float nextTick = 0f;
         
         while (timer < burnDuration && enemy != null && enemy.CurrentHealth > 0f)
@@ -171,7 +192,7 @@ public class Spirit : MonoBehaviour
             {
                 nextTick = tickInterval;
                 if (enemy != null && enemy.CurrentHealth > 0f)
-                    enemy.TakeDamage(1f); // 1 damage per tick = 6 dmg/s
+                    enemy.TakeDamage(6f); // 1 damage per tick = 6 dmg/s
             }
             yield return null;
         }

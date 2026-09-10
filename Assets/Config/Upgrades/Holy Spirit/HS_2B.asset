@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Holy Spirit II
   description: Holy spirit also inflict burn for 6 dmg/s for 3s
-  icon: {fileID: 0}
+  icon: {fileID: 1928266925, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 38
     amount: 1

@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c4853062ed381948b34579449ee1030, type: 3}
   m_Name: BigRewardDropable
   m_EditorClassIdentifier: 
-  prefab: {fileID: 296294771682459973, guid: 81320e2f21c8d944abf0891b7386e8c5, type: 3}
+  poolKey: BigReward
+  quantity: 1
   weight: 0.1

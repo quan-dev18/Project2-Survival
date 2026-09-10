@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 5927996260865282772}
   - component: {fileID: 7425540249320190753}
   - component: {fileID: 5432485379111683489}
-  - component: {fileID: 2399370896501091477}
   m_Layer: 6
   m_Name: Mesh
   m_TagString: Untagged
@@ -75,14 +74,14 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 712935771
-  m_SortingLayer: 6
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 1674113300, guid: ddcc2d9a8ae80f545809d925067f8a26, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 2}
+  m_Size: {x: 1.4333333, y: 2.1333334}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -163,48 +162,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &2399370896501091477
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 884248281381796442}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShadowGroup: 0
-  m_ComponentVersion: 1
-  m_HasRenderer: 1
-  m_UseRendererSilhouette: 1
-  m_CastsShadows: 1
-  m_SelfShadows: 0
-  m_ApplyToSortingLayers: 000000003b3cbcd829ddf9e54bfa89f59f70838037201bde5b897e2a0b9f4cbb9be994d7
-  m_ShapePath:
-  - {x: -0.62223417, y: -0.5577809, z: 0}
-  - {x: -0.52792567, y: -0.09639603, z: 0}
-  - {x: -0.33381456, y: 0.6852947, z: 0}
-  - {x: -0.28135213, y: 0.96334565, z: 0}
-  - {x: -0.08187075, y: 1.071913, z: 0}
-  - {x: 0.15933257, y: 1.0735168, z: 0}
-  - {x: 0.3127056, y: 0.8830481, z: 0}
-  - {x: 0.31147373, y: 0.4282286, z: 0}
-  - {x: 0.3691824, y: 0.15542379, z: 0}
-  - {x: 0.47410733, y: -0.63675934, z: 0}
-  - {x: 0.39541364, y: -0.7836542, z: 0}
-  - {x: 0.35467556, y: -0.9669881, z: 0}
-  - {x: 0.091131374, y: -0.9620266, z: 0}
-  - {x: 0.0019451892, y: -0.736438, z: 0}
-  - {x: -0.09773349, y: -0.93579537, z: 0}
-  - {x: -0.3600458, y: -0.9462879, z: 0}
-  m_ShapePathHash: 1304831797
-  m_Mesh: {fileID: 0}
-  m_InstanceId: -440700
-  m_LocalBounds:
-    m_Center: {x: -0.07406342, y: 0.05326438, z: 0}
-    m_Extent: {x: 0.54817075, y: 1.0202525, z: 0}
 --- !u!1 &4576697513248791080
 GameObject:
   m_ObjectHideFlags: 0
@@ -251,6 +208,7 @@ GameObject:
   - component: {fileID: 8298347144249896835}
   - component: {fileID: 7679873897306249650}
   - component: {fileID: 1052266512774764790}
+  - component: {fileID: 6424453912247500648}
   m_Layer: 6
   m_Name: Enemy3
   m_TagString: Enemy
@@ -267,7 +225,7 @@ Transform:
   m_GameObject: {fileID: 8764486352836026953}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.033, z: 0}
   m_LocalScale: {x: 0.90000004, y: 0.90000004, z: 0.90000004}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -349,6 +307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: fe2a6e4199f134d4e88183935d81f393, type: 2}
+  speedMultiplier: 1
 --- !u!114 &7679873897306249650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,6 +327,7 @@ MonoBehaviour:
     m_Bits: 64
   separationRadius: 0.6
   separationForce: 2
+  _animator: {fileID: 0}
 --- !u!114 &1052266512774764790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,3 +346,21 @@ MonoBehaviour:
   - {r: 0, g: 0.4431373, b: 0.86274517, a: 1}
   - {r: 0.10980393, g: 0, b: 0.86274517, a: 1}
   - {r: 0.7960785, g: 0, b: 0.54509807, a: 1}
+--- !u!114 &6424453912247500648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8764486352836026953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff88d5f0ea73ca34e914ab919fac864d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyController: {fileID: 8298347144249896835}
+  animator: {fileID: 5927996260865282772}
+  shadowComponent: {fileID: 7425540249320190753}
+  offScreenSpeedMultiplier: 3
+  checkInterval: 0.3
+  viewportMargin: 0.1

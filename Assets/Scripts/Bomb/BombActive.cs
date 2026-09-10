@@ -10,7 +10,8 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
     [SerializeField] private float explosionRadius = 3f;
     [SerializeField] private float explosionDamage = 10f;
     [SerializeField] private GameObject explosionVFX;
-
+    [Tooltip("Tiếng nổ 3D (theo khoảng cách). Để trống thì không phát tiếng.")]
+    [SerializeField] private AudioClip explosionSound;
     [Header("Flash Colors")]
     [SerializeField] private Color flashRed = Color.red;
     [SerializeField] private Color flashWhite = Color.white;
@@ -43,7 +44,6 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
 
     public void OnSpawned()
     {
-        StartFuse();
     }
 
     private void StartFuse()
@@ -89,10 +89,16 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
                 dmg.TakeDamage(explosionDamage);
         }
 
-        if (explosionVFX != null)
-            Instantiate(explosionVFX, transform.position, Quaternion.identity);
+        CameraShake.Shake(0.6f, 0.35f);
 
-        Destroy(gameObject);
+        // Phát tiếng nổ 2D phù hợp game top-down; volume giảm dần theo
+        // khoảng cách thật (X,Y) từ player tới vị trí nổ => gần to, xa nhỏ.
+        ExplosionSFX.Play2D(explosionSound, transform.position);
+
+        if (explosionVFX != null)
+            ObjectPooling.Instance.Spawn(explosionVFX, transform.position, Quaternion.identity);
+
+        ObjectPooling.Instance.Despawn(gameObject);
     }
 
     private IEnumerator FlashRoutine()

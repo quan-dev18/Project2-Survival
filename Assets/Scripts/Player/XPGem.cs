@@ -8,9 +8,9 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
     [SerializeField] private float backDistance = 1f;
     [SerializeField] private float backDuration = 0.15f;
     private const float RetargetThreshold = 0.1f;
-    private const float ArrivalTolerance = 0.5f;
+    protected const float ArrivalTolerance = 0.5f;
 
-    private Transform target;
+    protected Transform target;
     private bool magnetized;
     private bool bouncing;
     private Tween magnetTween;
@@ -82,7 +82,7 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
             .OnComplete(Chase);
     }
 
-    private void Chase()
+    protected virtual void Chase()
     {
         bouncing = false;
         magnetTween?.Kill();
@@ -93,7 +93,7 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
             .OnComplete(Collect);
     }
 
-    private void Collect()
+    protected virtual void Collect()
     {
         if (target == null)
         {
@@ -109,8 +109,18 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
 
         if (target.TryGetComponent(out PlayerXP playerXP))
             playerXP.AddExperience(playerXP.PickupValue(xpAmount));
+        PlayCollectSFX();
         if (ObjectPooling.Instance != null)
             ObjectPooling.Instance.Despawn(gameObject);
+    }
+
+    /// <summary>
+    /// Phát tiếng thu thập. GoldGem ghi đè phương thức này để dùng clip riêng.
+    /// Clip được cấu hình tập trung trong AudioManager.
+    /// </summary>
+    protected virtual void PlayCollectSFX()
+    {
+        AudioManager.Instance?.PlayXPCollect();
     }
 
     private void OnDisable()

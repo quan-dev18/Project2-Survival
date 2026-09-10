@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da6a1bb76031b4e45971f2ea8c4a3762, type: 3}
+  m_Name: Flamethrower
+  m_EditorClassIdentifier: 
+  weaponIcon: {fileID: 21300000, guid: e360f1ab9a94fc34f97c7ea8fef7ea76, type: 3}
+  isUnlocked: 0
+  goldCost: 10000
+  shootSFX: {fileID: 8300000, guid: 23b5c9143c69cdd47952785bc961c1c3, type: 3}
+  reloadSFX: {fileID: 8300000, guid: 25e9d8f99b150fa4182b386d002f79ca, type: 3}
+  weaponName: Flamethrower
+  fireRate: 0.2
+  fireRange: 3
+  reloadTime: 2
+  magazineSize: 15
+  bulletCount: 1
+  spread: 0
+  bulletSO: {fileID: 11400000, guid: d050ec4de6e4a7b44a8bbcfaff689128, type: 2}

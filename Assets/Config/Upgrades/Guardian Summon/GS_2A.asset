@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeName: Guardian Summon II
   description: Guardian gains 6 Dmg every 30 seconds, works even when still in inactive
     state
-  icon: {fileID: 0}
+  icon: {fileID: 1418498065, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 33
     amount: 1

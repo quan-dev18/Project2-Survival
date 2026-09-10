@@ -13,11 +13,15 @@ MonoBehaviour:
   m_Name: Bazuka
   m_EditorClassIdentifier: 
   weaponIcon: {fileID: -475155561, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
-  isUnlocked: 1
+  isUnlocked: 0
+  goldCost: 300000
+  shootSFX: {fileID: 8300000, guid: f9c73c2aac0d0b34189d45aa766f042d, type: 3}
+  reloadSFX: {fileID: 0}
   weaponName: Bazuka
-  fireRate: 1
+  fireRate: 1.7
   fireRange: 6
-  reloadTime: 0.8
+  reloadTime: 2
   magazineSize: 1
   bulletCount: 1
   spread: 5
+  bulletSO: {fileID: 11400000, guid: 2e35bea7a5751eb4ca9d86270446cbad, type: 2}

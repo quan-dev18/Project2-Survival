@@ -11,6 +11,7 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
 
     private Transform targetTransform;
     private Vector2 knockbackVelocity;
+    private bool hasAttackParam;
 
     private Vector2 wanderDir;
     private float wanderTimer;
@@ -21,13 +22,14 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
             enemyController = GetComponent<EnemyController>();
         if (_animator == null)
             _animator = GetComponentInChildren<Animator>();
+        hasAttackParam = HasAnimatorParam(_animator, "isAttack");
     }
 
     public void OnSpawned()
     {
         targetTransform = ObjectPooling.Instance.targetTransform;
         knockbackVelocity = Vector2.zero;
-        if (_animator != null)
+        if (hasAttackParam)
             _animator.SetBool("isAttack", false);
     }
 
@@ -86,14 +88,14 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
 
     private void Attack()
     {
-        if (_animator != null)
+        if (hasAttackParam)
             _animator.SetBool("isAttack", true);
         enemyController.Attack();
     }
 
     public void ResetAttack()
     {
-        if (_animator != null)
+        if (hasAttackParam)
             _animator.SetBool("isAttack", false);
     }
 
@@ -121,5 +123,15 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
         {
             mesh.localScale = scale;
         }
+    }
+
+    private static bool HasAnimatorParam(Animator animator, string paramName)
+    {
+        if (animator == null) return false;
+        foreach (var p in animator.parameters)
+        {
+            if (p.name == paramName) return true;
+        }
+        return false;
     }
 }

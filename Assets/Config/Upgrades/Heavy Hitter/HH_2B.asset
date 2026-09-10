@@ -15,10 +15,10 @@ MonoBehaviour:
   upgradeName: Heavy Hitter II
   description: 'Bullet explodes on kill
 
-    (AoE dmg is 100% of bullet dmg)'
-  icon: {fileID: 0}
+    (AoE dmg is 25% of bullet dmg)'
+  icon: {fileID: -1041289639, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 18
-    amount: 100
+    amount: 25
   requires:
   - {fileID: 11400000, guid: 62bbaf36a8128f842a1e959c9ecc01d2, type: 2}
