@@ -75,6 +75,8 @@ public class MapSelectionManager : MonoBehaviour
 
         currentMapInstance = Instantiate(mapList[currentIndex].mapPreviewPrefab, mapContainer);
         ResetRectTransform(currentMapInstance.GetComponent<RectTransform>());
+
+        ShowCurrentMapProgress();
     }
 
     private void ChangeMap(int direction)
@@ -127,8 +129,27 @@ public class MapSelectionManager : MonoBehaviour
             PlayerPrefs.SetInt("SelectedMapIndex", currentIndex);
             PlayerPrefs.Save();
 
+            ShowCurrentMapProgress();
+
             isTransitioning = false;
         });
+    }
+
+    /// <summary>
+    /// Hiển thị kỷ lục tiến trình của map đang hiển thị lên thanh progress.
+    /// Thanh progress (StageProgressBarUI) nằm BÊN TRONG prefab map preview,
+    /// nên được tự động tìm qua GetComponentInChildren trên map instance.
+    /// </summary>
+    private void ShowCurrentMapProgress()
+    {
+        if (mapList.Count == 0 || mapList[currentIndex] == null) return;
+        if (currentMapInstance == null) return;
+
+        StageProgressBarUI progressUI = currentMapInstance.GetComponentInChildren<StageProgressBarUI>();
+        if (progressUI == null) return;
+
+        StageSO stage = mapList[currentIndex].stageData;
+        progressUI.DisplayStageProgress(stage);
     }
 
     private void ResetRectTransform(RectTransform rt)

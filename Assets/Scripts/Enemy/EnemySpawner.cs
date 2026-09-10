@@ -175,6 +175,10 @@ public class EnemySpawner : MonoBehaviour
                 return;
             }
 
+            // Đã vượt qua xong wave hiện tại (index phaseIndex, tính từ 0)
+            // => cập nhật kỷ lục: số wave người chơi đã qua = phaseIndex + 1.
+            SaveBestProgress(phaseIndex + 1);
+
             StartPhase(phaseIndex + 1);
             return;
         }
@@ -276,10 +280,26 @@ public class EnemySpawner : MonoBehaviour
             Debug.Log("Stage cleared!");
             if (GameManager.Instance != null)
             {
+                // Thắng stage (boss đã bị tiêu diệt) => đạt 100% tiến trình.
+                SaveBestProgress(stage.MaxProgress);
+
                 GameManager.Instance.SetIsWin(true);
                 GameManager.Instance.SetState(GameState.GameOver);
             }
         }
+    }
+
+    /// <summary>
+    /// Ghi nhận kỷ lục tiến trình cao nhất cho Stage hiện tại.
+    /// Chỉ ghi nếu cao hơn kỷ lục cũ (logic nằm trong UserData.SetStageBestProgress).
+    /// </summary>
+    /// <param name="progress">Giá trị tiến trình đạt được (vd: số wave đã qua, hoặc MaxProgress khi thắng boss).</param>
+    private void SaveBestProgress(float progress)
+    {
+        if (stage == null || string.IsNullOrEmpty(stage.StageID)) return;
+        if (UserData.Instance == null) return;
+
+        UserData.Instance.SetStageBestProgress(stage.StageID, progress);
     }
 
     private void Lose()

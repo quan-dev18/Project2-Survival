@@ -13,6 +13,10 @@ public class GameData
     public List<string> perkIds;
     public List<int> perkLevels;
 
+    // Kỷ lục tiến trình cao nhất của từng Stage (song song: stageBestProgress[i] ứng với stageIds[i]).
+    public List<string> stageIds;
+    public List<float> stageBestProgress;
+
     public GameData()
     {
         version = 1;
@@ -23,5 +27,8 @@ public class GameData
         unlockedWeapons = new bool[0];
         perkIds = new List<string>();
         perkLevels = new List<int>();
+
+        stageIds = new List<string>();
+        stageBestProgress = new List<float>();
     }
 }
