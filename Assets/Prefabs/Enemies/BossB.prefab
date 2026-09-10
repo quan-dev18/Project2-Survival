@@ -231,6 +231,7 @@ MonoBehaviour:
   enemyMovement: {fileID: 3087991773922581642}
   _animator: {fileID: 4259908614016499602}
   deathFallbackDelay: 2
+  burnVFXPrefab: {fileID: 4700210612237096832, guid: 2f8338f5d887a4444ad337976f150c78, type: 3}
 --- !u!114 &5931613857451504817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,6 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthFill: {fileID: 3450384183687517741}
+  lerpSpeed: 5
 --- !u!1 &2780509841336597408
 GameObject:
   m_ObjectHideFlags: 0

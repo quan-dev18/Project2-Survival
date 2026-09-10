@@ -44,9 +44,11 @@ public class UIManager : MonoBehaviour
             UpdateHealthUI(playerStats.CurrentHealth, playerStats.MaxHealth);
         }
 
-        if (PlayerXP.Instance != null)
+        var xp = PlayerXP.Instance != null ? PlayerXP.Instance : FindObjectOfType<PlayerXP>();
+        if (xp != null)
         {
-            PlayerXP.Instance.OnLevelUp += OnLevelUp;
+            xp.OnLevelUp += OnLevelUp;
+            xp.OnXPChanged += UpdateExpBar;
             UpdateExpBar();
             UpdateLevelText();
         }
@@ -63,8 +65,12 @@ public class UIManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (PlayerXP.Instance != null)
-            PlayerXP.Instance.OnLevelUp -= OnLevelUp;
+        var xp = PlayerXP.Instance != null ? PlayerXP.Instance : FindObjectOfType<PlayerXP>();
+        if (xp != null)
+        {
+            xp.OnLevelUp -= OnLevelUp;
+            xp.OnXPChanged -= UpdateExpBar;
+        }
         if (playerStats != null)
             playerStats.OnHealthChanged -= UpdateHealthUI;
         GameManager.OnStateChanged -= OnGameStateChanged;

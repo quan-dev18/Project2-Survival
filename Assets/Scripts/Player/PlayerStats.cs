@@ -221,6 +221,7 @@ public class PlayerStats : MonoBehaviour
                     if (enemy != null && UnityEngine.Random.value < chance)
                     {
                         enemy.TakeDamage(5f); // burn tick damage
+                        enemy.ShowBurnVFX(1f);
                     }
                 }
             }
@@ -372,6 +373,11 @@ public class PlayerStats : MonoBehaviour
     }
 
     public void AddGoldGainPercent(float amount) => bonusGoldGainPercent += amount;
+
+    public void AddTC1(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC1();
+    public void AddTC2A(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2A();
+    public void AddTC2B(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2B();
+    public void AddTC3(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC3();
 
     /// <summary>Tính số vàng thực nhận sau khi cộng buff +% vàng.</summary>
     public int GetGoldGainAmount(int baseAmount)

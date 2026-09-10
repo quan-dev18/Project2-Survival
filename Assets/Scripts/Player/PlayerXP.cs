@@ -13,6 +13,7 @@ public class PlayerXP : MonoBehaviour
     public float XPToNextLevel { get; private set; }
 
     public event Action<int> OnLevelUp;
+    public event Action OnXPChanged;
 
     public float AmmoRecoverChance { get; private set; }
     public float FireRateBuffOnXPChance { get; private set; }
@@ -40,6 +41,7 @@ public class PlayerXP : MonoBehaviour
         if (amount <= 0f) return;
 
         CurrentXP += amount;
+        OnXPChanged?.Invoke();
 
         // Chance to recover ammo on XP gain
         if (AmmoRecoverChance > 0f && Weapons != null)

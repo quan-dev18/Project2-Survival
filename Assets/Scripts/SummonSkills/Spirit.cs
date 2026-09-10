@@ -174,10 +174,12 @@ public class Spirit : MonoBehaviour
         if (activeBurns.ContainsKey(enemy))
         {
             activeBurns[enemy] = burnDuration;
+            enemy.ShowBurnVFX(burnDuration);
             yield break;
         }
         
         activeBurns[enemy] = burnDuration;
+        enemy.ShowBurnVFX(burnDuration);
         
         float timer = 0f;
         float tickInterval = 1f; // ~6 ticks per second = 6 dmg/s
