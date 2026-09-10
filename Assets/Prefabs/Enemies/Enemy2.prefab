@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4690731138904023576}
   - component: {fileID: 6811339878856143682}
-  - component: {fileID: 2606339582260125365}
   - component: {fileID: 3573617302963360978}
   - component: {fileID: 2680208782801614141}
   - component: {fileID: 991677484439849121}
@@ -88,40 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2606339582260125365
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 163092775175553624}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShadowGroup: 0
-  m_ComponentVersion: 1
-  m_HasRenderer: 1
-  m_UseRendererSilhouette: 1
-  m_CastsShadows: 1
-  m_SelfShadows: 0
-  m_ApplyToSortingLayers: 000000003b3cbcd84bfa89f55b897e2a9f7083800b9f4cbb
-  m_ShapePath:
-  - {x: -0.42393333, y: -0.29746684, z: 0}
-  - {x: -0.47353125, y: 0.22579098, z: 0}
-  - {x: -0.38121426, y: 0.32173437, z: 0}
-  - {x: -0.011564463, y: 0.23580875, z: 0}
-  - {x: 0.29560533, y: -0.057925478, z: 0}
-  - {x: 0.21619928, y: -0.32922947, z: 0}
-  - {x: -0.029373765, y: -0.45739204, z: 0}
-  - {x: -0.094807744, y: -0.018222451, z: 0}
-  m_ShapePathHash: -879002412
-  m_Mesh: {fileID: 0}
-  m_InstanceId: 55776
-  m_LocalBounds:
-    m_Center: {x: -0.08896297, y: -0.067828834, z: 0}
-    m_Extent: {x: 0.38456827, y: 0.3895632, z: 0}
 --- !u!95 &3573617302963360978
 Animator:
   serializedVersion: 5
@@ -363,8 +328,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyController: {fileID: 8069974498983253383}
   animator: {fileID: 3573617302963360978}
-  spriteRenderer: {fileID: 6811339878856143682}
-  shadowComponent: {fileID: 2606339582260125365}
+  shadowComponent: {fileID: 0}
   offScreenSpeedMultiplier: 3
   checkInterval: 0.3
   viewportMargin: 0.1
