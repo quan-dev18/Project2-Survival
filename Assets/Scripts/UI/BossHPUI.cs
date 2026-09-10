@@ -1,77 +1,40 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BossHPUI : MonoBehaviour
 {
-    public static BossHPUI Instance { get; private set; }
-
-    [SerializeField] private GameObject bossHPPanel;
     [SerializeField] private Image healthFill;
-    [SerializeField] private TMP_Text currentHPText;
+    [SerializeField] private float lerpSpeed = 5f;
 
-    private EnemyHealth currentBoss;
+    private EnemyHealth enemyHealth;
+    private float targetFill;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
+        enemyHealth = GetComponent<EnemyHealth>();
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        if (bossHPPanel != null)
-            bossHPPanel.SetActive(false);
+        if (enemyHealth != null)
+            enemyHealth.OnHealthChanged += UpdateHealthUI;
     }
 
-    public void Show(EnemyHealth boss)
+    private void OnDisable()
     {
-        if (boss == null) return;
-
-        if (currentBoss != null)
-            Hide();
-
-        currentBoss = boss;
-        currentBoss.OnHealthChanged += UpdateHealthUI;
-        currentBoss.OnDeath += Hide;
-
-        if (bossHPPanel != null)
-            bossHPPanel.SetActive(true);
-
-        UpdateHealthUI(currentBoss.CurrentHealth, currentBoss.MaxHealth);
+        if (enemyHealth != null)
+            enemyHealth.OnHealthChanged -= UpdateHealthUI;
     }
 
-    public void Hide()
+    private void Update()
     {
-        if (currentBoss != null)
-        {
-            currentBoss.OnHealthChanged -= UpdateHealthUI;
-            currentBoss.OnDeath -= Hide;
-            currentBoss = null;
-        }
-
-        if (bossHPPanel != null)
-            bossHPPanel.SetActive(false);
+        if (healthFill != null)
+            healthFill.fillAmount = Mathf.Lerp(healthFill.fillAmount, targetFill, Time.deltaTime * lerpSpeed);
     }
 
     private void UpdateHealthUI(float current, float max)
     {
-        if (healthFill != null)
-            healthFill.fillAmount = current / max;
-        if (currentHPText != null)
-            currentHPText.text = $"{Mathf.CeilToInt(current)}/{Mathf.CeilToInt(max)}";
-    }
-
-    private void OnDestroy()
-    {
-        if (currentBoss != null)
-        {
-            currentBoss.OnHealthChanged -= UpdateHealthUI;
-            currentBoss.OnDeath -= Hide;
-        }
+        if (max > 0f)
+            targetFill = current / max;
     }
 }

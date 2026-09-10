@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4690731138904023576}
   - component: {fileID: 6811339878856143682}
-  - component: {fileID: 2606339582260125365}
   - component: {fileID: 2757306944947068797}
   - component: {fileID: 7355024985598789496}
   - component: {fileID: 1022093272174501177}
@@ -88,47 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2606339582260125365
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 163092775175553624}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShadowGroup: 0
-  m_ComponentVersion: 1
-  m_HasRenderer: 1
-  m_UseRendererSilhouette: 1
-  m_CastsShadows: 1
-  m_SelfShadows: 0
-  m_ApplyToSortingLayers: 000000003b3cbcd84bfa89f55b897e2a9f7083800b9f4cbb
-  m_ShapePath:
-  - {x: 0.29741836, y: -0.58735, z: 0}
-  - {x: -0.36208856, y: -0.54128194, z: 0}
-  - {x: -0.38997033, y: -0.30149877, z: 0}
-  - {x: 0.18997027, y: -0.27361703, z: 0}
-  - {x: 0.12305403, y: -0.14536093, z: 0}
-  - {x: -0.43458113, y: -0.19554809, z: 0}
-  - {x: -0.50707376, y: 0.016353294, z: 0}
-  - {x: -0.5684136, y: 0.20594928, z: 0}
-  - {x: -0.49592102, y: 0.32862905, z: 0}
-  - {x: -0.40520194, y: 0.6988771, z: 0}
-  - {x: -0.021931097, y: 0.9029933, z: 0}
-  - {x: 0.3996257, y: 0.83270943, z: 0}
-  - {x: 0.5803149, y: 0.5126486, z: 0}
-  - {x: 0.580315, y: 0.17249116, z: 0}
-  - {x: 0.36059123, y: -0.13008907, z: 0}
-  m_ShapePathHash: -260579236
-  m_Mesh: {fileID: 0}
-  m_InstanceId: 56082
-  m_LocalBounds:
-    m_Center: {x: 0.0059506893, y: 0.15782166, z: 0}
-    m_Extent: {x: 0.5743643, y: 0.74517167, z: 0}
 --- !u!95 &2757306944947068797
 Animator:
   serializedVersion: 5
@@ -371,8 +329,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyController: {fileID: 8069974498983253383}
   animator: {fileID: 2757306944947068797}
-  spriteRenderer: {fileID: 6811339878856143682}
-  shadowComponent: {fileID: 2606339582260125365}
+  shadowComponent: {fileID: 0}
   offScreenSpeedMultiplier: 3
   checkInterval: 0.3
   viewportMargin: 0.1
