@@ -4,98 +4,94 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Pop-up hiển thị chi tiết thông số của một Vũ khí (WeaponSO).
-/// <para>Gắn script này lên GameObject `GunShowcase` (panel Pop-up).</para>
-/// <para>Hiệu ứng xuất hiện dùng DOTween (nảy scale).</para>
-/// <para>Pop-up nằm CÙNG NHÁNH với panel chọn vũ khí: khi tắt panel chọn súng
-/// thì nó sẽ tự ẩn theo, nên KHÔNG cần nút Close.</para>
-///
-/// CÁCH GỌI TỪ DANH SÁCH VŨ KHÍ:
-/// <code>
-/// // 1. Trong WeaponSelectManager (hoặc slot), khai báo & gán qua Inspector:
-/// //    [SerializeField] private GunShowcaseUI gunShowcase;
-///
-/// // 2. Khi chọn 1 súng trong danh sách (truyền thêm trạng thái mở khóa):
-/// private void OnSelectWeapon(WeaponSO weapon, bool unlocked)
-/// {
-///     gunShowcase.Show(weapon, unlocked);  // mở pop-up + load thông số
-///     // Súng LOCKED sẽ hiển thị các stat dưới dạng "?"
-/// }
-/// </code>
+/// Pop-up hiển thị chi tiết thông số của một Vũ khí (WeaponSO) dưới dạng thanh Image Fill.
+/// <para>Các Image phải设为 Image Type = Filled, Fill Method = Horizontal.</para>
 /// </summary>
 public class GunShowcaseUI : MonoBehaviour
 {
+    // ─────────────────────── Visual ───────────────────────
     [Header("Visual")]
     [Tooltip("Ảnh đại diện của súng (icon).")]
     [SerializeField] private Image gunIcon;
     [Tooltip("Tên súng.")]
     [SerializeField] private TextMeshProUGUI gunNameText;
 
-    [Header("Cột chỉ số P1 (Bên trái)")]
-    [Tooltip("Sát thương (ATK). Lấy trực tiếp từ BulletSO bên trong WeaponSO.")]
-    [SerializeField] private TextMeshProUGUI atkText;
-    [Tooltip("Tốc độ bắn (đạn/giây).")]
-    [SerializeField] private TextMeshProUGUI fireRateText;
-    [Tooltip("Tầm bắn.")]
-    [SerializeField] private TextMeshProUGUI fireRangeText;
-    [Tooltip("Thời gian nạp đạn (giây).")]
-    [SerializeField] private TextMeshProUGUI reloadTimeText;
+    // ─────────────── Thanh Parameter Chỉ Số ──────────────
+    [Header("Thanh Chỉ Số (Image Fill Amount)")]
+    [Tooltip("Thanh sát thương.")]
+    [SerializeField] private Image atkBar;
+    [Tooltip("Thanh tốc độ bắn.")]
+    [SerializeField] private Image fireRateBar;
+    [Tooltip("Thanh thời gian nạp đạn (đảo ngược: nhanh = đầy hơn).")]
+    [SerializeField] private Image reloadTimeBar;
+    [Tooltip("Thanh băng đạn.")]
+    [SerializeField] private Image magazineSizeBar;
+    [Tooltip("Thanh số đạn bắn ra mỗi lần (bulletCount).")]
+    [SerializeField] private Image bulletCountBar;
 
-    [Header("Cột chỉ số P2 (Bên phải)")]
-    [Tooltip("Sức chứa băng đạn.")]
-    [SerializeField] private TextMeshProUGUI magazineSizeText;
-    [Tooltip("Số đạn bắn ra mỗi lần (bulletCount).")]
-    [SerializeField] private TextMeshProUGUI bulletCountText;
-    [Tooltip("Độ phân tán đạn (spread).")]
-    [SerializeField] private TextMeshProUGUI spreadText;
+    // ──────────── Giới Hạn Tối Đa (Max Values) ──────────
+    [Header("Giới Hạn Tối Đa (100% = mốc này)")]
+    [Tooltip("Mốc ATK tối đa để tính % thanh sát thương.")]
+    [SerializeField] private float maxATK = 50f;
+    [Tooltip("Mốc FireRate tối đa (đạn/giây).")]
+    [SerializeField] private float maxFireRate = 20f;
+    [Tooltip("Mốc ReloadTime tối đa (giây). Càng thấp = thanh càng đầy.")]
+    [SerializeField] private float maxReloadTime = 5f;
+    [Tooltip("Mốc MagazineSize tối đa.")]
+    [SerializeField] private float maxMagazineSize = 30f;
+    [Tooltip("Mốc BulletCount tối đa.")]
+    [SerializeField] private float maxBulletCount = 10f;
 
-    /// <summary>Tween đang chạy để kịp kill khi ẩn/hiện lặp lại (tránh đè animation).</summary>
+    // ──────────────── Nội bộ ─────────────────────────────
     private Tween _activeTween;
+    private Sequence _barSequence;
+
+    // ──────────────────── Unity Callbacks ─────────────────
+    private void Awake()
+    {
+        ResetAllBars();
+    }
 
     private void OnDisable()
     {
-        // Pop-up bị tắt theo nhánh panel chọn súng -> hủy tween & reset scale
-        // để lần mở lại không hiện nhảy giữa chừng animation cũ.
         _activeTween?.Kill();
+        _barSequence?.Kill();
         transform.DOKill();
         transform.localScale = Vector3.zero;
     }
 
     private void OnDestroy()
     {
-        // Kill tween còn sót để tránh callback gọi trên object đã hủy.
         _activeTween?.Kill();
+        _barSequence?.Kill();
     }
 
-    /// <summary>
-    /// Mở Pop-up và nạp toàn bộ thông số của vũ khí.
-    /// </summary>
-    /// <param name="weaponData">WeaponSO cần hiển thị.</param>
-    /// <param name="isUnlocked">Súng đã mở khóa hay chưa. Nếu LOCKED, các stat sẽ hiện "?".</param>
+    // ──────────────────── Public API ──────────────────────
+
     public void Show(WeaponSO weaponData, bool isUnlocked)
     {
-        // Kill tween đang chạy trên transform để tránh lỗi đè animation.
         _activeTween?.Kill();
+        _barSequence?.Kill();
         transform.DOKill();
 
-        // Nạp dữ liệu trước khi hiện để tránh nhấp nháy nội dung cũ.
-        SetupData(weaponData, isUnlocked);
+        float[] targets = SetupData(weaponData, isUnlocked);
 
         gameObject.SetActive(true);
 
-        // Reset scale về 0 rồi chạy animation nảy xuất hiện.
         transform.localScale = Vector3.zero;
         _activeTween = transform.DOScale(Vector3.one, 0.3f)
             .SetEase(Ease.OutBack)
-            .SetUpdate(true); // Chạy cả khi game đang Pause
+            .SetUpdate(true);
+
+        PlayBarFillAnimation(targets, isUnlocked);
     }
 
-    /// <summary>Đóng Pop-up với hiệu ứng thu nhỏ, sau khi xong mới ẩn hẳn.</summary>
     public void Hide()
     {
         if (!gameObject.activeSelf) return;
 
         _activeTween?.Kill();
+        _barSequence?.Kill();
         transform.DOKill();
 
         _activeTween = transform.DOScale(Vector3.zero, 0.2f)
@@ -104,58 +100,107 @@ public class GunShowcaseUI : MonoBehaviour
             .OnComplete(() => gameObject.SetActive(false));
     }
 
+    // ──────────────────── Logic ───────────────────────────
+
     /// <summary>
-    /// Nạp các chỉ số súng từ WeaponSO vào các text tương ứng.
-    /// ATK được lấy trực tiếp từ BulletSO nằm bên trong WeaponSO (weaponData.BulletSO.Damage).
-    /// Súng chưa mở khóa (locked) sẽ hiển thị toàn bộ stat dưới dạng "?".
+    /// Tính toán tỷ lệ % hiển thị cho từng thanh bar từ dữ liệu vũ khí.
+    /// Trả về mảng float[5]: [ATK, FireRate, ReloadTime, MagazineSize, BulletCount].
     /// </summary>
-    private void SetupData(WeaponSO weaponData, bool isUnlocked)
+    private float[] SetupData(WeaponSO weaponData, bool isUnlocked)
     {
+        float[] targets = new float[5];
+
         if (weaponData == null)
         {
-            gunNameText.text = string.Empty;
-            return;
+            if (gunNameText != null) gunNameText.text = string.Empty;
+            return targets;
         }
 
-        // --- Visual chính ---
         if (gunIcon != null)
             gunIcon.sprite = weaponData.WeaponIcon;
         if (gunNameText != null)
             gunNameText.text = weaponData.WeaponName;
 
-        // --- Súng LOCKED: che toàn bộ chỉ số bằng "?" ---
         if (!isUnlocked)
-        {
-            SetText(atkText, "?");
-            SetText(fireRateText, "?");
-            SetText(fireRangeText, "?");
-            SetText(reloadTimeText, "?");
-            SetText(magazineSizeText, "?");
-            SetText(bulletCountText, "?");
-            SetText(spreadText, "?");
-            return;
-        }
+            return targets;
 
-        // --- Cột P1 (Bên trái) ---
-        // ATK đọc từ BulletSO gắn trong WeaponSO (đã được nâng cấp damage bonus?
-        // Ở đây chỉ hiển thị giá trị gốc từ asset).
+        // ATK: đọc từ BulletSO (Damage).
         float atk = weaponData.BulletSO != null ? weaponData.BulletSO.Damage : 0f;
-        SetText(atkText, atk.ToString("F1"));
+        targets[0] = Mathf.Clamp01(atk / maxATK);
 
-        SetText(fireRateText, weaponData.FireRate.ToString("F1"));
-        SetText(fireRangeText, weaponData.FireRange.ToString("F1"));
-        SetText(reloadTimeText, weaponData.ReloadTime.ToString("F1"));
+        // FireRate:越高越好.
+        targets[1] = Mathf.Clamp01(weaponData.FireRate / maxFireRate);
 
-        // --- Cột P2 (Bên phải) ---
-        SetText(magazineSizeText, weaponData.MagazineSize.ToString());
-        SetText(bulletCountText, weaponData.BulletCount.ToString());
-        SetText(spreadText, weaponData.Spread.ToString());
+        // ReloadTime: ĐẢO NGƯỢC → ngắn hơn = đầy hơn.
+        float reloadNormalized = Mathf.Clamp01(weaponData.ReloadTime / maxReloadTime);
+        targets[2] = 1f - reloadNormalized;
+
+        // MagazineSize:越大越好.
+        targets[3] = Mathf.Clamp01(weaponData.MagazineSize / (float)maxMagazineSize);
+
+        // BulletCount:越大越好.
+        targets[4] = Mathf.Clamp01(weaponData.BulletCount / maxBulletCount);
+
+        return targets;
     }
 
-    /// <summary>Gán text an toàn (bỏ qua nếu field null).</summary>
-    private void SetText(TextMeshProUGUI text, string value)
+    private void ResetAllBars()
     {
-        if (text != null)
-            text.text = value;
+        SetFillAmount(atkBar, 0f);
+        SetFillAmount(fireRateBar, 0f);
+        SetFillAmount(reloadTimeBar, 0f);
+        SetFillAmount(magazineSizeBar, 0f);
+        SetFillAmount(bulletCountBar, 0f);
+    }
+
+    private void PlayBarFillAnimation(float[] targets, bool isUnlocked)
+    {
+        _barSequence?.Kill();
+        _barSequence = DOTween.Sequence();
+
+        _barSequence.AppendCallback(ResetAllBars);
+
+        if (!isUnlocked)
+            return;
+
+        // Mỗi bar lấp đầy lần lượt theo thứ tự (không song song).
+        // ATK → FireRate → ReloadTime → MagazineSize → BulletCount.
+        AppendFillTween(_barSequence, atkBar, targets[0]);
+        AppendFillTween(_barSequence, fireRateBar, targets[1]);
+        AppendFillTween(_barSequence, reloadTimeBar, targets[2]);
+        AppendFillTween(_barSequence, magazineSizeBar, targets[3]);
+        AppendFillTween(_barSequence, bulletCountBar, targets[4]);
+
+        _barSequence.SetEase(Ease.OutCubic)
+            .SetUpdate(true);
+    }
+
+    private Tween CreateFillTween(Image bar, float targetValue)
+    {
+        if (bar == null)
+            return null;
+
+        bar.fillAmount = 0f;
+
+        return DOTween.To(
+                () => bar.fillAmount,
+                x => bar.fillAmount = x,
+                targetValue,
+                0.4f)
+            .SetEase(Ease.OutCubic);
+    }
+
+    /// <summary>Tạo fill tween rồi Append vào Sequence (chạy lần lượt, bỏ qua nếu Image null).</summary>
+    private void AppendFillTween(Sequence seq, Image bar, float targetValue)
+    {
+        Tween tween = CreateFillTween(bar, targetValue);
+        if (tween != null)
+            seq.Append(tween);
+    }
+
+    private void SetFillAmount(Image bar, float value)
+    {
+        if (bar != null)
+            bar.fillAmount = value;
     }
 }
