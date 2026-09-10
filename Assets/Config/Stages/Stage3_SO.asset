@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Stage3_SO
   m_EditorClassIdentifier: 
   stageID: 3
-  maxProgress: 0
+  maxProgress: 22
   attackIncrementPercent: 10
   speedIncrementPercent: 5
   healthIncrementPercent: 10
