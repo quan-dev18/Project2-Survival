@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Special Mags III
   description: Become invulnerable while reloading
-  icon: {fileID: 0}
+  icon: {fileID: -441796416, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 28
     amount: 1

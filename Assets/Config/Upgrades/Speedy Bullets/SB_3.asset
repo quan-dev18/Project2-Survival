@@ -16,7 +16,7 @@ MonoBehaviour:
   description: 'Bullet Speed +30%
 
     Automatically execute enemies below 20% HP'
-  icon: {fileID: 0}
+  icon: {fileID: -1195821051, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 13
     amount: 15

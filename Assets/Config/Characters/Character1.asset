@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Character1
   m_EditorClassIdentifier: 
   maxHealth: 100
-  maxArmor: 0
-  recoveryRate: 0
+  maxArmor: 10
+  recoveryRate: 1
   movementSpeed: 4
   collectRange: 2
   growthRate: 0

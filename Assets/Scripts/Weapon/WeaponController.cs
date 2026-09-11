@@ -113,6 +113,18 @@ public class WeaponController : MonoBehaviour
 
         if (TryGetComponent(out CircleCollider2D rangeTrigger))
             rangeTrigger.radius = fireRange;
+        if(weaponSprite == null)
+            weaponSprite = GetComponentInChildren<SpriteRenderer>();
+        if (playerRigidbody == null)
+        {
+            playerRigidbody = GetComponentInParent<Rigidbody2D>();
+            if (playerRigidbody == null)
+            {
+                var player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null)
+                    playerRigidbody = player.GetComponent<Rigidbody2D>() ?? player.GetComponentInChildren<Rigidbody2D>();
+            }
+        }
     }
 
     private void Update()
@@ -178,18 +190,29 @@ public class WeaponController : MonoBehaviour
 #region Aim
     private void Aim()
     {
-        Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
-        Transform desiredHand = toTarget.x >= 0 ? rightHand : leftHand;
+        Vector2 toTargetRaw = (Vector2)target.position - (Vector2)transform.position;
+        Transform desiredHand = toTargetRaw.x >= 0 ? rightHand : leftHand;
+
         if (currentHand == null)
             currentHand = desiredHand;
-        else if (desiredHand != currentHand && Mathf.Abs(toTarget.x) > handSwitchDeadZone)
+        else if (desiredHand != currentHand && Mathf.Abs(toTargetRaw.x) > handSwitchDeadZone)
             currentHand = desiredHand;
-        transform.position = currentHand.position;
-        transform.rotation = Quaternion.FromToRotation(weaponFront.localPosition, toTarget);
 
+        transform.position = currentHand.position;
+
+        // Recompute AFTER moving, so direction matches the new position
+        Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
+        float targetAngle = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
+
+        // Offset so weaponFront's resting angle lines up with 0°
+        float frontOffset = Mathf.Atan2(weaponFront.localPosition.y, weaponFront.localPosition.x) * Mathf.Rad2Deg;
+
+        transform.rotation = Quaternion.Euler(0f, 0f, targetAngle - frontOffset);
+
+        // Mirror sprite so it doesn't appear upside-down on the left side
         if (weaponSprite != null)
         {
-            bool aimingRight = toTarget.x >= 0;
+            bool aimingRight = toTarget.x >= 0f;
             weaponSprite.flipY = spriteFacesRight && !aimingRight;
             weaponSprite.flipX = !spriteFacesRight && aimingRight;
         }
@@ -226,11 +249,11 @@ public class WeaponController : MonoBehaviour
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(bulletDir, transform.root, fireRange,
+                bullet.Init(bulletDir, transform.root,
                     bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
                     bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                     bonusBulletInfinitePierceOnKill,
-                    bonusBulletExplosionDamagePercent, bonusBulletExplosionRadius,
+                    bonusBulletExplosionDamagePercent,
                     bonusBulletBounceCount,
                     () => AddKillStack()); // damage do chính BulletSO quyết định
             }
@@ -273,11 +296,11 @@ public class WeaponController : MonoBehaviour
 
         if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
         {
-            bullet.Init(backDir, transform.root, fireRange,
+            bullet.Init(backDir, transform.root,
                 bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
                 bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                 bonusBulletInfinitePierceOnKill,
-                bonusBulletExplosionDamagePercent, bonusBulletExplosionRadius,
+                bonusBulletExplosionDamagePercent,
                 bonusBulletBounceCount,
                 () => AddKillStack());
         }
@@ -300,11 +323,11 @@ public class WeaponController : MonoBehaviour
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(burstDir, transform.root, fireRange,
+                bullet.Init(burstDir, transform.root,
                     0, 1f + bonusBulletSpeedPercent, burstDamageMultiplier,
                     0f, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                     false,
-                    0f, 0f,
+                    0f,
                     0,
                     () => AddKillStack()); // 50% damage, no pierce/execute/explosion/bounce
             }
@@ -331,9 +354,11 @@ public class WeaponController : MonoBehaviour
             OnAmmoChanged?.Invoke(currentAmmo, magazineSize);
             OnReloadEnd?.Invoke();
 
-            // Apply damage buff after reload
+            // Apply damage buff after reload (refresh, don't stack)
             if (bonusDamageBuffAfterReload > 0f)
             {
+                if (damageBuffTimer > 0f)
+                    bonusBulletDamagePercent -= appliedDamageBuff; // remove previous instance before re-applying
                 appliedDamageBuff = bonusDamageBuffAfterReload;
                 bonusBulletDamagePercent += appliedDamageBuff;
                 damageBuffTimer = 3f;

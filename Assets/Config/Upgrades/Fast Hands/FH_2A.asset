@@ -16,7 +16,7 @@ MonoBehaviour:
   description: 'Reload speed +15%
 
     Max ammo +20%'
-  icon: {fileID: 0}
+  icon: {fileID: -1288101906, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 8
     amount: 15

@@ -1,11 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [SerializeField] private CharacterSO characterStats;
+    [SerializeField] private List<CharacterSO> characterList = new List<CharacterSO>();
     [SerializeField] private WeaponController[] weapons;
+    [SerializeField] private FlamethrowerController[] flamethrowers;
     [SerializeField] private GameObject mysteryCubePrefab;
     [SerializeField] private GameObject spiritPrefab;
+
+    private CharacterSO characterStats;
 
     #region Base Stats 
     private float baseMaxHealth;
@@ -44,6 +48,7 @@ public class PlayerStats : MonoBehaviour
     public bool bonusSpiritHeal { get; private set; }
     public bool bonusSpiritBurn { get; private set; }
     public bool bonusSpiritEmpowered { get; private set; }
+    public float bonusGoldGainPercent { get; private set; }
     #endregion
 
     #region Stat Caps
@@ -89,12 +94,61 @@ public class PlayerStats : MonoBehaviour
     public event System.Action<float, float> OnHealthChanged;
     #endregion
 
-    public WeaponController[] Weapons => weapons;
-    public WeaponController ActiveWeapon => weapons != null && weapons.Length > 0 ? weapons[0] : null;
+    public WeaponController[] Weapons
+    {
+        get
+        {
+            // Use hierarchy order (Player/Weapons) so ActiveWeaponIndex matches PlayerEquipment order
+            var all = GetComponentsInChildren<WeaponController>(true);
+            if (all != null && all.Length > 0)
+            {
+                weapons = all;
+                return weapons;
+            }
+            if (weapons == null || weapons.Length == 0)
+                weapons = GetComponentsInChildren<WeaponController>(true);
+            return weapons;
+        }
+    }
+    public FlamethrowerController[] Flamethrowers
+    {
+        get
+        {
+            var all = GetComponentsInChildren<FlamethrowerController>(true);
+            if (all != null && all.Length > 0)
+            {
+                flamethrowers = all;
+                return flamethrowers;
+            }
+            if (flamethrowers == null || flamethrowers.Length == 0)
+                flamethrowers = GetComponentsInChildren<FlamethrowerController>(true);
+            return flamethrowers;
+        }
+    }
+    private WeaponController[] GetAllWeapons() => Weapons;
+    private FlamethrowerController[] GetAllFlamethrowers() => Flamethrowers;
+    public int ActiveWeaponIndex { get; private set; }
+    public WeaponController ActiveWeapon => Weapons != null && ActiveWeaponIndex >= 0 && ActiveWeaponIndex < Weapons.Length
+        ? Weapons[ActiveWeaponIndex] : null;
+
+    public void SetActiveWeaponIndex(int index)
+    {
+        ActiveWeaponIndex = index;
+    }
 
     public void SetWeapons(WeaponController[] newWeapons)
     {
         weapons = newWeapons;
+    }
+
+    public void RegisterAllWeapons()
+    {
+        var found = GetComponentsInChildren<WeaponController>(true);
+        if (found != null && found.Length > 0)
+            weapons = found;
+        var foundFlame = GetComponentsInChildren<FlamethrowerController>(true);
+        if (foundFlame != null && foundFlame.Length > 0)
+            flamethrowers = foundFlame;
     }
 
     #region Damage Taken Buff
@@ -107,10 +161,23 @@ public class PlayerStats : MonoBehaviour
 
     private void Awake()
     {
-        if ((weapons == null || weapons.Length == 0) && GetComponentInChildren<WeaponController>() != null)
+        if (weapons == null || weapons.Length == 0)
         {
-            weapons = GetComponentsInChildren<WeaponController>();
+            var found = GetComponentsInChildren<WeaponController>(true);
+            if (found != null && found.Length > 0)
+                weapons = found;
         }
+        if (flamethrowers == null || flamethrowers.Length == 0)
+        {
+            var foundF = GetComponentsInChildren<FlamethrowerController>(true);
+            if (foundF != null && foundF.Length > 0)
+                flamethrowers = foundF;
+        }
+
+        int heroIndex = PlayerPrefs.GetInt("SelectedHeroIndex", 0);
+        if (characterList != null && heroIndex >= 0 && heroIndex < characterList.Count)
+            characterStats = characterList[heroIndex];
+
         LoadFromSO();
     }
 
@@ -126,16 +193,12 @@ public class PlayerStats : MonoBehaviour
             if (damageTakenTimer <= 0f)
             {
                 // Remove the temporary buffs using exactly what was applied
-                if (weapons != null && isDamageBuffActive)
+                var allW = GetAllWeapons();
+                var allF = GetAllFlamethrowers();
+                if (isDamageBuffActive)
                 {
-                    foreach (var w in weapons)
-                    {
-                        if (w != null)
-                        {
-                            w.AddFireRatePercent(-appliedFireRateBuff);
-                            w.AddBulletDamagePercent(-appliedDamageBuff);
-                        }
-                    }
+                    if (allW != null) foreach (var w in allW) if (w != null) { w.AddFireRatePercent(-appliedFireRateBuff); w.AddBulletDamagePercent(-appliedDamageBuff); }
+                    if (allF != null) foreach (var f in allF) if (f != null) { f.AddFireRatePercent(-appliedFireRateBuff); f.AddBulletDamagePercent(-appliedDamageBuff); }
                     isDamageBuffActive = false;
                 }
                 damageTakenTimer = 0f;
@@ -158,6 +221,7 @@ public class PlayerStats : MonoBehaviour
                     if (enemy != null && UnityEngine.Random.value < chance)
                     {
                         enemy.TakeDamage(5f); // burn tick damage
+                        enemy.ShowBurnVFX(1f);
                     }
                 }
             }
@@ -166,18 +230,15 @@ public class PlayerStats : MonoBehaviour
         // Stacking buff: +2% per second, max 30%
         if (bonusStackingBuffPercent > 0f)
         {
-            float targetPercent = Mathf.Min(stackingBuffPercent + 0.02f * Time.deltaTime * 60f, 0.3f); // 2% per second
+            float targetPercent = Mathf.Min(stackingBuffPercent + 0.02f * Time.deltaTime, 0.3f); // 2% per second
             float delta = targetPercent - stackingBuffPercent;
             if (delta > 0f)
             {
                 stackingBuffPercent = targetPercent;
-                if (weapons != null)
-                {
-                    foreach (var w in weapons)
-                    {
-                        if (w != null) w.AddBulletDamagePercent(delta);
-                    }
-                }
+                var allW2 = GetAllWeapons();
+                if (allW2 != null) foreach (var w in allW2) if (w != null) w.AddBulletDamagePercent(delta);
+                var allF2 = GetAllFlamethrowers();
+                if (allF2 != null) foreach (var f in allF2) if (f != null) f.AddBulletDamagePercent(delta);
                 bonusMoveSpeedPercent += delta;
             }
         }
@@ -207,7 +268,14 @@ public class PlayerStats : MonoBehaviour
     }
 
     //bonus percent
-    public void AddMaxHealthPercent(float amount) => bonusMaxHealthPercent += amount;
+    public void AddMaxHealthPercent(float amount)
+    {
+        float oldMax = MaxHealth;
+        bonusMaxHealthPercent += amount;
+        float newMax = MaxHealth;
+        CurrentHealth = newMax; //Mathf.Min(CurrentHealth + (newMax - oldMax), newMax);
+        OnHealthChanged?.Invoke(CurrentHealth, newMax);
+    }
 
     public void AddMaxArmorPercent(float amount) => bonusMaxArmorPercent += amount;
 
@@ -304,18 +372,30 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    public void AddGoldGainPercent(float amount) => bonusGoldGainPercent += amount;
+
+    public void AddTC1(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC1();
+    public void AddTC2A(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2A();
+    public void AddTC2B(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2B();
+    public void AddTC3(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC3();
+
+    /// <summary>Tính số vàng thực nhận sau khi cộng buff +% vàng.</summary>
+    public int GetGoldGainAmount(int baseAmount)
+        => Mathf.RoundToInt(baseAmount * (1f + bonusGoldGainPercent));
+
     public void TakeDamage(float amount)
     {
         if (isDead || amount <= 0f) return;
 
-        // Invulnerable while reloading
-        if (bonusInvulnerableWhileReloading && weapons != null)
-            {
-                foreach (var w in weapons)
-                {
-                    if (w != null && w.IsReloading) return;
-                }
-            }
+        // Invulnerable while reloading - any weapon reloading = invuln
+        {
+            var allWInv = GetAllWeapons();
+            if (bonusInvulnerableWhileReloading && allWInv != null)
+                foreach (var w in allWInv) if (w != null && w.IsReloading) return;
+            var allFInv = GetAllFlamethrowers();
+            if (bonusInvulnerableWhileReloading && allFInv != null)
+                foreach (var f in allFInv) if (f != null && f.IsReloading) return;
+        }
 
         float remaining = amount;
         if (CurrentArmor > 0f)
@@ -332,13 +412,10 @@ public class PlayerStats : MonoBehaviour
         // Reset stacking buff on hit
         if (stackingBuffPercent > 0f)
         {
-            if (weapons != null)
-            {
-                foreach (var w in weapons)
-                {
-                    if (w != null) w.AddBulletDamagePercent(-stackingBuffPercent);
-                }
-            }
+            var allWReset = GetAllWeapons();
+            if (allWReset != null) foreach (var w in allWReset) if (w != null) w.AddBulletDamagePercent(-stackingBuffPercent);
+            var allFReset = GetAllFlamethrowers();
+            if (allFReset != null) foreach (var f in allFReset) if (f != null) f.AddBulletDamagePercent(-stackingBuffPercent);
             bonusMoveSpeedPercent -= stackingBuffPercent;
             stackingBuffPercent = 0f;
         }
@@ -350,19 +427,16 @@ public class PlayerStats : MonoBehaviour
     public void OnDamageTaken()
     {
         // Apply the damage-taken buffs for the duration (only if not already active)
-        if (weapons != null && !isDamageBuffActive)
+        if (!isDamageBuffActive)
         {
             appliedFireRateBuff = bonusDamageTakenFireRatePercent;
             appliedDamageBuff = bonusDamageTakenBulletDamagePercent;
-            foreach (var w in weapons)
-            {
-                if (w != null)
-                {
-                    w.AddFireRatePercent(appliedFireRateBuff);
-                    w.AddBulletDamagePercent(appliedDamageBuff);
-                }
-            }
-            isDamageBuffActive = true;
+            var allWDmg = GetAllWeapons();
+            if (allWDmg != null) foreach (var w in allWDmg) if (w != null) { w.AddFireRatePercent(appliedFireRateBuff); w.AddBulletDamagePercent(appliedDamageBuff); }
+            var allFDmg = GetAllFlamethrowers();
+            if (allFDmg != null) foreach (var f in allFDmg) if (f != null) { f.AddFireRatePercent(appliedFireRateBuff); f.AddBulletDamagePercent(appliedDamageBuff); }
+            if ((allWDmg != null && allWDmg.Length > 0) || (allFDmg != null && allFDmg.Length > 0))
+                isDamageBuffActive = true;
         }
         // Always refresh the timer
         damageTakenTimer = damageTakenBuffDuration;
@@ -392,11 +466,16 @@ public class PlayerStats : MonoBehaviour
 
     public void AddCollectRangeFlat(float amount) => bonusCollectRangeFlat += amount;
 
+    [Header("Passive Heal")]
+    [SerializeField] private float passiveHealPerSecond = 1f;
+
     private void RegenOverTime()
     {
+        if (isDead) return;
         if (CurrentHealth < MaxHealth)
         {
-            CurrentHealth = Mathf.Min(CurrentHealth + RecoveryRate * Time.deltaTime, MaxHealth);
+            float heal = (RecoveryRate + passiveHealPerSecond) * Time.deltaTime;
+            CurrentHealth = Mathf.Min(CurrentHealth + heal, MaxHealth);
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         }
     }

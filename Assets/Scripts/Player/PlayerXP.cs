@@ -13,6 +13,7 @@ public class PlayerXP : MonoBehaviour
     public float XPToNextLevel { get; private set; }
 
     public event Action<int> OnLevelUp;
+    public event Action OnXPChanged;
 
     public float AmmoRecoverChance { get; private set; }
     public float FireRateBuffOnXPChance { get; private set; }
@@ -40,6 +41,7 @@ public class PlayerXP : MonoBehaviour
         if (amount <= 0f) return;
 
         CurrentXP += amount;
+        OnXPChanged?.Invoke();
 
         // Chance to recover ammo on XP gain
         if (AmmoRecoverChance > 0f && Weapons != null)
@@ -68,6 +70,10 @@ public class PlayerXP : MonoBehaviour
             CurrentLevel++;
             XPToNextLevel = GetRequiredXP(CurrentLevel);
             OnLevelUp?.Invoke(CurrentLevel);
+
+            // Phát tiếng lên cấp (clip cấu hình trong AudioManager).
+            AudioManager.Instance?.PlayLevelUp();
+
             Debug.Log($"Level up! Now level {CurrentLevel}");
             if (GameManager.Instance != null)
                 GameManager.Instance.SetState(GameState.LevelUp);
@@ -96,11 +102,11 @@ public class PlayerXP : MonoBehaviour
     {
         if (level <= 3)
         {
-            return 8;
+            return level*2 + 3;
         }
         else if (level <= 20)
         {
-            return level+2; //10 * level - 5; //level+2;
+            return 10 * level - 5; //level+2;
         }
         else if (level <= 40)
         {

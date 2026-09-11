@@ -9,8 +9,6 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     private Vector2 direction;
     private float age;
-    private float maxDistance;
-    private float travelledDistance;
     private Transform owner;
     private int pierceRemaining;
     private float speedMultiplier = 1f;
@@ -21,18 +19,18 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private Vector3 baseScale = Vector3.one;
     private bool infinitePierceOnKill = false;
     private float explosionDamagePercent = 0f;
-    private float explosionRadius = 0f;
     private int bounceRemaining = 0;
     private System.Action onKillCallback;
     private Collider2D lastHit;
     private float lastHitTime;
     private TrailRenderer trail;
+    private bool trailReady;
+    private float trailOriginalTime;
 
-    public void Init(Vector2 dir, Transform owner, float maxDistance, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, float explosionRadius = 0f, int bounceCount = 0, System.Action onKillCallback = null)
+    public void Init(Vector2 dir, Transform owner, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, int bounceCount = 0, System.Action onKillCallback = null)
     {
         direction = dir.normalized;
         this.owner = owner;
-        this.maxDistance = maxDistance;
         pierceRemaining = pierce;
         this.speedMultiplier = speedMultiplier;
         this.damageMultiplier = damageMultiplier;
@@ -41,12 +39,10 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         this.sizeMultiplier = sizeMultiplier;
         this.infinitePierceOnKill = infinitePierceOnKill;
         this.explosionDamagePercent = explosionDamagePercent;
-        this.explosionRadius = explosionRadius;
         this.bounceRemaining = bounceCount;
         this.onKillCallback = onKillCallback;
         transform.localScale = baseScale * sizeMultiplier;
         age = 0f;
-        travelledDistance = 0f;
         lastHit = null;
         lastHitTime = 0f;
     }
@@ -56,12 +52,18 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         EnsurePhysics();
         baseScale = transform.localScale;
         trail = GetComponent<TrailRenderer>();
+        if (trail != null)
+            trailOriginalTime = trail.time;
     }
 
     public void OnSpawned()
     {
         if (trail != null)
+        {
+            trail.emitting = false;
             trail.Clear();
+        }
+        trailReady = false;
     }
 
     private void EnsurePhysics()
@@ -80,6 +82,14 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private void Update()
     {
         age += Time.deltaTime;
+
+        if (!trailReady && trail != null)
+        {
+            trail.time = trailOriginalTime;
+            trail.emitting = true;
+            trailReady = true;
+        }
+
         if (age >= bulletStats.LifeTime)
         {
             DespawnSelf();
@@ -90,12 +100,6 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         float speed = bulletStats.Speed * bulletStats.SpeedCurve.Evaluate(t) * speedMultiplier;
 
         float step = speed * Time.deltaTime;
-        travelledDistance += step;
-        if (travelledDistance >= maxDistance)
-        {
-            DespawnSelf();
-            return;
-        }
 
         transform.position += (Vector3)(direction * step);
         transform.up = direction;
@@ -103,7 +107,8 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (owner != null && other.transform.IsChildOf(owner))
+        // Ignore any hit on owner hierarchy (player, weapons, etc.) or any WeaponController
+        if (owner != null && (other.transform.IsChildOf(owner) || other.transform == owner || other.transform.root == owner || other.GetComponentInParent<WeaponController>() != null))
             return;
         if (other.TryGetComponent(out Bullet _))
             return;
@@ -113,6 +118,10 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             damageable = other.GetComponentInParent<IDamageable>();
 
         if (damageable == null)
+            return;
+
+        // Never damage the player (including from summons)
+        if (other.GetComponentInParent<PlayerStats>() != null)
             return;
 
         if (lastHit == other && Time.time - lastHitTime < 0.1f)
@@ -127,9 +136,9 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         damageable.TakeDamage(finalDamage);
 
         if (executePercent > 0f && damageable is EnemyHealth enemyHealth
-            && enemyHealth.CurrentHealth <= enemyHealth.MaxHealth * executePercent)
+            && enemyHealth.CurrentHealth > 0f && enemyHealth.CurrentHealth <= enemyHealth.MaxHealth * executePercent)
         {
-            damageable.TakeDamage(float.MaxValue);
+            damageable.TakeDamage(9999f);
         }
 
         IKnockbackable knockbackable = other.GetComponent<IKnockbackable>();
@@ -141,10 +150,11 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             knockbackable.ApplyKnockback(direction, knockbackForce * knockbackMultiplier);
         }
 
+        bool infinitePierced = false;
         bool consumedPierce = false;
         if (infinitePierceOnKill && wouldKill)
         {
-            // Don't consume pierce if the hit kills
+            infinitePierced = true; // pierce for free, don't consume count
         }
         else if (pierceRemaining > 0)
         {
@@ -152,14 +162,16 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             consumedPierce = true;
         }
 
-        // Explosion on kill
-        if (wouldKill && explosionDamagePercent > 0f && explosionRadius > 0f)
+        // Explosion on kill - skip owner/player
+        if (wouldKill && explosionDamagePercent > 0f && bulletStats.ExplosionRadius > 0f)
         {
             float explosionDamage = finalDamage * explosionDamagePercent;
-            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, explosionRadius);
+            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, bulletStats.ExplosionRadius);
             foreach (Collider2D hit in hits)
             {
                 if (hit == other) continue;
+                if (owner != null && (hit.transform == owner || hit.transform.IsChildOf(owner) || hit.transform.root == owner)) continue;
+                if (hit.GetComponentInParent<PlayerStats>() != null) continue;
                 IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
                 if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
                 if (dmg != null && dmg != damageable)
@@ -167,7 +179,29 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             }
         }
 
-        if (!consumedPierce && pierceRemaining <= 0)
+        // Multiple damage: AOE on every hit
+        if (bulletStats.IsMultipleDamage)
+        {
+            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, bulletStats.ExplosionRadius);
+            foreach (Collider2D hit in hits)
+            {
+                if (hit == other) continue;
+                if (owner != null && hit.transform.IsChildOf(owner)) continue;
+                IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
+                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                if (dmg != null)
+                    dmg.TakeDamage(finalDamage);
+            }
+            ObjectPooling.Instance.Spawn("VFX_NO", other.transform.position, Quaternion.identity);
+        }
+
+        if (infinitePierced)
+        {
+            lastHit = other;
+            lastHitTime = Time.time;
+            // piercing for free - don't bounce, just continue
+        }
+        else if (!consumedPierce && pierceRemaining <= 0)
         {
             // Try bounce if no pierce left
             if (bounceRemaining > 0)
@@ -178,8 +212,7 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             DespawnSelf();
             return;
         }
-
-        if (consumedPierce)
+        else if (consumedPierce)
         {
             lastHit = other;
             lastHitTime = Time.time;
@@ -194,17 +227,26 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     private void BounceToNewTarget(Transform excludeTarget)
     {
+        // Resolve exclude root to avoid matching child colliders of same enemy
+        IDamageable excludeDmg = excludeTarget.GetComponentInParent<IDamageable>();
+        if (excludeDmg == null) excludeDmg = excludeTarget.GetComponentInChildren<IDamageable>();
+        Transform excludeRoot = excludeDmg != null ? (excludeDmg as Component)?.transform : excludeTarget;
+
         // Find all valid enemies in range
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 10f);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 12f);
         List<Transform> validTargets = new List<Transform>();
 
         foreach (Collider2D hit in hits)
         {
-            if (hit.transform == excludeTarget) continue;
+            if (hit == null) continue;
             if (hit.transform.IsChildOf(owner)) continue;
             IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
             if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
             if (dmg == null) continue;
+            if (dmg == excludeDmg) continue;
+            // Also skip if same root transform (handles child collider vs parent)
+            Transform hitRoot = (dmg as Component)?.transform;
+            if (hitRoot != null && excludeRoot != null && (hitRoot == excludeRoot || hitRoot.IsChildOf(excludeRoot) || excludeRoot.IsChildOf(hitRoot))) continue;
 
             validTargets.Add(hit.transform);
         }
@@ -217,6 +259,8 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             bounceRemaining--;
             lastHit = null;
             lastHitTime = 0f;
+            // Nudge out of current collider to avoid immediate re-hit
+            transform.position += (Vector3)(direction * 0.3f);
             return;
         }
 

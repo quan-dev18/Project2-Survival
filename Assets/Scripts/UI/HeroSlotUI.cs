@@ -4,32 +4,67 @@ using UnityEngine.UI;
 public class HeroSlotUI : MonoBehaviour
 {
     [Header("UI Elements")]
-    [SerializeField] private Image heroIconImage;    // Component Image chứa Avatar nhân vật
-    [SerializeField] private GameObject lockIconObj; // GameObject Icon ổ khóa
+    [SerializeField] private Image heroIconImage;
+    [SerializeField] private GameObject lockIconObj;
     [SerializeField] private Button button;
+    [SerializeField] private GameObject selectedFrameObj;
 
-    public void Setup(HeroSelectSO data, System.Action<HeroSelectSO> onClickCallback)
+    private HeroSelectSO heroData;
+    private bool isUnlocked;
+
+    public HeroSelectSO GetHeroData() => heroData;
+
+    public void Setup(HeroSelectSO data, bool unlocked, System.Action<HeroSelectSO> onClickCallback)
     {
-        // Xử lý bật/tắt Icon theo trạng thái Mở Khóa
-        if (data.isUnlocked)
+        heroData = data;
+        isUnlocked = unlocked;
+        ApplyVisual();
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => onClickCallback?.Invoke(data));
+    }
+
+    public void SetUnlocked(bool unlocked)
+    {
+        isUnlocked = unlocked;
+        ApplyVisual();
+    }
+
+    private void ApplyVisual()
+    {
+        if (heroData == null) return;
+        if (isUnlocked)
         {
-            // MỞ KHÓA: Hiện Icon nhân vật, Bật màu sáng, Ẩn icon khóa
             if (heroIconImage != null)
             {
                 heroIconImage.gameObject.SetActive(true);
-                heroIconImage.sprite = data.heroIcon;
+                heroIconImage.sprite = heroData.heroIcon;
             }
             if (lockIconObj != null) lockIconObj.SetActive(false);
         }
         else
         {
-            // BỊ KHÓA: Ẩn Icon nhân vật, Hiện icon Ổ khóa
             if (heroIconImage != null) heroIconImage.gameObject.SetActive(false);
             if (lockIconObj != null) lockIconObj.SetActive(true);
         }
+    }
 
-        // Gán sự kiện khi bấm nút
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() => onClickCallback?.Invoke(data));
+    public void SetIconAlpha(float alpha)
+    {
+        if (heroIconImage != null)
+        {
+            Transform parent = heroIconImage.transform.parent;
+            Image parentImage = parent != null ? parent.GetComponent<Image>() : null;
+            if (parentImage != null)
+            {
+                Color c = Color.black;
+                c.a = alpha;
+                parentImage.color = c;
+            }
+        }
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (selectedFrameObj != null) selectedFrameObj.SetActive(selected);
     }
 }

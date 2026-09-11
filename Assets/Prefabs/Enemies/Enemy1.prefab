@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4690731138904023576}
   - component: {fileID: 6811339878856143682}
-  - component: {fileID: 2606339582260125365}
   - component: {fileID: 2757306944947068797}
   - component: {fileID: 7355024985598789496}
   - component: {fileID: 1022093272174501177}
@@ -75,7 +74,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 712935771
-  m_SortingLayer: 6
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 934338712, guid: 91a64d498fc42c947865c534cc2ce43f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -88,47 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2606339582260125365
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 163092775175553624}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShadowGroup: 0
-  m_ComponentVersion: 1
-  m_HasRenderer: 1
-  m_UseRendererSilhouette: 1
-  m_CastsShadows: 1
-  m_SelfShadows: 0
-  m_ApplyToSortingLayers: 000000003b3cbcd84bfa89f55b897e2a9f7083800b9f4cbb
-  m_ShapePath:
-  - {x: 0.29741836, y: -0.58735, z: 0}
-  - {x: -0.36208856, y: -0.54128194, z: 0}
-  - {x: -0.38997033, y: -0.30149877, z: 0}
-  - {x: 0.18997027, y: -0.27361703, z: 0}
-  - {x: 0.12305403, y: -0.14536093, z: 0}
-  - {x: -0.43458113, y: -0.19554809, z: 0}
-  - {x: -0.50707376, y: 0.016353294, z: 0}
-  - {x: -0.5684136, y: 0.20594928, z: 0}
-  - {x: -0.49592102, y: 0.32862905, z: 0}
-  - {x: -0.40520194, y: 0.6988771, z: 0}
-  - {x: -0.021931097, y: 0.9029933, z: 0}
-  - {x: 0.3996257, y: 0.83270943, z: 0}
-  - {x: 0.5803149, y: 0.5126486, z: 0}
-  - {x: 0.580315, y: 0.17249116, z: 0}
-  - {x: 0.36059123, y: -0.13008907, z: 0}
-  m_ShapePathHash: -260579236
-  m_Mesh: {fileID: 0}
-  m_InstanceId: 178646
-  m_LocalBounds:
-    m_Center: {x: 0.0059506893, y: 0.15782166, z: 0}
-    m_Extent: {x: 0.5743643, y: 0.74517167, z: 0}
 --- !u!95 &2757306944947068797
 Animator:
   serializedVersion: 5
@@ -166,6 +124,7 @@ MonoBehaviour:
   enemyMovement: {fileID: 2980252082715626386}
   _animator: {fileID: 2757306944947068797}
   deathFallbackDelay: 2
+  burnVFXPrefab: {fileID: 4700210612237096832, guid: 2f8338f5d887a4444ad337976f150c78, type: 3}
 --- !u!114 &1022093272174501177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,6 +177,7 @@ GameObject:
   - component: {fileID: 8069974498983253383}
   - component: {fileID: 2980252082715626386}
   - component: {fileID: 6664554457268139863}
+  - component: {fileID: 331769628823525265}
   m_Layer: 6
   m_Name: Enemy1
   m_TagString: Enemy
@@ -316,6 +276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 11400000, guid: 86b2eb07498a2db4e95b5943737d7e01, type: 2}
+  speedMultiplier: 1
 --- !u!114 &2980252082715626386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,6 +296,7 @@ MonoBehaviour:
     m_Bits: 64
   separationRadius: 0.6
   separationForce: 2
+  _animator: {fileID: 0}
 --- !u!114 &6664554457268139863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,6 +316,25 @@ MonoBehaviour:
   - {r: 0.20392159, g: 0.20392159, b: 0.6313726, a: 1}
   - {r: 0.6313726, g: 0.20000002, b: 0.57254905, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &331769628823525265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407889229624869330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff88d5f0ea73ca34e914ab919fac864d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyController: {fileID: 8069974498983253383}
+  animator: {fileID: 2757306944947068797}
+  shadowComponent: {fileID: 0}
+  offScreenSpeedMultiplier: 3
+  checkInterval: 0.3
+  viewportMargin: 0.1
+  activeDistance: 12
 --- !u!1 &3925370710927403832
 GameObject:
   m_ObjectHideFlags: 0

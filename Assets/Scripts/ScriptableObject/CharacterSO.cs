@@ -15,5 +15,4 @@ public class CharacterSO : ScriptableObject
     public float CollectRange => collectRange;
     [SerializeField] private float growthRate; // The rate at which the character levels up
     public float GrowthRate => growthRate;
-
 }

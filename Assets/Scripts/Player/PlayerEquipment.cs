@@ -25,8 +25,11 @@ public class PlayerEquipment : MonoBehaviour
 
     private void Awake()
     {
-        if (PlayerPrefs.HasKey("SelectedWeaponIndex"))
-            SelectedWeaponIndex = PlayerPrefs.GetInt("SelectedWeaponIndex");
+        if (UserData.Instance != null)
+        {
+            SelectedHeroIndex = UserData.Instance.SelectedHeroIndex;
+            SelectedWeaponIndex = UserData.Instance.SelectedWeaponIndex;
+        }
 
         if (playerMovement == null)
             playerMovement = GetComponent<PlayerMovement>();
@@ -41,6 +44,9 @@ public class PlayerEquipment : MonoBehaviour
 
     private void Start()
     {
+        if (playerStats != null)
+            playerStats.RegisterAllWeapons();
+
         if (characterMeshes.Count > 0)
         {
             int heroIdx = Mathf.Clamp(SelectedHeroIndex, 0, characterMeshes.Count - 1);
@@ -64,6 +70,9 @@ public class PlayerEquipment : MonoBehaviour
                 WeaponController ctrl = weapons[i].GetComponentInChildren<WeaponController>(true);
                 if (ctrl != null && ctrl.WeaponStats != null && ctrl.WeaponStats.name == savedName)
                     return i;
+                FlamethrowerController flame = weapons[i].GetComponentInChildren<FlamethrowerController>(true);
+                if (flame != null && flame.WeaponStats != null && flame.WeaponStats.name == savedName)
+                    return i;
             }
         }
 
@@ -86,15 +95,18 @@ public class PlayerEquipment : MonoBehaviour
 
     private void AutoCollectWeapons()
     {
-        if (weapons.Count > 0) return;
-
         Transform weaponsContainer = transform.Find("Weapons");
         if (weaponsContainer == null) return;
 
+        // Sync with hierarchy: add any new weapon GameObjects not yet in list (e.g., Flamethrower added after)
+        var seen = new System.Collections.Generic.HashSet<GameObject>(weapons);
         foreach (Transform child in weaponsContainer)
         {
-            weapons.Add(child.gameObject);
+            if (!seen.Contains(child.gameObject))
+                weapons.Add(child.gameObject);
         }
+        // Remove destroyed/null entries
+        weapons.RemoveAll(w => w == null);
     }
 
     public void ActivateMesh(int index)
@@ -125,18 +137,28 @@ public class PlayerEquipment : MonoBehaviour
 
         activeWeaponIndex = index;
 
-        WeaponController weaponCtrl = weapons[index].GetComponentInChildren<WeaponController>();
+        WeaponController weaponCtrl = weapons[index].GetComponentInChildren<WeaponController>(true);
         if (weaponCtrl == null)
             weaponCtrl = weapons[index].GetComponent<WeaponController>();
+        FlamethrowerController flameCtrl = weapons[index].GetComponentInChildren<FlamethrowerController>(true);
+        if (flameCtrl == null)
+            flameCtrl = weapons[index].GetComponent<FlamethrowerController>();
 
         if (playerStats != null)
-            playerStats.SetWeapons(new[] { weaponCtrl });
+            playerStats.SetActiveWeaponIndex(index);
 
         if (playerUI != null)
-            playerUI.SetWeapon(weaponCtrl);
+        {
+            if (weaponCtrl != null) playerUI.SetWeapon(weaponCtrl);
+            else if (flameCtrl != null) playerUI.SetFlamethrower(flameCtrl);
+            else playerUI.SetWeapon(null);
+        }
 
-        if (playerMovement != null && weaponCtrl != null)
-            weaponCtrl.SetPlayerMovement(playerMovement);
+        if (playerMovement != null)
+        {
+            if (weaponCtrl != null) weaponCtrl.SetPlayerMovement(playerMovement);
+            if (flameCtrl != null) flameCtrl.SetPlayerMovement(playerMovement);
+        }
     }
 
     public void ActivateMeshByName(string meshName)

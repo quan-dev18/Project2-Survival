@@ -25,9 +25,11 @@ public class EnemyController : MonoBehaviour
 
     //final stats
     public float maxHealth => (baseMaxHealth + bonusMaxHealthFlat) * (1f + bonusMaxHealthPercent);
-    public float movementSpeed => Mathf.Min(baseMovementSpeed * (1f + bonusMovementSpeedPercent), 10f);
+    public float movementSpeed => Mathf.Min(baseMovementSpeed * (1f + bonusMovementSpeedPercent) * speedMultiplier, 10f);
     public float attackDamage => (baseAttackDamage + bonusAttackDamageFlat) * (1f + bonusAttackDamagePercent);
     public float attackSpeed => Mathf.Min(baseAttackSpeed * (1f + bonusAttackSpeedPercent), 2.5f);
+
+    [HideInInspector] public float speedMultiplier = 1f;
 
     public float currentHealth { get; private set; }
 
@@ -119,6 +121,7 @@ public class EnemyController : MonoBehaviour
         }
 
         playerHealth.DealDamage(attackDamage);
+        CameraShake.Shake(0.5f, 0.3f);
         float interval = attackSpeed > 0f ? 1f / attackSpeed : 1f;
         nextAttackTime = Time.time + interval;
     }

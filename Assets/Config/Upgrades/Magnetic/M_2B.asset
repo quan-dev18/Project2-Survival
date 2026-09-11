@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: M_2B
   m_EditorClassIdentifier: 
   upgradeName: Magnetic II
-  description: 'Pickup range +10%
+  description: 'Pickup range +25%
 
-    XP pickup has a 10% chance to recover 1 ammo'
-  icon: {fileID: 0}
+    XP growth rate +25%'
+  icon: {fileID: -37040881, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 4
     amount: 25

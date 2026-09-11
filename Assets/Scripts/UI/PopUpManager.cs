@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum PopupType
@@ -13,6 +14,10 @@ public class PopUpManager : MonoBehaviour
     public static PopUpManager Instance { get; private set; }
 
     [SerializeField] private GameObject popupPrefab;
+
+    [Header("Stack Settings")]
+    [SerializeField] private float mergeRadius = 0.5f;
+    [SerializeField] private float mergeWindow = 0.3f;
 
     [Header("Styles")]
     [SerializeField] private PopupStyle damageStyle = new PopupStyle
@@ -52,6 +57,8 @@ public class PopUpManager : MonoBehaviour
 
     [SerializeField] private float positionJitter = 0.3f;
 
+    private readonly List<DamagePopup> activePopups = new List<DamagePopup>();
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -66,14 +73,35 @@ public class PopUpManager : MonoBehaviour
     {
         if (popupPrefab == null || ObjectPooling.Instance == null) return;
 
+        PopupStyle style = GetStyle(type);
+
+        if (type == PopupType.Damage)
+        {
+            for (int i = activePopups.Count - 1; i >= 0; i--)
+            {
+                DamagePopup existing = activePopups[i];
+                if (existing == null)
+                {
+                    activePopups.RemoveAt(i);
+                    continue;
+                }
+
+                if (existing.CanMerge(position, mergeRadius, mergeWindow, type))
+                {
+                    existing.Merge(amount, style);
+                    return;
+                }
+            }
+        }
+
         Vector2 jitter = Random.insideUnitCircle * positionJitter;
         Vector3 pos = position + (Vector3)jitter;
 
         GameObject go = ObjectPooling.Instance.Spawn(popupPrefab, pos, Quaternion.identity);
         if (go == null || !go.TryGetComponent(out DamagePopup popup)) return;
 
-        PopupStyle style = GetStyle(type);
-        popup.Show(amount, style, type == PopupType.Crit, type == PopupType.Heal);
+        popup.Show(amount, style, type, pos);
+        activePopups.Add(popup);
     }
 
     private PopupStyle GetStyle(PopupType type)
@@ -84,6 +112,15 @@ public class PopUpManager : MonoBehaviour
             case PopupType.Heal: return healStyle;
             case PopupType.Crit: return critStyle;
             default: return damageStyle;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        for (int i = activePopups.Count - 1; i >= 0; i--)
+        {
+            if (activePopups[i] == null || !activePopups[i].gameObject.activeInHierarchy)
+                activePopups.RemoveAt(i);
         }
     }
 }

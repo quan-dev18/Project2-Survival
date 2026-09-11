@@ -136,9 +136,10 @@ private void Fire()
         Vector2 aimDir = FindNearestEnemyDirection();
         if (aimDir == Vector2.zero) return;
         
-        // Rotate cube to face aim direction
+        // Rotate only firePart, not the whole summon
         float aimAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, aimAngle);
+        if (firePoint != null && firePoint != transform)
+            firePoint.rotation = Quaternion.Euler(0, 0, aimAngle);
         
         for (int i = 0; i < projectileCount; i++)
         {
@@ -153,9 +154,10 @@ private void Fire()
             
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
+                Transform bulletOwner = playerTransform != null ? playerTransform : transform.root;
                 float damageMultiplier = (1f + dmgStacks / 20f) * synergyDamageMultiplier; // base damage + stacks + synergy
-                bullet.Init(fireDir, transform.root, 100f,
-                    pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0f, 0, null);
+                bullet.Init(fireDir, bulletOwner,
+                    pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0, null);
             }
             else
             {

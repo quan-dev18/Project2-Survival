@@ -18,6 +18,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (playerStats == null) return;
         playerStats.TakeDamage(amount);
 
+        CameraShake.Shake(0.3f, 0.2f);
+
         if (PopUpManager.Instance != null)
             PopUpManager.Instance.Show(transform.position, amount, PopupType.PlayerDamage);
 

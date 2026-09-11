@@ -7,7 +7,6 @@ public class SynergyManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private PlayerStats playerStats;
-    [SerializeField] private WeaponController[] weapons;
 
     private HashSet<string> ownedMaxLevelUpgrades = new HashSet<string>();
 
@@ -24,18 +23,19 @@ public class SynergyManager : MonoBehaviour
     private const int GOTTA_GO_FAST_MAX_STACKS = 3;
     private const float GOTTA_GO_FAST_STACK_INTERVAL = 5f;
 
+    private WeaponController[] Weapons => playerStats?.Weapons;
+
     private void Awake()
     {
         Instance = this;
         if (playerStats == null) playerStats = FindObjectOfType<PlayerStats>();
-        if ((weapons == null || weapons.Length == 0) && playerStats != null)
-            weapons = playerStats.Weapons;
     }
 
     private void ApplyToAllWeapons(System.Action<WeaponController> action)
     {
-        if (weapons != null)
-            foreach (var w in weapons)
+        var weaponsList = Weapons;
+        if (weaponsList != null)
+            foreach (var w in weaponsList)
                 if (w != null) action(w);
     }
 
@@ -139,11 +139,12 @@ public class SynergyManager : MonoBehaviour
     {
         if (gottaGoFastActive == active) return;
         gottaGoFastActive = active;
+        Debug.Log($"[Synergy] Gotta Go Fast {(active ? "ACTIVATED" : "DEACTIVATED")}");
         if (!active)
         {
             ApplyToAllWeapons(w =>
             {
-                w.AddFireRatePercent(-gottaGoFastStacks * 10f);
+                w.AddFireRatePercent(-gottaGoFastStacks * 0.10f);
                 w.AddBulletPierce(-gottaGoFastStacks);
             });
             gottaGoFastStacks = 0;

@@ -12,8 +12,29 @@ public class LevelUpPanel : MonoBehaviour
     [SerializeField] private Button button2;
     [SerializeField] private Button button3;
 
+    [Header("Titles (separate from description)")]
+    [SerializeField] private TMP_Text title1;
+    [SerializeField] private TMP_Text title2;
+    [SerializeField] private TMP_Text title3;
+
+    [Header("Descriptions")]
+    [SerializeField] private TMP_Text desc1;
+    [SerializeField] private TMP_Text desc2;
+    [SerializeField] private TMP_Text desc3;
+
+    [Header("Icons (placeholder)")]
+    [SerializeField] private Image icon1;
+    [SerializeField] private Image icon2;
+    [SerializeField] private Image icon3;
+
     [Header("Upgrade Pool")]
     [SerializeField] private List<UpgradeSO> upgradePool;
+
+    [Header("Startup Upgrades (Testing)")]
+    [Tooltip("Auto-applied 3s after stage starts (Playing). For testing.")]
+    [SerializeField] private List<UpgradeSO> startupUpgrades;
+    private bool startupApplied;
+    private Coroutine startupRoutine;
 
     [Header("Rain Effect")]
     [SerializeField] private ParticleSystem rainEffect;
@@ -21,7 +42,6 @@ public class LevelUpPanel : MonoBehaviour
     private readonly List<UpgradeSO> choices = new List<UpgradeSO>();
     private readonly HashSet<UpgradeSO> ownedUpgrades = new HashSet<UpgradeSO>();
     private PlayerStats playerStats;
-    private WeaponController weapon;
 
     private void Awake()
     {
@@ -32,7 +52,6 @@ public class LevelUpPanel : MonoBehaviour
         if (player != null)
         {
             playerStats = player.GetComponent<PlayerStats>();
-            weapon = player.GetComponentInChildren<WeaponController>();
         }
 
         button1.onClick.AddListener(() => Choose(0));
@@ -83,13 +102,59 @@ public class LevelUpPanel : MonoBehaviour
         {
             RollChoices();
             gameObject.SetActive(true);
-            rainEffect?.Play();
+            if(rainEffect != null)
+            {
+                rainEffect.gameObject.SetActive(true);
+                var main = rainEffect.main;
+                main.useUnscaledTime = true;
+                rainEffect.Play();
+            }
+            
         }
         else
         {
             gameObject.SetActive(false);
             rainEffect?.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         }
+
+        if (state == GameState.Playing && !startupApplied && startupUpgrades != null && startupUpgrades.Count > 0)
+        {
+            // LevelUpPanel is inactive at start, so StartCoroutine on this fails -> run on GameManager
+            var runner = GameManager.Instance != null ? GameManager.Instance : (MonoBehaviour)this;
+            if (startupRoutine != null) runner.StopCoroutine(startupRoutine);
+            startupRoutine = runner.StartCoroutine(ApplyStartupUpgradesRoutine());
+        }
+        else if (state != GameState.Playing && startupRoutine != null)
+        {
+            var runner = GameManager.Instance != null ? GameManager.Instance : (MonoBehaviour)this;
+            runner.StopCoroutine(startupRoutine);
+            startupRoutine = null;
+        }
+    }
+
+    private System.Collections.IEnumerator ApplyStartupUpgradesRoutine()
+    {
+        // Wait 3s after stage actually starts to avoid init races
+        yield return new WaitForSecondsRealtime(3f);
+        if (startupApplied) yield break;
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing) yield break;
+
+        // Ensure playerStats resolved (player may spawn late)
+        if (playerStats == null)
+        {
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null) playerStats = player.GetComponent<PlayerStats>();
+        }
+
+        foreach (var up in startupUpgrades)
+        {
+            if (up == null || ownedUpgrades.Contains(up)) continue;
+            ApplyUpgrade(up);
+            ownedUpgrades.Add(up);
+            Debug.Log($"[Startup] Applied {up.UpgradeName}");
+        }
+        startupApplied = true;
+        startupRoutine = null;
     }
 
     private void RollChoices()
@@ -148,9 +213,43 @@ public class LevelUpPanel : MonoBehaviour
         }
 
         UpgradeSO upgrade = choices[choiceIndex];
-        TMP_Text label = button.GetComponentInChildren<TMP_Text>();
-        if (label != null)
-            label.text = $"<b>{upgrade.UpgradeName}</b>\n{upgrade.Description}";
+
+        // Resolve per-slot title/desc/icon
+        TMP_Text title = choiceIndex == 0 ? title1 : choiceIndex == 1 ? title2 : title3;
+        TMP_Text desc = choiceIndex == 0 ? desc1 : choiceIndex == 1 ? desc2 : desc3;
+        Image icon = choiceIndex == 0 ? icon1 : choiceIndex == 1 ? icon2 : icon3;
+
+        bool hasSplitFields = title != null || desc != null || icon != null;
+
+        if (hasSplitFields)
+        {
+            if (title != null)
+                title.text = $"<b>{upgrade.UpgradeName}</b>";
+            if (desc != null)
+                desc.text = upgrade.Description;
+            if (icon != null)
+                icon.sprite = upgrade.Icon; // placeholder - assign icons in UpgradeSO
+            // If title assigned, clear legacy combined label to avoid duplicate text
+            if (title != null)
+            {
+                var legacyLabels = button.GetComponentsInChildren<TMP_Text>(true);
+                foreach (var lbl in legacyLabels)
+                {
+                    if (lbl != title && lbl != desc)
+                    {
+                        // Keep legacy label empty when split fields are used (optional)
+                        // lbl.text = string.Empty;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Fallback: old combined label behavior
+            TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+            if (label != null)
+                label.text = $"<b>{upgrade.UpgradeName}</b>\n{upgrade.Description}";
+        }
 
         button.gameObject.SetActive(true);
     }
@@ -163,6 +262,7 @@ public class LevelUpPanel : MonoBehaviour
         ApplyUpgrade(upgrade);
         ownedUpgrades.Add(upgrade);
         choices.Clear();
+        if (rainEffect != null) rainEffect.gameObject.SetActive(false);
         GameManager.Instance.SetState(GameState.Playing);
     }
 
@@ -186,6 +286,21 @@ public class LevelUpPanel : MonoBehaviour
     private void ApplyStat(UpgradeType stat, float amount)
     {
         float pct = amount / 100f;
+        // Fetch via Player hierarchy so order matches PlayerEquipment (avoids scene-wide stray WeaponControllers)
+        var player = GameObject.FindGameObjectWithTag("Player");
+        WeaponController[] allWeapons = null;
+        FlamethrowerController[] allFlames = null;
+        if (player != null)
+        {
+            allWeapons = player.GetComponentsInChildren<WeaponController>(true);
+            allFlames = player.GetComponentsInChildren<FlamethrowerController>(true);
+        }
+        if (allWeapons == null || allWeapons.Length == 0)
+            allWeapons = playerStats?.Weapons;
+        if (allFlames == null || allFlames.Length == 0)
+            allFlames = playerStats?.Flamethrowers;
+        System.Action<System.Action<WeaponController>> applyWeapons = act => ApplyToAllWeapons(allWeapons, act);
+        System.Action<System.Action<FlamethrowerController>> applyFlames = act => { if(allFlames!=null) foreach(var f in allFlames) if(f!=null) act(f); };
 
         switch (stat)
         {
@@ -208,44 +323,43 @@ public class LevelUpPanel : MonoBehaviour
                 playerStats?.AddGrowthRatePercent(pct);
                 break;
             case UpgradeType.FireRatePercent:
-                weapon?.AddFireRatePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRatePercent(pct)); applyFlames(f => f.AddFireRatePercent(pct));
                 break;
             case UpgradeType.FireRangePercent:
-                weapon?.AddFireRangePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRangePercent(pct)); applyFlames(f => f.AddFireRangePercent(pct));
                 break;
             case UpgradeType.ReloadSpeedPercent:
-                weapon?.AddReloadSpeedPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedPercent(pct)); applyFlames(f => f.AddReloadSpeedPercent(pct));
                 break;
             case UpgradeType.MagazineSizePercent:
-                weapon?.AddMagazineSizePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddMagazineSizePercent(pct)); applyFlames(f => f.AddMagazineSizePercent(pct));
                 break;
             case UpgradeType.BulletCount:
-                weapon?.AddBulletCount(Mathf.RoundToInt(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletCount(Mathf.RoundToInt(amount))); applyFlames(f => f.AddBulletCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletPierce:
-                weapon?.AddBulletPierce(Mathf.RoundToInt(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletPierce(Mathf.RoundToInt(amount))); applyFlames(f => f.AddBulletPierce(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletSpeedPercent:
-                weapon?.AddBulletSpeedPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpeedPercent(pct)); applyFlames(f => f.AddBulletSpeedPercent(pct));
                 break;
             case UpgradeType.BulletDamagePercent:
-                weapon?.AddBulletDamagePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletDamagePercent(pct)); applyFlames(f => f.AddBulletDamagePercent(pct));
                 break;
             case UpgradeType.BulletExecutePercent:
-                weapon?.AddBulletExecutePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletExecutePercent(pct)); applyFlames(f => f.AddBulletExecutePercent(pct));
                 break;
             case UpgradeType.BulletKnockbackPercent:
-                weapon?.AddBulletKnockbackPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletKnockbackPercent(pct)); applyFlames(f => f.AddBulletKnockbackPercent(pct));
                 break;
             case UpgradeType.BulletSizePercent:
-                weapon?.AddBulletSizePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSizePercent(pct)); applyFlames(f => f.AddBulletSizePercent(pct));
                 break;
             case UpgradeType.BulletInfinitePierceOnKill:
-                weapon?.AddBulletInfinitePierceOnKill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletInfinitePierceOnKill(pct)); applyFlames(f => f.AddBulletInfinitePierceOnKill(pct));
                 break;
             case UpgradeType.BulletExplosionOnKill:
-                weapon?.AddBulletExplosionDamagePercent(pct / 100f);
-                weapon?.AddBulletExplosionRadius(1.0f);
+                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct); w.AddBulletExplosionRadius(1.5f); }); applyFlames(f => { f.AddBulletExplosionDamagePercent(pct); f.AddBulletExplosionRadius(1.5f); });
                 break;
             case UpgradeType.CharacterSizePercent:
                 playerStats?.AddCharacterSizePercent(pct);
@@ -257,7 +371,7 @@ public class LevelUpPanel : MonoBehaviour
                 playerStats?.AddDamageTakenBulletDamagePercent(pct);
                 break;
             case UpgradeType.FreeShotChanceWhileStill:
-                weapon?.AddFreeShotChanceWhileStill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFreeShotChanceWhileStill(pct)); applyFlames(f => f.AddFreeShotChanceWhileStill(pct));
                 break;
             case UpgradeType.AmmoRecoverOnXP:
                 PlayerXP.Instance?.AddAmmoRecoverChance(pct);
@@ -266,16 +380,16 @@ public class LevelUpPanel : MonoBehaviour
                 PlayerXP.Instance?.AddFireRateBuffOnXPChance(pct);
                 break;
             case UpgradeType.LastAmmoBurst:
-                weapon?.AddLastAmmoBurst(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddLastAmmoBurst(pct)); applyFlames(f => f.AddLastAmmoBurst(pct));
                 break;
             case UpgradeType.BackShot:
-                weapon?.AddBackShot(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBackShot(pct)); applyFlames(f => f.AddBackShot(pct));
                 break;
             case UpgradeType.DamageBuffAfterReload:
-                weapon?.AddDamageBuffAfterReload(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddDamageBuffAfterReload(pct)); applyFlames(f => f.AddDamageBuffAfterReload(pct));
                 break;
             case UpgradeType.ReloadSpeedStackOnKill:
-                weapon?.AddReloadSpeedStackOnKill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedStackOnKill(pct)); applyFlames(f => f.AddReloadSpeedStackOnKill(pct));
                 break;
             case UpgradeType.InvulnerableWhileReloading:
                 playerStats?.AddInvulnerableWhileReloading(pct);
@@ -286,18 +400,22 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.StackingBuffOnTime:
                 playerStats?.AddStackingBuffPercent(pct);
                 break;
+            case UpgradeType.BulletSpreadPercent:
             case UpgradeType.BulletSpread:
-                weapon?.AddBulletSpread(amount); // flat degrees
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpread(amount)); applyFlames(f => f.AddBulletSpread(amount));
+                break;
+            case UpgradeType.BulletBounceCount:
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletBounceCount(Mathf.RoundToInt(amount))); applyFlames(f => f.AddBulletBounceCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.MysteryCube:
                 playerStats?.AddMysteryCube(pct);
                 break;
             case UpgradeType.MysteryCubeDmgStack:
-                break; // intrinsic to cube
+                break;
             case UpgradeType.MysteryCubeAsStack:
-                break; // intrinsic to cube
+                break;
             case UpgradeType.ArmorRegenPerSecond:
-                playerStats?.AddArmorRegenPerSecond(amount); // raw armor/sec
+                playerStats?.AddArmorRegenPerSecond(amount);
                 break;
             case UpgradeType.SpiritSummon:
                 playerStats?.AddSpiritSummon(pct);
@@ -311,7 +429,29 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.SpiritEmpowered:
                 playerStats?.AddSpiritEmpowered(pct);
                 break;
+            case UpgradeType.TC_1:
+                playerStats?.AddTC1(amount);
+                break;
+            case UpgradeType.TC_2A:
+                playerStats?.AddTC2A(amount);
+                break;
+            case UpgradeType.TC_2B:
+                playerStats?.AddTC2B(amount);
+                break;
+            case UpgradeType.TC_3:
+                playerStats?.AddTC3(amount);
+                break;
+            case UpgradeType.GoldGainPercent:
+                playerStats?.AddGoldGainPercent(pct);
+                break;
         }
+    }
+
+    private static void ApplyToAllWeapons(WeaponController[] weapons, System.Action<WeaponController> action)
+    {
+        if (weapons == null) return;
+        foreach (var w in weapons)
+            if (w != null) action(w);
     }
 
     public static void ApplyUpgradeDirect(UpgradeSO upgrade)
@@ -322,13 +462,13 @@ public class LevelUpPanel : MonoBehaviour
         if (player == null) return;
 
         PlayerStats ps = player.GetComponent<PlayerStats>();
-        WeaponController wc = player.GetComponentInChildren<WeaponController>();
+        WeaponController[] allWeapons = ps?.Weapons;
 
         foreach (UpgradeSO.StatMod mod in upgrade.StatMods)
-            ApplyStatDirect(ps, wc, mod.Stat, mod.Amount);
+            ApplyStatDirect(ps, allWeapons, mod.Stat, mod.Amount);
     }
 
-    private static void ApplyStatDirect(PlayerStats ps, WeaponController wc, UpgradeType stat, float amount)
+    private static void ApplyStatDirect(PlayerStats ps, WeaponController[] allWeapons, UpgradeType stat, float amount)
     {
         float pct = amount / 100f;
 
@@ -353,44 +493,43 @@ public class LevelUpPanel : MonoBehaviour
                 ps?.AddGrowthRatePercent(pct);
                 break;
             case UpgradeType.FireRatePercent:
-                wc?.AddFireRatePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRatePercent(pct));
                 break;
             case UpgradeType.FireRangePercent:
-                wc?.AddFireRangePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFireRangePercent(pct));
                 break;
             case UpgradeType.ReloadSpeedPercent:
-                wc?.AddReloadSpeedPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedPercent(pct));
                 break;
             case UpgradeType.MagazineSizePercent:
-                wc?.AddMagazineSizePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddMagazineSizePercent(pct));
                 break;
             case UpgradeType.BulletCount:
-                wc?.AddBulletCount(Mathf.RoundToInt(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletPierce:
-                wc?.AddBulletPierce(Mathf.RoundToInt(amount));
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletPierce(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.BulletSpeedPercent:
-                wc?.AddBulletSpeedPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpeedPercent(pct));
                 break;
             case UpgradeType.BulletDamagePercent:
-                wc?.AddBulletDamagePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletDamagePercent(pct));
                 break;
             case UpgradeType.BulletExecutePercent:
-                wc?.AddBulletExecutePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletExecutePercent(pct));
                 break;
             case UpgradeType.BulletKnockbackPercent:
-                wc?.AddBulletKnockbackPercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletKnockbackPercent(pct));
                 break;
             case UpgradeType.BulletSizePercent:
-                wc?.AddBulletSizePercent(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSizePercent(pct));
                 break;
             case UpgradeType.BulletInfinitePierceOnKill:
-                wc?.AddBulletInfinitePierceOnKill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletInfinitePierceOnKill(pct));
                 break;
             case UpgradeType.BulletExplosionOnKill:
-                wc?.AddBulletExplosionDamagePercent(pct / 100f);
-                wc?.AddBulletExplosionRadius(1.0f);
+                ApplyToAllWeapons(allWeapons, w => { w.AddBulletExplosionDamagePercent(pct); w.AddBulletExplosionRadius(1.5f); });
                 break;
             case UpgradeType.CharacterSizePercent:
                 ps?.AddCharacterSizePercent(pct);
@@ -402,7 +541,7 @@ public class LevelUpPanel : MonoBehaviour
                 ps?.AddDamageTakenBulletDamagePercent(pct);
                 break;
             case UpgradeType.FreeShotChanceWhileStill:
-                wc?.AddFreeShotChanceWhileStill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddFreeShotChanceWhileStill(pct));
                 break;
             case UpgradeType.AmmoRecoverOnXP:
                 PlayerXP.Instance?.AddAmmoRecoverChance(pct);
@@ -411,16 +550,16 @@ public class LevelUpPanel : MonoBehaviour
                 PlayerXP.Instance?.AddFireRateBuffOnXPChance(pct);
                 break;
             case UpgradeType.LastAmmoBurst:
-                wc?.AddLastAmmoBurst(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddLastAmmoBurst(pct));
                 break;
             case UpgradeType.BackShot:
-                wc?.AddBackShot(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddBackShot(pct));
                 break;
             case UpgradeType.DamageBuffAfterReload:
-                wc?.AddDamageBuffAfterReload(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddDamageBuffAfterReload(pct));
                 break;
             case UpgradeType.ReloadSpeedStackOnKill:
-                wc?.AddReloadSpeedStackOnKill(pct);
+                ApplyToAllWeapons(allWeapons, w => w.AddReloadSpeedStackOnKill(pct));
                 break;
             case UpgradeType.InvulnerableWhileReloading:
                 ps?.AddInvulnerableWhileReloading(pct);
@@ -431,8 +570,12 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.StackingBuffOnTime:
                 ps?.AddStackingBuffPercent(pct);
                 break;
+            case UpgradeType.BulletSpreadPercent:
             case UpgradeType.BulletSpread:
-                wc?.AddBulletSpread(amount);
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletSpread(amount));
+                break;
+            case UpgradeType.BulletBounceCount:
+                ApplyToAllWeapons(allWeapons, w => w.AddBulletBounceCount(Mathf.RoundToInt(amount)));
                 break;
             case UpgradeType.MysteryCube:
                 ps?.AddMysteryCube(pct);
@@ -455,6 +598,21 @@ public class LevelUpPanel : MonoBehaviour
                 break;
             case UpgradeType.SpiritEmpowered:
                 ps?.AddSpiritEmpowered(pct);
+                break;
+            case UpgradeType.TC_1:
+                ps?.AddTC1(amount);
+                break;
+            case UpgradeType.TC_2A:
+                ps?.AddTC2A(amount);
+                break;
+            case UpgradeType.TC_2B:
+                ps?.AddTC2B(amount);
+                break;
+            case UpgradeType.TC_3:
+                ps?.AddTC3(amount);
+                break;
+            case UpgradeType.GoldGainPercent:
+                ps?.AddGoldGainPercent(pct);
                 break;
         }
     }

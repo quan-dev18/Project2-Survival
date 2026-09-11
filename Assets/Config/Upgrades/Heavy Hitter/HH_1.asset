@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: HH_1
   m_EditorClassIdentifier: 
   upgradeName: Heavy Hitter I
-  description: 'Bullet Damage +40%
+  description: 'Bullet Damage +20%
 
     Bullet Knockback +20%'
-  icon: {fileID: 0}
+  icon: {fileID: 1756847056, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 13
     amount: 20

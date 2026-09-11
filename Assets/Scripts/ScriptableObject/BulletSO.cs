@@ -11,4 +11,8 @@ public class BulletSO : ScriptableObject
     public AnimationCurve SpeedCurve => speedCurve;
     [SerializeField] private float lifeTime = 3f;
     public float LifeTime => lifeTime;
+    [SerializeField] private float explosionRadius = 3f;
+    public float ExplosionRadius => explosionRadius;
+    [SerializeField] private bool isMultipleDamage = false;
+    public bool IsMultipleDamage => isMultipleDamage;
 }

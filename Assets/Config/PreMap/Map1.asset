@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0872a92db1c2adc4d99e9532adbff59a, type: 3}
   m_Name: Map1
   m_EditorClassIdentifier: 
-  mapStage: Stage 1
   mapPreviewPrefab: {fileID: 518953807195635701, guid: 07ee57d6fb41c3d4e9558f6247292d1a, type: 3}
   sceneToLoad: GameMap1
+  stageData: {fileID: 11400000, guid: 8adc1296c8dc52741bc0cb08d7af3d6a, type: 2}

@@ -16,7 +16,7 @@ MonoBehaviour:
   description: 'Reload speed +20%
 
     Fire rate +5%'
-  icon: {fileID: 0}
+  icon: {fileID: 474001058, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 8
     amount: 20

@@ -6,6 +6,7 @@ public class BreakableProp : MonoBehaviour, IDamageable
     [SerializeField] private float hp = 3f;
     [SerializeField] private List<PropDropEntry> drops;
     [SerializeField] private float dropChance = 1f;
+    [SerializeField] private float spreadRadius = 0.5f;
 
     public void TakeDamage(float amount)
     {
@@ -14,7 +15,7 @@ public class BreakableProp : MonoBehaviour, IDamageable
         if (hp <= 0f)
         {
             SpawnDrop();
-            Destroy(gameObject);
+            ObjectPooling.Instance.Despawn(gameObject);
         }
     }
 
@@ -23,17 +24,29 @@ public class BreakableProp : MonoBehaviour, IDamageable
         if (drops == null || drops.Count == 0) return;
         if (Random.value > dropChance) return;
 
-        GameObject prefab = GetRandomDrop();
-        if (prefab != null)
-            Instantiate(prefab, transform.position, Quaternion.identity);
+        PropDropEntry entry = GetRandomDropEntry();
+        if (entry == null || string.IsNullOrEmpty(entry.poolKey)) return;
+
+        int count = Mathf.Max(1, entry.quantity);
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 offset = Vector3.zero;
+            if (count > 1)
+            {
+                float angle = (360f / count) * i * Mathf.Deg2Rad;
+                offset = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * spreadRadius;
+            }
+
+            ObjectPooling.Instance.Spawn(entry.poolKey, transform.position + offset, Quaternion.identity);
+        }
     }
 
-    private GameObject GetRandomDrop()
+    private PropDropEntry GetRandomDropEntry()
     {
         float totalWeight = 0f;
         foreach (var entry in drops)
         {
-            if (entry != null && entry.prefab != null)
+            if (entry != null && !string.IsNullOrEmpty(entry.poolKey))
                 totalWeight += entry.weight;
         }
 
@@ -44,10 +57,10 @@ public class BreakableProp : MonoBehaviour, IDamageable
 
         foreach (var entry in drops)
         {
-            if (entry == null || entry.prefab == null) continue;
+            if (entry == null || string.IsNullOrEmpty(entry.poolKey)) continue;
             cumulative += entry.weight;
             if (random <= cumulative)
-                return entry.prefab;
+                return entry;
         }
 
         return null;

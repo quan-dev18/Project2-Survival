@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ab172e0351ef8c4a9053eac30f82763, type: 3}
   m_Name: BazukaBullet
   m_EditorClassIdentifier: 
-  damage: 10
+  damage: 70
   speed: 20
   speedCurve:
     serializedVersion: 2
@@ -39,3 +39,5 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   lifeTime: 3
+  explosionRadius: 3
+  isMultipleDamage: 1

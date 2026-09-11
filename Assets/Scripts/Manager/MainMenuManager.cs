@@ -1,11 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
     public GameObject settingsUI; // Panel Settings
+
+    [SerializeField] private UISlideTween settingsSlideTween;
+
     public void StartGame()
     {
         LoadingSceneController.targetScene = "GameMap1";
@@ -14,13 +15,14 @@ public class MainMenuManager : MonoBehaviour
 
     public void OpenSettings()
     {
-        //Set Active cho Panel Settings
         settingsUI.SetActive(true);
     }
     
     public void CloseSettings()
     {
-        //Set Active cho Panel Settings
-        settingsUI.SetActive(false);
+        if (settingsSlideTween != null)
+            settingsSlideTween.Hide();
+        else
+            settingsUI.SetActive(false);
     }
 }

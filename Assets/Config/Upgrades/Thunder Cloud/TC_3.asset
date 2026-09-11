@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb6a6c9e052f3224aa42128bd8cbfcde, type: 3}
+  m_Name: TC_3
+  m_EditorClassIdentifier: 
+  upgradeName: Thunder Cloud III
+  description: The thunder cloud creates a field of electricity around the player
+    that deals light damage constantly
+  icon: {fileID: 21300000, guid: c0e3f13f0c8e5da4485873e38d3538da, type: 3}
+  statMods:
+  - stat: 47
+    amount: 1
+  requires:
+  - {fileID: 11400000, guid: e24440a03f1a30140a110710e46b8030, type: 2}
+  - {fileID: 11400000, guid: 6788feb87c5f0224ea063ae02c9d6ca7, type: 2}

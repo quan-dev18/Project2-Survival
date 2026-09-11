@@ -10,12 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2432163267572644110}
   - component: {fileID: 4725535468145805493}
-  - component: {fileID: 1120549940380927245}
-  - component: {fileID: 4593803987316297102}
-  - component: {fileID: 5140739591568044897}
+  - component: {fileID: 8935672581796507949}
   m_Layer: 0
   m_Name: map2_5
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -74,7 +72,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -568647625
-  m_SortingLayer: 5
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_Sprite: {fileID: -309666696, guid: 5c84addba91b7f3499fbeb4964041848, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -87,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!58 &1120549940380927245
+--- !u!58 &8935672581796507949
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -119,62 +117,6 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.18, y: -1.44}
+  m_Offset: {x: -0.18, y: -1.37}
   serializedVersion: 2
-  m_Radius: 0.25
---- !u!114 &4593803987316297102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9220602278224278444}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1daebe4831b1b874eb161ad8193f00d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hp: 200
-  drops:
-  - {fileID: 11400000, guid: 5edab0cb109b9ed418ddc3552a34068c, type: 2}
-  - {fileID: 11400000, guid: 2b64f1cae0bfba14c96697f52bf738be, type: 2}
-  - {fileID: 11400000, guid: 342ceb7217fdff342bd8d107cf90b5c4, type: 2}
-  dropChance: 0.8
---- !u!114 &5140739591568044897
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9220602278224278444}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da8b2479be5291e4197dc0745ab95677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  defaultFlashColor: {r: 1, g: 1, b: 1, a: 1}
-  defaultDuration: 0.15
-  flashCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  m_Radius: 0.28

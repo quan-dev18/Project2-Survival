@@ -15,7 +15,7 @@ public class Spirit : MonoBehaviour
     [SerializeField] private int pierce = 3;
     
     [Header("Holy Upgrades")]
-    [SerializeField] private float healPerSecond = 5f;
+    [SerializeField] private float healPerSecond = 2f;
     [SerializeField] private float burnDuration = 3f;
     [SerializeField] private float empoweredDamagePercent = 0.15f; // 15%
     [SerializeField] private int empoweredExtraProjectiles = 1;
@@ -78,7 +78,6 @@ public class Spirit : MonoBehaviour
 
     public void ApplySynergyMultipliers(float damageMultiplier, float aspdMultiplier)
     {
-        Debug.Log($"[Spirit] ApplySynergyMultipliers: dmg={damageMultiplier}, aspd={aspdMultiplier}");
         synergyDamageMultiplier = damageMultiplier;
         synergyAspdMultiplier = aspdMultiplier;
     }
@@ -123,9 +122,10 @@ public class Spirit : MonoBehaviour
         Vector2 aimDir = FindNearestEnemyDirection(out Transform targetEnemy);
         if (aimDir == Vector2.zero) return;
         
-        // Rotate spirit to face aim direction
+        // Rotate only firePart, not the whole summon
         float aimAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, aimAngle);
+        if (firePoint != null && firePoint != transform)
+            firePoint.rotation = Quaternion.Euler(0, 0, aimAngle);
         
         int currentProjectileCount = projectileCount + (empoweredEnabled ? empoweredExtraProjectiles : 0);
         float currentSpread = spread + (empoweredEnabled ? empoweredExtraSpread : 0f);
@@ -138,8 +138,6 @@ public class Spirit : MonoBehaviour
         
         // Apply synergy to fire rate
         float currentFireRate = fireRate * safeAspdMultiplier;
-        
-        Debug.Log($"[Spirit] Fire: empowered={empoweredEnabled}, synergyDmg={synergyDamageMultiplier:F2}, safeDmg={safeDamageMultiplier:F2}, finalMult={damageMultiplier:F2}");
         
         for (int i = 0; i < currentProjectileCount; i++)
         {
@@ -154,8 +152,9 @@ public class Spirit : MonoBehaviour
             
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
-                bullet.Init(fireDir, transform.root, attackRange,
-                    pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0f, 0, null);
+                Transform bulletOwner = playerTransform != null ? playerTransform : transform.root;
+                bullet.Init(fireDir, bulletOwner,
+                    pierce, 1f, damageMultiplier, 0f, 1f, 1f, false, 0f, 0, null);
             }
         }
         
@@ -175,10 +174,12 @@ public class Spirit : MonoBehaviour
         if (activeBurns.ContainsKey(enemy))
         {
             activeBurns[enemy] = burnDuration;
+            enemy.ShowBurnVFX(burnDuration);
             yield break;
         }
         
         activeBurns[enemy] = burnDuration;
+        enemy.ShowBurnVFX(burnDuration);
         
         float timer = 0f;
         float tickInterval = 1f; // ~6 ticks per second = 6 dmg/s

@@ -7,9 +7,11 @@ public class UIManager : MonoBehaviour
     [Header("HP")]
     [SerializeField] private Image healthFill;
     [SerializeField] private TMP_Text currentHPText;
+    [SerializeField] private float hpLerpSpeed = 5f;
 
     [Header("EXP")]
     [SerializeField] private Image expFill;
+    [SerializeField] private float expLerpSpeed = 5f;
 
     [Header("Level")]
     [SerializeField] private TMP_Text currentLevelText;
@@ -22,6 +24,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private PausePanel pausePanel;
 
     private PlayerStats playerStats;
+    private float targetHPFill;
+    private float targetExpFill;
 
     private void Awake()
     {
@@ -40,9 +44,11 @@ public class UIManager : MonoBehaviour
             UpdateHealthUI(playerStats.CurrentHealth, playerStats.MaxHealth);
         }
 
-        if (PlayerXP.Instance != null)
+        var xp = PlayerXP.Instance != null ? PlayerXP.Instance : FindObjectOfType<PlayerXP>();
+        if (xp != null)
         {
-            PlayerXP.Instance.OnLevelUp += OnLevelUp;
+            xp.OnLevelUp += OnLevelUp;
+            xp.OnXPChanged += UpdateExpBar;
             UpdateExpBar();
             UpdateLevelText();
         }
@@ -59,8 +65,12 @@ public class UIManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (PlayerXP.Instance != null)
-            PlayerXP.Instance.OnLevelUp -= OnLevelUp;
+        var xp = PlayerXP.Instance != null ? PlayerXP.Instance : FindObjectOfType<PlayerXP>();
+        if (xp != null)
+        {
+            xp.OnLevelUp -= OnLevelUp;
+            xp.OnXPChanged -= UpdateExpBar;
+        }
         if (playerStats != null)
             playerStats.OnHealthChanged -= UpdateHealthUI;
         GameManager.OnStateChanged -= OnGameStateChanged;
@@ -68,19 +78,22 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        UpdateExpBar();
+        if (healthFill != null)
+            healthFill.fillAmount = Mathf.Lerp(healthFill.fillAmount, targetHPFill, Time.deltaTime * hpLerpSpeed);
+        if (expFill != null)
+            expFill.fillAmount = Mathf.Lerp(expFill.fillAmount, targetExpFill, Time.deltaTime * expLerpSpeed);
     }
 
     private void UpdateExpBar()
     {
-        if (expFill != null && PlayerXP.Instance != null)
-            expFill.fillAmount = (float)PlayerXP.Instance.CurrentXP / PlayerXP.Instance.XPToNextLevel;
+        if (PlayerXP.Instance != null)
+            targetExpFill = (float)PlayerXP.Instance.CurrentXP / PlayerXP.Instance.XPToNextLevel;
     }
 
     private void UpdateHealthUI(float current, float max)
     {
-        if (healthFill != null)
-            healthFill.fillAmount = current / max;
+        if (max > 0f)
+            targetHPFill = current / max;
         if (currentHPText != null)
             currentHPText.text = $"{Mathf.CeilToInt(current)}/{Mathf.CeilToInt(max)}";
     }

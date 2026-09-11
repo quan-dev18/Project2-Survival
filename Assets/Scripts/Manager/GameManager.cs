@@ -20,19 +20,17 @@ public class GameManager : MonoBehaviour
     public GameState CurrentState => currentState;
 
     public bool IsWin { get; private set; }
-
     public float TotalElapsedTime { get; private set; }
     public int KillCount { get; private set; }
     public event Action<int> OnKillCountChanged;
 
     public void SetIsWin(bool value) => IsWin = value;
+    [SerializeField] private GameOverPanel panel;
     public void AddKill()
     {
         KillCount++;
         OnKillCountChanged?.Invoke(KillCount);
     }
-
-    [SerializeField] private GameOverPanel panel;
 
     private void Awake()
     {
@@ -66,7 +64,11 @@ public class GameManager : MonoBehaviour
         Time.timeScale = currentState == GameState.Playing ? 1f : 0f;
 
         if (currentState == GameState.Playing)
+        {
             IsWin = false;
+            if (UserData.Instance != null)
+                UserData.Instance.ResetSessionGold();
+        }
 
         if (currentState == GameState.GameOver)
         {
