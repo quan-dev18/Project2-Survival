@@ -74,7 +74,9 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
         StopFlash();
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log($"[Bomb] Explode at {transform.position}, radius={explosionRadius}, hits={hits.Length}");
+#endif
 
         foreach (Collider2D hit in hits)
         {
@@ -82,8 +84,6 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
 
             IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
             if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
-
-            Debug.Log($"[Bomb] Hit: {hit.name}, layer={LayerMask.LayerToName(hit.gameObject.layer)}, hasCollider={hit != null}, hasIDamageable={dmg != null}");
 
             if (dmg != null)
                 dmg.TakeDamage(explosionDamage);

@@ -9,16 +9,25 @@ public class MapController : MonoBehaviour
     [SerializeField] private float checkerRadius;
     public GameObject currentChunk;
     Vector3 noTerrainChunk;
-    public LayerMask terrainLayer;
+    [SerializeField] private LayerMask terrainLayer;
     PlayerMovement playerMovement;
 
     [Header("Optimization")]
-    public List<GameObject> SpawnedChunks;
+    [SerializeField] private List<GameObject> SpawnedChunks;
     GameObject lastChunk;
-    public float maxDistace; //must be greater than the length of the chunk
+    [SerializeField] private float maxDistace; //must be greater than the length of the chunk
     float OpDistance;
     float OptimizerCooldown;
-    public float OptimizerCooldownDuration;
+    [SerializeField] private float OptimizerCooldownDuration;
+
+    private static readonly string[] s_DirRight = { "Right", "RightUp", "RightDown" };
+    private static readonly string[] s_DirRightUp = { "RightUp", "Right", "Up" };
+    private static readonly string[] s_DirUp = { "Up", "RightUp", "LeftUp" };
+    private static readonly string[] s_DirLeftUp = { "LeftUp", "Up", "Left" };
+    private static readonly string[] s_DirLeft = { "Left", "LeftUp", "LeftDown" };
+    private static readonly string[] s_DirLeftDown = { "LeftDown", "Left", "Down" };
+    private static readonly string[] s_DirDown = { "Down", "LeftDown", "RightDown" };
+    private static readonly string[] s_DirRightDown = { "RightDown", "Down", "Right" };
 
     void Start()
     {
@@ -40,10 +49,10 @@ public class MapController : MonoBehaviour
         Vector2 input = playerMovement.movementInput;
         if (input.sqrMagnitude < 0.01f) return;
 
-        List<string> directions = GetChunkDirections(input);
-        foreach(string dir in directions)
+        string[] directions = GetChunkDirections(input);
+        for (int d = 0; d < directions.Length; d++)
         {
-            Transform spawnPoint = currentChunk.transform.Find(dir);
+            Transform spawnPoint = currentChunk.transform.Find(directions[d]);
             if (spawnPoint != null &&
                 !Physics2D.OverlapCircle(spawnPoint.position, checkerRadius, terrainLayer))
             {
@@ -53,26 +62,19 @@ public class MapController : MonoBehaviour
         }
     }
 
-    List<string> GetChunkDirections(Vector2 input)
+    string[] GetChunkDirections(Vector2 input)
     {
         float angle = Mathf.Atan2(input.y, input.x) * Mathf.Rad2Deg;
         if (angle < 0f) angle += 360f;
 
-        if (angle < 22.5f || angle >= 337.5f)
-            return new List<string> { "Right", "RightUp", "RightDown" };
-        if (angle < 67.5f)
-            return new List<string> { "RightUp", "Right", "Up" };
-        if (angle < 112.5f)
-            return new List<string> { "Up", "RightUp", "LeftUp" };
-        if (angle < 157.5f)
-            return new List<string> { "LeftUp", "Up", "Left" };
-        if (angle < 202.5f)
-            return new List<string> { "Left", "LeftUp", "LeftDown" };
-        if (angle < 247.5f)
-            return new List<string> { "LeftDown", "Left", "Down" };
-        if (angle < 292.5f)
-            return new List<string> { "Down", "LeftDown", "RightDown" };
-        return new List<string> { "RightDown", "Down", "Right" };
+        if (angle < 22.5f || angle >= 337.5f) return s_DirRight;
+        if (angle < 67.5f) return s_DirRightUp;
+        if (angle < 112.5f) return s_DirUp;
+        if (angle < 157.5f) return s_DirLeftUp;
+        if (angle < 202.5f) return s_DirLeft;
+        if (angle < 247.5f) return s_DirLeftDown;
+        if (angle < 292.5f) return s_DirDown;
+        return s_DirRightDown;
     }
     void SpawnChunk()
     {

@@ -18,6 +18,8 @@ public class PlayerXP : MonoBehaviour
     public float AmmoRecoverChance { get; private set; }
     public float FireRateBuffOnXPChance { get; private set; }
 
+    private static readonly WaitForSeconds s_WaitOneSecond = new WaitForSeconds(1f);
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -74,7 +76,9 @@ public class PlayerXP : MonoBehaviour
             // Phát tiếng lên cấp (clip cấu hình trong AudioManager).
             AudioManager.Instance?.PlayLevelUp();
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.Log($"Level up! Now level {CurrentLevel}");
+#endif
             if (GameManager.Instance != null)
                 GameManager.Instance.SetState(GameState.LevelUp);
         }
@@ -86,7 +90,7 @@ public class PlayerXP : MonoBehaviour
 
     private System.Collections.IEnumerator RemoveFireRateBuff()
     {
-        yield return new WaitForSeconds(1f);
+        yield return s_WaitOneSecond;
         var weapons = Weapons;
         if (weapons != null)
             foreach (var w in weapons)

@@ -44,7 +44,9 @@ public class SynergyManager : MonoBehaviour
         if (!ownedMaxLevelUpgrades.Contains(upgradeName))
         {
             ownedMaxLevelUpgrades.Add(upgradeName);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.Log($"[Synergy] Registered max-level upgrade: '{upgradeName}'");
+#endif
             CheckSynergies();
         }
     }
@@ -89,7 +91,9 @@ public class SynergyManager : MonoBehaviour
     {
         if (spreadshooterActive == active) return;
         spreadshooterActive = active;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log($"[Synergy] Spreadshooter {(active ? "ACTIVATED" : "DEACTIVATED")}");
+#endif
         ApplyToAllWeapons(w =>
         {
             w.AddReloadSpeedPercent(active ? 0.69f : -0.69f);
@@ -104,7 +108,9 @@ public class SynergyManager : MonoBehaviour
     {
         if (gunMasteryActive == active) return;
         gunMasteryActive = active;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log($"[Synergy] Gun Mastery {(active ? "ACTIVATED" : "DEACTIVATED")}");
+#endif
         ApplyToAllWeapons(w =>
         {
             w.AddBulletDamagePercent(active ? 0.30f : -0.30f);
@@ -121,7 +127,9 @@ public class SynergyManager : MonoBehaviour
     {
         if (summonMasteryActive == active) return;
         summonMasteryActive = active;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log($"[Synergy] Summon Mastery {(active ? "ACTIVATED" : "DEACTIVATED")} - passing multipliers: {(active ? 1.35f : 1f)}");
+#endif
         ApplyToAllWeapons(w => w.AddBulletDamagePercent(active ? -0.35f : 0.35f));
         
         Spirit[] spirits = FindObjectsByType<Spirit>(FindObjectsSortMode.None);
@@ -139,7 +147,9 @@ public class SynergyManager : MonoBehaviour
     {
         if (gottaGoFastActive == active) return;
         gottaGoFastActive = active;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log($"[Synergy] Gotta Go Fast {(active ? "ACTIVATED" : "DEACTIVATED")}");
+#endif
         if (!active)
         {
             ApplyToAllWeapons(w =>
@@ -158,7 +168,9 @@ public class SynergyManager : MonoBehaviour
     {
         if (fatActive == active) return;
         fatActive = active;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log($"[Synergy] Fat {(active ? "ACTIVATED" : "DEACTIVATED")}");
+#endif
         if (playerStats != null)
         {
             playerStats.AddMaxHealthFlat(active ? 100f : -100f);

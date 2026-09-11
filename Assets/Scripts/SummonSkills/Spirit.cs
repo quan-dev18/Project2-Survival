@@ -34,11 +34,13 @@ public class Spirit : MonoBehaviour
     [SerializeField] private Transform firePoint;
     
     private Transform playerTransform;
+    private PlayerStats cachedPlayerStats;
     private float currentAngle;
     private float fireTimer;
     
     // Track active burns to refresh duration instead of stacking
     private static Dictionary<EnemyHealth, float> activeBurns = new Dictionary<EnemyHealth, float>();
+    private static readonly Collider2D[] s_EnemyOverlapBuffer = new Collider2D[32];
     
     private void Awake()
     {
@@ -67,6 +69,7 @@ public class Spirit : MonoBehaviour
     public void Initialize(Transform player)
     {
         playerTransform = player;
+        cachedPlayerStats = player != null ? player.GetComponent<PlayerStats>() : null;
         transform.position = player.position + Vector3.up * orbitRadius;
         currentAngle = 90f;
         fireTimer = 0f;
@@ -95,12 +98,11 @@ public class Spirit : MonoBehaviour
         transform.position = (Vector2)playerTransform.position + orbitPos;
         
         // Holy Heal: regenerate player HP
-        if (holyHealEnabled && playerTransform != null)
+        if (holyHealEnabled && cachedPlayerStats != null)
         {
-            PlayerStats playerStats = playerTransform.GetComponent<PlayerStats>();
-            if (playerStats != null && playerStats.CurrentHealth < playerStats.MaxHealth)
+            if (cachedPlayerStats.CurrentHealth < cachedPlayerStats.MaxHealth)
             {
-                playerStats.Heal(healPerSecond * Time.deltaTime);
+                cachedPlayerStats.Heal(healPerSecond * Time.deltaTime);
             }
         }
         
@@ -208,11 +210,12 @@ public class Spirit : MonoBehaviour
         nearestEnemy = null;
         if (playerTransform == null) return Vector2.zero;
         
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRange);
+        int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, attackRange, s_EnemyOverlapBuffer);
         float closestDist = float.MaxValue;
         
-        foreach (Collider2D hit in hits)
+        for (int i = 0; i < hitCount; i++)
         {
+            Collider2D hit = s_EnemyOverlapBuffer[i];
             if (hit.transform.IsChildOf(playerTransform)) continue;
             EnemyHealth enemy = hit.GetComponentInChildren<EnemyHealth>();
             if (enemy == null) enemy = hit.GetComponentInParent<EnemyHealth>();

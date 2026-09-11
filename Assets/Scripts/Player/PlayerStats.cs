@@ -213,14 +213,14 @@ public class PlayerStats : MonoBehaviour
             {
                 burnAuraTimer = 0f;
                 float chance = 0.2f + MoveSpeed * 0.03f;
-                Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 4f);
-                foreach (Collider2D hit in hits)
+                int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 4f, s_BurnAuraBuffer);
+                for (int i = 0; i < hitCount; i++)
                 {
-                    EnemyHealth enemy = hit.GetComponentInChildren<EnemyHealth>();
-                    if (enemy == null) enemy = hit.GetComponentInParent<EnemyHealth>();
+                    EnemyHealth enemy = s_BurnAuraBuffer[i].GetComponentInChildren<EnemyHealth>();
+                    if (enemy == null) enemy = s_BurnAuraBuffer[i].GetComponentInParent<EnemyHealth>();
                     if (enemy != null && UnityEngine.Random.value < chance)
                     {
-                        enemy.TakeDamage(5f); // burn tick damage
+                        enemy.TakeDamage(5f);
                         enemy.ShowBurnVFX(1f);
                     }
                 }
@@ -468,6 +468,8 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Passive Heal")]
     [SerializeField] private float passiveHealPerSecond = 1f;
+
+    private static readonly Collider2D[] s_BurnAuraBuffer = new Collider2D[32];
 
     private void RegenOverTime()
     {

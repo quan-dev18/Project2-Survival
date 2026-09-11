@@ -88,8 +88,7 @@ public class PlayerEquipment : MonoBehaviour
 
         foreach (Transform child in meshesContainer)
         {
-            if (child.gameObject.activeSelf || !child.gameObject.activeSelf)
-                characterMeshes.Add(child.gameObject);
+            characterMeshes.Add(child.gameObject);
         }
     }
 
