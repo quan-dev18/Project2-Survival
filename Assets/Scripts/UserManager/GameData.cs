@@ -20,7 +20,7 @@ public class GameData
     public GameData()
     {
         version = 1;
-        playerGold = 9999;
+        playerGold = 99999;
         selectedHeroIndex = 0;
         selectedWeaponIndex = 0;
         unlockedHeroes = new bool[0];

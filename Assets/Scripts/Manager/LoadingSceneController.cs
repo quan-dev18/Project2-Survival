@@ -9,7 +9,7 @@ public class LoadingSceneController : MonoBehaviour
     public static string targetScene;
 
     [SerializeField] private Image progressBar;
-    [SerializeField] private TMP_Text loadingText;
+    [SerializeField] private float lerpDuration = 1f;
 
     private void Start()
     {
@@ -26,21 +26,22 @@ public class LoadingSceneController : MonoBehaviour
         AsyncOperation operation = SceneManager.LoadSceneAsync(targetScene);
         operation.allowSceneActivation = false;
 
-        float progress = 0f;
+        float elapsed = 0f;
 
-        while (!operation.isDone)
+        while (elapsed < lerpDuration)
         {
-            progress = Mathf.MoveTowards(progress, operation.progress, Time.deltaTime);
-            UpdateUI(progress);
-
-            if (operation.progress >= 0.9f)
-            {
-                UpdateUI(1f);
-                operation.allowSceneActivation = true;
-            }
-
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / lerpDuration);
+            float smoothT = t * t * (3f - 2f * t);
+            UpdateUI(smoothT);
             yield return null;
         }
+
+        UpdateUI(1f);
+
+        yield return new WaitForSeconds(0.5f);
+
+        operation.allowSceneActivation = true;
     }
 
     private void UpdateUI(float progress)
@@ -48,7 +49,5 @@ public class LoadingSceneController : MonoBehaviour
         if (progressBar != null)
             progressBar.fillAmount = progress;
 
-        if (loadingText != null)
-            loadingText.text = $"Loading... {Mathf.RoundToInt(progress * 100)}%";
     }
 }

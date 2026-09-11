@@ -20,7 +20,7 @@ MonoBehaviour:
   statsIncrementInterval: 60
   phases:
   - phaseName: I
-    duration: 1
+    duration: 30
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 1

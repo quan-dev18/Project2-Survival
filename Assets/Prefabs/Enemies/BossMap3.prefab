@@ -292,6 +292,7 @@ MonoBehaviour:
   offScreenSpeedMultiplier: 3
   checkInterval: 0.3
   viewportMargin: 0.1
+  activeDistance: 12
 --- !u!114 &5454965169828130718
 MonoBehaviour:
   m_ObjectHideFlags: 0

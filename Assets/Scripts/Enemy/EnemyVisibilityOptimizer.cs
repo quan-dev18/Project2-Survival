@@ -11,6 +11,7 @@ public class EnemyVisibilityOptimizer : MonoBehaviour
     [SerializeField] private float offScreenSpeedMultiplier = 3f;
     [SerializeField] private float checkInterval = 0.3f;
     [SerializeField] private float viewportMargin = 0.1f;
+    [SerializeField] private float activeDistance = 15f;
 
     private Camera mainCam;
     private float checkTimer;
@@ -43,6 +44,12 @@ public class EnemyVisibilityOptimizer : MonoBehaviour
         Vector3 viewportPos = mainCam.WorldToViewportPoint(transform.position);
         bool visible = viewportPos.x > -viewportMargin && viewportPos.x < 1f + viewportMargin
                     && viewportPos.y > -viewportMargin && viewportPos.y < 1f + viewportMargin;
+
+        if (!visible)
+        {
+            float dist = Vector3.Distance(mainCam.transform.position, transform.position);
+            visible = dist <= activeDistance;
+        }
 
         if (visible == isOnScreen) return;
         isOnScreen = visible;

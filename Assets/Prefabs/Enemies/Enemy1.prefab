@@ -334,6 +334,7 @@ MonoBehaviour:
   offScreenSpeedMultiplier: 3
   checkInterval: 0.3
   viewportMargin: 0.1
+  activeDistance: 12
 --- !u!1 &3925370710927403832
 GameObject:
   m_ObjectHideFlags: 0

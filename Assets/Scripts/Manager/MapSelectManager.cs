@@ -295,7 +295,8 @@ public class MapSelectionManager : MonoBehaviour
         string sceneName = mapList[currentIndex].sceneToLoad;
         if (!string.IsNullOrEmpty(sceneName))
         {
-            SceneManager.LoadScene(sceneName);
+            LoadingSceneController.targetScene = sceneName;
+            SceneManager.LoadScene("LoadingScene");
         }
     }
 }

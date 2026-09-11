@@ -363,6 +363,7 @@ MonoBehaviour:
   offScreenSpeedMultiplier: 3
   checkInterval: 0.3
   viewportMargin: 0.1
+  activeDistance: 12
 --- !u!58 &7992863359551024003
 CircleCollider2D:
   m_ObjectHideFlags: 0

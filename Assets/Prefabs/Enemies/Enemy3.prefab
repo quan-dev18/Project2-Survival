@@ -365,3 +365,4 @@ MonoBehaviour:
   offScreenSpeedMultiplier: 3
   checkInterval: 0.3
   viewportMargin: 0.1
+  activeDistance: 12
