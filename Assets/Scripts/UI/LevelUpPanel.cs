@@ -429,6 +429,18 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.SpiritEmpowered:
                 playerStats?.AddSpiritEmpowered(pct);
                 break;
+            case UpgradeType.TC_1:
+                playerStats?.AddTC1(amount);
+                break;
+            case UpgradeType.TC_2A:
+                playerStats?.AddTC2A(amount);
+                break;
+            case UpgradeType.TC_2B:
+                playerStats?.AddTC2B(amount);
+                break;
+            case UpgradeType.TC_3:
+                playerStats?.AddTC3(amount);
+                break;
             case UpgradeType.GoldGainPercent:
                 playerStats?.AddGoldGainPercent(pct);
                 break;
@@ -586,6 +598,18 @@ public class LevelUpPanel : MonoBehaviour
                 break;
             case UpgradeType.SpiritEmpowered:
                 ps?.AddSpiritEmpowered(pct);
+                break;
+            case UpgradeType.TC_1:
+                ps?.AddTC1(amount);
+                break;
+            case UpgradeType.TC_2A:
+                ps?.AddTC2A(amount);
+                break;
+            case UpgradeType.TC_2B:
+                ps?.AddTC2B(amount);
+                break;
+            case UpgradeType.TC_3:
+                ps?.AddTC3(amount);
                 break;
             case UpgradeType.GoldGainPercent:
                 ps?.AddGoldGainPercent(pct);

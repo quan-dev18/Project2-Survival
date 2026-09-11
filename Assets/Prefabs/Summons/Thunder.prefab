@@ -4836,7 +4836,7 @@ GameObject:
   - component: {fileID: 8565797727684349109}
   - component: {fileID: 1759133314100129123}
   m_Layer: 0
-  m_Name: Square
+  m_Name: Target
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9709,7 +9709,7 @@ ParticleSystemRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 568925103
   m_SortingLayer: 8
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_RenderMode: 5
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -9753,7 +9753,7 @@ GameObject:
   - component: {fileID: 8676172141453363679}
   - component: {fileID: 298361008291538916}
   m_Layer: 0
-  m_Name: Triangle
+  m_Name: Cloud
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9794,7 +9794,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 8db5e4fd26fed3b4fa58bcaf95dc6772, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9815,8 +9815,8 @@ SpriteRenderer:
   m_SortingLayerID: 568925103
   m_SortingLayer: 8
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 311fe53dbbde9654cbeb8d31c65e02ae, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: c0e3f13f0c8e5da4485873e38d3538da, type: 3}
+  m_Color: {r: 0.4867924, g: 0.4867924, b: 0.4867924, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -9835,6 +9835,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4913310668635157227}
+  - component: {fileID: 4599245873635833943}
+  - component: {fileID: 2861450650851949108}
   m_Layer: 0
   m_Name: Thunder
   m_TagString: Untagged
@@ -9860,3 +9862,51 @@ Transform:
   - {fileID: 8676172141453363679}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4599245873635833943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9222369938857968251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f139ea9c5a3af6d408579df64c8e49c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  vfxTarget: {fileID: 8565797727684349109}
+  cloudVFX: {fileID: 8510376082603656333}
+  lightningVFX: {fileID: 5928924080982583698}
+  strikeRange: 4
+  strikeDamage: 30
+  strikeInterval: 5
+  fieldRadius: 2
+  fieldDps: 6
+  burnDps: 5
+  burnDuration: 3
+  startEnabledForTest: 0
+--- !u!114 &2861450650851949108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9222369938857968251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f139ea9c5a3af6d408579df64c8e49c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  vfxTarget: {fileID: 0}
+  cloudVFX: {fileID: 0}
+  lightningVFX: {fileID: 0}
+  strikeRange: 4
+  strikeDamage: 30
+  strikeInterval: 5
+  fieldRadius: 2
+  fieldDps: 6
+  burnDps: 5
+  burnDuration: 3
+  startEnabledForTest: 0

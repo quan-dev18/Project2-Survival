@@ -80,5 +80,9 @@ FreeShotChanceWhileStill,
     CharacterSizePercent,
     DamageTakenFireRatePercent,
     DamageTakenBulletDamagePercent,
-    GoldGainPercent
+    GoldGainPercent,
+    TC_1,
+    TC_2A,
+    TC_2B,
+    TC_3
 }

@@ -7,6 +7,10 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     [SerializeField] private EnemyMovement enemyMovement;
     [SerializeField] private Animator _animator;
     [SerializeField] private float deathFallbackDelay = 2f;
+    [Header("Burn VFX")]
+    [SerializeField] private GameObject burnVFXPrefab;
+    private GameObject activeBurnVFX;
+    private Coroutine burnVFXRoutine;
 
     private Coroutine deathWatchdog;
     private GameObject pooledRoot;
@@ -63,6 +67,16 @@ public class EnemyHealth : MonoBehaviour, IDamageable
             StopCoroutine(deathWatchdog);
             deathWatchdog = null;
         }
+        if (burnVFXRoutine != null)
+        {
+            StopCoroutine(burnVFXRoutine);
+            burnVFXRoutine = null;
+        }
+        if (activeBurnVFX != null)
+        {
+            Destroy(activeBurnVFX);
+            activeBurnVFX = null;
+        }
     }
 
     public void TakeDamage(float amount)
@@ -101,6 +115,9 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         Collider2D col = GetComponentInParent<Collider2D>();
         if (col != null) col.enabled = false;
         _animator.SetBool("isDead",true);
+        // Hide burn VFX on death
+        if (burnVFXRoutine != null) { StopCoroutine(burnVFXRoutine); burnVFXRoutine = null; }
+        if (activeBurnVFX != null) { Destroy(activeBurnVFX); activeBurnVFX = null; }
         deathWatchdog = StartCoroutine(DeathWatchdog());
     }
 
@@ -134,6 +151,57 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     {
         if (enemyMovement != null)
             enemyMovement.ResetAttack();
+    }
+
+    public void ShowBurnVFX(float duration)
+    {
+        if (burnVFXPrefab == null)
+        {
+            // Fallback: try to load Burn prefab from quandev folder
+            burnVFXPrefab = Resources.Load<GameObject>("Burn");
+            if (burnVFXPrefab == null)
+                burnVFXPrefab = UnityEngine.Resources.Load<GameObject>("quandev/Burn");
+            if (burnVFXPrefab == null) return;
+        }
+        if (activeBurnVFX != null)
+        {
+            if (burnVFXRoutine != null) StopCoroutine(burnVFXRoutine);
+        }
+        else
+        {
+            activeBurnVFX = Instantiate(burnVFXPrefab, transform);
+            activeBurnVFX.transform.localPosition = Vector3.zero;
+            activeBurnVFX.transform.localRotation = Quaternion.identity;
+            activeBurnVFX.transform.localScale = Vector3.one;
+        }
+        // Ensure VFX actually plays
+        activeBurnVFX.SetActive(true);
+        foreach (var ps in activeBurnVFX.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            var rend = ps.GetComponent<ParticleSystemRenderer>();
+            if (rend != null)
+            {
+                rend.sortingLayerName = "Enemy";
+                rend.sortingOrder = 10;
+            }
+            ps.Clear(true);
+            ps.Play(true);
+        }
+        foreach (var anim in activeBurnVFX.GetComponentsInChildren<Animator>(true))
+        {
+            anim.enabled = true;
+            anim.Rebind();
+            anim.Update(0f);
+        }
+        burnVFXRoutine = StartCoroutine(BurnVFXTimer(duration));
+    }
+
+    private IEnumerator BurnVFXTimer(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        if (activeBurnVFX != null) Destroy(activeBurnVFX);
+        activeBurnVFX = null;
+        burnVFXRoutine = null;
     }
 
 
