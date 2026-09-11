@@ -102,6 +102,8 @@ public class FlamethrowerController : MonoBehaviour
     public int MagazineSize => magazineSize;
     public float ReloadProgress => isReloading ? 1f - (reloadTimer / reloadTime) : 1f;
 
+    private static readonly Collider2D[] s_ConeOverlapBuffer = new Collider2D[32];
+
     private void Awake()
     {
         baseFireRate = weaponStats != null ? weaponStats.FireRate : 0.1f;
@@ -213,11 +215,11 @@ public class FlamethrowerController : MonoBehaviour
         Vector2 barrelDir = (transform.rotation * weaponFront.localPosition).normalized;
         float range = fireRange;
 
-        // Use OverlapCircle for broadphase then angle check
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, range, enemyMask);
+        int hitCount = Physics2D.OverlapCircleNonAlloc(origin, range, s_ConeOverlapBuffer, enemyMask);
         float halfAngle = coneAngle * 0.5f;
-        foreach (var hit in hits)
+        for (int i = 0; i < hitCount; i++)
         {
+            var hit = s_ConeOverlapBuffer[i];
             if (hit == null) continue;
             if (transform.root != null && hit.transform.IsChildOf(transform.root)) continue;
             if (hit.GetComponentInParent<PlayerStats>() != null) continue;
@@ -232,13 +234,9 @@ public class FlamethrowerController : MonoBehaviour
             if (dmg == null) dmg = hit.GetComponentInChildren<IDamageable>();
             if (dmg == null) continue;
 
-            float baseDmg = useWeaponDamage && weaponStats != null ? weaponStats.FireRate : damagePerTick; // fallback
-            // Actually weapon damage is not FireRate; use damagePerTick scaled by bullet damage bonuses
-            float finalDamage = (useWeaponDamage ? damagePerTick : damagePerTick) * (1f + bonusBulletDamagePercent);
-            // Apply execute-like? For flamethrower, respect bulletExecute / knockback on each tick
+            float finalDamage = damagePerTick * (1f + bonusBulletDamagePercent);
             dmg.TakeDamage(finalDamage);
 
-            // Execute check (20% etc) on each tick
             if (bonusBulletExecutePercent > 0f && dmg is EnemyHealth eh && eh.CurrentHealth > 0f && eh.CurrentHealth <= eh.MaxHealth * bonusBulletExecutePercent)
                 dmg.TakeDamage(eh.CurrentHealth);
 
@@ -246,13 +244,6 @@ public class FlamethrowerController : MonoBehaviour
             if (kb == null) kb = hit.GetComponent<IKnockbackable>();
             if (kb != null) kb.ApplyKnockback(barrelDir, 3f * (1f + bonusBulletKnockbackPercent));
 
-            if (bonusBulletInfinitePierceOnKill || bonusBulletExplosionDamagePercent > 0f) { /* handled per tick via direct dmg */ }
-
-            // Kill stack for reload speed (flamethrower kills count)
-            // We can't know if this tick killed, so we let Bullet's onKill handle? For flamethrower, we approximate via wouldKill check
-            // Instead rely on enemy death event - but for now, if enemy died from this tick, increment
-            // (EnemyHealth will die and spawner counts kill, but for reload stack we need explicit)
-            // Use simple heuristic: if dmg is EnemyHealth and it died, AddKillStack
             if (dmg is EnemyHealth eh2 && eh2.CurrentHealth <= 0f)
                 AddKillStack();
         }
@@ -260,11 +251,11 @@ public class FlamethrowerController : MonoBehaviour
 
     private void FireBackShot()
     {
-        // Flamethrower back shot: short opposite cone burst
         Vector2 backDir = -(Vector2)(transform.rotation * weaponFront.localPosition).normalized;
-        Collider2D[] hits = Physics2D.OverlapCircleAll(weaponFront.position, fireRange, enemyMask);
-        foreach (var hit in hits)
+        int hitCount = Physics2D.OverlapCircleNonAlloc(weaponFront.position, fireRange, s_ConeOverlapBuffer, enemyMask);
+        for (int i = 0; i < hitCount; i++)
         {
+            var hit = s_ConeOverlapBuffer[i];
             Vector2 toEnemy = (Vector2)hit.transform.position - (Vector2)weaponFront.position;
             if (Vector2.Angle(backDir, toEnemy.normalized) > coneAngle * 0.5f) continue;
             var dmg = hit.GetComponentInParent<IDamageable>();
@@ -275,15 +266,12 @@ public class FlamethrowerController : MonoBehaviour
 
     private void FireLastAmmoBurst()
     {
-        // Reuse WeaponController's circle burst but simplified
         for (int i = 0; i < 10; i++)
         {
-            float angle = (360f / 10) * i;
-            Vector2 dir = Quaternion.Euler(0, 0, angle) * Vector2.right;
-            var hits = Physics2D.OverlapCircleAll(transform.position, 3f, enemyMask);
-            foreach (var h in hits)
+            int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 3f, s_ConeOverlapBuffer, enemyMask);
+            for (int j = 0; j < hitCount; j++)
             {
-                var dmg = h.GetComponentInParent<IDamageable>();
+                var dmg = s_ConeOverlapBuffer[j].GetComponentInParent<IDamageable>();
                 if (dmg != null) dmg.TakeDamage(5f);
             }
         }

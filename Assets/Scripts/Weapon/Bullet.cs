@@ -26,6 +26,8 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private TrailRenderer trail;
     private bool trailReady;
     private float trailOriginalTime;
+    private static readonly Collider2D[] s_BounceOverlapBuffer = new Collider2D[32];
+    private static readonly List<Transform> s_BounceValidTargets = new List<Transform>(16);
 
     public void Init(Vector2 dir, Transform owner, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, int bounceCount = 0, System.Action onKillCallback = null)
     {
@@ -232,34 +234,33 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         if (excludeDmg == null) excludeDmg = excludeTarget.GetComponentInChildren<IDamageable>();
         Transform excludeRoot = excludeDmg != null ? (excludeDmg as Component)?.transform : excludeTarget;
 
-        // Find all valid enemies in range
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 12f);
-        List<Transform> validTargets = new List<Transform>();
+        // Find all valid enemies in range (no GC alloc - uses static buffer)
+        int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 12f, s_BounceOverlapBuffer);
+        s_BounceValidTargets.Clear();
 
-        foreach (Collider2D hit in hits)
+        for (int i = 0; i < hitCount; i++)
         {
+            Collider2D hit = s_BounceOverlapBuffer[i];
             if (hit == null) continue;
             if (hit.transform.IsChildOf(owner)) continue;
             IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
             if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
             if (dmg == null) continue;
             if (dmg == excludeDmg) continue;
-            // Also skip if same root transform (handles child collider vs parent)
             Transform hitRoot = (dmg as Component)?.transform;
             if (hitRoot != null && excludeRoot != null && (hitRoot == excludeRoot || hitRoot.IsChildOf(excludeRoot) || excludeRoot.IsChildOf(hitRoot))) continue;
 
-            validTargets.Add(hit.transform);
+            s_BounceValidTargets.Add(hit.transform);
         }
 
-        if (validTargets.Count > 0)
+        if (s_BounceValidTargets.Count > 0)
         {
-            Transform newTarget = validTargets[UnityEngine.Random.Range(0, validTargets.Count)];
+            Transform newTarget = s_BounceValidTargets[UnityEngine.Random.Range(0, s_BounceValidTargets.Count)];
             direction = (newTarget.position - transform.position).normalized;
             transform.up = direction;
             bounceRemaining--;
             lastHit = null;
             lastHitTime = 0f;
-            // Nudge out of current collider to avoid immediate re-hit
             transform.position += (Vector3)(direction * 0.3f);
             return;
         }

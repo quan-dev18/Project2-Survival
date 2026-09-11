@@ -14,6 +14,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     private Coroutine deathWatchdog;
     private GameObject pooledRoot;
+    private static readonly WaitForSeconds s_WaitOneSecond = new WaitForSeconds(1f);
 
     public float CurrentHealth => enemyController.currentHealth;
 
@@ -155,14 +156,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     public void ShowBurnVFX(float duration)
     {
-        if (burnVFXPrefab == null)
-        {
-            // Fallback: try to load Burn prefab from quandev folder
-            burnVFXPrefab = Resources.Load<GameObject>("Burn");
-            if (burnVFXPrefab == null)
-                burnVFXPrefab = UnityEngine.Resources.Load<GameObject>("quandev/Burn");
-            if (burnVFXPrefab == null) return;
-        }
+        if (burnVFXPrefab == null) return;
         if (activeBurnVFX != null)
         {
             if (burnVFXRoutine != null) StopCoroutine(burnVFXRoutine);

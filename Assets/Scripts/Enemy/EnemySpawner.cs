@@ -282,7 +282,9 @@ public class EnemySpawner : MonoBehaviour
 
         if (bossPhaseActive ? bossesCleared : allEnemiesCleared)
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.Log("Stage cleared!");
+#endif
             if (GameManager.Instance != null)
             {
                 // Thắng stage (boss đã bị tiêu diệt) => đạt 100% tiến trình.
@@ -309,7 +311,9 @@ public class EnemySpawner : MonoBehaviour
 
     private void Lose()
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log("Timer ran out!");
+#endif
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetIsWin(false);

@@ -15,6 +15,7 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
 
     private Vector2 wanderDir;
     private float wanderTimer;
+    private static readonly Collider2D[] s_SeparationBuffer = new Collider2D[16];
 
     private void Awake()
     {
@@ -71,13 +72,13 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
     private Vector2 GetSeparation()
     {
         Vector2 push = Vector2.zero;
-        Collider2D[] neighbors = Physics2D.OverlapCircleAll(transform.position, separationRadius, enemyLayer);
+        int count = Physics2D.OverlapCircleNonAlloc(transform.position, separationRadius, s_SeparationBuffer, enemyLayer);
 
-        for (int i = 0; i < neighbors.Length; i++)
+        for (int i = 0; i < count; i++)
         {
-            if (neighbors[i].transform == transform) continue;
+            if (s_SeparationBuffer[i].transform == transform) continue;
 
-            Vector2 away = transform.position - neighbors[i].transform.position;
+            Vector2 away = transform.position - s_SeparationBuffer[i].transform.position;
             float dist = away.magnitude;
             if (dist > 0.01f && dist < separationRadius)
                 push += away / dist * (1f - dist / separationRadius);
