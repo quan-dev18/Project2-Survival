@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Thunder Cloud II
   description: The thunder cloud strikes can also inflict burn (5 dmg/s for 3s)
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: c0e3f13f0c8e5da4485873e38d3538da, type: 3}
   statMods:
   - stat: 46
     amount: 1

@@ -169,9 +169,9 @@ MonoBehaviour:
       isElite: 0
     circleWall:
       enabled: 1
-      startRadius: 40
-      endRadius: 20
-      shrinkDuration: 60
+      startRadius: 20
+      endRadius: 10
+      shrinkDuration: 25
       wallEnemyCount: 100
       wallEnemyKey: Enemy
       wallEnemyHP: 200
@@ -304,10 +304,10 @@ MonoBehaviour:
       isElite: 0
     circleWall:
       enabled: 1
-      startRadius: 60
-      endRadius: 40
-      shrinkDuration: 60
+      startRadius: 20
+      endRadius: 10
+      shrinkDuration: 25
       wallEnemyCount: 150
       wallEnemyKey: Enemy2
-      wallEnemyHP: 100
+      wallEnemyHP: 300
       wallEnemyDamage: 15

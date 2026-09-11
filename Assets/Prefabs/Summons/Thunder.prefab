@@ -9709,7 +9709,7 @@ ParticleSystemRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 568925103
   m_SortingLayer: 8
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_RenderMode: 5
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -9794,7 +9794,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 8db5e4fd26fed3b4fa58bcaf95dc6772, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9815,8 +9815,8 @@ SpriteRenderer:
   m_SortingLayerID: 568925103
   m_SortingLayer: 8
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 311fe53dbbde9654cbeb8d31c65e02ae, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: c0e3f13f0c8e5da4485873e38d3538da, type: 3}
+  m_Color: {r: 0.4867924, g: 0.4867924, b: 0.4867924, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -9883,6 +9883,9 @@ MonoBehaviour:
   strikeInterval: 5
   fieldRadius: 2
   fieldDps: 6
+  burnDps: 5
+  burnDuration: 3
+  startEnabledForTest: 0
 --- !u!114 &2861450650851949108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9904,3 +9907,6 @@ MonoBehaviour:
   strikeInterval: 5
   fieldRadius: 2
   fieldDps: 6
+  burnDps: 5
+  burnDuration: 3
+  startEnabledForTest: 0

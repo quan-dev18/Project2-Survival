@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: Stage4_SO
   m_EditorClassIdentifier: 
-  stageID: 4
+  stageID: 2
   maxProgress: 22
   attackIncrementPercent: 10
   speedIncrementPercent: 5
@@ -196,13 +196,13 @@ MonoBehaviour:
       isElite: 0
     circleWall:
       enabled: 1
-      startRadius: 60
-      endRadius: 30
-      shrinkDuration: 60
-      wallEnemyCount: 100
+      startRadius: 20
+      endRadius: 10
+      shrinkDuration: 25
+      wallEnemyCount: 150
       wallEnemyKey: Enemy3
-      wallEnemyHP: 250
-      wallEnemyDamage: 10
+      wallEnemyHP: 300
+      wallEnemyDamage: 15
   - phaseName: VIII
     duration: 60
     enemies:
@@ -381,13 +381,13 @@ MonoBehaviour:
       isElite: 0
     circleWall:
       enabled: 1
-      startRadius: 60
-      endRadius: 30
-      shrinkDuration: 60
-      wallEnemyCount: 100
+      startRadius: 20
+      endRadius: 10
+      shrinkDuration: 25
+      wallEnemyCount: 150
       wallEnemyKey: Enemy3
       wallEnemyHP: 300
-      wallEnemyDamage: 10
+      wallEnemyDamage: 15
   - phaseName: XVIII
     duration: 60
     enemies:
@@ -471,10 +471,10 @@ MonoBehaviour:
       isElite: 0
     circleWall:
       enabled: 1
-      startRadius: 60
-      endRadius: 40
-      shrinkDuration: 60
-      wallEnemyCount: 100
+      startRadius: 20
+      endRadius: 10
+      shrinkDuration: 25
+      wallEnemyCount: 150
       wallEnemyKey: Enemy3
       wallEnemyHP: 300
-      wallEnemyDamage: 10
+      wallEnemyDamage: 15
