@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: Stage4_SO
   m_EditorClassIdentifier: 
-  stageID: 2
+  stageID: 4
   maxProgress: 22
   attackIncrementPercent: 10
   speedIncrementPercent: 5
