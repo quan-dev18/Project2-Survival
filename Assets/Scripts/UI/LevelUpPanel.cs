@@ -43,6 +43,9 @@ public class LevelUpPanel : MonoBehaviour
     private readonly HashSet<UpgradeSO> ownedUpgrades = new HashSet<UpgradeSO>();
     private PlayerStats playerStats;
 
+    /// <summary>Các upgrade người chơi đang có trong run (chỉ đọc, dùng cho UI hiển thị).</summary>
+    public IReadOnlyCollection<UpgradeSO> OwnedUpgrades => ownedUpgrades;
+
     private void Awake()
     {
         Instance = this;
@@ -111,10 +114,12 @@ public class LevelUpPanel : MonoBehaviour
             }
             
         }
-        else
+
+        if (state == GameState.Playing)
         {
+            // Đóng panel khi vào lại game (chọn xong nâng cấp hoặc bắt đầu game)
             gameObject.SetActive(false);
-            rainEffect?.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            if (rainEffect != null) rainEffect.gameObject.SetActive(false);
         }
 
         if (state == GameState.Playing && !startupApplied && startupUpgrades != null && startupUpgrades.Count > 0)
