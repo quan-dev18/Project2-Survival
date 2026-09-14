@@ -114,11 +114,6 @@ public class LevelUpPanel : MonoBehaviour
             }
             
         }
-        else
-        {
-            gameObject.SetActive(false);
-            rainEffect?.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-        }
 
         if (state == GameState.Playing && !startupApplied && startupUpgrades != null && startupUpgrades.Count > 0)
         {
