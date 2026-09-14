@@ -28,6 +28,12 @@ public class EnemySpawner : MonoBehaviour
     private bool eliteRetryWarningShown;
 
     public event System.Action<EnemyHealth> OnBossSpawned;
+    public event System.Action<int> OnInfiniteLoop;
+
+    // Infinite mode: loop counter + spawn rate multiplier
+    private int infiniteLoopCount;
+    private float infiniteLoopTimer;
+    private float infiniteSpawnRateMult = 1f;
 
     // Global stat scaling (linear: adds flat % per interval)
     private float globalStatTimer;
@@ -176,6 +182,11 @@ public class EnemySpawner : MonoBehaviour
         {
             if (IsFinalPhase)
             {
+                if (stage != null && stage.IsInfinite)
+                {
+                    LoopInfinitePhase();
+                    return;
+                }
                 Lose();
                 return;
             }
@@ -192,6 +203,22 @@ public class EnemySpawner : MonoBehaviour
             UpdateSpawning();
 
         CheckEndCondition();
+    }
+
+    private void LoopInfinitePhase()
+    {
+        infiniteLoopCount++;
+        float step = stage != null ? stage.InfiniteDifficultyStep : 10f;
+        float frac = step / 100f;
+        globalHealthBonusPercent += step;
+        globalSpeedBonusPercent += step;
+        globalAttackBonusPercent += step;
+        infiniteSpawnRateMult *= (1f + frac);
+        phaseTimer = 0f;
+        // Refresh entry spawn timers so loop doesn't burst
+        foreach (var s in entryStates) s.spawnTimer = 0f;
+        OnInfiniteLoop?.Invoke(infiniteLoopCount);
+        SaveBestProgress(stage != null ? stage.Phases.Count + infiniteLoopCount : infiniteLoopCount);
     }
 
     private void CleanupActiveEnemies()
@@ -217,8 +244,14 @@ public class EnemySpawner : MonoBehaviour
     {
         if (phaseTimerText == null) return;
 
-        float remaining = Mathf.Max(0f, CurrentPhase.Duration - phaseTimer);
-        phaseTimerText.text = $"Wave {phaseIndex + 1}  {remaining:0}s";
+        if (IsFinalPhase && stage != null && stage.IsInfinite)
+        {
+            float remaining = CurrentPhase.Duration > 0f ? Mathf.Max(0f, CurrentPhase.Duration - phaseTimer) : 0f;
+            phaseTimerText.text = $"Wave {phaseIndex + 1} ∞{infiniteLoopCount + 1}  {remaining:0}s";
+            return;
+        }
+        float normal = Mathf.Max(0f, CurrentPhase.Duration - phaseTimer);
+        phaseTimerText.text = $"Wave {phaseIndex + 1}  {normal:0}s";
     }
 
     private void UpdateSpawning()
@@ -233,7 +266,7 @@ public class EnemySpawner : MonoBehaviour
             if (entry.SpawnLimit > 0 && state.spawned.Count >= entry.SpawnLimit)
                 continue;
 
-            state.spawnTimer += entry.SpawnPerSecond * Time.deltaTime;
+            state.spawnTimer += entry.SpawnPerSecond * infiniteSpawnRateMult * Time.deltaTime;
             while (state.spawnTimer >= 1f && (entry.SpawnLimit == 0 || state.spawned.Count < entry.SpawnLimit))
             {
                 state.spawnTimer -= 1f;
@@ -268,6 +301,8 @@ public class EnemySpawner : MonoBehaviour
     {
         if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameState.Playing) return;
         if (!IsFinalPhase) return;
+        // Infinite stages never win - loop handles difficulty
+        if (stage != null && stage.IsInfinite) return;
 
         for (int i = spawnedBosses.Count - 1; i >= 0; i--)
         {
