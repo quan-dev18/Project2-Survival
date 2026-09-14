@@ -115,6 +115,13 @@ public class LevelUpPanel : MonoBehaviour
             
         }
 
+        if (state == GameState.Playing)
+        {
+            // Đóng panel khi vào lại game (chọn xong nâng cấp hoặc bắt đầu game)
+            gameObject.SetActive(false);
+            if (rainEffect != null) rainEffect.gameObject.SetActive(false);
+        }
+
         if (state == GameState.Playing && !startupApplied && startupUpgrades != null && startupUpgrades.Count > 0)
         {
             // LevelUpPanel is inactive at start, so StartCoroutine on this fails -> run on GameManager
