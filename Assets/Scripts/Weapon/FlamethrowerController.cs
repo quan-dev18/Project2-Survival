@@ -19,7 +19,7 @@ public class FlamethrowerController : MonoBehaviour
     [SerializeField] private float coneAngle = 45f;
     [SerializeField] private LayerMask enemyMask = ~0;
     [SerializeField] private float damagePerTick = 5f;
-    [Tooltip("If true, scales damage with WeaponSO.Damage * (1+bonusBulletDamagePercent) instead of damagePerTick")]
+    [Tooltip("If true, adds WeaponSO.BulletCount*2 as flat damage per tick")]
     [SerializeField] private bool useWeaponDamage = false;
 
     [Header("Hands")]
@@ -234,7 +234,8 @@ public class FlamethrowerController : MonoBehaviour
             if (dmg == null) dmg = hit.GetComponentInChildren<IDamageable>();
             if (dmg == null) continue;
 
-            float finalDamage = damagePerTick * (1f + bonusBulletDamagePercent);
+            float baseDmg = damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
+            float finalDamage = baseDmg * (1f + bonusBulletDamagePercent);
             dmg.TakeDamage(finalDamage);
 
             if (bonusBulletExecutePercent > 0f && dmg is EnemyHealth eh && eh.CurrentHealth > 0f && eh.CurrentHealth <= eh.MaxHealth * bonusBulletExecutePercent)
