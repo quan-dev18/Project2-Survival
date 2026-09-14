@@ -43,6 +43,9 @@ public class LevelUpPanel : MonoBehaviour
     private readonly HashSet<UpgradeSO> ownedUpgrades = new HashSet<UpgradeSO>();
     private PlayerStats playerStats;
 
+    /// <summary>Các upgrade người chơi đang có trong run (chỉ đọc, dùng cho UI hiển thị).</summary>
+    public IReadOnlyCollection<UpgradeSO> OwnedUpgrades => ownedUpgrades;
+
     private void Awake()
     {
         Instance = this;
