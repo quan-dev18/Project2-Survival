@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61950fa7d1b939c488092411ace8061d, type: 3}
   m_Name: Hero3
   m_EditorClassIdentifier: 
+  heroName: Appledogg
   heroIcon: {fileID: 21300000, guid: 2319bd9e1a8a1b14fb1d1486ca958c09, type: 3}
   previewPrefab: {fileID: 6044015267666217839, guid: 529cb5bd975d7324b826979fdff5d784, type: 3}
   isUnlocked: 0

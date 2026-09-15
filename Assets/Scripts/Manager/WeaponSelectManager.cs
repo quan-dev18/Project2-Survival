@@ -23,6 +23,8 @@ public class WeaponSelectManager : MonoBehaviour
 
     [Header("Outside Equipment UI")]
     [SerializeField] private Image outsideWeaponIcon;
+    [Tooltip("Tên súng hiển thị ở nút 'Thay đổi' bên ngoài (kéo TMP_Text của nút vào).")]
+    [SerializeField] private TextMeshProUGUI outsideWeaponNameText;
 
     [Header("Gun Showcase Popup")]
     [Tooltip("Pop-up hiển thị chi tiết thông số súng. Hiện lên ngay khi chọn 1 súng (OnSelectWeapon).")]
@@ -47,6 +49,7 @@ public class WeaponSelectManager : MonoBehaviour
 
         RestoreSelectedWeaponIcon();
         GenerateListUI();
+        RefreshOutsideName();
     }
 
     private void Start()
@@ -74,6 +77,22 @@ public class WeaponSelectManager : MonoBehaviour
         {
             if (outsideWeaponIcon != null) outsideWeaponIcon.sprite = weaponList[savedIndex].WeaponIcon;
         }
+    }
+
+    // Cập nhật tên súng hiển thị ở nút 'Thay đổi' bên ngoài
+    private void RefreshOutsideName()
+    {
+        if (outsideWeaponNameText == null) return;
+
+        WeaponSO weapon = currentSelectedWeapon;
+        if (weapon == null)
+        {
+            int savedIndex = GetSavedSelectedIndex();
+            if (savedIndex >= 0 && savedIndex < weaponList.Count && weaponList[savedIndex] != null)
+                weapon = weaponList[savedIndex];
+        }
+
+        outsideWeaponNameText.text = weapon != null ? weapon.WeaponName : string.Empty;
     }
 
     private int GetSavedSelectedIndex()
@@ -212,6 +231,8 @@ public class WeaponSelectManager : MonoBehaviour
         // Súng LOCKED sẽ hiện toàn bộ stat dưới dạng "?".
         if (gunShowcase != null)
             gunShowcase.Show(data, unlocked);
+
+        RefreshOutsideName();
     }
 
     private void OnConfirmSelect()
