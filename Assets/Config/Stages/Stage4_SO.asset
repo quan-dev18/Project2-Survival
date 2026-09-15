@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageID: 4
   maxProgress: 22
+  isInfinite: 0
+  infiniteDifficultyStep: 10
   attackIncrementPercent: 10
   speedIncrementPercent: 5
   healthIncrementPercent: 10

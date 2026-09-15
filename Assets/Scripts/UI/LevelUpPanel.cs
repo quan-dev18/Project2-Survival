@@ -49,6 +49,7 @@ public class LevelUpPanel : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        EnsureTopmostCanvas();
         GameManager.OnStateChanged += OnGameStateChanged;
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -99,12 +100,25 @@ public class LevelUpPanel : MonoBehaviour
         return eligible[Random.Range(0, eligible.Count)];
     }
 
+    public void EnsureTopmostCanvas()
+    {
+        var canvas = GetComponent<Canvas>();
+        if (canvas == null) canvas = gameObject.AddComponent<Canvas>();
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = 100;
+
+        var raycaster = GetComponent<GraphicRaycaster>();
+        if (raycaster == null) raycaster = gameObject.AddComponent<GraphicRaycaster>();
+    }
+
     private void OnGameStateChanged(GameState state)
     {
         if (state == GameState.LevelUp)
         {
+            EnsureTopmostCanvas();
             RollChoices();
             gameObject.SetActive(true);
+            transform.SetAsLastSibling();
             if(rainEffect != null)
             {
                 rainEffect.gameObject.SetActive(true);
@@ -261,6 +275,7 @@ public class LevelUpPanel : MonoBehaviour
 
     private void Choose(int choiceIndex)
     {
+        Debug.Log($"[LevelUpPanel] Choose({choiceIndex}) selected!");
         if (choiceIndex >= choices.Count) return;
 
         UpgradeSO upgrade = choices[choiceIndex];

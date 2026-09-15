@@ -6,8 +6,14 @@ public class UIManager : MonoBehaviour
 {
     [Header("HP")]
     [SerializeField] private Image healthFill;
+    [SerializeField] private Image healthFillSlow;
     [SerializeField] private TMP_Text currentHPText;
     [SerializeField] private float hpLerpSpeed = 5f;
+    [SerializeField] private float hpSlowLerpSpeed = 2.5f;
+    [SerializeField] private float hpSlowDelay = 0.5f;
+
+    public Image HealthFillSlow => healthFillSlow;
+    public Image healthFillslow => healthFillSlow;
 
     [Header("EXP")]
     [SerializeField] private Image expFill;
@@ -26,6 +32,8 @@ public class UIManager : MonoBehaviour
     private PlayerStats playerStats;
     private float targetHPFill;
     private float targetExpFill;
+    private float hpSlowDelayTimer;
+    private bool hasInitializedHealth;
 
     private void Awake()
     {
@@ -78,10 +86,55 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if (healthFill != null)
-            healthFill.fillAmount = Mathf.Lerp(healthFill.fillAmount, targetHPFill, Time.deltaTime * hpLerpSpeed);
+        UpdateHealthBar();
+
         if (expFill != null)
             expFill.fillAmount = Mathf.Lerp(expFill.fillAmount, targetExpFill, Time.deltaTime * expLerpSpeed);
+    }
+
+    private void UpdateHealthBar()
+    {
+        if (healthFillSlow != null)
+        {
+            // Primary bar: lerps up if healing
+            if (healthFill != null && healthFill.fillAmount < targetHPFill)
+            {
+                healthFill.fillAmount = Mathf.Lerp(healthFill.fillAmount, targetHPFill, Time.deltaTime * hpLerpSpeed);
+            }
+
+            // Slow bar: wait for delay after damage, then lerp down
+            if (hpSlowDelayTimer > 0f)
+            {
+                hpSlowDelayTimer -= Time.deltaTime;
+            }
+            else
+            {
+                if (healthFillSlow.fillAmount > targetHPFill)
+                {
+                    healthFillSlow.fillAmount = Mathf.Lerp(healthFillSlow.fillAmount, targetHPFill, Time.deltaTime * hpSlowLerpSpeed);
+                    if (Mathf.Abs(healthFillSlow.fillAmount - targetHPFill) < 0.001f)
+                    {
+                        healthFillSlow.fillAmount = targetHPFill;
+                    }
+                }
+                else if (healthFillSlow.fillAmount < targetHPFill)
+                {
+                    healthFillSlow.fillAmount = targetHPFill;
+                }
+            }
+
+            // Ensure slow bar never falls below primary bar
+            if (healthFill != null && healthFillSlow.fillAmount < healthFill.fillAmount)
+            {
+                healthFillSlow.fillAmount = healthFill.fillAmount;
+            }
+        }
+        else
+        {
+            // Fallback when healthFillSlow is not assigned
+            if (healthFill != null)
+                healthFill.fillAmount = Mathf.Lerp(healthFill.fillAmount, targetHPFill, Time.deltaTime * hpLerpSpeed);
+        }
     }
 
     private void UpdateExpBar()
@@ -93,7 +146,42 @@ public class UIManager : MonoBehaviour
     private void UpdateHealthUI(float current, float max)
     {
         if (max > 0f)
-            targetHPFill = current / max;
+        {
+            float newFill = Mathf.Clamp01(current / max);
+
+            if (!hasInitializedHealth)
+            {
+                targetHPFill = newFill;
+                if (healthFill != null)
+                    healthFill.fillAmount = newFill;
+                if (healthFillSlow != null)
+                    healthFillSlow.fillAmount = newFill;
+                hasInitializedHealth = true;
+            }
+            else
+            {
+                if (newFill < targetHPFill)
+                {
+                    // Taking damage: primary bar drops directly
+                    if (healthFillSlow != null)
+                    {
+                        if (healthFill != null)
+                            healthFill.fillAmount = newFill;
+                        hpSlowDelayTimer = hpSlowDelay;
+                    }
+                }
+                else if (newFill > targetHPFill)
+                {
+                    // Healing
+                    hpSlowDelayTimer = 0f;
+                    if (healthFillSlow != null && healthFillSlow.fillAmount < newFill)
+                        healthFillSlow.fillAmount = newFill;
+                }
+
+                targetHPFill = newFill;
+            }
+        }
+
         if (currentHPText != null)
             currentHPText.text = $"{Mathf.CeilToInt(current)}/{Mathf.CeilToInt(max)}";
     }
