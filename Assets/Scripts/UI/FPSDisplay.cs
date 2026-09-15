@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum FPSDisplayCorner
 {
@@ -12,20 +13,28 @@ public enum FPSDisplayCorner
 /// ============================================================================
 /// FPSDisplay - Overlay FPS toàn màn hình, điều khiển bởi cờ "Hiện FPS".
 ///
+/// ▐▌ HAI CHẾ ĐỘ (tuỳ bạn chọn 1)
+///   1) TỰ ĐỘNG: không gắn gì vào scene. Script tự tạo Canvas + text TMP góc
+///      dưới - trái mỗi lần load scene (EnsureInstance).
+///   2) GẮN TAY (khuyên dùng khi muốn chỉnh vị trí trong Edit mode):
+///      Menu GameObject > FPS Display để tạo sẵn object "FPS Display" trong scene,
+///      rồi kéo thẳng "FPS Label" (scene hoặc Inspector). Vị trí LƯU vào scene —
+///      thoát Play vào lại vẫn nguyên vị trí (khác hẳn chế độ tự động, thay đổi
+///      lúc chạy Play không bao giờ lưu).
+///
 /// ▐▌ VAI TRÒ
-///   - Tự tạo 1 Canvas + Text TMP ở góc dưới - trái (không cần gắn trong scene).
 ///   - Nghe PerformanceManager.OnFPSUpdated (bám mẫu 2 lần/giây, không cấp phát
 ///     trong Update) để hiển thị FPS + frame time + frame budget hiện tại.
 ///   - Bật/tắt theo GameSettingsManager.OnShowFPSChanged.
-///   - Di chuyển overlay sang góc khác: FPSDisplay.Instance.SetScreenCorner(...).
+///   - Di chuyển overlay: F8/F9 (lúc chơi) hoặc FPSDisplay.Instance.SetScreenCorner(...).
 ///
 /// ▐▌ LƯU Ý QUAN TRỌNG (đã sửa)
 ///   - KHÔNG được SetActive(false) cả GameObject ngay trong Awake: làm vậy thì
 ///     Start() (nơi đăng ký event) sẽ không bao giờ được gọi → overlay không bao
 ///     giờ hiện. Thay vào đó root luôn active, chỉ bật/tắt object chữ con
 ///     (label.gameObject.SetActive) trong SetVisible.
-///   - Nếu font TMP mặc định null (thiếu TMP Essentials), fallback qua
-///     Resources.Load("LiberationSans SDF").
+///   - Nếu font TMP mặc định null (thiếu TMP Essentials), chế độ tự động fallback
+///     qua Resources.Load("LiberationSans SDF").
 /// ============================================================================
 public class FPSDisplay : MonoBehaviour
 {
@@ -39,15 +48,41 @@ public class FPSDisplay : MonoBehaviour
     [Tooltip("Màu chữ khi frame time vượt frame budget của FPS mục tiêu.")]
     [SerializeField] private Color badColor = new Color(1f, 0.3f, 0.3f);
 
+    [Header("Gắn tay (để trống = chế độ tự động)")]
+    [Tooltip("Text TMP đặt sẵn trong scene. Để trống: chế độ tự động tự dựng canvas.\nGắn vào: kéo 'FPS Label' trong Edit mode để định vị lưu vĩnh viễn vào scene.")]
+    [SerializeField] private TMP_Text label;
+
     [Tooltip("Vị trí mặc định khi overlay được tạo (đổi lúc runtime qua SetScreenCorner).")]
     [SerializeField] private FPSDisplayCorner corner = FPSDisplayCorner.BottomLeft;
 
     private RectTransform textHolder;
-    private TMP_Text label;
     private PerformanceManager performance;
     private GameSettingsManager settings;
 
     // ──────────────────── Unity Callbacks ─────────────────
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>
+    /// Phím tắt test vị trí (chỉ Editor / Development Build):
+    ///   [F8]  Xoay vòng 4 góc màn hình.
+    ///   [F9]  Về góc dưới - trái (mặc định).
+    /// </summary>
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F8))
+        {
+            corner = (FPSDisplayCorner)(((int)corner + 1) % 4);
+            ApplyCorner();
+            Debug.Log($"[FPSDisplay] 🎮 Đổi góc sang {corner}");
+        }
+        else if (Input.GetKeyDown(KeyCode.F9))
+        {
+            corner = FPSDisplayCorner.BottomLeft;
+            ApplyCorner();
+            Debug.Log("[FPSDisplay] 🎮 Về góc dưới trái");
+        }
+    }
+#endif
 
     /// <summary>
     /// [TỰ ĐỘNG] Tạo overlay ngay sau khi scene đầu tiên load, sống xuyên scene.
@@ -63,7 +98,11 @@ public class FPSDisplay : MonoBehaviour
     }
 
     /// <summary>
-    /// Awake: ép Singleton duy nhất và dựng canvas (root GIỮ active để Start chạy được).
+    /// Awake: ép Singleton duy nhất.
+    /// - Chế độ tự động (label == null): tự dựng canvas trên GO này.
+    /// - Chế độ gắn tay (label != null): mượn text đã đặt trong scene, TÔN TRỌNG
+    ///   vị trí đã kéo trong Edit mode (không gọi ApplyCorner để không ghi đè).
+    /// Root luôn GIỮ active để Start chạy được.
     /// </summary>
     private void Awake()
     {
@@ -73,14 +112,21 @@ public class FPSDisplay : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
         // Chú ý: không đặt gameObject.SetActive(false) ở đây — sẽ làm hỏng luồng Start().
-        if (!BuildCanvas())
+        if (label == null)
         {
-            Debug.LogWarning("[FPSDisplay] ⚠️ Không có font TMP (thiếu TMP Essential Assets). Overlay FPS bị tắt.");
-            Destroy(gameObject);
-            return;
+            if (!BuildCanvas())
+            {
+                Debug.LogWarning("[FPSDisplay] ⚠️ Không có font TMP (thiếu TMP Essential Assets). Overlay FPS bị tắt.");
+                Destroy(gameObject);
+                return;
+            }
+        }
+        else
+        {
+            // Gắn tay: dùng text người dùng đặt sẵn, vị trí do scene quyết định.
+            textHolder = label.rectTransform;
         }
     }
 
@@ -234,4 +280,52 @@ public class FPSDisplay : MonoBehaviour
         // Căn chữ theo hướng chữ "mọc" từ anchor: xuống dưới nếu ở góc trên.
         label.alignment = top ? TextAlignmentOptions.BottomLeft : TextAlignmentOptions.TopLeft;
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// [EDITOR] Menu GameObject > FPS Display: tạo sẵn 1 Canvas + Text TMP trong scene.
+    /// Kéo "FPS Label" để định vị — vị trí sẽ được lưu vào scene (khác chế độ tự động).
+    /// </summary>
+    [UnityEditor.MenuItem("GameObject/FPS Display", false, 10)]
+    private static void CreateFPSDisplayInScene()
+    {
+        GameObject root = new GameObject("FPS Display");
+        Canvas canvas = root.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 999;
+        root.AddComponent<CanvasScaler>();
+        root.AddComponent<GraphicRaycaster>();
+
+        GameObject textGo = new GameObject("FPS Label", typeof(RectTransform));
+        textGo.transform.SetParent(root.transform, false);
+
+        TMP_FontAsset defaultFont = TMP_Settings.defaultFontAsset;
+        if (defaultFont == null)
+            defaultFont = Resources.Load<TMP_FontAsset>("LiberationSans SDF");
+
+        TextMeshProUGUI text = textGo.AddComponent<TextMeshProUGUI>();
+        if (defaultFont != null)
+            text.font = defaultFont;
+        text.fontSize = 32f;
+        text.color = new Color(0.2f, 1f, 0.35f);
+        text.alignment = TextAlignmentOptions.TopLeft;
+        text.enableWordWrapping = false;
+        text.raycastTarget = false;
+        text.text = "";
+
+        RectTransform rt = textGo.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(300f, 80f);
+        rt.pivot = Vector2.zero;
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.zero;
+        rt.anchoredPosition = new Vector2(12f, 12f);
+
+        // Gắn sẵn label để FPSDisplay dùng chế độ "gắn tay".
+        FPSDisplay fps = root.AddComponent<FPSDisplay>();
+        fps.label = text;
+
+        UnityEditor.Selection.activeGameObject = root;
+        UnityEditor.Undo.RegisterCreatedObjectUndo(root, "Create FPS Display");
+    }
+#endif
 }
