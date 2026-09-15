@@ -795,7 +795,7 @@ MonoBehaviour:
   frameRateDropPerStep: 15
   minimumTargetFPS: 30
   lowBatteryThresholdPercent: 20
-  simulateBatteryPercent: -1
+  simulateBatteryPercent: 100
   checkBatteryOnDesktop: 0
   lowGraphicsEnabledByDefault: 0
   renderScaleHigh: 1
