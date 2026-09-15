@@ -14,6 +14,14 @@ public class StageSO : ScriptableObject
     [SerializeField] private float maxProgress;
     public float MaxProgress => maxProgress;
 
+    [Header("Infinite Mode")]
+    [Tooltip("If true, last phase loops forever with stacking difficulty. Never triggers win.")]
+    [SerializeField] private bool isInfinite;
+    public bool IsInfinite => isInfinite;
+    [Tooltip("Extra % spawn rate + enemy bonus added per loop of the last phase")]
+    [SerializeField] private float infiniteDifficultyStep = 10f;
+    public float InfiniteDifficultyStep => infiniteDifficultyStep;
+
     [Header("Global Stat Scaling (applied over entire stage)")]
     [SerializeField] private float attackIncrementPercent = 0f;
     [SerializeField] private float speedIncrementPercent = 0f;
