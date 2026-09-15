@@ -156,6 +156,9 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     public void ShowBurnVFX(float duration)
     {
+        // Tôn trọng cờ "Hiển thị VFX": tắt thì không spawn hiệu ứng cháy.
+        if (GameSettingsManager.Instance != null && !GameSettingsManager.Instance.ShowVFX)
+            return;
         if (burnVFXPrefab == null) return;
         if (activeBurnVFX != null)
         {
