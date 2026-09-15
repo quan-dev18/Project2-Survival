@@ -82,6 +82,13 @@ public class FlamethrowerController : MonoBehaviour
     public float fireRange => baseFireRange * (1f + bonusFireRangePercent);
     public float reloadTime => Mathf.Max(0.1f, baseReloadTime / Mathf.Max(0.01f, 1f + bonusReloadSpeedPercent + killStacks * 0.02f));
     public int magazineSize => Mathf.RoundToInt(baseMagazineSize * (1f + bonusMagazineSizePercent));
+
+    /// <summary>Sát thương nền mỗi tick (gồm cả flat damage từ WeaponSO nếu bật useWeaponDamage).</summary>
+    public float BaseDamagePerTick =>
+        damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
+
+    /// <summary>Sát thương thực tế mỗi tick sau buff % — dùng cho Stat UI.</summary>
+    public float EffectiveDamagePerTick => BaseDamagePerTick * (1f + bonusBulletDamagePercent);
     #endregion
 
     #region Runtime state

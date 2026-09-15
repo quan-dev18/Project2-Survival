@@ -209,9 +209,11 @@ public sealed class PerformanceManager : MonoBehaviour
     /// <summary>VSync thủ công đang bật hay không (bật = khung hình đồng bộ màn hình).</summary>
     public bool VSyncEnabled => vSyncEnabled;
 
-    /// <summary>Render Scale URP đang áp dụng (theo mức hiệu năng / cấu hình thấp).</summary>
+    /// <summary>Render Scale URP đang áp dụng — đi theo MỨC CHẤT LƯỢNG người chơi chọn
+    /// (Low=0.75 / Medium=0.875 / High=1.0), chứ không theo adaptive.
+    /// Adaptive/low-graphics chỉ làm giảm mức áp dụng (AppliedQualityLevel).</summary>
     public float CurrentRenderScale =>
-        GetRenderScaleForLevel(lowGraphicsEnabled ? PerformanceLevel.Low : CurrentPerformanceLevel);
+        GetRenderScaleForLevel(GetPerformanceLevelForQuality(AppliedQualityLevel));
 
     /// <summary>Render Scale URP gốc trong asset (đọc khi khởi tạo, dùng làm mức High).</summary>
     public float BaseRenderScale { get; private set; } = 1f;
@@ -299,6 +301,16 @@ public sealed class PerformanceManager : MonoBehaviour
         Application.lowMemory += OnLowMemoryWarning;
 
         Debug.Log($"[PerformanceManager] 🚀 Khởi tạo: Mode={frameRateMode}, Target={AppliedTargetFPS} FPS, Quality={AppliedQualityLevel}, Adaptive={adaptiveEnabled}");
+    }
+
+    /// <summary>
+    /// Lặp lại ApplyFrameRate sau khi toàn bộ scene đã Awake xong. Vài nền tảng
+    /// (nhất là mobile) cài đặt vSyncCount rất sớm trong Awake thì không ăn —
+    /// Start là lúc graphics đã sẵn sàng nên cài lại chắc chắn hơn.
+    /// </summary>
+    private void Start()
+    {
+        ApplyFrameRate();
     }
 
     /// <summary>
@@ -561,6 +573,7 @@ public sealed class PerformanceManager : MonoBehaviour
 
         baseQualityLevel = clamped;
         ApplyQuality();
+        ApplyRenderScale(); // render scale giờ theo chất lượng
         ApplyFrameRate(); // quality mới có thể bật lại VSync -> áp lại target
         SavePreferences();
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
@@ -717,6 +730,23 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     }
 
     /// <summary>
+    /// Quy mức chất lượng đồ họa (0..QualityLevelCount-1) về 1 trong 3 nấc hiệu
+    /// năng để chọn render scale: Low = mức 0, Medium = mức giữa, High = mức cao
+    /// nhất. Chọn nấc gần nhất (cùng khoảng cách thì về nấc thấp hơn).
+    /// </summary>
+    public static PerformanceLevel GetPerformanceLevelForQuality(int qualityLevel)
+    {
+        int low = 0;
+        int mid = QualityLevelCount / 2;
+        int high = QualityLevelCount - 1;
+
+        bool isLow = Mathf.Abs(qualityLevel - low) <= Mathf.Abs(qualityLevel - mid);
+        if (isLow) return PerformanceLevel.Low;
+        bool isHigh = Mathf.Abs(qualityLevel - high) < Mathf.Abs(qualityLevel - mid);
+        return isHigh ? PerformanceLevel.High : PerformanceLevel.Medium;
+    }
+
+    /// <summary>
     /// Áp dụng render scale hiện tại xuống UniversalRenderPipelineAsset (chỉ khi đang dùng URP).
     /// </summary>
     private void ApplyRenderScale()
@@ -764,6 +794,12 @@ private static UniversalRenderPipelineAsset GetURPAsset()
             : Mathf.Clamp(baseQualityLevel - adaptiveStep, 0, QualityLevelCount - 1);
         if (QualitySettings.GetQualityLevel() != effective)
             QualitySettings.SetQualityLevel(effective, false);
+
+        // QualitySettings.SetQualityLevel (kể cả applyExpensiveSettings=false) có thể
+        // reset vSyncCount về giá trị mặc định trong QualitySettings.asset — nên
+        // nếu đang bật VSync thủ công thì phải set lại ngay.
+        if (vSyncEnabled)
+            QualitySettings.vSyncCount = 1;
     }
 
     /// <summary>
