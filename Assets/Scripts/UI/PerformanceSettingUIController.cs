@@ -23,6 +23,7 @@ using UnityEngine.UI;
 ///          giữa, High = mức cao nhất. Nút đang chọn giữ màu gốc; nút chưa
 ///          chọn bị nền xám tối + chữ sáng (màu chỉnh được trong Inspector).
 ///        - Toggle "Adaptive Toggle"
+///        - Toggle "VSync Toggle"
 ///        - GameObject "Low Power Warning"  (panel cảnh báo pin yếu, mặc định tắt)
 ///        - TMP_Text "Performance Level Text" (tùy chọn: High/Medium/Low)
 ///   3. PerformanceManager tự sinh runtime, KHÔNG cần kéo.
@@ -57,6 +58,10 @@ public class PerformanceSettingUIController : MonoBehaviour
     [Tooltip("Toggle bật/tắt tự điều chỉnh hiệu năng (chống nóng máy, tiết kiệm pin).")]
     [SerializeField] private Toggle adaptiveToggle;
 
+    [Header("VSync")]
+    [Tooltip("Toggle bật/tắt VSync (đồng bộ với PerformanceManager).")]
+    [SerializeField] private Toggle vSyncToggle;
+
     [Header("Cảnh báo pin yếu")]
     [Tooltip("Root panel cảnh báo pin yếu, hiện/ẩn theo event OnBatteryWarning. Có thể để trống.")]
     [SerializeField] private GameObject lowPowerWarningRoot;
@@ -82,6 +87,8 @@ public class PerformanceSettingUIController : MonoBehaviour
             qualityHighButton.onClick.AddListener(OnQualityHighClicked);
         if (adaptiveToggle != null)
             adaptiveToggle.onValueChanged.AddListener(OnAdaptiveToggleChanged);
+        if (vSyncToggle != null)
+            vSyncToggle.onValueChanged.AddListener(OnVSyncToggleChanged);
 
         BuildFrameRateOptions();
     }
@@ -129,6 +136,7 @@ public class PerformanceSettingUIController : MonoBehaviour
         performance.OnFrameRateModeChanged += OnFrameRateModeChanged;
         performance.OnQualityLevelChanged += OnQualityLevelChanged;
         performance.OnAdaptiveEnabledChanged += OnAdaptiveEnabledChanged;
+        performance.OnVSyncChanged += OnVSyncChanged;
         performance.OnAdaptiveStepChanged += OnAdaptiveStepChanged;
         performance.OnBatteryWarning += OnBatteryWarning;
         subscribed = true;
@@ -156,6 +164,7 @@ public class PerformanceSettingUIController : MonoBehaviour
             performance.OnFrameRateModeChanged -= OnFrameRateModeChanged;
             performance.OnQualityLevelChanged -= OnQualityLevelChanged;
             performance.OnAdaptiveEnabledChanged -= OnAdaptiveEnabledChanged;
+            performance.OnVSyncChanged -= OnVSyncChanged;
             performance.OnAdaptiveStepChanged -= OnAdaptiveStepChanged;
             performance.OnBatteryWarning -= OnBatteryWarning;
         }
@@ -170,6 +179,8 @@ public class PerformanceSettingUIController : MonoBehaviour
             qualityHighButton.onClick.RemoveListener(OnQualityHighClicked);
         if (adaptiveToggle != null)
             adaptiveToggle.onValueChanged.RemoveListener(OnAdaptiveToggleChanged);
+        if (vSyncToggle != null)
+            vSyncToggle.onValueChanged.RemoveListener(OnVSyncToggleChanged);
     }
 
     // ──────────────────── UI -> Core (không logic ở đây) ─────
@@ -206,6 +217,15 @@ public class PerformanceSettingUIController : MonoBehaviour
     {
         if (syncingUI || performance == null) return;
         performance.SetAdaptiveEnabled(enabled);
+    }
+
+    /// <summary>
+    /// Người chơi bật/tắt VSync: đẩy thẳng xuống PerformanceManager.
+    /// </summary>
+    private void OnVSyncToggleChanged(bool enabled)
+    {
+        if (syncingUI || performance == null) return;
+        performance.SetVSyncEnabled(enabled);
     }
 
     // ──────────────────── Core -> UI (chỉ update giao diện) ─
@@ -246,6 +266,15 @@ public class PerformanceSettingUIController : MonoBehaviour
     private void OnAdaptiveEnabledChanged(bool enabled)
     {
         RefreshAdaptiveToggle(enabled);
+    }
+
+    /// <summary>
+    /// Đồng bộ toggle VSync theo manager.
+    /// </summary>
+    private void OnVSyncChanged(bool enabled)
+    {
+        if (vSyncToggle != null && vSyncToggle.isOn != enabled)
+            vSyncToggle.isOn = enabled;
     }
 
     /// <summary>
@@ -293,6 +322,8 @@ public class PerformanceSettingUIController : MonoBehaviour
         RefreshFrameRateDropdown((int)performance.CurrentMode);
         RefreshQualityButtons(performance.AppliedQualityLevel);
         RefreshAdaptiveToggle(performance.AdaptiveEnabled);
+        if (vSyncToggle != null && vSyncToggle.isOn != performance.VSyncEnabled)
+            vSyncToggle.isOn = performance.VSyncEnabled;
         if (performanceLevelText != null)
             performanceLevelText.text = performance.CurrentPerformanceLevel.ToString();
 
