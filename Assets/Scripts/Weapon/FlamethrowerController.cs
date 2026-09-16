@@ -22,6 +22,15 @@ public class FlamethrowerController : MonoBehaviour
     [Tooltip("If true, adds WeaponSO.BulletCount*2 as flat damage per tick")]
     [SerializeField] private bool useWeaponDamage = false;
 
+    [Header("Sound")]
+    [Tooltip("Volume tiếng lửa loop khi phun (0-1). Clip lấy từ WeaponSO.ShootSFX.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float fireSoundVolume = 1f;
+    [Tooltip("Pitch tiếng lửa loop (1 = bình thường).")]
+    [SerializeField] private float fireSoundPitch = 1f;
+    [Tooltip("Còn bao nhiêu đạn thì bắt đầu fade out tiếng lửa (0 = tắt fade).")]
+    [SerializeField] private float fireSoundFadeAmmo = 4f;
+
     [Header("Hands")]
     [SerializeField] private Transform leftHand;
     [SerializeField] private Transform rightHand;
@@ -97,6 +106,7 @@ public class FlamethrowerController : MonoBehaviour
     private bool isReloading;
     private float reloadTimer;
     private Transform currentHand;
+    private AudioClip fireLoopClip;
     #endregion
 
     public event Action<int, int> OnAmmoChanged;
@@ -118,6 +128,7 @@ public class FlamethrowerController : MonoBehaviour
         baseReloadTime = weaponStats != null ? weaponStats.ReloadTime : 1.5f;
         baseMagazineSize = weaponStats != null ? weaponStats.MagazineSize : 100;
         currentAmmo = magazineSize;
+        fireLoopClip = weaponStats != null ? weaponStats.ShootSFX : null;
 
         if (TryGetComponent(out CircleCollider2D rangeTrigger))
             rangeTrigger.radius = fireRange;
@@ -146,6 +157,12 @@ public class FlamethrowerController : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        if (AudioManager.Instance != null && fireLoopClip != null)
+            AudioManager.Instance.StopLoopSFX(fireLoopClip);
+    }
+
     private void Update()
     {
         // Keep fire VFX glued to muzzle even in World space
@@ -171,6 +188,7 @@ public class FlamethrowerController : MonoBehaviour
         // Flamethrower fires whenever not reloading/has ammo, not only when hasTarget - so particles show even without lock
         bool shouldFire = !isReloading && currentAmmo > 0;
         UpdateFireEffect(shouldFire);
+        UpdateFireSound(shouldFire);
 
         if (shouldFire)
         {
@@ -213,6 +231,39 @@ public class FlamethrowerController : MonoBehaviour
         if (fireEffect == null) return;
         if (shouldFire && !fireEffect.isPlaying) fireEffect.Play(true);
         else if (!shouldFire && fireEffect.isPlaying) fireEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+    }
+
+    /// <summary>
+    /// Bật/tắt tiếng lửa LOOP theo đúng cờ shouldFire (giống UpdateFireEffect).
+    /// Kiểm tra qua AudioManager.IsLoopActive để tự phục hồi sau khi audio bị
+    /// tắt bởi StopAllSFX (pause), đổi scene... mà không phải bấm lại từ đầu.
+    /// Gát thêm Time.timeScale để ngưng tiếng khi dừng game (level up panel...).
+    /// </summary>
+    private void UpdateFireSound(bool shouldFire)
+    {
+        AudioManager manager = AudioManager.Instance;
+        if (manager == null) return;
+
+        AudioClip clip = fireLoopClip;
+        if (clip == null) return;
+
+        bool shouldPlay = shouldFire && Time.timeScale > 0f;
+
+        if (shouldPlay)
+        {
+            float targetVolume = fireSoundVolume;
+            if (fireSoundFadeAmmo > 0f && currentAmmo < fireSoundFadeAmmo)
+                targetVolume *= Mathf.Clamp01(currentAmmo / fireSoundFadeAmmo);
+
+            if (!manager.IsLoopActive(clip))
+                manager.PlayLoopSFX(clip, targetVolume, fireSoundPitch);
+            else
+                manager.SetLoopVolume(clip, targetVolume);
+        }
+        else if (manager.IsLoopActive(clip))
+        {
+            manager.StopLoopSFX(clip);
+        }
     }
 
     private void ConeDamage()

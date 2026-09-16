@@ -57,6 +57,9 @@ public sealed class AudioManager : MonoBehaviour
     [Tooltip("Số AudioSource 3D cho âm thanh theo vị trí (vụ nổ...).")]
     [SerializeField] private int sfx3DPoolSize = 8;
 
+    [Tooltip("Số AudioSource dùng cho SFX dạng LOOP (tiếng lửa flamethrower...).")]
+    [SerializeField] private int loopSFXPoolSize = 3;
+
     [Header("=== Âm thanh UI ===")]
     [Tooltip("Tiếng click nút chung cho toàn game.")]
     [SerializeField] private AudioClip uiClickSFX;
@@ -96,6 +99,11 @@ public sealed class AudioManager : MonoBehaviour
     private readonly List<AudioSource> sfx3DPool = new List<AudioSource>();
     private int sfx2DCursor;   // con trỏ vòng tròn cho pool 2D
     private int sfx3DCursor;   // con trỏ vòng tròn cho pool 3D
+
+    private readonly List<AudioSource> loopSFXPool = new List<AudioSource>();
+    private readonly HashSet<AudioClip> activeLoopClips = new HashSet<AudioClip>();
+    private readonly Dictionary<AudioSource, float> loopBaseVolumes = new Dictionary<AudioSource, float>();
+    private int loopSFXCursor; // con trỏ vòng tròn cho pool loop
 
     private AudioClip currentBGM;          // clip BGM đang phát
     private float currentBGMVolume = 1f;   // hệ số volume riêng của clip đang phát
@@ -194,6 +202,16 @@ public sealed class AudioManager : MonoBehaviour
             Configure3DSource(src);
             sfx3DPool.Add(src);
         }
+
+        int loopSize = Mathf.Max(1, loopSFXPoolSize);
+        for (int i = 0; i < loopSize; i++)
+        {
+            GameObject go = new GameObject($"SFXLoop_{i}");
+            go.transform.SetParent(transform, false);
+            AudioSource src = go.AddComponent<AudioSource>();
+            ConfigureLoopSource(src);
+            loopSFXPool.Add(src);
+        }
     }
 
     /// <summary>
@@ -205,6 +223,19 @@ public sealed class AudioManager : MonoBehaviour
         source.loop = false;
         source.spatialBlend = 0f;
         source.volume = 1f;
+        source.pitch = 1f;
+    }
+
+    /// <summary>
+    /// Cấu hình AudioSource dành riêng SFX dạng LOOP (tiếng lửa, quạt...).
+    /// Không âm thanh không gian, lặp vô tận cho tới khi được dừng.
+    /// </summary>
+    private void ConfigureLoopSource(AudioSource source)
+    {
+        source.playOnAwake = false;
+        source.loop = true;
+        source.spatialBlend = 0f;
+        source.volume = 0f;
         source.pitch = 1f;
     }
 
@@ -472,7 +503,7 @@ public sealed class AudioManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Tắt toàn bộ SFX đang kêu (2D + 3D). Hay dùng khi vào màn hình tạm dừng.
+    /// Tắt toàn bộ SFX đang kêu (2D + 3D + loop). Hay dùng khi vào màn hình tạm dừng.
     /// </summary>
     public void StopAllSFX()
     {
@@ -489,6 +520,117 @@ public sealed class AudioManager : MonoBehaviour
                 sfx3DPool[i].gameObject.SetActive(false);
             }
         }
+        for (int i = 0; i < loopSFXPool.Count; i++)
+        {
+            if (loopSFXPool[i] != null)
+                loopSFXPool[i].Stop();
+        }
+        // Xóa trạng thái loop để phiên phát tiếp theo tự khởi động lại.
+        activeLoopClips.Clear();
+        loopBaseVolumes.Clear();
+    }
+
+    // =============================================================
+    //  PHẦN 4b: SFX LOOP (âm thanh lặp liên tục - tiếng lửa flamethrower...)
+    // =============================================================
+
+    /// <summary>
+    /// Bắt đầu phát SFX dạng LOOP (lặp vô tận cho tới khi StopLoopSFX/StopAllSFX).
+    /// Dùng riêng cho tiếng liên tục như tiếng lửa của flamethrower.
+    /// Mỗi clip loop được gọi nhiều lần đều an toàn: nếu đang chạy rồi thì giữ nguyên.
+    /// </summary>
+    /// <param name="clip">AudioClip cần lặp.</param>
+    /// <param name="volume">Độ lớn (0-1), sau đó nhân thêm volume SFX toàn cục.</param>
+    /// <param name="pitch">Độ cao giọng (1 = bình thường).</param>
+    public void PlayLoopSFX(AudioClip clip, float volume = 1f, float pitch = 1f)
+    {
+        if (clip == null) return;
+        if (activeLoopClips.Contains(clip)) return;
+
+        AudioSource src = GetFreeLoopSource();
+        if (src == null) return;
+
+        src.clip = clip;
+        src.pitch = Mathf.Max(0.01f, pitch);
+        loopBaseVolumes[src] = Mathf.Clamp01(volume);
+        src.volume = Mathf.Clamp01(volume) * sfxVolume;
+        src.Play();
+        activeLoopClips.Add(clip);
+    }
+
+    /// <summary>
+    /// Dừng 1 SFX loop theo clip (idempotent - gọi nhiều lần vẫn an toàn).
+    /// Các loop khác vẫn tiếp tục chạy.
+    /// </summary>
+    public void StopLoopSFX(AudioClip clip)
+    {
+        if (clip == null) return;
+
+        for (int i = 0; i < loopSFXPool.Count; i++)
+        {
+            AudioSource src = loopSFXPool[i];
+            if (src != null && src.clip == clip)
+            {
+                src.Stop();
+                src.clip = null;
+                loopBaseVolumes.Remove(src);
+            }
+        }
+        activeLoopClips.Remove(clip);
+    }
+
+    /// <summary>
+    /// Đổi volume 1 SFX loop đang chạy (dùng để fade in/out nhịp nhàng).
+    /// Idempotent: nếu clip không đang loop thì không làm gì.
+    /// </summary>
+    public void SetLoopVolume(AudioClip clip, float volume)
+    {
+        if (clip == null) return;
+
+        for (int i = 0; i < loopSFXPool.Count; i++)
+        {
+            AudioSource src = loopSFXPool[i];
+            if (src != null && src.clip == clip)
+            {
+                loopBaseVolumes[src] = Mathf.Clamp01(volume);
+                src.volume = Mathf.Clamp01(volume) * sfxVolume;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Kiểm tra clip loop có đang được phát không (để nguồn khác tự phục hồi
+    /// khi audio bị tắt bởi StopAllSFX như lúc pause game).
+    /// </summary>
+    public bool IsLoopActive(AudioClip clip)
+    {
+        return clip != null && activeLoopClips.Contains(clip);
+    }
+
+    /// <summary>
+    /// Lấy 1 AudioSource loop rảnh. Nếu còn trống thì dùng source đó; nếu hết
+    /// thì tái dùng source phát lâu nhất (con trỏ vòng tròn).
+    /// </summary>
+    private AudioSource GetFreeLoopSource()
+    {
+        if (loopSFXPool.Count == 0)
+            InitializePools();
+        if (loopSFXPool.Count == 0)
+            return null;
+
+        for (int i = 0; i < loopSFXPool.Count; i++)
+        {
+            AudioSource src = loopSFXPool[i];
+            if (!src.isPlaying)
+                return src;
+        }
+
+        AudioSource oldest = loopSFXPool[loopSFXCursor % loopSFXPool.Count];
+        loopSFXCursor = (loopSFXCursor + 1) % loopSFXPool.Count;
+        if (oldest.clip != null)
+            activeLoopClips.Remove(oldest.clip);
+        loopBaseVolumes.Remove(oldest);
+        return oldest;
     }
 
     // =============================================================
@@ -597,6 +739,21 @@ public sealed class AudioManager : MonoBehaviour
         {
             sfxVolume = Mathf.Clamp01(value);
             PlayerPrefs.SetFloat(KEY_SFX_VOLUME, sfxVolume);
+            ApplyLoopVolumes();
+        }
+    }
+
+    /// <summary>
+    /// Cập nhật volume theo volume SFX toàn cục cho các SFX loop đang chạy.
+    /// </summary>
+    private void ApplyLoopVolumes()
+    {
+        for (int i = 0; i < loopSFXPool.Count; i++)
+        {
+            AudioSource src = loopSFXPool[i];
+            if (src == null) continue;
+            if (loopBaseVolumes.TryGetValue(src, out float baseVolume))
+                src.volume = baseVolume * sfxVolume;
         }
     }
 
