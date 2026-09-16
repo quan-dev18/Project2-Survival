@@ -18,8 +18,12 @@ using UnityEngine.UI;
 ///   2. Kéo thả:
 ///        - TMP_Text "Fps Text"      (text xanh 1 dòng, dòng 1: FPS, dòng 2: budget)
 ///        - TMP_Dropdown "Frame Rate Dropdown"   (mục 'Auto')
-///        - TMP_Dropdown "Quality Dropdown"
+///        - 3 nút chất lượng "Low/Medium/High": kéo vào các ô qualityLowButton /
+///          qualityMediumButton / qualityHighButton. Low = mức 0, Medium = mức
+///          giữa, High = mức cao nhất. Nút đang chọn giữ màu gốc; nút chưa
+///          chọn bị nền xám tối + chữ sáng (màu chỉnh được trong Inspector).
 ///        - Toggle "Adaptive Toggle"
+///        - Toggle "VSync Toggle"
 ///        - GameObject "Low Power Warning"  (panel cảnh báo pin yếu, mặc định tắt)
 ///        - TMP_Text "Performance Level Text" (tùy chọn: High/Medium/Low)
 ///   3. PerformanceManager tự sinh runtime, KHÔNG cần kéo.
@@ -37,13 +41,26 @@ public class PerformanceSettingUIController : MonoBehaviour
     [Tooltip("Dropdown chọn chế độ frame rate (Auto/30/60/90/120).")]
     [SerializeField] private TMP_Dropdown frameRateDropdown;
 
-    [Header("Chất lượng đồ họa")]
-    [Tooltip("Dropdown chọn chất lượng đồ họa được đổ từ QualitySettings.")]
-    [SerializeField] private TMP_Dropdown qualityDropdown;
+    [Header("Chất lượng đồ họa (3 nút)")]
+    [Tooltip("Nút Low: ép chất lượng về mức 0.")]
+    [SerializeField] private Button qualityLowButton;
+    [Tooltip("Nút Medium: chất lượng trung bình (mức giữa theo QualitySettings).")]
+    [SerializeField] private Button qualityMediumButton;
+    [Tooltip("Nút High: ép chất lượng lên mức cao nhất.")]
+    [SerializeField] private Button qualityHighButton;
+
+    [Tooltip("Màu nền cho nút KHÔNG được chọn (xám tối). Nút đang chọn giữ màu gốc.")]
+    [SerializeField] private Color unselectedBgColor = new Color(0.25f, 0.25f, 0.25f, 1f);
+    [Tooltip("Màu chữ cho nút KHÔNG được chọn (sáng).")]
+    [SerializeField] private Color unselectedTextColor = new Color(0.9f, 0.9f, 0.9f, 1f);
 
     [Header("Adaptive Throttling")]
     [Tooltip("Toggle bật/tắt tự điều chỉnh hiệu năng (chống nóng máy, tiết kiệm pin).")]
     [SerializeField] private Toggle adaptiveToggle;
+
+    [Header("VSync")]
+    [Tooltip("Toggle bật/tắt VSync (đồng bộ với PerformanceManager).")]
+    [SerializeField] private Toggle vSyncToggle;
 
     [Header("Cảnh báo pin yếu")]
     [Tooltip("Root panel cảnh báo pin yếu, hiện/ẩn theo event OnBatteryWarning. Có thể để trống.")]
@@ -62,10 +79,16 @@ public class PerformanceSettingUIController : MonoBehaviour
     {
         if (frameRateDropdown != null)
             frameRateDropdown.onValueChanged.AddListener(OnFrameRateDropdownChanged);
-        if (qualityDropdown != null)
-            qualityDropdown.onValueChanged.AddListener(OnQualityDropdownChanged);
+        if (qualityLowButton != null)
+            qualityLowButton.onClick.AddListener(OnQualityLowClicked);
+        if (qualityMediumButton != null)
+            qualityMediumButton.onClick.AddListener(OnQualityMediumClicked);
+        if (qualityHighButton != null)
+            qualityHighButton.onClick.AddListener(OnQualityHighClicked);
         if (adaptiveToggle != null)
             adaptiveToggle.onValueChanged.AddListener(OnAdaptiveToggleChanged);
+        if (vSyncToggle != null)
+            vSyncToggle.onValueChanged.AddListener(OnVSyncToggleChanged);
 
         BuildFrameRateOptions();
     }
@@ -105,16 +128,15 @@ public class PerformanceSettingUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Điền options chất lượng, đăng ký toàn bộ event và đồng bộ UI 1 lần.
+    /// Đăng ký toàn bộ event và đồng bộ UI 1 lần.
     /// </summary>
     private void Bind()
     {
-        BuildQualityOptions();
-
         performance.OnFPSUpdated += OnFPSUpdated;
         performance.OnFrameRateModeChanged += OnFrameRateModeChanged;
         performance.OnQualityLevelChanged += OnQualityLevelChanged;
         performance.OnAdaptiveEnabledChanged += OnAdaptiveEnabledChanged;
+        performance.OnVSyncChanged += OnVSyncChanged;
         performance.OnAdaptiveStepChanged += OnAdaptiveStepChanged;
         performance.OnBatteryWarning += OnBatteryWarning;
         subscribed = true;
@@ -142,16 +164,23 @@ public class PerformanceSettingUIController : MonoBehaviour
             performance.OnFrameRateModeChanged -= OnFrameRateModeChanged;
             performance.OnQualityLevelChanged -= OnQualityLevelChanged;
             performance.OnAdaptiveEnabledChanged -= OnAdaptiveEnabledChanged;
+            performance.OnVSyncChanged -= OnVSyncChanged;
             performance.OnAdaptiveStepChanged -= OnAdaptiveStepChanged;
             performance.OnBatteryWarning -= OnBatteryWarning;
         }
 
         if (frameRateDropdown != null)
             frameRateDropdown.onValueChanged.RemoveListener(OnFrameRateDropdownChanged);
-        if (qualityDropdown != null)
-            qualityDropdown.onValueChanged.RemoveListener(OnQualityDropdownChanged);
+        if (qualityLowButton != null)
+            qualityLowButton.onClick.RemoveListener(OnQualityLowClicked);
+        if (qualityMediumButton != null)
+            qualityMediumButton.onClick.RemoveListener(OnQualityMediumClicked);
+        if (qualityHighButton != null)
+            qualityHighButton.onClick.RemoveListener(OnQualityHighClicked);
         if (adaptiveToggle != null)
             adaptiveToggle.onValueChanged.RemoveListener(OnAdaptiveToggleChanged);
+        if (vSyncToggle != null)
+            vSyncToggle.onValueChanged.RemoveListener(OnVSyncToggleChanged);
     }
 
     // ──────────────────── UI -> Core (không logic ở đây) ─────
@@ -166,12 +195,18 @@ public class PerformanceSettingUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Người chơi chọn chất lượng đồ họa: đẩy thẳng xuống PerformanceManager.
+    /// Người chơi bấm nút chất lượng: đẩy thẳng xuống PerformanceManager.
+    /// Low = mức 0, Medium = mức giữa, High = mức cao nhất (tự tính theo số mức
+    /// trong QualitySettings để không cứng nhắc với số mức thực tế).
     /// </summary>
-    private void OnQualityDropdownChanged(int index)
+    private void OnQualityLowClicked() => OnQualityButtonClicked(0);
+    private void OnQualityMediumClicked() => OnQualityButtonClicked(PerformanceManager.QualityLevelCount / 2);
+    private void OnQualityHighClicked() => OnQualityButtonClicked(PerformanceManager.QualityLevelCount - 1);
+
+    private void OnQualityButtonClicked(int level)
     {
-        if (syncingUI || performance == null) return;
-        performance.SetQualityLevel(index);
+        if (performance == null) return;
+        performance.SetQualityLevel(level);
     }
 
     /// <summary>
@@ -182,6 +217,15 @@ public class PerformanceSettingUIController : MonoBehaviour
     {
         if (syncingUI || performance == null) return;
         performance.SetAdaptiveEnabled(enabled);
+    }
+
+    /// <summary>
+    /// Người chơi bật/tắt VSync: đẩy thẳng xuống PerformanceManager.
+    /// </summary>
+    private void OnVSyncToggleChanged(bool enabled)
+    {
+        if (syncingUI || performance == null) return;
+        performance.SetVSyncEnabled(enabled);
     }
 
     // ──────────────────── Core -> UI (chỉ update giao diện) ─
@@ -213,7 +257,7 @@ public class PerformanceSettingUIController : MonoBehaviour
     /// </summary>
     private void OnQualityLevelChanged(int level)
     {
-        RefreshQualityDropdown(level);
+        RefreshQualityButtons(level);
     }
 
     /// <summary>
@@ -222,6 +266,15 @@ public class PerformanceSettingUIController : MonoBehaviour
     private void OnAdaptiveEnabledChanged(bool enabled)
     {
         RefreshAdaptiveToggle(enabled);
+    }
+
+    /// <summary>
+    /// Đồng bộ toggle VSync theo manager.
+    /// </summary>
+    private void OnVSyncChanged(bool enabled)
+    {
+        if (vSyncToggle != null && vSyncToggle.isOn != enabled)
+            vSyncToggle.isOn = enabled;
     }
 
     /// <summary>
@@ -260,24 +313,6 @@ public class PerformanceSettingUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Đổ option chất lượng từ QualitySettings.names vào dropdown.
-    /// </summary>
-    private void BuildQualityOptions()
-    {
-        if (qualityDropdown == null || performance == null) return;
-
-        var options = new System.Collections.Generic.List<TMP_Dropdown.OptionData>(PerformanceManager.QualityLevelCount);
-        for (int i = 0; i < QualitySettings.names.Length; i++)
-        {
-            string name = QualitySettings.names[i];
-            name = string.IsNullOrEmpty(name) ? $"Level {i}" : char.ToUpper(name[0]) + name.Substring(1);
-            options.Add(new TMP_Dropdown.OptionData(name));
-        }
-        qualityDropdown.ClearOptions();
-        qualityDropdown.AddOptions(options);
-    }
-
-    /// <summary>
     /// Đồng bộ toàn bộ UI với trạng thái hiện tại của manager.
     /// </summary>
     private void RefreshAllUI()
@@ -285,8 +320,10 @@ public class PerformanceSettingUIController : MonoBehaviour
         syncingUI = true;
 
         RefreshFrameRateDropdown((int)performance.CurrentMode);
-        RefreshQualityDropdown(performance.AppliedQualityLevel);
+        RefreshQualityButtons(performance.AppliedQualityLevel);
         RefreshAdaptiveToggle(performance.AdaptiveEnabled);
+        if (vSyncToggle != null && vSyncToggle.isOn != performance.VSyncEnabled)
+            vSyncToggle.isOn = performance.VSyncEnabled;
         if (performanceLevelText != null)
             performanceLevelText.text = performance.CurrentPerformanceLevel.ToString();
 
@@ -304,13 +341,66 @@ public class PerformanceSettingUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Set giá trị dropdown chất lượng mà không kích hoạt onValueChanged.
+    /// Bộ nhớ màu gốc của 1 nút chất lượng để có thể phục hồi khi được chọn.
     /// </summary>
-    private void RefreshQualityDropdown(int level)
+    private struct QualityButtonStyle
     {
-        if (qualityDropdown == null) return;
-        if (qualityDropdown.value != level)
-            qualityDropdown.value = Mathf.Clamp(level, 0, qualityDropdown.options.Count - 1);
+        public Button button;
+        public Image bg;
+        public TMP_Text label;
+        public Color bgOriginal;
+        public Color labelOriginal;
+    }
+    private QualityButtonStyle lowStyle, midStyle, highStyle;
+
+    /// <summary>
+    /// Đồng bộ 3 nút chất lượng theo mức đang áp dụng (kể cả khi adaptive/cấu
+    /// hình thấp đang làm lệch mức): nút chọn giữ màu gốc, các nút còn lại
+    /// nền xám tối + chữ sáng.
+    /// </summary>
+    private void RefreshQualityButtons(int level)
+    {
+        int low = 0;
+        int mid = PerformanceManager.QualityLevelCount / 2;
+        int high = PerformanceManager.QualityLevelCount - 1;
+
+        bool isLow = Mathf.Abs(level - low) <= Mathf.Abs(level - mid);
+        bool isHigh = !isLow && Mathf.Abs(level - high) < Mathf.Abs(level - mid);
+        bool isMid = !isLow && !isHigh;
+
+        // Cache màu gốc chỉ 1 lần — trước khi bắt đầu đổi màu nút
+        if (lowStyle.button == null && qualityLowButton != null) lowStyle = CacheButtonStyle(qualityLowButton);
+        if (midStyle.button == null && qualityMediumButton != null) midStyle = CacheButtonStyle(qualityMediumButton);
+        if (highStyle.button == null && qualityHighButton != null) highStyle = CacheButtonStyle(qualityHighButton);
+
+        ApplyButtonStyle(lowStyle, isLow);
+        ApplyButtonStyle(midStyle, isMid);
+        ApplyButtonStyle(highStyle, isHigh);
+    }
+
+    /// <summary>
+    /// Lưu lại màu nền + chữ gốc của một nút (chỉ gọi 1 lần ở lần highlight đầu).
+    /// </summary>
+    private QualityButtonStyle CacheButtonStyle(Button b)
+    {
+        QualityButtonStyle s;
+        s.button = b;
+        s.bg = b.targetGraphic as Image;
+        s.label = b.GetComponentInChildren<TMP_Text>(true);
+        s.bgOriginal = s.bg != null ? s.bg.color : Color.white;
+        s.labelOriginal = s.label != null ? s.label.color : Color.white;
+        return s;
+    }
+
+    /// <summary>
+    /// Áp màu cho 1 nút: được chọn = phục hồi màu gốc, không chọn = nền xám
+    /// tối + chữ sáng.
+    /// </summary>
+    private void ApplyButtonStyle(QualityButtonStyle s, bool selected)
+    {
+        if (s.button == null) return;
+        if (s.bg != null) s.bg.color = selected ? s.bgOriginal : unselectedBgColor;
+        if (s.label != null) s.label.color = selected ? s.labelOriginal : unselectedTextColor;
     }
 
     /// <summary>

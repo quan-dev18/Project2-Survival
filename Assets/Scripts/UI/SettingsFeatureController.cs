@@ -4,11 +4,12 @@ using UnityEngine;
 /// SettingsFeatureController - UI View Controller tách bạch UI vs Logic.
 ///
 /// ▐▌ CHỨC NĂNG CHÍNH
-///   Điều khiển 4 nút gạt (CustomSwitchUI) trong panel Cài đặt:
+///   Điều khiển 5 nút gạt (CustomSwitchUI) trong panel Cài đặt:
 ///     + "Cấu hình thấp"        -> PerformanceManager.SetLowGraphics (Core hiệu năng)
 ///     + "Hiện FPS"             -> GameSettingsManager.SetShowFPS     (Core cài đặt)
 ///     + "Hiển thị sát thương"   -> GameSettingsManager.SetShowDamage (Core cài đặt)
 ///     + "Hiển thị VFX"          -> GameSettingsManager.SetShowVFX    (Core cài đặt)
+///     + "VSync"                 -> PerformanceManager.SetVSyncEnabled (Core hiệu năng)
 ///
 /// ▐▌ QUY TẮC
 ///   - Không chứa logic quyết định: mọi tương tác chỉ "đẩy xuống" Core qua Setter
@@ -18,7 +19,7 @@ using UnityEngine;
 ///
 /// ▐▌ CÁCH GẮN TRONG UNITY EDITOR
 ///   1. Gắn script lên GameObject panel Cài đặt (cạnh SettingsUI / PauseAudioSettings).
-///   2. Kéo 4 CustomSwitchUI vào 4 ô dưới đây (tên trùng khớp sẽ tự tìm nếu bỏ trống).
+///   2. Kéo 5 CustomSwitchUI vào 5 ô dưới đây (tên trùng khớp sẽ tự tìm nếu bỏ trống).
 /// ============================================================================
 public class SettingsFeatureController : MonoBehaviour
 {
@@ -34,6 +35,9 @@ public class SettingsFeatureController : MonoBehaviour
 
     [Tooltip("Nút 'Hiển thị VFX' — tìm theo tên chứa 'vfx'/'hieuung'.")]
     [SerializeField] private CustomSwitchUI showVFXSwitch;
+
+    [Tooltip("Nút 'VSync' — tìm theo tên chứa 'vsync'.")]
+    [SerializeField] private CustomSwitchUI vSyncSwitch;
 
     private PerformanceManager performance;
     private GameSettingsManager settings;
@@ -53,6 +57,7 @@ public class SettingsFeatureController : MonoBehaviour
         if (showFPSSwitch != null) showFPSSwitch.onValueChanged.AddListener(OnShowFPSChanged);
         if (showDamageSwitch != null) showDamageSwitch.onValueChanged.AddListener(OnShowDamageChanged);
         if (showVFXSwitch != null) showVFXSwitch.onValueChanged.AddListener(OnShowVFXChanged);
+        if (vSyncSwitch != null) vSyncSwitch.onValueChanged.AddListener(OnVSyncChanged);
     }
 
     /// <summary>
@@ -93,6 +98,7 @@ public class SettingsFeatureController : MonoBehaviour
         settings.OnShowFPSChanged += OnShowFPSCoreChanged;
         settings.OnShowDamageChanged += OnShowDamageCoreChanged;
         settings.OnShowVFXChanged += OnShowVFXCoreChanged;
+        performance.OnVSyncChanged += OnVSyncCoreChanged;
         subscribed = true;
 
         SyncAllSwitches();
@@ -120,11 +126,14 @@ public class SettingsFeatureController : MonoBehaviour
             settings.OnShowDamageChanged -= OnShowDamageCoreChanged;
             settings.OnShowVFXChanged -= OnShowVFXCoreChanged;
         }
+        if (performance != null)
+            performance.OnVSyncChanged -= OnVSyncCoreChanged;
 
         if (lowGraphicsSwitch != null) lowGraphicsSwitch.onValueChanged.RemoveListener(OnLowGraphicsChanged);
         if (showFPSSwitch != null) showFPSSwitch.onValueChanged.RemoveListener(OnShowFPSChanged);
         if (showDamageSwitch != null) showDamageSwitch.onValueChanged.RemoveListener(OnShowDamageChanged);
         if (showVFXSwitch != null) showVFXSwitch.onValueChanged.RemoveListener(OnShowVFXChanged);
+        if (vSyncSwitch != null) vSyncSwitch.onValueChanged.RemoveListener(OnVSyncChanged);
     }
 
     // ──────────────────── UI -> Core (chỉ đẩy xuống, không logic) ─
@@ -153,6 +162,12 @@ public class SettingsFeatureController : MonoBehaviour
         settings.SetShowVFX(enabled);
     }
 
+    private void OnVSyncChanged(bool enabled)
+    {
+        if (syncingUI || performance == null) return;
+        performance.SetVSyncEnabled(enabled);
+    }
+
     // ──────────────────── Core -> UI (chỉ cập nhật giao diện) ─
 
     private void OnLowGraphicsCoreChanged(bool enabled)
@@ -175,10 +190,15 @@ public class SettingsFeatureController : MonoBehaviour
         SyncSwitch(showVFXSwitch, enabled);
     }
 
+    private void OnVSyncCoreChanged(bool enabled)
+    {
+        SyncSwitch(vSyncSwitch, enabled);
+    }
+
     // ──────────────────── Helpers / Data binding ─────────────
 
     /// <summary>
-    /// Đồng bộ cả 4 switch theo trạng thái hiện tại của 2 Core Manager.
+    /// Đồng bộ cả 5 switch theo trạng thái hiện tại của 2 Core Manager.
     /// </summary>
     private void SyncAllSwitches()
     {
@@ -188,6 +208,7 @@ public class SettingsFeatureController : MonoBehaviour
         SyncSwitch(showFPSSwitch, settings.ShowFPS);
         SyncSwitch(showDamageSwitch, settings.ShowDamage);
         SyncSwitch(showVFXSwitch, settings.ShowVFX);
+        SyncSwitch(vSyncSwitch, performance.VSyncEnabled);
 
         syncingUI = false;
     }
@@ -212,6 +233,7 @@ public class SettingsFeatureController : MonoBehaviour
         if (showFPSSwitch == null) showFPSSwitch = FindByName(list, "fps");
         if (showDamageSwitch == null) showDamageSwitch = FindByName(list, "sát", "sat", "damage");
         if (showVFXSwitch == null) showVFXSwitch = FindByName(list, "vfx", "hieuung");
+        if (vSyncSwitch == null) vSyncSwitch = FindByName(list, "vsync");
     }
 
     /// <summary>

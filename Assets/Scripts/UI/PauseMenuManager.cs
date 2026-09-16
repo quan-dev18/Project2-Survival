@@ -227,6 +227,25 @@ public class PauseMenuManager : MonoBehaviour
     // Chỉ số chi tiết của vũ khí đang sử dụng (được phân chia rõ riêng phần)
     private void AddActiveWeaponStats()
     {
+        // Nếu đang dùng súng lửa (slot đang active) → hiện nó như vũ khí chính
+        if (playerStats != null)
+        {
+            foreach (FlamethrowerController f in playerStats.Flamethrowers)
+            {
+                if (f == null || !f.gameObject.activeInHierarchy) continue;
+
+                string flameName = f.WeaponStats != null ? f.WeaponStats.WeaponName : f.gameObject.name;
+                AddSectionHeader(flameName, weaponColor);
+
+                AddStat("Sát thương", FormatNumber(f.EffectiveDamagePerTick));
+                AddStat("Tốc độ bắn", FormatNumber(1f / Mathf.Max(0.05f, f.tickInterval)) + "/s");
+                AddStat("Đạn", f.CurrentAmmo + " / " + f.MagazineSize);
+                AddStat("Thời gian nạp đạn", FormatNumber(f.reloadTime) + "s");
+                AddStat("Tầm bắn", FormatNumber(f.fireRange));
+                return;
+            }
+        }
+
         WeaponController w = playerStats != null ? playerStats.ActiveWeapon : null;
         if (w == null) return;
 

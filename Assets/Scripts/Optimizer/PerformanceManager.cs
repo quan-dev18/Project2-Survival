@@ -69,6 +69,7 @@ public sealed class PerformanceManager : MonoBehaviour
     private const string KEY_QUALITY_LEVEL = "Performance_Quality_Level";
     private const string KEY_ADAPTIVE_ENABLED = "Performance_Adaptive_Enabled";
     private const string KEY_LOW_GRAPHICS = "Performance_LowGraphics";
+    private const string KEY_VSYNC = "Performance_VSync";
 
     // =============================================================
     //  SERIALIZE FIELDS - thiết lập trong Inspector
@@ -148,6 +149,7 @@ public sealed class PerformanceManager : MonoBehaviour
     private bool adaptiveEnabled;
     private int baseQualityLevel;
     private bool lowGraphicsEnabled;
+    private bool vSyncEnabled;
 
     private float fpsAccumulator;        // thời gian tích lũy trong cửa sổ mẫu
     private float frameTimeAccumulator;  // tổng frame time trong cửa sổ mẫu (ms)
@@ -204,9 +206,14 @@ public sealed class PerformanceManager : MonoBehaviour
     /// <summary>Chế độ cấu hình thấp: ép chất lượng về mức 0 để ưu tiên hiệu năng.</summary>
     public bool LowGraphicsEnabled => lowGraphicsEnabled;
 
-    /// <summary>Render Scale URP đang áp dụng (theo mức hiệu năng / cấu hình thấp).</summary>
+    /// <summary>VSync thủ công đang bật hay không (bật = khung hình đồng bộ màn hình).</summary>
+    public bool VSyncEnabled => vSyncEnabled;
+
+    /// <summary>Render Scale URP đang áp dụng — đi theo MỨC CHẤT LƯỢNG người chơi chọn
+    /// (Low=0.75 / Medium=0.875 / High=1.0), chứ không theo adaptive.
+    /// Adaptive/low-graphics chỉ làm giảm mức áp dụng (AppliedQualityLevel).</summary>
     public float CurrentRenderScale =>
-        GetRenderScaleForLevel(lowGraphicsEnabled ? PerformanceLevel.Low : CurrentPerformanceLevel);
+        GetRenderScaleForLevel(GetPerformanceLevelForQuality(AppliedQualityLevel));
 
     /// <summary>Render Scale URP gốc trong asset (đọc khi khởi tạo, dùng làm mức High).</summary>
     public float BaseRenderScale { get; private set; } = 1f;
@@ -245,6 +252,9 @@ public sealed class PerformanceManager : MonoBehaviour
     /// <summary>Khi chế độ cấu hình thấp được bật/tắt.</summary>
     public event Action<bool> OnLowGraphicsChanged;
 
+    /// <summary>Khi bật/tắt VSync thủ công.</summary>
+    public event Action<bool> OnVSyncChanged;
+
     // =============================================================
     //  PHẦN 1: KHỞI TẠO (Singleton + đọc cài đặt đã lưu)
     // =============================================================
@@ -269,6 +279,7 @@ public sealed class PerformanceManager : MonoBehaviour
 
         adaptiveEnabled = PlayerPrefs.GetInt(KEY_ADAPTIVE_ENABLED, adaptiveEnabledByDefault ? 1 : 0) == 1;
         lowGraphicsEnabled = PlayerPrefs.GetInt(KEY_LOW_GRAPHICS, lowGraphicsEnabledByDefault ? 1 : 0) == 1;
+        vSyncEnabled = PlayerPrefs.GetInt(KEY_VSYNC, 0) == 1;
         baseQualityLevel = Mathf.Clamp(
             PlayerPrefs.GetInt(KEY_QUALITY_LEVEL, QualitySettings.GetQualityLevel()),
             0, QualityLevelCount - 1);
@@ -290,6 +301,16 @@ public sealed class PerformanceManager : MonoBehaviour
         Application.lowMemory += OnLowMemoryWarning;
 
         Debug.Log($"[PerformanceManager] 🚀 Khởi tạo: Mode={frameRateMode}, Target={AppliedTargetFPS} FPS, Quality={AppliedQualityLevel}, Adaptive={adaptiveEnabled}");
+    }
+
+    /// <summary>
+    /// Lặp lại ApplyFrameRate sau khi toàn bộ scene đã Awake xong. Vài nền tảng
+    /// (nhất là mobile) cài đặt vSyncCount rất sớm trong Awake thì không ăn —
+    /// Start là lúc graphics đã sẵn sàng nên cài lại chắc chắn hơn.
+    /// </summary>
+    private void Start()
+    {
+        ApplyFrameRate();
     }
 
     /// <summary>
@@ -516,9 +537,9 @@ public sealed class PerformanceManager : MonoBehaviour
     /// </summary>
     private void ApplyAdaptiveStep()
     {
-        ApplyFrameRate();
         ApplyQuality();
         ApplyRenderScale();
+        ApplyFrameRate();
         OnAdaptiveStepChanged?.Invoke(CurrentPerformanceLevel);
     }
 
@@ -552,6 +573,8 @@ public sealed class PerformanceManager : MonoBehaviour
 
         baseQualityLevel = clamped;
         ApplyQuality();
+        ApplyRenderScale(); // render scale giờ theo chất lượng
+        ApplyFrameRate(); // quality mới có thể bật lại VSync -> áp lại target
         SavePreferences();
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
         Debug.Log($"[PerformanceManager] 🚀 Đổi chất lượng đồ họa: {clamped} (áp dụng {AppliedQualityLevel})");
@@ -591,10 +614,30 @@ public sealed class PerformanceManager : MonoBehaviour
         lowGraphicsEnabled = enabled;
         ApplyQuality();
         ApplyRenderScale();
+        ApplyFrameRate(); // quality ép về 0 có thể đổi VSync -> áp lại target
         SavePreferences();
         OnLowGraphicsChanged?.Invoke(lowGraphicsEnabled);
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
         Debug.Log($"[PerformanceManager] 🚀 Cấu hình thấp: {(lowGraphicsEnabled ? "BẬT" : "TẮT")} (Quality={AppliedQualityLevel}, RenderScale={CurrentRenderScale:0.00})");
+    }
+
+    /// <summary>
+    /// Bật/tắt VSync thủ công và lưu ngay vào PlayerPrefs.
+    /// - BẬT:   dùng VSync (khung hình đồng bộ màn hình), FPS do màn hình quyết định
+    ///          (60/120...), không tổn hao GPU phế phẩm; thích hợp khoe nét mượt.
+    /// - TẮT:   trả về chế độ targetFrameRate theo frame rate đã chọn (Auto/30/60/90/120).
+    /// Lưu ý: nếu không dùng nút này thì tất cả do ApplyFrameRate tự quyết (mặc định TẮT).
+    /// </summary>
+    /// <param name="enabled">true = bật VSync.</param>
+    public void SetVSyncEnabled(bool enabled)
+    {
+        if (vSyncEnabled == enabled) return;
+
+        vSyncEnabled = enabled;
+        ApplyFrameRate();
+        SavePreferences();
+        OnVSyncChanged?.Invoke(vSyncEnabled);
+        Debug.Log($"[PerformanceManager] 🎮 VSync: {(vSyncEnabled ? "BẬT" : "TẮT")} (Target={AppliedTargetFPS} FPS)");
     }
 
     // =============================================================
@@ -645,9 +688,9 @@ public sealed class PerformanceManager : MonoBehaviour
     /// </summary>
     private void ApplyAll()
     {
-        ApplyFrameRate();
         ApplyQuality();
         ApplyRenderScale();
+        ApplyFrameRate();
         OnFrameRateModeChanged?.Invoke(frameRateMode);
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
         OnAdaptiveEnabledChanged?.Invoke(adaptiveEnabled);
@@ -687,6 +730,23 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     }
 
     /// <summary>
+    /// Quy mức chất lượng đồ họa (0..QualityLevelCount-1) về 1 trong 3 nấc hiệu
+    /// năng để chọn render scale: Low = mức 0, Medium = mức giữa, High = mức cao
+    /// nhất. Chọn nấc gần nhất (cùng khoảng cách thì về nấc thấp hơn).
+    /// </summary>
+    public static PerformanceLevel GetPerformanceLevelForQuality(int qualityLevel)
+    {
+        int low = 0;
+        int mid = QualityLevelCount / 2;
+        int high = QualityLevelCount - 1;
+
+        bool isLow = Mathf.Abs(qualityLevel - low) <= Mathf.Abs(qualityLevel - mid);
+        if (isLow) return PerformanceLevel.Low;
+        bool isHigh = Mathf.Abs(qualityLevel - high) < Mathf.Abs(qualityLevel - mid);
+        return isHigh ? PerformanceLevel.High : PerformanceLevel.Medium;
+    }
+
+    /// <summary>
     /// Áp dụng render scale hiện tại xuống UniversalRenderPipelineAsset (chỉ khi đang dùng URP).
     /// </summary>
     private void ApplyRenderScale()
@@ -704,14 +764,24 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     }
 
     /// <summary>
-    /// Áp dụng FPS mục tiêu lên Application.targetFrameRate (bỏ qua nếu đang bật VSync).
+    /// Áp dụng chế độ đồng bộ hiện tại:
+    /// - Nếu bật VSync thủ công: vSyncCount = 1 và bỏ targetFrameRate (màn hình tự đồng bộ).
+    /// - Ngược lại: tắt VSync mọi mức (vì VSync đè lên targetFrameRate làm chọn
+    ///   FPS 120/60/30 vô dụng) rồi áp targetFrameRate theo chế độ người chơi chọn.
     /// </summary>
     private void ApplyFrameRate()
     {
-        if (QualitySettings.vSyncCount > 0)
+        if (vSyncEnabled)
+        {
+            QualitySettings.vSyncCount = 1;
             Application.targetFrameRate = -1;
-        else
-            Application.targetFrameRate = AppliedTargetFPS;
+            return;
+        }
+
+        if (QualitySettings.vSyncCount > 0)
+            QualitySettings.vSyncCount = 0;
+
+        Application.targetFrameRate = AppliedTargetFPS;
     }
 
     /// <summary>
@@ -724,6 +794,12 @@ private static UniversalRenderPipelineAsset GetURPAsset()
             : Mathf.Clamp(baseQualityLevel - adaptiveStep, 0, QualityLevelCount - 1);
         if (QualitySettings.GetQualityLevel() != effective)
             QualitySettings.SetQualityLevel(effective, false);
+
+        // QualitySettings.SetQualityLevel (kể cả applyExpensiveSettings=false) có thể
+        // reset vSyncCount về giá trị mặc định trong QualitySettings.asset — nên
+        // nếu đang bật VSync thủ công thì phải set lại ngay.
+        if (vSyncEnabled)
+            QualitySettings.vSyncCount = 1;
     }
 
     /// <summary>
@@ -735,6 +811,7 @@ private static UniversalRenderPipelineAsset GetURPAsset()
         PlayerPrefs.SetInt(KEY_QUALITY_LEVEL, baseQualityLevel);
         PlayerPrefs.SetInt(KEY_ADAPTIVE_ENABLED, adaptiveEnabled ? 1 : 0);
         PlayerPrefs.SetInt(KEY_LOW_GRAPHICS, lowGraphicsEnabled ? 1 : 0);
+        PlayerPrefs.SetInt(KEY_VSYNC, vSyncEnabled ? 1 : 0);
         PlayerPrefs.Save();
     }
 }
