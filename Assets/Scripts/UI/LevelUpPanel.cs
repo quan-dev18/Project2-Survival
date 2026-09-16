@@ -27,6 +27,15 @@ public class LevelUpPanel : MonoBehaviour
     [SerializeField] private Image icon2;
     [SerializeField] private Image icon3;
 
+    [Header("Header Backgrounds (tier color)")]
+    [Tooltip("Blue bar behind the title on each card. Recolored by tier: 1=blue, 2=green, 3=purple.")]
+    [SerializeField] private Image headerBg1;
+    [SerializeField] private Image headerBg2;
+    [SerializeField] private Image headerBg3;
+    [SerializeField] private Color tier1Color = new Color(0.2f, 0.45f, 1f);
+    [SerializeField] private Color tier2Color = new Color(0.2f, 0.8f, 0.35f);
+    [SerializeField] private Color tier3Color = new Color(0.6f, 0.3f, 0.9f);
+
     [Header("Upgrade Pool")]
     [SerializeField] private List<UpgradeSO> upgradePool;
 
@@ -233,10 +242,15 @@ public class LevelUpPanel : MonoBehaviour
 
         UpgradeSO upgrade = choices[choiceIndex];
 
-        // Resolve per-slot title/desc/icon
+        // Resolve per-slot title/desc/icon/header
         TMP_Text title = choiceIndex == 0 ? title1 : choiceIndex == 1 ? title2 : title3;
         TMP_Text desc = choiceIndex == 0 ? desc1 : choiceIndex == 1 ? desc2 : desc3;
         Image icon = choiceIndex == 0 ? icon1 : choiceIndex == 1 ? icon2 : icon3;
+        Image headerBg = choiceIndex == 0 ? headerBg1 : choiceIndex == 1 ? headerBg2 : headerBg3;
+
+        // Tier color: 1 = blue, 2 = green, 3 = purple
+        if (headerBg != null)
+            headerBg.color = GetTierColor(GetUpgradeTier(upgrade));
 
         bool hasSplitFields = title != null || desc != null || icon != null;
 
@@ -271,6 +285,27 @@ public class LevelUpPanel : MonoBehaviour
         }
 
         button.gameObject.SetActive(true);
+    }
+
+    private int GetUpgradeTier(UpgradeSO upgrade)
+    {
+        if (upgrade == null) return 1;
+        string n = upgrade.UpgradeName ?? string.Empty;
+        // Check tier 3 markers first ("III" contains "II")
+        if (n.EndsWith(" III") || n.EndsWith("_3") || n.EndsWith(" 3")) return 3;
+        if (n.EndsWith(" II") || n.EndsWith("_2") || n.EndsWith("_2A") || n.EndsWith("_2B") || n.EndsWith(" 2")) return 2;
+        if (n.EndsWith(" I") || n.EndsWith("_1") || n.EndsWith(" 1")) return 1;
+        // Fallback: search anywhere (e.g. "TC_2A - ...")
+        if (n.Contains("III") || n.Contains("_3")) return 3;
+        if (n.Contains("II") || n.Contains("_2")) return 2;
+        return 1;
+    }
+
+    private Color GetTierColor(int tier)
+    {
+        if (tier >= 3) return tier3Color;
+        if (tier == 2) return tier2Color;
+        return tier1Color;
     }
 
     private void Choose(int choiceIndex)
