@@ -16,6 +16,10 @@ public class GunShowcaseUI : MonoBehaviour
     [Tooltip("Tên súng.")]
     [SerializeField] private TextMeshProUGUI gunNameText;
 
+    [Header("Panel đi kèm")]
+    [Tooltip("Panel bật/tắt cùng pop-up này (ví dụ: panel chọn Skin). Tự tắt khi mở màn.")]
+    [SerializeField] private GameObject skinPanel;
+
     // ─────────────── Thanh Parameter Chỉ Số ──────────────
     [Header("Thanh Chỉ Số (Image Fill Amount)")]
     [Tooltip("Thanh sát thương.")]
@@ -50,6 +54,7 @@ public class GunShowcaseUI : MonoBehaviour
     private void Awake()
     {
         ResetAllBars();
+        if (skinPanel != null) skinPanel.SetActive(false);
     }
 
     private void OnDisable()
@@ -58,6 +63,7 @@ public class GunShowcaseUI : MonoBehaviour
         _barSequence?.Kill();
         transform.DOKill();
         transform.localScale = Vector3.zero;
+        if (skinPanel != null) skinPanel.SetActive(false);
     }
 
     private void OnDestroy()
@@ -70,13 +76,23 @@ public class GunShowcaseUI : MonoBehaviour
 
     public void Show(WeaponSO weaponData, bool isUnlocked)
     {
+        Show(weaponData, isUnlocked, null);
+    }
+
+    /// <summary>
+    /// Hiển thị pop-up với tuỳ chọn ghi đè icon (dùng khi đang xem trước 1 skin:
+    /// truyền <c>skin.weaponSprite</c> để ảnh súng đổi theo skin).
+    /// </summary>
+    public void Show(WeaponSO weaponData, bool isUnlocked, Sprite iconOverride)
+    {
         _activeTween?.Kill();
         _barSequence?.Kill();
         transform.DOKill();
 
-        float[] targets = SetupData(weaponData, isUnlocked);
+        float[] targets = SetupData(weaponData, isUnlocked, iconOverride);
 
         gameObject.SetActive(true);
+        if (skinPanel != null) skinPanel.SetActive(true);
 
         transform.localScale = Vector3.zero;
         _activeTween = transform.DOScale(Vector3.one, 0.3f)
@@ -84,6 +100,16 @@ public class GunShowcaseUI : MonoBehaviour
             .SetUpdate(true);
 
         PlayBarFillAnimation(targets, isUnlocked);
+    }
+
+    /// <summary>
+    /// Chỉ đổi ảnh súng của showcase đang mở (không chạy lại animation / không đổi chỉ số).
+    /// Dùng khi người chơi chọn skin khác để cập nhật ảnh ngay lập tức.
+    /// </summary>
+    public void SetIcon(Sprite icon)
+    {
+        if (gunIcon != null && icon != null)
+            gunIcon.sprite = icon;
     }
 
     public void Hide()
@@ -106,7 +132,7 @@ public class GunShowcaseUI : MonoBehaviour
     /// Tính toán tỷ lệ % hiển thị cho từng thanh bar từ dữ liệu vũ khí.
     /// Trả về mảng float[5]: [ATK, FireRate, ReloadTime, MagazineSize, BulletCount].
     /// </summary>
-    private float[] SetupData(WeaponSO weaponData, bool isUnlocked)
+    private float[] SetupData(WeaponSO weaponData, bool isUnlocked, Sprite iconOverride)
     {
         float[] targets = new float[5];
 
@@ -117,7 +143,7 @@ public class GunShowcaseUI : MonoBehaviour
         }
 
         if (gunIcon != null)
-            gunIcon.sprite = weaponData.WeaponIcon;
+            gunIcon.sprite = iconOverride != null ? iconOverride : weaponData.WeaponIcon;
         if (gunNameText != null)
             gunNameText.text = weaponData.WeaponName;
 

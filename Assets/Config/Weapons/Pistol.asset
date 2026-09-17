@@ -17,8 +17,10 @@ MonoBehaviour:
   isUnlocked: 1
   goldCost: 0
   skinList:
-  - skinID: Rare
+  - skinID: ff
+    isDefault: 0
     skinName: Free Fire
+    tier: 1
     skinIcon: {fileID: -339191672, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
     weaponSprite: {fileID: -339191672, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
     price: 100

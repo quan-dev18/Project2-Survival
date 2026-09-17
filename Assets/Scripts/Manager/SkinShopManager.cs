@@ -78,7 +78,9 @@ public class SkinShopManager : MonoBehaviour
                 if (!seenComposite.Add(compositeId)) continue;
 
                 // Đọc trạng thái "đã sở hữu" từ dữ liệu người chơi
-                bool owned = UserData.Instance != null && UserData.Instance.IsSkinOwned(weaponId, skin.skinID);
+                // (skin mặc định luôn được coi là đã sở hữu).
+                bool owned = skin.isDefault ||
+                             (UserData.Instance != null && UserData.Instance.IsSkinOwned(weaponId, skin.skinID));
 
                 GameObject slotObj = Instantiate(skinSlotPrefab, skinContent);
                 if (slotObj == null) continue;

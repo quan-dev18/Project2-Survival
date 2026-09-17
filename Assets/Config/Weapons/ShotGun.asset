@@ -17,8 +17,10 @@ MonoBehaviour:
   isUnlocked: 0
   goldCost: 9999
   skinList:
-  - skinID: Rare
+  - skinID: raiden
+    isDefault: 0
     skinName: Raiden Shotgun
+    tier: 1
     skinIcon: {fileID: 942102750, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: 942102750, guid: 67463b703454b35409398623a8578d2a, type: 3}
     price: 100

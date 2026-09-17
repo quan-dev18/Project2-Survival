@@ -17,8 +17,10 @@ MonoBehaviour:
   isUnlocked: 0
   goldCost: 300000
   skinList:
-  - skinID: R
+  - skinID: zoko
+    isDefault: 0
     skinName: Bozoko
+    tier: 2
     skinIcon: {fileID: -1447843693, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: -1447843693, guid: 67463b703454b35409398623a8578d2a, type: 3}
     price: 100

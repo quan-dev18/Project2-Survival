@@ -17,8 +17,10 @@ MonoBehaviour:
   isUnlocked: 0
   goldCost: 8000
   skinList:
-  - skinID: R
+  - skinID: rongdo
+    isDefault: 0
     skinName: AK Rong Do
+    tier: 3
     skinIcon: {fileID: 1870977277, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: 1870977277, guid: 67463b703454b35409398623a8578d2a, type: 3}
     price: 100

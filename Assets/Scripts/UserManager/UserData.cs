@@ -173,7 +173,52 @@ public class UserData : MonoBehaviour
         SyncArray(ref data.unlockedWeapons, count, i => weapons[i] != null && weapons[i].IsUnlocked);
         if (data.selectedWeaponIndex < 0 || data.selectedWeaponIndex >= count)
             data.selectedWeaponIndex = 0;
+        InitSkinDefaults(weapons);
         Save();
+    }
+
+    /// <summary>
+    /// Đảm bảo mỗi súng đều SỞ HỮU SẴN skin mặc định (<see cref="WeaponSO.DefaultSkin"/>)
+    /// và tự trang bị skin mặc định nếu súng chưa chọn skin nào.
+    /// </summary>
+    public void InitSkinDefaults(List<WeaponSO> weapons)
+    {
+        if (weapons == null) return;
+
+        data.ownedSkins ??= new List<string>();
+        data.equippedWeaponIds ??= new List<string>();
+        data.equippedSkinIds ??= new List<string>();
+
+        bool changed = false;
+
+        for (int i = 0; i < weapons.Count; i++)
+        {
+            WeaponSO weapon = weapons[i];
+            if (weapon == null) continue;
+
+            WeaponSkinData def = weapon.DefaultSkin;
+            if (def == null || string.IsNullOrEmpty(def.skinID)) continue;
+
+            string weaponId = weapon.WeaponID;
+
+            // 1) Cấp sở hữu skin mặc định nếu chưa có.
+            string compositeId = MakeSkinCompositeId(weaponId, def.skinID);
+            if (!data.ownedSkins.Contains(compositeId))
+            {
+                data.ownedSkins.Add(compositeId);
+                changed = true;
+            }
+
+            // 2) Nếu súng chưa trang bị skin nào → mặc định dùng skin mặc định.
+            if (string.IsNullOrEmpty(GetEquippedSkinId(weaponId)))
+            {
+                data.equippedWeaponIds.Add(weaponId);
+                data.equippedSkinIds.Add(def.skinID);
+                changed = true;
+            }
+        }
+
+        if (changed) Save();
     }
 
     #region Gold

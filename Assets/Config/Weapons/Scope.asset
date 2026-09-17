@@ -17,8 +17,10 @@ MonoBehaviour:
   isUnlocked: 0
   goldCost: 9999
   skinList:
-  - skinID: Rare
+  - skinID: sogeki
+    isDefault: 0
     skinName: Sogeking
+    tier: 3
     skinIcon: {fileID: -585015684, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: -585015684, guid: 67463b703454b35409398623a8578d2a, type: 3}
     price: 100

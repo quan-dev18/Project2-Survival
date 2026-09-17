@@ -1,6 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// ──────────────────── Độ hiếm (Tier) của skin ────────────────────
+public enum SkinTier
+{
+    Common,     // Phổ thông
+    Rare,       // Hiếm
+    Epic,       // Sử thi
+    Legendary   // Huyền thoại
+}
+
 // ──────────────────── Dữ liệu Skin của 1 khẩu súng ────────────────────
 [System.Serializable]
 public class WeaponSkinData
@@ -8,8 +17,15 @@ public class WeaponSkinData
     [Tooltip("ID duy nhất của skin trong phạm vi 1 khẩu súng (ví dụ: 'default', 'gold', 'legend').")]
     public string skinID;
 
+    [Tooltip("Đánh dấu đây là SKIN MẶC ĐỊNH của súng (luôn được sở hữu sẵn). " +
+             "Nếu không có skin nào được đánh dấu, hệ thống tự dùng SPRITE GỐC của vũ khí làm skin mặc định.")]
+    public bool isDefault;
+
     [Tooltip("Tên hiển thị của skin.")]
     public string skinName;
+
+    [Tooltip("Độ hiếm của skin, dùng để quyết định màu nền/khung trong UI.")]
+    public SkinTier tier;
 
     [Tooltip("Icon skin hiển thị trên UI Shop.")]
     public Sprite skinIcon;
@@ -24,6 +40,9 @@ public class WeaponSkinData
 [CreateAssetMenu(fileName = "WeaponSO", menuName = "WeaponStats")]
 public class WeaponSO : ScriptableObject
 {
+    /// <summary>ID cố định của skin mặc định (dùng sprite gốc vũ khí).</summary>
+    public const string DefaultSkinId = "default";
+
     [Header("Identity")]
     [Tooltip("ID duy nhất của vũ khí, dùng làm tiền tố cho skin composite ID (vd: 'ak47').")]
     [SerializeField] private string weaponID;
@@ -40,9 +59,42 @@ public class WeaponSO : ScriptableObject
     public int GoldCost => goldCost;
 
     [Header("Skins")]
-    [Tooltip("Danh sách skin có sẵn cho khẩu súng này. Skin đầu tiên nên là skin mặc định (price = 0).")]
+    [Tooltip("Danh sách skin mua được. Skin mặc định (sprite gốc vũ khí) luôn tồn tại sẵn, không cần thêm vào đây.")]
     [SerializeField] private List<WeaponSkinData> skinList = new List<WeaponSkinData>();
     public List<WeaponSkinData> SkinList => skinList;
+
+    /// <summary>
+    /// Skin mặc định của súng. Quy tắc:
+    ///   1) Nếu có skin authored được đánh dấu <c>isDefault = true</c> → dùng skin đó.
+    ///   2) Ngược lại → trả về skin ẢO dùng chính SPRITE GỐC của vũ khí (<c>weaponIcon</c>),
+    ///      nên mọi súng luôn có sẵn lựa chọn "Mặc định" mà không cần author trong skinList.
+    /// </summary>
+    public WeaponSkinData DefaultSkin
+    {
+        get
+        {
+            if (skinList != null)
+            {
+                for (int i = 0; i < skinList.Count; i++)
+                {
+                    if (skinList[i] != null && skinList[i].isDefault)
+                        return skinList[i];
+                }
+            }
+
+            // Skin mặc định = sprite gốc của vũ khí.
+            return new WeaponSkinData
+            {
+                skinID = DefaultSkinId,
+                skinName = "Mặc định",
+                isDefault = true,
+                skinIcon = weaponIcon,
+                weaponSprite = weaponIcon,
+                price = 0,
+                tier = SkinTier.Common
+            };
+        }
+    }
 
     [Header("Audio")]
     [Tooltip("Tiếng bắn (SFX) của loại súng này. GunAudio sẽ tự đọc.")]

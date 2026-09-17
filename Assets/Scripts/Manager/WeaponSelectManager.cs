@@ -34,6 +34,28 @@ public class WeaponSelectManager : MonoBehaviour
     [SerializeField] private UISlideTween slideTween;
 
     private WeaponSO currentSelectedWeapon;
+
+    /// <summary>
+    /// Vũ khí đang được chọn. Nếu chưa có (manager chưa chạy OnEnable, hoặc vừa mở panel)
+    /// thì fallback về vũ khí đã lưu trong UserData để panel Skin luôn có dữ liệu.
+    /// </summary>
+    public WeaponSO CurrentWeapon
+    {
+        get
+        {
+            if (currentSelectedWeapon != null) return currentSelectedWeapon;
+
+            if (weaponList == null || weaponList.Count == 0) return null;
+
+            int index = UserData.Instance != null ? UserData.Instance.SelectedWeaponIndex : 0;
+            index = Mathf.Clamp(index, 0, weaponList.Count - 1);
+            return weaponList[index];
+        }
+    }
+
+    /// <summary>Bắn ra mỗi khi người chơi chọn 1 vũ khí (để panel Skin cập nhật theo).</summary>
+    public event System.Action<WeaponSO> OnWeaponSelected;
+
     private List<WeaponSlotUI> allSlots = new List<WeaponSlotUI>();
     private int selectedIndex = -1;
     private Transform lastClickedContainer;
@@ -75,8 +97,38 @@ public class WeaponSelectManager : MonoBehaviour
         int savedIndex = UserData.Instance != null ? UserData.Instance.SelectedWeaponIndex : 0;
         if (savedIndex >= 0 && savedIndex < weaponList.Count && weaponList[savedIndex] != null)
         {
-            if (outsideWeaponIcon != null) outsideWeaponIcon.sprite = weaponList[savedIndex].WeaponIcon;
+            if (outsideWeaponIcon != null)
+                outsideWeaponIcon.sprite = GetEquippedDisplaySprite(weaponList[savedIndex]);
         }
+    }
+
+    /// <summary>Sprite hiển thị của súng ở UI ngoài: ưu tiên skin đang trang bị, fallback sprite gốc.</summary>
+    private Sprite GetEquippedDisplaySprite(WeaponSO weapon)
+    {
+        if (weapon == null) return null;
+
+        if (UserData.Instance != null && weapon.SkinList != null)
+        {
+            string skinId = UserData.Instance.GetEquippedSkinId(weapon.WeaponID);
+            if (!string.IsNullOrEmpty(skinId))
+            {
+                for (int i = 0; i < weapon.SkinList.Count; i++)
+                {
+                    WeaponSkinData s = weapon.SkinList[i];
+                    if (s != null && s.skinID == skinId && s.weaponSprite != null)
+                        return s.weaponSprite;
+                }
+            }
+        }
+
+        return weapon.WeaponIcon;
+    }
+
+    /// <summary>Đổi ảnh súng hiển thị ở UI ngoài (gọi khi người chơi chọn skin).</summary>
+    public void SetOutsideWeaponIcon(Sprite sprite)
+    {
+        if (outsideWeaponIcon != null && sprite != null)
+            outsideWeaponIcon.sprite = sprite;
     }
 
     // Cập nhật tên súng hiển thị ở nút 'Thay đổi' bên ngoài
@@ -233,6 +285,8 @@ public class WeaponSelectManager : MonoBehaviour
             gunShowcase.Show(data, unlocked);
 
         RefreshOutsideName();
+
+        OnWeaponSelected?.Invoke(data);
     }
 
     private void OnConfirmSelect()
@@ -266,7 +320,7 @@ public class WeaponSelectManager : MonoBehaviour
                 goldCostContainer.SetActive(false);
 
             if (outsideWeaponIcon != null)
-                outsideWeaponIcon.sprite = currentSelectedWeapon.WeaponIcon;
+                outsideWeaponIcon.sprite = GetEquippedDisplaySprite(currentSelectedWeapon);
 
             // Sau khi mua thành công: mở lại pop-up để hiện chỉ số thật (thay cho "?").
             if (gunShowcase != null)
@@ -278,7 +332,7 @@ public class WeaponSelectManager : MonoBehaviour
         }
 
         if (outsideWeaponIcon != null)
-            outsideWeaponIcon.sprite = currentSelectedWeapon.WeaponIcon;
+            outsideWeaponIcon.sprite = GetEquippedDisplaySprite(currentSelectedWeapon);
 
         if (selectButton != null) selectButton.interactable = false;
         if (selectButtonText != null) selectButtonText.text = "Đã chọn";
