@@ -287,6 +287,10 @@ public class SkinSelectionManager : MonoBehaviour
 
         if (icon != null)
             gunShowcase.SetIcon(icon);
+
+        // Viền showcase đổi màu theo Tier của skin đang chọn.
+        if (selectedSkin != null)
+            gunShowcase.SetOutlineColor(GetTierColor(selectedSkin.tier));
     }
 
     // ──────────────────── Logic: Nhãn trạng thái ────────────────────

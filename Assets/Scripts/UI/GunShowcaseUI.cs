@@ -49,6 +49,7 @@ public class GunShowcaseUI : MonoBehaviour
     // ──────────────── Nội bộ ─────────────────────────────
     private Tween _activeTween;
     private Sequence _barSequence;
+    private Material _gunIconMatInstance;
 
     // ──────────────────── Unity Callbacks ─────────────────
     private void Awake()
@@ -70,6 +71,7 @@ public class GunShowcaseUI : MonoBehaviour
     {
         _activeTween?.Kill();
         _barSequence?.Kill();
+        if (_gunIconMatInstance != null) Destroy(_gunIconMatInstance);
     }
 
     // ──────────────────── Public API ──────────────────────
@@ -110,6 +112,24 @@ public class GunShowcaseUI : MonoBehaviour
     {
         if (gunIcon != null && icon != null)
             gunIcon.sprite = icon;
+    }
+
+    /// <summary>
+    /// Đổi màu outline của icon showcase (property <c>_OutlineColor</c> trong material của Image)
+    /// theo Tier của skin đang chọn. Dùng material instance riêng để không ảnh hưởng material gốc.
+    /// </summary>
+    public void SetOutlineColor(Color color)
+    {
+        if (gunIcon == null || gunIcon.material == null) return;
+
+        if (_gunIconMatInstance == null)
+        {
+            _gunIconMatInstance = new Material(gunIcon.material);
+            gunIcon.material = _gunIconMatInstance;
+        }
+
+        if (_gunIconMatInstance.HasProperty("_OutlineColor"))
+            _gunIconMatInstance.SetColor("_OutlineColor", color);
     }
 
     public void Hide()
