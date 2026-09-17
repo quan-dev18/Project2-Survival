@@ -106,7 +106,11 @@ public class CircleWallManager : MonoBehaviour
             EnemyMovement[] movements = obj.GetComponentsInChildren<EnemyMovement>(true);
             foreach (var em in movements)
             {
-                if (em != null) em.enabled = false;
+                if (em != null)
+                {
+                    em.enabled = false;
+                    em.ResetKnockback(); // frozen enemies must not bank knockback
+                }
             }
 
             BossController[] bosses = obj.GetComponentsInChildren<BossController>(true);
@@ -260,7 +264,10 @@ public class CircleWallManager : MonoBehaviour
             {
                 if (enemy.rigidbodies[r] != null)
                 {
-                    enemy.rigidbodies[r].bodyType = RigidbodyType2D.Dynamic;
+                    // All enemy prefabs are authored Kinematic (transform-driven,
+                    // top-down). Restoring Dynamic + prefab gravityScale 1 made
+                    // released wall enemies accelerate downward forever.
+                    enemy.rigidbodies[r].bodyType = RigidbodyType2D.Kinematic;
                     enemy.rigidbodies[r].velocity = Vector2.zero;
                 }
             }
@@ -271,7 +278,10 @@ public class CircleWallManager : MonoBehaviour
             for (int m = 0; m < enemy.movements.Length; m++)
             {
                 if (enemy.movements[m] != null)
+                {
+                    enemy.movements[m].ResetKnockback(); // never launch on stale hits
                     enemy.movements[m].enabled = true;
+                }
             }
         }
 

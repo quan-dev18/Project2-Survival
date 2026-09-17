@@ -44,6 +44,10 @@ public class EnemyController : MonoBehaviour
         LoadFromSO();
         currentHealth = maxHealth;
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        // Top-down game: gravity must never act on enemies, no matter which
+        // code path touches bodyType (e.g. circle-wall capture/restore).
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null) rb.gravityScale = 0f;
     }
 
     private void Update()

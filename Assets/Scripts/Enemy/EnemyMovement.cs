@@ -39,6 +39,11 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
         knockbackVelocity = dir.normalized * force;
     }
 
+    public void ResetKnockback()
+    {
+        knockbackVelocity = Vector2.zero;
+    }
+
     private void Update()
     {
         knockbackVelocity = Vector2.MoveTowards(knockbackVelocity, Vector2.zero, 8f * Time.deltaTime);
@@ -63,13 +68,13 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
 
         Vector2 moveDir = toTarget / dist;
         Flip(moveDir.x);
-        Vector2 separation = GetSeparation();
+        Vector2 separation = GetSeparation(enemyController.movementSpeed);
         Vector2 velocity = moveDir * enemyController.movementSpeed + separation + knockbackVelocity;
 
         transform.position += (Vector3)(velocity * Time.deltaTime);
     }
 
-    private Vector2 GetSeparation()
+    private Vector2 GetSeparation(float maxMagnitude)
     {
         Vector2 push = Vector2.zero;
         int count = Physics2D.OverlapCircleNonAlloc(transform.position, separationRadius, s_SeparationBuffer, enemyLayer);
@@ -84,7 +89,11 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
                 push += away / dist * (1f - dist / separationRadius);
         }
 
-        return push * separationForce;
+        // The push is a sum over neighbors, so in dense crowds it used to grow
+        // without bound (30+ u/s) and overwhelm steering - enemies streamed away
+        // instead of chasing. Clamp it so crowd pressure can declump but never
+        // dominate the chase direction.
+        return Vector2.ClampMagnitude(push * separationForce, maxMagnitude);
     }
 
     private void Attack()
@@ -112,7 +121,7 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
         if (wanderDir != Vector2.zero)
             Flip(wanderDir.x);
 
-        Vector2 separation = GetSeparation();
+        Vector2 separation = GetSeparation(enemyController.movementSpeed * 0.5f);
         Vector2 velocity = wanderDir * enemyController.movementSpeed * 0.5f + separation;
         transform.position += (Vector3)(velocity * Time.unscaledDeltaTime);
     }
