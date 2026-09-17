@@ -68,6 +68,7 @@ public class SkinEquipSlotUI : MonoBehaviour
         ApplyBaseVisual();
         SetSelected(false);
         BindButton();
+        ApplyInteractable();
     }
 
     /// <summary>Cập nhật lại trạng thái sở hữu (dùng sau khi mua skin thành công).</summary>
@@ -75,6 +76,7 @@ public class SkinEquipSlotUI : MonoBehaviour
     {
         isOwned = owned;
         if (lockOverlay != null) lockOverlay.SetActive(!isOwned);
+        ApplyInteractable();
     }
 
     // ──────────────────── Selection ────────────────────
@@ -128,5 +130,12 @@ public class SkinEquipSlotUI : MonoBehaviour
 
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => onClickCallback?.Invoke(this));
+    }
+
+    /// <summary>Skin chưa sở hữu thì không bấm chọn được.</summary>
+    private void ApplyInteractable()
+    {
+        if (button != null)
+            button.interactable = isOwned;
     }
 }

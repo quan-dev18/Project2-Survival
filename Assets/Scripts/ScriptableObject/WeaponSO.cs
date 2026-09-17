@@ -96,6 +96,24 @@ public class WeaponSO : ScriptableObject
         }
     }
 
+    /// <summary>
+    /// Sprite gameplay của skin đang trang bị. Trả về <c>null</c> khi không có skin authored
+    /// tương ứng (skin mặc định → giữ nguyên sprite gốc của prefab vũ khí).
+    /// </summary>
+    public Sprite GetEquippedGameplaySprite(string skinId)
+    {
+        if (string.IsNullOrEmpty(skinId) || skinList == null) return null;
+
+        for (int i = 0; i < skinList.Count; i++)
+        {
+            WeaponSkinData s = skinList[i];
+            if (s != null && s.skinID == skinId && s.weaponSprite != null)
+                return s.weaponSprite;
+        }
+
+        return null;
+    }
+
     [Header("Audio")]
     [Tooltip("Tiếng bắn (SFX) của loại súng này. GunAudio sẽ tự đọc.")]
     [SerializeField] private AudioClip shootSFX;

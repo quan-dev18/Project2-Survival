@@ -121,6 +121,18 @@ public class FlamethrowerController : MonoBehaviour
 
     private static readonly Collider2D[] s_ConeOverlapBuffer = new Collider2D[32];
 
+    /// <summary>Áp sprite skin đang trang bị lên vũ khí (gọi khi vào game / đổi súng).</summary>
+    public void ApplySkinSprite(Sprite sprite)
+    {
+        if (sprite == null) return;
+
+        if (weaponSprite == null)
+            weaponSprite = GetComponentInChildren<SpriteRenderer>(true);
+
+        if (weaponSprite != null)
+            weaponSprite.sprite = sprite;
+    }
+
     private void Awake()
     {
         baseFireRate = weaponStats != null ? weaponStats.FireRate : 0.1f;

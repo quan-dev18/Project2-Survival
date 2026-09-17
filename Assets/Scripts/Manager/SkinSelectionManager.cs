@@ -201,11 +201,12 @@ public class SkinSelectionManager : MonoBehaviour
     {
         if (slot == null || slot.SkinData == null) return;
 
+        // Skin chưa sở hữu (bị lock) thì không thể chọn.
+        if (!slot.IsOwned) return;
+
         SelectSlot(slot, slot.SkinData);
 
-        // Bấm slot = trang bị ngay (chỉ khi đã sở hữu).
-        if (slot.IsOwned)
-            EquipSelectedSkin();
+        EquipSelectedSkin();
 
         UpdateEquipStatus(); // cập nhật lại nhãn sau khi trang bị
     }
