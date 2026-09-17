@@ -12,9 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da6a1bb76031b4e45971f2ea8c4a3762, type: 3}
   m_Name: Bazuka
   m_EditorClassIdentifier: 
+  weaponID: bazuka
   weaponIcon: {fileID: -475155561, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
   isUnlocked: 0
   goldCost: 300000
+  skinList:
+  - skinID: R
+    skinName: Bozoko
+    skinIcon: {fileID: -1447843693, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    weaponSprite: {fileID: -1447843693, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    price: 100
   shootSFX: {fileID: 8300000, guid: f9c73c2aac0d0b34189d45aa766f042d, type: 3}
   reloadSFX: {fileID: 0}
   weaponName: Bazuka

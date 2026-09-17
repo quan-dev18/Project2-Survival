@@ -1,8 +1,34 @@
+using System.Collections.Generic;
 using UnityEngine;
+
+// ──────────────────── Dữ liệu Skin của 1 khẩu súng ────────────────────
+[System.Serializable]
+public class WeaponSkinData
+{
+    [Tooltip("ID duy nhất của skin trong phạm vi 1 khẩu súng (ví dụ: 'default', 'gold', 'legend').")]
+    public string skinID;
+
+    [Tooltip("Tên hiển thị của skin.")]
+    public string skinName;
+
+    [Tooltip("Icon skin hiển thị trên UI Shop.")]
+    public Sprite skinIcon;
+
+    [Tooltip("Sprite súng khi trang bị skin này trong gameplay.")]
+    public Sprite weaponSprite;
+
+    [Tooltip("Giá vàng để mua skin.")]
+    public int price;
+}
 
 [CreateAssetMenu(fileName = "WeaponSO", menuName = "WeaponStats")]
 public class WeaponSO : ScriptableObject
-{   
+{
+    [Header("Identity")]
+    [Tooltip("ID duy nhất của vũ khí, dùng làm tiền tố cho skin composite ID (vd: 'ak47').")]
+    [SerializeField] private string weaponID;
+    public string WeaponID => weaponID;
+
     [Header("UI & Display Info")]
     [SerializeField] private Sprite weaponIcon;
     public Sprite WeaponIcon => weaponIcon;
@@ -12,6 +38,11 @@ public class WeaponSO : ScriptableObject
 
     [SerializeField] private int goldCost = 100;
     public int GoldCost => goldCost;
+
+    [Header("Skins")]
+    [Tooltip("Danh sách skin có sẵn cho khẩu súng này. Skin đầu tiên nên là skin mặc định (price = 0).")]
+    [SerializeField] private List<WeaponSkinData> skinList = new List<WeaponSkinData>();
+    public List<WeaponSkinData> SkinList => skinList;
 
     [Header("Audio")]
     [Tooltip("Tiếng bắn (SFX) của loại súng này. GunAudio sẽ tự đọc.")]

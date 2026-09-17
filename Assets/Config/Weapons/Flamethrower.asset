@@ -12,9 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da6a1bb76031b4e45971f2ea8c4a3762, type: 3}
   m_Name: Flamethrower
   m_EditorClassIdentifier: 
+  weaponID: FT
   weaponIcon: {fileID: 21300000, guid: e360f1ab9a94fc34f97c7ea8fef7ea76, type: 3}
   isUnlocked: 0
   goldCost: 10000
+  skinList:
+  - skinID: R
+    skinName: May Thoi La
+    skinIcon: {fileID: 1392107807, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    weaponSprite: {fileID: 1392107807, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    price: 100
   shootSFX: {fileID: 8300000, guid: ccc3e28412bbafe469e0847088e45feb, type: 3}
   reloadSFX: {fileID: 0}
   weaponName: Flamethrower
