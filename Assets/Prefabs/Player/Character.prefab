@@ -835,6 +835,10 @@ MonoBehaviour:
   fieldDps: 6
   burnDps: 5
   burnDuration: 3
+  strikeSFX: {fileID: 8300000, guid: be658e55f5107b849a6ee3c63a341df4, type: 3}
+  strikeVolume: 1
+  minStrikePitch: 0.9
+  maxStrikePitch: 1.1
   startEnabledForTest: 0
 --- !u!1 &2709334579490155210
 GameObject:

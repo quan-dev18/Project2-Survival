@@ -158,6 +158,28 @@ public class PlayerEquipment : MonoBehaviour
             if (weaponCtrl != null) weaponCtrl.SetPlayerMovement(playerMovement);
             if (flameCtrl != null) flameCtrl.SetPlayerMovement(playerMovement);
         }
+
+        ApplyEquippedSkin(weaponCtrl, flameCtrl);
+    }
+
+    /// <summary>
+    /// Áp skin đang trang bị (lưu trong UserData) lên đúng vũ khí của khẩu súng đang cầm.
+    /// Nếu là skin mặc định hoặc chưa trang bị gì thì giữ nguyên sprite gốc của prefab.
+    /// </summary>
+    private void ApplyEquippedSkin(WeaponController weaponCtrl, FlamethrowerController flameCtrl)
+    {
+        if (UserData.Instance == null) return;
+
+        WeaponSO weapon = weaponCtrl != null ? weaponCtrl.WeaponStats
+                        : (flameCtrl != null ? flameCtrl.WeaponStats : null);
+        if (weapon == null) return;
+
+        string skinId = UserData.Instance.GetEquippedSkinId(weapon.WeaponID);
+        Sprite skinSprite = weapon.GetEquippedGameplaySprite(skinId);
+        if (skinSprite == null) return;
+
+        if (weaponCtrl != null) weaponCtrl.ApplySkinSprite(skinSprite);
+        if (flameCtrl != null) flameCtrl.ApplySkinSprite(skinSprite);
     }
 
     public void ActivateMeshByName(string meshName)

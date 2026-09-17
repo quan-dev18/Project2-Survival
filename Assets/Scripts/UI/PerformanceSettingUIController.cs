@@ -6,7 +6,7 @@ using UnityEngine.UI;
 /// PerformanceSettingUIController - UI View Controller cho phần hiệu năng.
 ///
 /// ▐▌ VAI TRÒ
-///   - Cập nhật UI (Text FPS, Dropdown frame rate / chất lượng, Toggle adaptive)
+///   - Cập nhật UI (Text FPS, Button frame rate / chất lượng, Toggle adaptive)
 ///     theo đúng dữ liệu của PerformanceManager.
 ///   - KHÔNG chứa logic quyết định: mọi thay đổi chỉ đẩy xuống Core Manager qua
 ///     SetFrameRateMode / SetQualityLevel / SetAdaptiveEnabled, và chỉ update UI
@@ -17,7 +17,8 @@ using UnityEngine.UI;
 ///   1. Gắn script lên GameObject panel Settings (PanelPerformance).
 ///   2. Kéo thả:
 ///        - TMP_Text "Fps Text"      (text xanh 1 dòng, dòng 1: FPS, dòng 2: budget)
-///        - TMP_Dropdown "Frame Rate Dropdown"   (mục 'Auto')
+///        - Button "Frame Rate Button"  (mỗi lần ấn cycle qua Auto/30/60/90/120)
+///        - TMP_Text "Frame Rate Label" (text hiển thị FPS mode hiện tại: Auto, FPS 30...)
 ///        - 3 nút chất lượng "Low/Medium/High": kéo vào các ô qualityLowButton /
 ///          qualityMediumButton / qualityHighButton. Low = mức 0, Medium = mức
 ///          giữa, High = mức cao nhất. Nút đang chọn giữ màu gốc; nút chưa
@@ -38,8 +39,10 @@ public class PerformanceSettingUIController : MonoBehaviour
     [SerializeField] private TMP_Text performanceLevelText;
 
     [Header("Frame Rate")]
-    [Tooltip("Dropdown chọn chế độ frame rate (Auto/30/60/90/120).")]
-    [SerializeField] private TMP_Dropdown frameRateDropdown;
+    [Tooltip("Nút cycle frame rate: mỗi lần ấn chuyển Auto -> 30 -> 60 -> 90 -> 120 -> Auto...")]
+    [SerializeField] private Button frameRateButton;
+    [Tooltip("Text hiển thị FPS mode hiện tại trên nút. Để trống nếu không cần.")]
+    [SerializeField] private TMP_Text frameRateLabel;
 
     [Header("Chất lượng đồ họa (3 nút)")]
     [Tooltip("Nút Low: ép chất lượng về mức 0.")]
@@ -77,8 +80,8 @@ public class PerformanceSettingUIController : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        if (frameRateDropdown != null)
-            frameRateDropdown.onValueChanged.AddListener(OnFrameRateDropdownChanged);
+        if (frameRateButton != null)
+            frameRateButton.onClick.AddListener(OnFrameRateButtonClicked);
         if (qualityLowButton != null)
             qualityLowButton.onClick.AddListener(OnQualityLowClicked);
         if (qualityMediumButton != null)
@@ -89,8 +92,6 @@ public class PerformanceSettingUIController : MonoBehaviour
             adaptiveToggle.onValueChanged.AddListener(OnAdaptiveToggleChanged);
         if (vSyncToggle != null)
             vSyncToggle.onValueChanged.AddListener(OnVSyncToggleChanged);
-
-        BuildFrameRateOptions();
     }
 
     /// <summary>
@@ -169,8 +170,8 @@ public class PerformanceSettingUIController : MonoBehaviour
             performance.OnBatteryWarning -= OnBatteryWarning;
         }
 
-        if (frameRateDropdown != null)
-            frameRateDropdown.onValueChanged.RemoveListener(OnFrameRateDropdownChanged);
+        if (frameRateButton != null)
+            frameRateButton.onClick.RemoveListener(OnFrameRateButtonClicked);
         if (qualityLowButton != null)
             qualityLowButton.onClick.RemoveListener(OnQualityLowClicked);
         if (qualityMediumButton != null)
@@ -186,12 +187,15 @@ public class PerformanceSettingUIController : MonoBehaviour
     // ──────────────────── UI -> Core (không logic ở đây) ─────
 
     /// <summary>
-    /// Người chơi chọn chế độ frame rate: đẩy thẳng xuống PerformanceManager.
+    /// Người chơi bấm nút frame rate: cycle sang chế độ tiếp theo (Auto -> 30 -> 60 -> 90 -> 120 -> Auto...).
     /// </summary>
-    private void OnFrameRateDropdownChanged(int index)
+    private void OnFrameRateButtonClicked()
     {
         if (syncingUI || performance == null) return;
-        performance.SetFrameRateMode((FrameRateMode)index);
+        FrameRateMode next = performance.CurrentMode + 1;
+        if (!System.Enum.IsDefined(typeof(FrameRateMode), next))
+            next = FrameRateMode.Auto;
+        performance.SetFrameRateMode(next);
     }
 
     /// <summary>
@@ -245,11 +249,11 @@ public class PerformanceSettingUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Đồng bộ dropdown frame rate theo manager (chống hồi tiếp bằng syncingUI).
+    /// Đồng bộ text frame rate theo manager.
     /// </summary>
     private void OnFrameRateModeChanged(FrameRateMode mode)
     {
-        RefreshFrameRateDropdown((int)mode);
+        RefreshFrameRateLabel(mode);
     }
 
     /// <summary>
@@ -298,18 +302,20 @@ public class PerformanceSettingUIController : MonoBehaviour
     // ──────────────────── Helpers / Data binding ─────────────
 
     /// <summary>
-    /// Tạo danh sách option cho dropdown frame rate từ enum FrameRateMode.
+    /// Cập nhật text hiển thị FPS mode hiện tại trên nút.
     /// </summary>
-    private void BuildFrameRateOptions()
+    private void RefreshFrameRateLabel(FrameRateMode mode)
     {
-        if (frameRateDropdown == null) return;
-
-        string[] names = System.Enum.GetNames(typeof(FrameRateMode));
-        var options = new System.Collections.Generic.List<TMP_Dropdown.OptionData>(names.Length);
-        for (int i = 0; i < names.Length; i++)
-            options.Add(new TMP_Dropdown.OptionData(names[i].Replace("FPS", "FPS ")));
-        frameRateDropdown.ClearOptions();
-        frameRateDropdown.AddOptions(options);
+        if (frameRateLabel == null) return;
+        frameRateLabel.text = mode switch
+        {
+            FrameRateMode.Auto   => "Auto",
+            FrameRateMode.FPS30  => "FPS 30",
+            FrameRateMode.FPS60  => "FPS 60",
+            FrameRateMode.FPS90  => "FPS 90",
+            FrameRateMode.FPS120 => "FPS 120",
+            _ => mode.ToString()
+        };
     }
 
     /// <summary>
@@ -319,7 +325,7 @@ public class PerformanceSettingUIController : MonoBehaviour
     {
         syncingUI = true;
 
-        RefreshFrameRateDropdown((int)performance.CurrentMode);
+        RefreshFrameRateLabel(performance.CurrentMode);
         RefreshQualityButtons(performance.AppliedQualityLevel);
         RefreshAdaptiveToggle(performance.AdaptiveEnabled);
         if (vSyncToggle != null && vSyncToggle.isOn != performance.VSyncEnabled)
@@ -328,16 +334,6 @@ public class PerformanceSettingUIController : MonoBehaviour
             performanceLevelText.text = performance.CurrentPerformanceLevel.ToString();
 
         syncingUI = false;
-    }
-
-    /// <summary>
-    /// Set giá trị dropdown frame rate mà không kích hoạt onValueChanged.
-    /// </summary>
-    private void RefreshFrameRateDropdown(int modeIndex)
-    {
-        if (frameRateDropdown == null) return;
-        if (frameRateDropdown.value != modeIndex)
-            frameRateDropdown.value = Mathf.Clamp(modeIndex, 0, frameRateDropdown.options.Count - 1);
     }
 
     /// <summary>
