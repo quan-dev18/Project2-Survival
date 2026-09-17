@@ -321,7 +321,15 @@ public class LevelUpPanel : MonoBehaviour
         GameManager.Instance.SetState(GameState.Playing);
     }
 
-    private void ApplyUpgrade(UpgradeSO upgrade)
+    /// <summary>Applies an upgrade from outside the normal choice flow (e.g. debug menu) and registers ownership.</summary>
+    public void GrantUpgrade(UpgradeSO upgrade)
+    {
+        if (upgrade == null) return;
+        ApplyUpgrade(upgrade);
+        ownedUpgrades.Add(upgrade);
+    }
+
+    public void ApplyUpgrade(UpgradeSO upgrade)
     {
         if (upgrade.StatMods == null || upgrade.StatMods.Count == 0)
         {

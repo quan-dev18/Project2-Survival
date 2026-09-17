@@ -138,6 +138,8 @@ public class WeaponSO : ScriptableObject
     public int BulletCount => bulletCount;
     [SerializeField] private int spread; // The number of bullets fired in a spread pattern
     public int Spread => spread;
+    [SerializeField] private int basePierce; // Innate pierce (e.g. sniper rifles)
+    public int BasePierce => basePierce;
 
     [Header("Bullet Data")]
     [Tooltip("BulletSO chứa chỉ số đạn (damage, speed...). GunShowcaseUI sẽ đọc ATK từ đây.")]

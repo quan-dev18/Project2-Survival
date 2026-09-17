@@ -13,14 +13,18 @@ MonoBehaviour:
   m_Name: SM_2A
   m_EditorClassIdentifier: 
   upgradeName: Special Mags II
-  description: 'Reload speed +30%
+  description: 'Reload speed +20%
 
-    Max ammo -20%'
+    Bullet damage +30%
+
+    Max ammo -30%'
   icon: {fileID: 541968776, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 8
+    amount: 20
+  - stat: 13
     amount: 30
   - stat: 9
-    amount: -20
+    amount: -30
   requires:
   - {fileID: 11400000, guid: ea98cd06de0a7f5489301b538e0c4323, type: 2}

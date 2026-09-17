@@ -559,7 +559,7 @@ public sealed class PerformanceManager : MonoBehaviour
         ApplyFrameRate();
         SavePreferences();
         OnFrameRateModeChanged?.Invoke(frameRateMode);
-        Debug.Log($"[PerformanceManager] 🚀 Đổi chế độ frame rate: {mode} (Target={AppliedTargetFPS} FPS)");
+        //Debug.Log($"[PerformanceManager] 🚀 Đổi chế độ frame rate: {mode} (Target={AppliedTargetFPS} FPS)");
     }
 
     /// <summary>
@@ -577,7 +577,7 @@ public sealed class PerformanceManager : MonoBehaviour
         ApplyFrameRate(); // quality mới có thể bật lại VSync -> áp lại target
         SavePreferences();
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
-        Debug.Log($"[PerformanceManager] 🚀 Đổi chất lượng đồ họa: {clamped} (áp dụng {AppliedQualityLevel})");
+        //Debug.Log($"[PerformanceManager] 🚀 Đổi chất lượng đồ họa: {clamped} (áp dụng {AppliedQualityLevel})");
     }
 
     /// <summary>
@@ -618,7 +618,7 @@ public sealed class PerformanceManager : MonoBehaviour
         SavePreferences();
         OnLowGraphicsChanged?.Invoke(lowGraphicsEnabled);
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
-        Debug.Log($"[PerformanceManager] 🚀 Cấu hình thấp: {(lowGraphicsEnabled ? "BẬT" : "TẮT")} (Quality={AppliedQualityLevel}, RenderScale={CurrentRenderScale:0.00})");
+        //Debug.Log($"[PerformanceManager] 🚀 Cấu hình thấp: {(lowGraphicsEnabled ? "BẬT" : "TẮT")} (Quality={AppliedQualityLevel}, RenderScale={CurrentRenderScale:0.00})");
     }
 
     /// <summary>
