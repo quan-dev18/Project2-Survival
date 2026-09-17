@@ -12,9 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da6a1bb76031b4e45971f2ea8c4a3762, type: 3}
   m_Name: Scope
   m_EditorClassIdentifier: 
+  weaponID: scope
   weaponIcon: {fileID: -536087438, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
   isUnlocked: 0
   goldCost: 9999
+  skinList:
+  - skinID: sogeki
+    isDefault: 0
+    skinName: Sogeking
+    tier: 3
+    skinIcon: {fileID: -585015684, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    weaponSprite: {fileID: -585015684, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    price: 100
   shootSFX: {fileID: 8300000, guid: 40f0d6f08672bef42ab5cd6e23a106d5, type: 3}
   reloadSFX: {fileID: 8300000, guid: f0ec494150d06c64eb431e14ad64d872, type: 3}
   weaponName: AWP

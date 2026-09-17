@@ -18,6 +18,17 @@ public class ThunderCloudController : MonoBehaviour
     [SerializeField] private float burnDps = 5f;
     [SerializeField] private float burnDuration = 3f;
 
+    [Header("Sound")]
+    [Tooltip("Tiếng sét khi trúng (Lighting.wav).")]
+    [SerializeField] private AudioClip strikeSFX;
+    [Tooltip("Độ lớn tiếng sét (0-1).")]
+    [Range(0f, 1f)]
+    [SerializeField] private float strikeVolume = 1f;
+    [Tooltip("Pitch tối thiểu — ngẫu nhiên hóa để tiếng sét đỡ máy móc.")]
+    [SerializeField] private float minStrikePitch = 0.9f;
+    [Tooltip("Pitch tối đa.")]
+    [SerializeField] private float maxStrikePitch = 1.1f;
+
     private float strikeTimer;
     private float fieldTimer;
     private bool tc1Enabled;
@@ -83,6 +94,8 @@ public class ThunderCloudController : MonoBehaviour
         }
         if (nearest == null) return;
 
+        PlayStrikeSFX();
+
         if (vfxTarget != null) vfxTarget.position = nearest.position;
         if (lightningVFX != null)
         {
@@ -132,6 +145,27 @@ public class ThunderCloudController : MonoBehaviour
     }
 
     private void HideLightning() { if (lightningVFX != null) lightningVFX.SetActive(false); }
+
+    /// <summary>
+    /// Phát tiếng sét 2D (game top-down nên không cần không gian 3D).
+    /// </summary>
+    private void PlayStrikeSFX()
+    {
+        AudioManager manager = AudioManager.Instance;
+        if (manager == null || strikeSFX == null) return;
+
+        manager.PlaySFX(strikeSFX, strikeVolume, 1f, StrikePitchRange());
+    }
+
+    /// <summary>
+    /// Mức ngẫu nhiên hóa pitch (±) dựa trên minStrikePitch ~ maxStrikePitch.
+    /// </summary>
+    private float StrikePitchRange()
+    {
+        float center = (minStrikePitch + maxStrikePitch) * 0.5f;
+        float half = Mathf.Max(0f, (maxStrikePitch - minStrikePitch) * 0.5f);
+        return Mathf.Max(0f, half / Mathf.Max(0.01f, center));
+    }
 
     private void ApplyThunderBurn(EnemyHealth eh)
     {

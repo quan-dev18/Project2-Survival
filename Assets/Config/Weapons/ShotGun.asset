@@ -12,9 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da6a1bb76031b4e45971f2ea8c4a3762, type: 3}
   m_Name: ShotGun
   m_EditorClassIdentifier: 
+  weaponID: shotgun
   weaponIcon: {fileID: 888993701, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
   isUnlocked: 0
   goldCost: 9999
+  skinList:
+  - skinID: raiden
+    isDefault: 0
+    skinName: Raiden Shotgun
+    tier: 1
+    skinIcon: {fileID: 942102750, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    weaponSprite: {fileID: 942102750, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    price: 100
   shootSFX: {fileID: 8300000, guid: 9c2311ed8179ac1498a4bbcece2d3390, type: 3}
   reloadSFX: {fileID: 8300000, guid: 0554fbc56fc3c9e4fb69826db943a8b4, type: 3}
   weaponName: ShotGun

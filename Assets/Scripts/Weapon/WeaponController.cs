@@ -127,6 +127,18 @@ public class WeaponController : MonoBehaviour
         }
     }
 
+    /// <summary>Áp sprite skin đang trang bị lên vũ khí (gọi khi vào game / đổi súng).</summary>
+    public void ApplySkinSprite(Sprite sprite)
+    {
+        if (sprite == null) return;
+
+        if (weaponSprite == null)
+            weaponSprite = GetComponentInChildren<SpriteRenderer>(true);
+
+        if (weaponSprite != null)
+            weaponSprite.sprite = sprite;
+    }
+
     private void Update()
     {
         if (isReloading)

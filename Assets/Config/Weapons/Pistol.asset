@@ -12,9 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da6a1bb76031b4e45971f2ea8c4a3762, type: 3}
   m_Name: Pistol
   m_EditorClassIdentifier: 
+  weaponID: pistol
   weaponIcon: {fileID: -1941400246, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
   isUnlocked: 1
   goldCost: 0
+  skinList:
+  - skinID: ff
+    isDefault: 0
+    skinName: Free Fire
+    tier: 1
+    skinIcon: {fileID: -339191672, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
+    weaponSprite: {fileID: -339191672, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
+    price: 100
   shootSFX: {fileID: 8300000, guid: 89f75350cafb2a4428386df166291fcb, type: 3}
   reloadSFX: {fileID: 8300000, guid: bf0efb84ea2cf5d45bc7aba7d30a7206, type: 3}
   weaponName: Piss tool
