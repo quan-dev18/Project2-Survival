@@ -208,7 +208,7 @@ public class WeaponSelectManager : MonoBehaviour
         if (savedIndex >= 0 && savedIndex < weaponList.Count && weaponList[savedIndex] != null)
         {
             lastClickedContainer = null;
-            OnSelectWeapon(weaponList[savedIndex]);
+            OnSelectWeapon(weaponList[savedIndex], false);
         }
     }
 
@@ -239,6 +239,15 @@ public class WeaponSelectManager : MonoBehaviour
     }
 
     private void OnSelectWeapon(WeaponSO data)
+    {
+        OnSelectWeapon(data, true);
+    }
+
+    /// <param name="showShowcase">
+    /// Có hiện pop-up chi tiết súng không. Khi mở panel / khôi phục súng đã lưu thì truyền
+    /// <c>false</c> để pop-up không tự bật lên khi người chơi chưa bấm chọn gì.
+    /// </param>
+    private void OnSelectWeapon(WeaponSO data, bool showShowcase)
     {
         currentSelectedWeapon = data;
         selectedIndex = weaponList.IndexOf(data);
@@ -281,7 +290,8 @@ public class WeaponSelectManager : MonoBehaviour
 
         // Hiện pop-up chi tiết súng ngay sau khi chọn 1 súng.
         // Súng LOCKED sẽ hiện toàn bộ stat dưới dạng "?".
-        if (gunShowcase != null)
+        // Bỏ qua khi chỉ khôi phục súng đã lưu lúc mở panel.
+        if (showShowcase && gunShowcase != null)
             gunShowcase.Show(data, unlocked);
 
         RefreshOutsideName();
