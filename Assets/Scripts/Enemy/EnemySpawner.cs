@@ -8,6 +8,8 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private StageSO stage;
     [SerializeField] private float spawnMargin = 2f;
     [SerializeField] private int maxSpawned = 50;
+    [SerializeField] private bool autoStart = true;
+    public bool AutoStart { get => autoStart; set => autoStart = value; }
 
     [Header("UI")]
     [SerializeField] private TMP_Text phaseTimerText;
@@ -55,9 +57,21 @@ public class EnemySpawner : MonoBehaviour
     {
         if (targetCamera == null)
             targetCamera = Camera.main;
+
+        // Nếu là scene GameTutorial, không tự động sinh quái để chờ giai đoạn hướng dẫn hoàn tất
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "GameTutorial")
+        {
+            autoStart = false;
+        }
     }
 
     private void Start()
+    {
+        if (!autoStart) return;
+        BeginSpawning();
+    }
+
+    public void BeginSpawning()
     {
         if (stage == null || stage.Phases == null || stage.Phases.Count == 0)
         {

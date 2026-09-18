@@ -98,7 +98,8 @@ public class UpgradePickup : MonoBehaviour
             return;
         }
 
-        GameManager.Instance?.SetState(GameState.LevelUp);
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Tutorial)
+            GameManager.Instance.SetState(GameState.LevelUp);
         Destroy(gameObject);
     }
 

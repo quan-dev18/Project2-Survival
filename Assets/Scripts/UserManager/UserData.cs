@@ -32,6 +32,16 @@ public class UserData : MonoBehaviour
         }
     }
 
+    public bool TutorialCompleted
+    {
+        get => data.tutorialCompleted;
+        set
+        {
+            data.tutorialCompleted = value;
+            Save();
+        }
+    }
+
     public event Action<int> OnGoldChanged;
     public event Action<int> OnSessionGoldChanged;
 
@@ -87,6 +97,18 @@ public class UserData : MonoBehaviour
 
         string savedWeaponName = PlayerPrefs.GetString("SelectedWeaponName", "");
         PlayerPrefs.DeleteKey("SelectedWeaponName");
+
+        // Migrate tutorial completion from PlayerPrefs
+        if (PlayerPrefs.HasKey(TutorialController.KEY_TUTORIAL_COMPLETED))
+        {
+            bool completed = PlayerPrefs.GetInt(TutorialController.KEY_TUTORIAL_COMPLETED, 0) == 1;
+            if (completed && !data.tutorialCompleted)
+            {
+                data.tutorialCompleted = true;
+                migrated = true;
+            }
+            PlayerPrefs.DeleteKey(TutorialController.KEY_TUTORIAL_COMPLETED);
+        }
 
         for (int i = 0; i < 10; i++)
         {

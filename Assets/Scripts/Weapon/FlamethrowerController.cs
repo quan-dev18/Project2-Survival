@@ -177,6 +177,10 @@ public class FlamethrowerController : MonoBehaviour
 
     private void Update()
     {
+        // Không xử lý khi game không ở trạng thái Playing
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing)
+            return;
+
         // Keep fire VFX glued to muzzle even in World space
         if (fireEffect != null && weaponFront != null)
             fireEffect.transform.SetPositionAndRotation(weaponFront.position, weaponFront.rotation);

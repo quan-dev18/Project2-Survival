@@ -24,6 +24,9 @@ public class GameData
     public List<string> equippedWeaponIds;
     public List<string> equippedSkinIds;
 
+    // ──────── Tutorial ────────
+    public bool tutorialCompleted;
+
     public GameData()
     {
         version = 1;

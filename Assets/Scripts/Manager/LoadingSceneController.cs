@@ -10,6 +10,39 @@ public class LoadingSceneController : MonoBehaviour
 
     [SerializeField] private Image progressBar;
     [SerializeField] private float lerpDuration = 1f;
+    [SerializeField] private float firstTimeLerpDuration = 3f;
+    [Tooltip("Nếu tích chọn, trạng thái lần đầu sẽ lưu vĩnh viễn vào PlayerPrefs. Nếu bỏ tích, mỗi lần mở game/bật Play mode đều tính lần đầu.")]
+    [SerializeField] private bool persistFirstTimeAcrossSessions = false;
+
+    private const string KEY_FIRST_TIME_LOADED = "FirstTimeLoadingCompleted";
+    private static bool sessionFirstLoadDone = false;
+
+    private bool IsFirstTime()
+    {
+        if (persistFirstTimeAcrossSessions)
+        {
+            return PlayerPrefs.GetInt(KEY_FIRST_TIME_LOADED, 0) == 0;
+        }
+        return !sessionFirstLoadDone;
+    }
+
+    private void MarkFirstTimeDone()
+    {
+        sessionFirstLoadDone = true;
+        if (persistFirstTimeAcrossSessions)
+        {
+            PlayerPrefs.SetInt(KEY_FIRST_TIME_LOADED, 1);
+            PlayerPrefs.Save();
+        }
+    }
+
+    [ContextMenu("Reset First Time Status")]
+    public static void ResetFirstTimeStatus()
+    {
+        sessionFirstLoadDone = false;
+        PlayerPrefs.DeleteKey(KEY_FIRST_TIME_LOADED);
+        PlayerPrefs.Save();
+    }
 
     private void Start()
     {
@@ -26,12 +59,15 @@ public class LoadingSceneController : MonoBehaviour
         AsyncOperation operation = SceneManager.LoadSceneAsync(targetScene);
         operation.allowSceneActivation = false;
 
+        bool isFirst = IsFirstTime();
+        float duration = isFirst ? firstTimeLerpDuration : lerpDuration;
         float elapsed = 0f;
 
-        while (elapsed < lerpDuration)
+        // Chạy mượt mà từ đầu đến cuối theo lerp time (smoothstep)
+        while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / lerpDuration);
+            float t = Mathf.Clamp01(elapsed / duration);
             float smoothT = t * t * (3f - 2f * t);
             UpdateUI(smoothT);
             yield return null;
@@ -39,8 +75,15 @@ public class LoadingSceneController : MonoBehaviour
 
         UpdateUI(1f);
 
-        yield return new WaitForSeconds(0.5f);
+        // Đảm bảo dữ liệu scene thực tế trong RAM đã sẵn sàng trước khi cho phép kích hoạt
+        while (operation.progress < 0.9f)
+        {
+            yield return null;
+        }
 
+        yield return new WaitForSeconds(isFirst ? 0.3f : 0.15f);
+
+        MarkFirstTimeDone();
         operation.allowSceneActivation = true;
     }
 
