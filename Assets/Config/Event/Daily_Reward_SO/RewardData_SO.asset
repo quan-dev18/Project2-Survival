@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd9f07e1e17a3884e9d6dd02065046c3, type: 3}
+  m_Name: RewardData_SO
+  m_EditorClassIdentifier: 
+  items:
+  - dayIndex: 1
+    rewardName: Vang
+    rewardIcon: {fileID: -1128010245, guid: 9e48e78e630e6434d9f3be69ccbd0ea9, type: 3}
+    amount: 500
+    type: 0
+  - dayIndex: 2
+    rewardName: Vang
+    rewardIcon: {fileID: -1128010245, guid: 9e48e78e630e6434d9f3be69ccbd0ea9, type: 3}
+    amount: 500
+    type: 0
+  - dayIndex: 3
+    rewardName: Vang
+    rewardIcon: {fileID: -1128010245, guid: 9e48e78e630e6434d9f3be69ccbd0ea9, type: 3}
+    amount: 500
+    type: 0
+  - dayIndex: 4
+    rewardName: Vang
+    rewardIcon: {fileID: -1128010245, guid: 9e48e78e630e6434d9f3be69ccbd0ea9, type: 3}
+    amount: 500
+    type: 0
+  - dayIndex: 5
+    rewardName: Vang
+    rewardIcon: {fileID: -1128010245, guid: 9e48e78e630e6434d9f3be69ccbd0ea9, type: 3}
+    amount: 500
+    type: 0
+  - dayIndex: 6
+    rewardName: Vang
+    rewardIcon: {fileID: -1128010245, guid: 9e48e78e630e6434d9f3be69ccbd0ea9, type: 3}
+    amount: 500
+    type: 0
+  - dayIndex: 7
+    rewardName: Vang
+    rewardIcon: {fileID: -1912652118, guid: 9e48e78e630e6434d9f3be69ccbd0ea9, type: 3}
+    amount: 5000
+    type: 0
