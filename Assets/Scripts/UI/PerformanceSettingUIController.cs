@@ -20,8 +20,9 @@ using UnityEngine.UI;
 ///        - Button "Frame Rate Button"  (mỗi lần ấn cycle qua Auto/30/60/90/120)
 ///        - TMP_Text "Frame Rate Label" (text hiển thị FPS mode hiện tại: Auto, FPS 30...)
 ///        - 3 nút chất lượng "Low/Medium/High": kéo vào các ô qualityLowButton /
-///          qualityMediumButton / qualityHighButton. Low = mức 0, Medium = mức
-///          giữa, High = mức cao nhất. Nút đang chọn giữ màu gốc; nút chưa
+///          qualityMediumButton / qualityHighButton. Nút khớp với RenderProfile
+///          GPU trong PerformanceManager (Low → renderProfileLow, Medium → mức
+///          giữa, High → renderProfileHigh). Nút đang chọn giữ màu gốc; nút chưa
 ///          chọn bị nền xám tối + chữ sáng (màu chỉnh được trong Inspector).
 ///        - Toggle "Adaptive Toggle"
 ///        - Toggle "VSync Toggle"
@@ -44,12 +45,12 @@ public class PerformanceSettingUIController : MonoBehaviour
     [Tooltip("Text hiển thị FPS mode hiện tại trên nút. Để trống nếu không cần.")]
     [SerializeField] private TMP_Text frameRateLabel;
 
-    [Header("Chất lượng đồ họa (3 nút)")]
-    [Tooltip("Nút Low: ép chất lượng về mức 0.")]
+    [Header("Chất lượng đồ họa (3 nút theo Render Profile GPU)")]
+    [Tooltip("Nút Low: áp Render Profile thấp nhất (renderProfileLow — bóng tắt, MSAA 0).")]
     [SerializeField] private Button qualityLowButton;
-    [Tooltip("Nút Medium: chất lượng trung bình (mức giữa theo QualitySettings).")]
+    [Tooltip("Nút Medium: cân bằng hình ảnh/hiệu năng (renderProfileMedium).")]
     [SerializeField] private Button qualityMediumButton;
-    [Tooltip("Nút High: ép chất lượng lên mức cao nhất.")]
+    [Tooltip("Nút High: chất lượng cao nhất (renderProfileHigh).")]
     [SerializeField] private Button qualityHighButton;
 
     [Tooltip("Màu nền cho nút KHÔNG được chọn (xám tối). Nút đang chọn giữ màu gốc.")]
@@ -200,17 +201,17 @@ public class PerformanceSettingUIController : MonoBehaviour
 
     /// <summary>
     /// Người chơi bấm nút chất lượng: đẩy thẳng xuống PerformanceManager.
-    /// Low = mức 0, Medium = mức giữa, High = mức cao nhất (tự tính theo số mức
-    /// trong QualitySettings để không cứng nhắc với số mức thực tế).
+    /// Các nút Low/Medium/High khớp với Render Profile GPU đã định sẵn
+    /// (renderProfileLow / renderProfileMedium / renderProfileHigh).
     /// </summary>
-    private void OnQualityLowClicked() => OnQualityButtonClicked(0);
-    private void OnQualityMediumClicked() => OnQualityButtonClicked(PerformanceManager.QualityLevelCount / 2);
-    private void OnQualityHighClicked() => OnQualityButtonClicked(PerformanceManager.QualityLevelCount - 1);
+    private void OnQualityLowClicked() => OnQualityButtonClicked(PerformanceLevel.Low);
+    private void OnQualityMediumClicked() => OnQualityButtonClicked(PerformanceLevel.Medium);
+    private void OnQualityHighClicked() => OnQualityButtonClicked(PerformanceLevel.High);
 
-    private void OnQualityButtonClicked(int level)
+    private void OnQualityButtonClicked(PerformanceLevel preset)
     {
         if (performance == null) return;
-        performance.SetQualityLevel(level);
+        performance.SetQualityPreset(preset);
     }
 
     /// <summary>
@@ -261,7 +262,7 @@ public class PerformanceSettingUIController : MonoBehaviour
     /// </summary>
     private void OnQualityLevelChanged(int level)
     {
-        RefreshQualityButtons(level);
+        RefreshQualityButtons();
     }
 
     /// <summary>
@@ -288,6 +289,7 @@ public class PerformanceSettingUIController : MonoBehaviour
     {
         if (performanceLevelText != null)
             performanceLevelText.text = level.ToString();
+        RefreshQualityButtons();
     }
 
     /// <summary>
@@ -326,7 +328,7 @@ public class PerformanceSettingUIController : MonoBehaviour
         syncingUI = true;
 
         RefreshFrameRateLabel(performance.CurrentMode);
-        RefreshQualityButtons(performance.AppliedQualityLevel);
+        RefreshQualityButtons();
         RefreshAdaptiveToggle(performance.AdaptiveEnabled);
         if (vSyncToggle != null && vSyncToggle.isOn != performance.VSyncEnabled)
             vSyncToggle.isOn = performance.VSyncEnabled;
@@ -350,19 +352,20 @@ public class PerformanceSettingUIController : MonoBehaviour
     private QualityButtonStyle lowStyle, midStyle, highStyle;
 
     /// <summary>
-    /// Đồng bộ 3 nút chất lượng theo mức đang áp dụng (kể cả khi adaptive/cấu
-    /// hình thấp đang làm lệch mức): nút chọn giữ màu gốc, các nút còn lại
-    /// nền xám tối + chữ sáng.
+    /// Đồng bộ 3 nút chất lượng theo Render Scale GPU ĐANG ÁP DỤNG (kể cả khi
+    /// adaptive/cấu hình thấp đang làm lệch mức). Mức highlight được lấy từ
+    /// PerformanceManager.CurrentRenderScaleLevel (so CurrentRenderScale với
+    /// renderScale của 3 RenderProfile định sẵn) — UI không tự tính toán gì.
+    /// Nút chọn giữ màu gốc, các nút còn lại nền xám tối + chữ sáng.
     /// </summary>
-    private void RefreshQualityButtons(int level)
+    private void RefreshQualityButtons()
     {
-        int low = 0;
-        int mid = PerformanceManager.QualityLevelCount / 2;
-        int high = PerformanceManager.QualityLevelCount - 1;
+        if (performance == null) return;
 
-        bool isLow = Mathf.Abs(level - low) <= Mathf.Abs(level - mid);
-        bool isHigh = !isLow && Mathf.Abs(level - high) < Mathf.Abs(level - mid);
-        bool isMid = !isLow && !isHigh;
+        PerformanceLevel level = performance.CurrentRenderScaleLevel;
+        bool isLow = level == PerformanceLevel.Low;
+        bool isHigh = level == PerformanceLevel.High;
+        bool isMid = level == PerformanceLevel.Medium;
 
         // Cache màu gốc chỉ 1 lần — trước khi bắt đầu đổi màu nút
         if (lowStyle.button == null && qualityLowButton != null) lowStyle = CacheButtonStyle(qualityLowButton);
