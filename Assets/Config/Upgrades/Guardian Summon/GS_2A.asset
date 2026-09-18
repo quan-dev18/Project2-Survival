@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: GS_2A
   m_EditorClassIdentifier: 
   upgradeName: Guardian Summon II
-  description: Guardian gains 6 Dmg every 30 seconds, works even when still in inactive
-    state
+  description: "Th\u1EA7n h\u1ED9 v\u1EC7 t\u0103ng 6 s\xE1t th\u01B0\u01A1ng m\u1ED7i
+    30s, k\u1EC3 c\u1EA3 khi ch\u01B0a bi\u1EBFn h\xECnh"
   icon: {fileID: 1418498065, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 33

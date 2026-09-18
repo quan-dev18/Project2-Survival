@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: VB_3
   m_EditorClassIdentifier: 
   upgradeName: Vitality Boost III
-  description: Recover 3% HP every second
+  description: "H\u1ED3i 3% m\xE1u m\u1ED7i gi\xE2y"
   icon: {fileID: -502659907, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 2

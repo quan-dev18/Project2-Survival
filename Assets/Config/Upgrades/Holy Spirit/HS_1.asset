@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: HS_1
   m_EditorClassIdentifier: 
   upgradeName: Holy Spirit I
-  description: Summon a Holy spirit that shoot projectiles at enemy for 8 dmg
+  description: "Tri\u1EC7u h\u1ED3i m\u1ED9t tinh linh nh\u1ECF, t\u1EF1 \u0111\u1ED9ng
+    b\u1EAFn g\xE2y s\xE1t th\u01B0\u01A1ng l\xEAn k\u1EBB \u0111\u1ECBch \u1EDF
+    g\u1EA7n (8 s\xE1t th\u01B0\u01A1ng)"
   icon: {fileID: -172952565, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 36

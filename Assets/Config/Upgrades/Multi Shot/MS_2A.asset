@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: MS_2A
   m_EditorClassIdentifier: 
   upgradeName: Multi Shot II
-  description: When shooting last ammo, additionally shoot 10 bullets around you
-    for 50% dmg
+  description: "Khi b\u1EAFn vi\xEAn \u0111\u1EA1n cu\u1ED1i c\xF9ng, b\u1EAFn th\xEAm
+    10 vi\xEAn \u0111\u1EA1n xung quanh ng\u01B0\u1EDDi ch\u01A1i v\u1EDBi 50% s\xE1t
+    th\u01B0\u01A1ng"
   icon: {fileID: 160484283, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 24

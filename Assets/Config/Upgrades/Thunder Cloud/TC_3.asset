@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: TC_3
   m_EditorClassIdentifier: 
   upgradeName: Thunder Cloud III
-  description: The thunder cloud creates a field of electricity around the player
-    that deals light damage constantly
+  description: "\u0110\xE1m m\xE2y t\u1EA1o m\u1ED9t v\xF9ng \u0111i\u1EC7n xung
+    quanh ng\u01B0\u1EDDi ch\u01A1i g\xE2y s\xE1t th\u01B0\u01A1ng li\xEAn ti\u1EBFp
+    cho nh\u1EEFng k\u1EBB \u0111\u1ECBch \u1EDF g\u1EA7n"
   icon: {fileID: 21300000, guid: c0e3f13f0c8e5da4485873e38d3538da, type: 3}
   statMods:
   - stat: 47

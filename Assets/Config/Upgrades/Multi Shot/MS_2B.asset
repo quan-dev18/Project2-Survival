@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: MS_2B
   m_EditorClassIdentifier: 
   upgradeName: Multi Shot II
-  description: Shoot an additional bullet behind you when you fire
+  description: "B\u1EAFn th\xEAm 1 vi\xEAn \u0111\u1EA1n \u1EDF \u0111\u1EB1ng sau
+    khi t\u1EA5n c\xF4ng"
   icon: {fileID: 11515862, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 25

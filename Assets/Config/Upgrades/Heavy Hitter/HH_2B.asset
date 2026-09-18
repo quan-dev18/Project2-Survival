@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: HH_2B
   m_EditorClassIdentifier: 
   upgradeName: Heavy Hitter II
-  description: 'Bullet explodes on kill
-
-    (AoE dmg is 25% of bullet dmg)'
+  description: "\u0110\u1EA1n n\u1ED5 khi gi\u1EBFt \u0111\u1ECBch (s\xE1t th\u01B0\u01A1ng
+    v\u1EE5 n\u1ED5 b\u1EB1ng 25% c\u1EE7a ng\u01B0\u1EDDi ch\u01A1i)"
   icon: {fileID: -1041289639, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 18

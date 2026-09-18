@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: TC_1
   m_EditorClassIdentifier: 
   upgradeName: Thunder Cloud I
-  description: Summon a thunder cloud that strikes enemies close to the player
+  description: "Tri\u1EC7u h\u1ED3i m\u1ED9t \u0111\xE1m m\xE2y gi\u1EADn d\u1EEF
+    g\xE2y s\xE1t th\u01B0\u01A1ng di\u1EC7n r\u1ED9ng (t\u1EA5n c\xF4ng m\u1ED7i
+    5s)"
   icon: {fileID: 21300000, guid: c0e3f13f0c8e5da4485873e38d3538da, type: 3}
   statMods:
   - stat: 44

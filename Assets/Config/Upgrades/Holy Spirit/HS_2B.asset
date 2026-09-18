@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: HS_2B
   m_EditorClassIdentifier: 
   upgradeName: Holy Spirit II
-  description: Holy spirit also inflict burn for 6 dmg/s for 3s
+  description: "Tinh linh c\xF3 th\u1EC3 thi\xEAu \u0111\u1ED1t 6 s\xE1t th\u01B0\u01A1ng
+    m\u1ED7i gi\xE2y trong v\xF2ng 3s"
   icon: {fileID: 1928266925, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 38

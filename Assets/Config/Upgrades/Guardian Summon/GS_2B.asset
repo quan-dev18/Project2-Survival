@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: GS_2B
   m_EditorClassIdentifier: 
   upgradeName: Guardian Summon II
-  description: Guardian gains 10% ASPD every 30 seconds, works even when still in
-    inactive state
+  description: "Th\u1EA7n h\u1ED9 v\u1EC7 t\u0103ng 10% t\u1ED1c \u0111\u1ED9 t\u1EA5n
+    c\xF4ng m\u1ED7i 30s, k\u1EC3 c\u1EA3 khi ch\u01B0a bi\u1EBFn h\xECnh"
   icon: {fileID: -482484234, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 34

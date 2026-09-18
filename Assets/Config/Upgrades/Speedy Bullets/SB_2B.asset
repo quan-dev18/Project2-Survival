@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: SB_2B
   m_EditorClassIdentifier: 
   upgradeName: Speedy Bullets II
-  description: 'Bullet Speed +25%
-
-    Bullet Damage +15%'
+  description: "T\u1ED1c \u0111\u1ED9 \u0111\u1EA1n +25%\nS\xE1t th\u01B0\u01A1ng
+    +15%"
   icon: {fileID: 1743036124, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 12

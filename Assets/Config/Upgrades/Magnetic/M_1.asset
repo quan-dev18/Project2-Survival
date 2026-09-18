@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: M_1
   m_EditorClassIdentifier: 
   upgradeName: Magnetic I
-  description: Pickup range +50%
+  description: "Kho\u1EA3ng c\xE1ch nh\u1EB7t kinh nghi\u1EC7m +50%"
   icon: {fileID: -1496783517, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 4

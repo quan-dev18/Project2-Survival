@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SM_3
   m_EditorClassIdentifier: 
   upgradeName: Special Mags III
-  description: Max Ammo +100%
+  description: "K\xEDch c\u1EE1 b\u0103ng \u0111\u1EA1n +100%"
   icon: {fileID: -441796416, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 9

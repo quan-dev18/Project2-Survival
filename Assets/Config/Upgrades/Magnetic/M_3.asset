@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: M_3
   m_EditorClassIdentifier: 
   upgradeName: Magnetic III
-  description: 'Pickup range +25%
-
-    XP pickup increase fire rate by 25% for 1s'
+  description: "Kho\u1EA3ng c\xE1ch nh\u1EB7t kinh nghi\u1EC7m +25%\nT\u0103ng t\u1ED1c
+    \u0111\u1ED9 b\u1EAFn b\u1EB1ng 25% trong 1 gi\xE2y khi nh\u1EB7t kinh nghi\u1EC7m"
   icon: {fileID: -1139949675, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 4

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: GS_1
   m_EditorClassIdentifier: 
   upgradeName: Guardian Summon I
-  description: Calls in a mystery cube which will turn into a powerful guardian in
-    1 minute
+  description: "Tri\u1EC7u h\u1ED3i m\u1ED9t qu\u1EA3 c\u1EA7u b\xED \u1EA9n, s\u1EBD
+    bi\u1EBFn th\xE0nh th\u1EA7n m\u1EA1nh m\u1EBD sau 1 ph\xFAt "
   icon: {fileID: 775360459, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 32

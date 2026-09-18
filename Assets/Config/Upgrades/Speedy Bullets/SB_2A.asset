@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SB_2A
   m_EditorClassIdentifier: 
   upgradeName: Speedy Bullets II
-  description: Bullet Piercing +1
+  description: "\u0110\u1EA1n c\xF3 th\u1EC3 xuy\xEAn qua th\xEAm 1 k\u1EBB \u0111\u1ECBch"
   icon: {fileID: 1495566540, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 11

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: VB_1
   m_EditorClassIdentifier: 
   upgradeName: Vitality Boost I
-  description: Max HP +50%
+  description: "M\xE1u t\u1ED1i \u0111a +50%"
   icon: {fileID: -1739901164, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 0

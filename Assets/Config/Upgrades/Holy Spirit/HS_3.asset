@@ -13,12 +13,9 @@ MonoBehaviour:
   m_Name: HS_3
   m_EditorClassIdentifier: 
   upgradeName: Holy Spirit III
-  description: 'Spirit dmg +15%
-
-    Holy Spirit shoot 1 additional projectiles
-
-    Spread
-    +5'
+  description: "S\xE1t th\u01B0\u01A1ng c\u1EE7a tinh linh +15%\nTinh linh nh\u1ECF
+    b\u1EAFn th\xEAm 1 vi\xEAn \u0111\u1EA1n\n\u0110\u1ED9 t\u1ECFa c\u1EE7a \u0111\u1EA1n
+    Tinh linh +5"
   icon: {fileID: -1361964051, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 39

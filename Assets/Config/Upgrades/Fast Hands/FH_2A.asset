@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: FH_2A
   m_EditorClassIdentifier: 
   upgradeName: Fast Hands II
-  description: 'Reload speed +15%
-
-    Max ammo +20%'
+  description: "T\u1ED1c \u0111\u1ED9 n\u1EA1p \u0111\u1EA1n +15%\nK\xEDch c\u1EE1
+    b\u0103ng \u0111\u1EA1n +20%"
   icon: {fileID: -1288101906, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 8

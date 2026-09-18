@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: H_3
   m_EditorClassIdentifier: 
   upgradeName: Haste II
-  description: Increase Bullet dmg and Move speed by 2% every second (Max 30%, reset
-    when hit)
+  description: "T\u0103ng s\xE1t th\u01B0\u01A1ng v\xE0 t\u1ED1c \u0111\u1ED9 di
+    chuy\u1EC3n b\u1EB1ng 2%/s (t\u1ED1i \u0111a 30%, v\u1EC1 0% khi b\u1ECB \u0111\xE1nh
+    tr\xFAng)"
   icon: {fileID: -27693983, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 30
