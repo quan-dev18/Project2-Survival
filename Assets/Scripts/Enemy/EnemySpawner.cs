@@ -20,6 +20,7 @@ public class EnemySpawner : MonoBehaviour
     private readonly List<int> pendingElites = new List<int>();
     private int phaseIndex;
     private float phaseTimer;
+    private float totalTime; // Total elapsed time for the entire run
     private bool phaseHasBoss;
     private int bossSpawnedCount;
     private float bossRetryTimer;
@@ -71,6 +72,8 @@ public class EnemySpawner : MonoBehaviour
     {
         phaseIndex = index;
         phaseTimer = 0f;
+        // Only reset totalTime at the very start of a run (first phase), not on phase transitions
+        if (index == 0) totalTime = 0f;
         phaseHasBoss = false;
         bossSpawnedCount = 0;
         bossRetryTimer = 0f;
@@ -157,6 +160,7 @@ public class EnemySpawner : MonoBehaviour
 
         CleanupActiveEnemies();
         UpdatePhaseTimerText();
+        totalTime += Time.deltaTime;
         phaseTimer += Time.deltaTime;
 
         // Global stat scaling (linear: adds flat % per interval)
@@ -244,14 +248,9 @@ public class EnemySpawner : MonoBehaviour
     {
         if (phaseTimerText == null) return;
 
-        if (IsFinalPhase && stage != null && stage.IsInfinite)
-        {
-            float remaining = CurrentPhase.Duration > 0f ? Mathf.Max(0f, CurrentPhase.Duration - phaseTimer) : 0f;
-            phaseTimerText.text = $"Wave {phaseIndex + 1} ∞{infiniteLoopCount + 1}  {remaining:0}s";
-            return;
-        }
-        float normal = Mathf.Max(0f, CurrentPhase.Duration - phaseTimer);
-        phaseTimerText.text = $"Wave {phaseIndex + 1}  {normal:0}s";
+        int minutes = Mathf.FloorToInt(totalTime / 60f);
+        int seconds = Mathf.FloorToInt(totalTime % 60f);
+        phaseTimerText.text = $"{minutes:00}:{seconds:00}";
     }
 
     private void UpdateSpawning()

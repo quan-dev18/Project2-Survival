@@ -43,6 +43,7 @@ public class WeaponController : MonoBehaviour
     private int baseMagazineSize;
     private int baseSpread;
     private int baseBulletCount;
+    private int basePierce;
     #endregion
 
     #region Bonus 
@@ -81,6 +82,7 @@ public class WeaponController : MonoBehaviour
     public int magazineSize => Mathf.RoundToInt(baseMagazineSize * (1f + bonusMagazineSizePercent));
     private int spread => baseSpread;
     private int bulletCount => Mathf.Clamp(baseBulletCount + bonusBulletCountFlat,1,4);
+    public int pierce => basePierce + bonusBulletPierce;
     #endregion
 
     #region Runtime state
@@ -109,6 +111,7 @@ public class WeaponController : MonoBehaviour
         baseMagazineSize = weaponStats.MagazineSize;
         baseSpread = weaponStats.Spread;
         baseBulletCount = weaponStats.BulletCount;
+        basePierce = weaponStats != null ? weaponStats.BasePierce : 0;
         currentAmmo = magazineSize;
 
         if (TryGetComponent(out CircleCollider2D rangeTrigger))
@@ -262,7 +265,7 @@ public class WeaponController : MonoBehaviour
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
                 bullet.Init(bulletDir, transform.root,
-                    bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
+                    pierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
                     bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                     bonusBulletInfinitePierceOnKill,
                     bonusBulletExplosionDamagePercent,
@@ -309,7 +312,7 @@ public class WeaponController : MonoBehaviour
         if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
         {
             bullet.Init(backDir, transform.root,
-                bonusBulletPierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
+                pierce, 1f + bonusBulletSpeedPercent, 1f + bonusBulletDamagePercent,
                 bonusBulletExecutePercent, 1f + bonusBulletKnockbackPercent, 1f + bonusBulletSizePercent,
                 bonusBulletInfinitePierceOnKill,
                 bonusBulletExplosionDamagePercent,

@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: SM_3
   m_EditorClassIdentifier: 
   upgradeName: Special Mags III
-  description: Become invulnerable while reloading
+  description: Max Ammo +100%
   icon: {fileID: -441796416, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
-  - stat: 28
-    amount: 1
+  - stat: 9
+    amount: 100
   requires:
   - {fileID: 11400000, guid: 258b09ceca74d6e4f9abfed46194e0d1, type: 2}
   - {fileID: 11400000, guid: ec4342738a0ebb149a2c505b86f7da83, type: 2}

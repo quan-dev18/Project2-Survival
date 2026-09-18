@@ -112,7 +112,11 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         if (GameManager.Instance != null)
             GameManager.Instance.AddKill();
 
-        enemyMovement.enabled = false;
+        if (enemyMovement != null)
+        {
+            enemyMovement.enabled = false;
+            enemyMovement.ResetKnockback(); // corpses must not slide on banked hits
+        }
         Collider2D col = GetComponentInParent<Collider2D>();
         if (col != null) col.enabled = false;
         _animator.SetBool("isDead",true);
