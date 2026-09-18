@@ -1,21 +1,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BreakableProp : MonoBehaviour, IDamageable
+public class BreakableProp : MonoBehaviour, IDamageable, IPoolSpawnable
 {
     [SerializeField] private float hp = 3f;
     [SerializeField] private List<PropDropEntry> drops;
     [SerializeField] private float dropChance = 1f;
     [SerializeField] private float spreadRadius = 0.5f;
 
+    private float currentHp;
+
+    private void Awake()
+    {
+        currentHp = hp;
+    }
+
+    public void OnSpawned()
+    {
+        currentHp = hp;
+    }
+
     public void TakeDamage(float amount)
     {
-        hp -= amount;
+        currentHp -= amount;
         GetComponentInChildren<SpriteFlashEffect>()?.Flash();
-        if (hp <= 0f)
+        if (currentHp <= 0f)
         {
             SpawnDrop();
-            ObjectPooling.Instance.Despawn(gameObject);
+            if (ObjectPooling.Instance != null)
+                ObjectPooling.Instance.Despawn(gameObject);
+            else
+                Destroy(gameObject);
         }
     }
 

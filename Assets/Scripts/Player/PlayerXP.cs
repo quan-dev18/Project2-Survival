@@ -66,6 +66,11 @@ public class PlayerXP : MonoBehaviour
             }
         }
 
+        ProcessPendingLevelUps();
+    }
+
+    public void ProcessPendingLevelUps()
+    {
         while (CurrentXP >= XPToNextLevel)
         {
             CurrentXP -= XPToNextLevel;
@@ -73,13 +78,13 @@ public class PlayerXP : MonoBehaviour
             XPToNextLevel = GetRequiredXP(CurrentLevel);
             OnLevelUp?.Invoke(CurrentLevel);
 
-            // Phát tiếng lên cấp (clip cấu hình trong AudioManager).
             AudioManager.Instance?.PlayLevelUp();
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.Log($"Level up! Now level {CurrentLevel}");
 #endif
-            if (GameManager.Instance != null)
+            // Chỉ show LevelUpPanel khi game đang Playing (không phải Tutorial)
+            if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.Playing)
                 GameManager.Instance.SetState(GameState.LevelUp);
         }
     }

@@ -144,6 +144,10 @@ public class WeaponController : MonoBehaviour
 
     private void Update()
     {
+        // Không xử lý khi game không ở trạng thái Playing
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing)
+            return;
+
         if (isReloading)
             HandleReloadTimer();
 
