@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-    public GameObject settingsUI; // Panel Settings
+    public GameObject settingsUI;
 
     [SerializeField] private UISlideTween settingsSlideTween;
 
@@ -11,6 +11,19 @@ public class MainMenuManager : MonoBehaviour
     {
         LoadingSceneController.targetScene = "GameMap1";
         SceneManager.LoadScene("LoadingScene");
+    }
+
+    public void PlayTutorial()
+    {
+        LoadingSceneController.targetScene = "GameTutorial";
+        SceneManager.LoadScene("LoadingScene");
+    }
+
+    [ContextMenu("Reset Tutorial Status")]
+    public void ResetTutorial()
+    {
+        TutorialController.SetTutorialCompleted(false);
+        Debug.Log("[MainMenuManager] Trạng thái Tutorial đã được reset.");
     }
 
     public void OpenSettings()

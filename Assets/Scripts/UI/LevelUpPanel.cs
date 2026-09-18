@@ -145,6 +145,12 @@ public class LevelUpPanel : MonoBehaviour
             if (rainEffect != null) rainEffect.gameObject.SetActive(false);
         }
 
+        if (state == GameState.Tutorial)
+        {
+            gameObject.SetActive(false);
+            if (rainEffect != null) rainEffect.gameObject.SetActive(false);
+        }
+
         if (state == GameState.Playing && !startupApplied && startupUpgrades != null && startupUpgrades.Count > 0)
         {
             // LevelUpPanel is inactive at start, so StartCoroutine on this fails -> run on GameManager

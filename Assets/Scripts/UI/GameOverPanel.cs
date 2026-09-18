@@ -208,6 +208,12 @@ public class GameOverPanel : MonoBehaviour
     {
         Time.timeScale = 1f;
         ClaimGold(); // never forfeit held gold by leaving
+
+        if (SceneManager.GetActiveScene().name == "GameTutorial")
+        {
+            TutorialController.SetTutorialCompleted(true);
+        }
+
         SceneManager.LoadScene("MainMenu");
     }
 }
