@@ -530,9 +530,21 @@ MonoBehaviour:
   simulateBatteryPercent: 100
   checkBatteryOnDesktop: 0
   lowGraphicsEnabledByDefault: 0
-  renderScaleHigh: 1
-  renderScaleMedium: 0.875
-  renderScaleLow: 0.75
+  renderProfileHigh:
+    renderScale: 1
+    msaaSampleCount: 4
+    shadowDistance: 50
+    shadowCascadeCount: 4
+  renderProfileMedium:
+    renderScale: 0.875
+    msaaSampleCount: 2
+    shadowDistance: 30
+    shadowCascadeCount: 2
+  renderProfileLow:
+    renderScale: 0.7
+    msaaSampleCount: 0
+    shadowDistance: 0
+    shadowCascadeCount: 1
 --- !u!4 &13141792
 Transform:
   m_ObjectHideFlags: 0
@@ -13127,6 +13139,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &742436931
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 742436933}
+  - component: {fileID: 742436932}
+  m_Layer: 0
+  m_Name: FireBaseGA4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &742436932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 742436931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 107b25bda6458f14aa57c87d3bff2ed5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &742436933
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 742436931}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &742971261
 GameObject:
   m_ObjectHideFlags: 0
@@ -16665,6 +16721,7 @@ MonoBehaviour:
   gunIcon: {fileID: 1816450241}
   gunNameText: {fileID: 352559394}
   skinPanel: {fileID: 480198968}
+  weaponSelect: {fileID: 0}
   atkBar: {fileID: 1291282613}
   fireRateBar: {fileID: 1111236848}
   reloadTimeBar: {fileID: 66212614}
@@ -33945,3 +34002,4 @@ SceneRoots:
   - {fileID: 1038139737}
   - {fileID: 156670878}
   - {fileID: 1017370590}
+  - {fileID: 742436933}
