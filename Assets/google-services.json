@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "577372870733",
+    "project_id": "game1liuqi",
+    "storage_bucket": "game1liuqi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577372870733:android:6fb75d2c43b851863e6404",
+        "android_client_info": {
+          "package_name": "com.quandev.survival"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJKZX4gWwR3L39pibz8ntfDoEeFAUisWM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
