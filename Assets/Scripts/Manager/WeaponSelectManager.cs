@@ -63,6 +63,8 @@ public class WeaponSelectManager : MonoBehaviour
 
     private void OnEnable()
     {
+        if (gunShowcase != null) gunShowcase.SetWeaponSelect(this);
+
         if (UserData.Instance != null)
         {
             UserData.Instance.InitWeaponDefaults(weaponList);
@@ -92,6 +94,14 @@ public class WeaponSelectManager : MonoBehaviour
         return false;
     }
 
+    /// <summary>Kiểm tra súng đã mở khoá chưa theo <see cref="WeaponSO"/> (dùng cho Gun Showcase).</summary>
+    public bool IsWeaponUnlocked(WeaponSO weapon)
+    {
+        if (weapon == null) return false;
+        int index = weaponList != null ? weaponList.IndexOf(weapon) : -1;
+        return IsWeaponUnlocked(index);
+    }
+
     private void RestoreSelectedWeaponIcon()
     {
         int savedIndex = UserData.Instance != null ? UserData.Instance.SelectedWeaponIndex : 0;
@@ -103,7 +113,7 @@ public class WeaponSelectManager : MonoBehaviour
     }
 
     /// <summary>Sprite hiển thị của súng ở UI ngoài: ưu tiên skin đang trang bị, fallback sprite gốc.</summary>
-    private Sprite GetEquippedDisplaySprite(WeaponSO weapon)
+    public Sprite GetEquippedDisplaySprite(WeaponSO weapon)
     {
         if (weapon == null) return null;
 

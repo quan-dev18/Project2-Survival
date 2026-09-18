@@ -10469,7 +10469,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000030517578}
+  m_AnchoredPosition: {x: 0.0007324219, y: -0.000030517578}
   m_SizeDelta: {x: -715.7627, y: -2}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &607097032
@@ -16587,7 +16587,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &971124882
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17045,9 +17045,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4a28c17b2ba9ac4e9c198be36b11f93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  androidBannerId: ca-app-pub-7087538734337269/9374062130
-  androidRewardedId: ca-app-pub-7087538734337269/8737436180
-  androidVictoryRewardedId: ca-app-pub-7087538734337269/3521602675
+  androidBannerId: ca-app-pub-3940256099942544/6300978111
+  androidRewardedId: ca-app-pub-3940256099942544/5224354917
+  androidVictoryRewardedId: ca-app-pub-3940256099942544/5224354917
   rewardCoinAmount: 670
   mainMenuSceneName: MainMenu
   previewDpi: 420

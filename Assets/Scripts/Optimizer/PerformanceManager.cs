@@ -36,6 +36,54 @@ public enum PerformanceLevel
 }
 
 /// <summary>
+/// Bộ cài đặt GPU cho một nấc chất lượng (Low/Medium/High).
+/// Chỉ dùng đúng các property URP set được lúc RUNTIME (Unity 2022.3 / URP 14):
+///   - renderScale
+///   - msaaSampleCount
+///   - shadowDistance (0 = tắt hẳn bóng đổ, tiết kiệm nhất)
+///   - shadowCascadeCount (1..4)
+/// Các cờ như supportsSoftShadows / mainLightShadowmapResolution là internal set
+/// trong URP 14 nên không đụng đến ở runtime; muốn tinh chỉnh thì sửa trực tiếp
+/// trên URP asset trong Inspector (hoặc nâng cấp sang nhiều URP asset/nấc).
+/// </summary>
+[Serializable]
+public struct RenderProfile
+{
+    [Tooltip("Render Scale: tỷ lệ độ phân giải GPU (0.1..2). Càng thấp càng nhanh.")]
+    [Range(0.1f, 2f)]
+    public float renderScale;
+
+    [Tooltip("MSAA chống răng cưa: 0 = tắt, 2/4/8 = số mẫu.")]
+    public int msaaSampleCount;
+
+    [Tooltip("Khoảng cách vẽ bóng (0 = tắt hẳn, tiết kiệm nhất).")]
+    public float shadowDistance;
+
+    [Tooltip("Số cascade của bóng (1..4). Càng nhiều bóng càng nét nhưng đắt hơn.")]
+    [Range(1, 4)]
+    public int shadowCascadeCount;
+
+    public static RenderProfile HighPreset =>
+        new RenderProfile { renderScale = 1f, msaaSampleCount = 4, shadowDistance = 50f, shadowCascadeCount = 4 };
+
+    public static RenderProfile MediumPreset =>
+        new RenderProfile { renderScale = 0.875f, msaaSampleCount = 2, shadowDistance = 30f, shadowCascadeCount = 2 };
+
+    public static RenderProfile LowPreset =>
+        new RenderProfile { renderScale = 0.7f, msaaSampleCount = 0, shadowDistance = 0f, shadowCascadeCount = 1 };
+
+    /// <summary>MSAA hợp lệ cho URP: chỉ nhận 0, 2, 4 hoặc 8 mẫu.</summary>
+    public static int ValidateMsaa(int samples)
+    {
+        if (samples == 0 || samples == 2 || samples == 4 || samples == 8) return samples;
+        return samples < 4 ? 0 : 4;
+    }
+
+    /// <summary>Số cascade hợp lệ: luôn nằm trong 1..4.</summary>
+    public static int ValidateCascades(int count) => Mathf.Clamp(count, 1, 4);
+}
+
+/// <summary>
 /// [PerformanceManager] Core Manager chịu trách nhiệm tối ưu hiệu năng toàn game:
 /// giám sát FPS (không cấp phát GC), kiểm soát Frame Budget theo FPS mục tiêu
 /// (60FPS <= 16.67ms, 90FPS <= 11.11ms, 120FPS <= 8.33ms) và Tự điều chỉnh thích ứng
@@ -129,18 +177,15 @@ public sealed class PerformanceManager : MonoBehaviour
     [Tooltip("Bật 'Cấu hình thấp' mặc định cho lần chạy đầu tiên (thường để tắt).")]
     [SerializeField] private bool lowGraphicsEnabledByDefault = false;
 
-    [Header("=== Render Scale (GPU) ===")]
-    [Tooltip("Render Scale khi mức hiệu năng High (mặc định 1.0 = nguyên gốc).")]
-    [Range(0.5f, 1f)]
-    [SerializeField] private float renderScaleHigh = 1f;
+    [Header("=== Render Profile (GPU) — 1 bộ cài đặt cho mỗi nấc ===")]
+    [Tooltip("Nấc High: render scale 1.0, MSAA 4x, bóng nét nhiều cascade.")]
+    [SerializeField] private RenderProfile renderProfileHigh = RenderProfile.HighPreset;
 
-    [Tooltip("Render Scale khi mức Medium — cân bằng hình ảnh/hiệu năng.")]
-    [Range(0.5f, 1f)]
-    [SerializeField] private float renderScaleMedium = 0.875f;
+    [Tooltip("Nấc Medium: cân bằng hình ảnh/hiệu năng.")]
+    [SerializeField] private RenderProfile renderProfileMedium = RenderProfile.MediumPreset;
 
-    [Tooltip("Render Scale khi mức Low hoặc bật Cấu hình thấp — ưu tiên FPS.")]
-    [Range(0.5f, 1f)]
-    [SerializeField] private float renderScaleLow = 0.75f;
+    [Tooltip("Nấc Low hoặc bật Cấu hình thấp: ưu tiên FPS (bóng tắt, MSAA 0).")]
+    [SerializeField] private RenderProfile renderProfileLow = RenderProfile.LowPreset;
 
     // =============================================================
     //  RUNTIME STATE
@@ -210,13 +255,29 @@ public sealed class PerformanceManager : MonoBehaviour
     public bool VSyncEnabled => vSyncEnabled;
 
     /// <summary>Render Scale URP đang áp dụng — đi theo MỨC CHẤT LƯỢNG người chơi chọn
-    /// (Low=0.75 / Medium=0.875 / High=1.0), chứ không theo adaptive.
+    /// (High=1.0 / Medium=0.875 / Low=0.7 theo RenderProfile), chứ không theo adaptive.
     /// Adaptive/low-graphics chỉ làm giảm mức áp dụng (AppliedQualityLevel).</summary>
     public float CurrentRenderScale =>
         GetRenderScaleForLevel(GetPerformanceLevelForQuality(AppliedQualityLevel));
 
-    /// <summary>Render Scale URP gốc trong asset (đọc khi khởi tạo, dùng làm mức High).</summary>
-    public float BaseRenderScale { get; private set; } = 1f;
+    /// <summary>Mức render scale đang áp dụng (Low/Medium/High), xác định từ
+    /// CurrentRenderScale so với 3 mức định sẵn. Nút chất lượng UI dựa vào
+    /// đây để highlight nút đang hoạt động.</summary>
+    public PerformanceLevel CurrentRenderScaleLevel
+    {
+        get
+        {
+            float current = CurrentRenderScale;
+            float lowScale = GetRenderScaleForLevel(PerformanceLevel.Low);
+            float midScale = GetRenderScaleForLevel(PerformanceLevel.Medium);
+            float highScale = GetRenderScaleForLevel(PerformanceLevel.High);
+
+            bool isLow = Mathf.Abs(current - lowScale) <= Mathf.Abs(current - midScale);
+            if (isLow) return PerformanceLevel.Low;
+            bool isHigh = Mathf.Abs(current - highScale) < Mathf.Abs(current - midScale);
+            return isHigh ? PerformanceLevel.High : PerformanceLevel.Medium;
+        }
+    }
 
     /// <summary>Mức hiệu năng tổng thể hiện tại do adaptive duy trì.</summary>
     public PerformanceLevel CurrentPerformanceLevel =>
@@ -283,10 +344,6 @@ public sealed class PerformanceManager : MonoBehaviour
         baseQualityLevel = Mathf.Clamp(
             PlayerPrefs.GetInt(KEY_QUALITY_LEVEL, QualitySettings.GetQualityLevel()),
             0, QualityLevelCount - 1);
-
-        // Ghi nhận render scale gốc của URP asset (làm mức High chuẩn).
-        if (GetURPAsset() is { } urpAsset)
-            BaseRenderScale = Mathf.Clamp(urpAsset.renderScale, 0.1f, 1f);
 
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
         // Bản Release: luôn dùng % pin thật của máy. Nếu trong Editor từng gán
@@ -533,12 +590,12 @@ public sealed class PerformanceManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Áp dụng bước adaptive hiện tại lên FPS + chất lượng + render scale, phát event.
+    /// Áp dụng bước adaptive hiện tại lên FPS + chất lượng + render profile, phát event.
     /// </summary>
     private void ApplyAdaptiveStep()
     {
         ApplyQuality();
-        ApplyRenderScale();
+        ApplyRenderProfile();
         ApplyFrameRate();
         OnAdaptiveStepChanged?.Invoke(CurrentPerformanceLevel);
     }
@@ -573,11 +630,23 @@ public sealed class PerformanceManager : MonoBehaviour
 
         baseQualityLevel = clamped;
         ApplyQuality();
-        ApplyRenderScale(); // render scale giờ theo chất lượng
+        ApplyRenderProfile(); // render profile giờ theo chất lượng
         ApplyFrameRate(); // quality mới có thể bật lại VSync -> áp lại target
         SavePreferences();
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
         //Debug.Log($"[PerformanceManager] 🚀 Đổi chất lượng đồ họa: {clamped} (áp dụng {AppliedQualityLevel})");
+    }
+
+    /// <summary>
+    /// Đổi chất lượng đồ họa theo 1 trong 3 nấc hiệu năng — khớp đúng với
+    /// Render Profile GPU đã định sẵn trong Inspector (Low → renderProfileLow,
+    /// Medium → renderProfileMedium, High → renderProfileHigh). Dùng cho nút
+    /// chất lượng trong Settings.
+    /// </summary>
+    /// <param name="level">Nấc hiệu năng/profile cần áp dụng.</param>
+    public void SetQualityPreset(PerformanceLevel level)
+    {
+        SetQualityLevel(GetQualityLevelForPerformanceLevel(level));
     }
 
     /// <summary>
@@ -613,7 +682,7 @@ public sealed class PerformanceManager : MonoBehaviour
 
         lowGraphicsEnabled = enabled;
         ApplyQuality();
-        ApplyRenderScale();
+        ApplyRenderProfile();
         ApplyFrameRate(); // quality ép về 0 có thể đổi VSync -> áp lại target
         SavePreferences();
         OnLowGraphicsChanged?.Invoke(lowGraphicsEnabled);
@@ -689,7 +758,7 @@ public sealed class PerformanceManager : MonoBehaviour
     private void ApplyAll()
     {
         ApplyQuality();
-        ApplyRenderScale();
+        ApplyRenderProfile();
         ApplyFrameRate();
         OnFrameRateModeChanged?.Invoke(frameRateMode);
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
@@ -713,25 +782,34 @@ private static UniversalRenderPipelineAsset GetURPAsset()
 }
 
 /// <summary>
-/// Trả về render scale tương ứng 1 mức hiệu năng (nội suy với mức gốc của asset).
-/// </summary>
+    /// Trả về RenderProfile của 1 nấc hiệu năng (đã cấu hình trong Inspector).
+    /// </summary>
     /// <param name="level">Mức hiệu năng cần tra.</param>
-    /// <returns>Render scale 0..1.</returns>
-    public float GetRenderScaleForLevel(PerformanceLevel level)
+    /// <returns>RenderProfile tương ứng.</returns>
+    public RenderProfile GetRenderProfile(PerformanceLevel level)
     {
-        float scale;
         switch (level)
         {
-            case PerformanceLevel.High: scale = renderScaleHigh; break;
-            case PerformanceLevel.Medium: scale = renderScaleMedium; break;
-            default: scale = renderScaleLow; break;
+            case PerformanceLevel.High: return renderProfileHigh;
+            case PerformanceLevel.Medium: return renderProfileMedium;
+            default: return renderProfileLow;
         }
-        return Mathf.Clamp(scale * BaseRenderScale, 0.1f, 1f);
+    }
+
+    /// <summary>
+    /// Trả về render scale tương ứng 1 nấc hiệu năng — đọc từ RenderProfile
+    /// (renderScale trong profile là giá trị TUYỆT ĐỐI, không nhân thêm gì).
+    /// </summary>
+    /// <param name="level">Mức hiệu năng cần tra.</param>
+    /// <returns>Render scale đã clamp trong khoảng hợp lệ.</returns>
+    public float GetRenderScaleForLevel(PerformanceLevel level)
+    {
+        return Mathf.Clamp(GetRenderProfile(level).renderScale, 0.1f, 1f);
     }
 
     /// <summary>
     /// Quy mức chất lượng đồ họa (0..QualityLevelCount-1) về 1 trong 3 nấc hiệu
-    /// năng để chọn render scale: Low = mức 0, Medium = mức giữa, High = mức cao
+    /// năng để chọn render profile: Low = mức 0, Medium = mức giữa, High = mức cao
     /// nhất. Chọn nấc gần nhất (cùng khoảng cách thì về nấc thấp hơn).
     /// </summary>
     public static PerformanceLevel GetPerformanceLevelForQuality(int qualityLevel)
@@ -747,20 +825,67 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     }
 
     /// <summary>
-    /// Áp dụng render scale hiện tại xuống UniversalRenderPipelineAsset (chỉ khi đang dùng URP).
+    /// Quy 1 mức hiệu năng (Low/Medium/High) về mức chất lượng đồ họa tương ứng:
+    /// Low = mức 0, Medium = mức giữa, High = mức cao nhất. Ngược với
+    /// GetPerformanceLevelForQuality — dùng để khớp nút chất lượng với
+    /// Render Profile GPU đã định sẵn.
     /// </summary>
-    private void ApplyRenderScale()
+    public static int GetQualityLevelForPerformanceLevel(PerformanceLevel level)
+    {
+        switch (level)
+        {
+            case PerformanceLevel.High: return QualityLevelCount - 1;
+            case PerformanceLevel.Medium: return QualityLevelCount / 2;
+            default: return 0;
+        }
+    }
+
+    /// <summary>
+    /// Áp dụng RenderProfile của mức đang áp dụng xuống URP asset (chỉ khi đang dùng URP).
+    /// Gồm: render scale, MSAA, shadow distance (0 = tắt bóng), số cascade.
+    /// Tránh ghi lại khi giá trị chưa đổi để không gây re-alloc render target.
+    /// </summary>
+    private void ApplyRenderProfile()
     {
         UniversalRenderPipelineAsset urp = GetURPAsset();
         if (urp == null)
             return;
 
-        float target = CurrentRenderScale;
-        if (Mathf.Abs(urp.renderScale - target) > 0.001f)
+        PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
+        RenderProfile profile = GetRenderProfile(tier);
+
+        bool changed = false;
+
+        float scale = Mathf.Clamp(profile.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
+        if (Mathf.Abs(urp.renderScale - scale) > 0.001f)
         {
-            urp.renderScale = target;
-            Debug.Log($"[PerformanceManager] 🎨 Render Scale: {target:0.00}");
+            urp.renderScale = scale;
+            changed = true;
         }
+
+        int msaa = RenderProfile.ValidateMsaa(profile.msaaSampleCount);
+        if (urp.msaaSampleCount != msaa)
+        {
+            urp.msaaSampleCount = msaa;
+            changed = true;
+        }
+
+        float shadowDistance = Mathf.Max(0f, profile.shadowDistance);
+        if (Mathf.Abs(urp.shadowDistance - shadowDistance) > 0.01f)
+        {
+            urp.shadowDistance = shadowDistance;
+            changed = true;
+        }
+
+        int cascades = RenderProfile.ValidateCascades(profile.shadowCascadeCount);
+        if (urp.shadowCascadeCount != cascades)
+        {
+            urp.shadowCascadeCount = cascades;
+            changed = true;
+        }
+
+        if (changed)
+            Debug.Log($"[PerformanceManager] 🎨 Render Profile: {tier} | Scale={scale:0.00} MSAA={msaa}x Shadows={(shadowDistance > 0f ? "ON" : "OFF")} Cascades={cascades}");
     }
 
     /// <summary>

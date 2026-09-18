@@ -20,6 +20,10 @@ public class GunShowcaseUI : MonoBehaviour
     [Tooltip("Panel bật/tắt cùng pop-up này (ví dụ: panel chọn Skin). Tự tắt khi mở màn.")]
     [SerializeField] private GameObject skinPanel;
 
+    [Header("Auto Show")]
+    [Tooltip("(Tuỳ chọn) Manager chọn súng. Mỗi lần panel này được bật sẽ tự hiện showcase súng đang chọn + panel Skin.")]
+    [SerializeField] private WeaponSelectManager weaponSelect;
+
     // ─────────────── Thanh Parameter Chỉ Số ──────────────
     [Header("Thanh Chỉ Số (Image Fill Amount)")]
     [Tooltip("Thanh sát thương.")]
@@ -58,6 +62,16 @@ public class GunShowcaseUI : MonoBehaviour
         if (skinPanel != null) skinPanel.SetActive(false);
     }
 
+    private void OnEnable()
+    {
+        // Khi mở màn chọn súng lần đầu (hoặc mở lại) mà đã có súng được chọn/sẵn sàng
+        // thì tự hiện showcase của súng đang chọn + skin đang trang bị (kèm panel Skin).
+        if (weaponSelect == null) return;
+        WeaponSO weapon = weaponSelect.CurrentWeapon;
+        if (weapon == null) return;
+        Show(weapon, weaponSelect.IsWeaponUnlocked(weapon), weaponSelect.GetEquippedDisplaySprite(weapon));
+    }
+
     private void OnDisable()
     {
         _activeTween?.Kill();
@@ -75,6 +89,9 @@ public class GunShowcaseUI : MonoBehaviour
     }
 
     // ──────────────────── Public API ──────────────────────
+
+    /// <summary>Gán manager chọn súng để mỗi lần panel mở đều tự hiện súng/skin đang chọn.</summary>
+    public void SetWeaponSelect(WeaponSelectManager manager) => weaponSelect = manager;
 
     public void Show(WeaponSO weaponData, bool isUnlocked)
     {
