@@ -12,11 +12,16 @@ using UnityEngine;
 ///   - "DailyReward_StreakCount"        : số ngày liên tiếp đã điểm danh (0..7).
 ///
 /// LOGIC THỜI GIAN (theo DateTime.UtcNow):
-///   - Chưa từng nhận quà           → nhận được ngay ngày 1.
-///   - Cách lần nhận gần nhất < 24h → phải chờ (chưa tới lượt).
-///   - Cách 24h ~ 48h               → cho phép nhận NGÀY TIẾP THEO.
-///   - Cách > 48h (bỏ lỡ ngày)      → reset StreakCount về 0, quay lại ngày 1.
-///   - Đã nhận hết ngày 7            → sau đủ 24h quay lại vòng mới từ ngày 1.
+///   - Chưa từng nhận quà                       → nhận được ngay NGÀY 1.
+///   - Cách lần nhận gần nhất < 24h             → phải chờ (chưa tới lượt).
+///   - Cách từ 24h cho tới missResetHours (48h) → nhận NGÀY TIẾP THEO (ngày gọi quà hằng ngày).
+///   - Cách quá missResetHours (48h) = BỎ LỠ 1 NGÀY → reset StreakCount về 0, quay lại NGÀY 1.
+///   - Đã nhận hết NGÀY 7                        → sau đủ 24h quay VÒNG MỚI từ ngày 1.
+///
+/// Tóm tắt luật chơi:
+///   * Mỗi ngày vào game → có 1 ngày để nhận (ngày tiếp theo).
+///   * Đủ 7 ngày liên tiếp → reset về ngày 1 để nhận tiếp.
+///   * Bỏ lỡ 1 ngày không nhận (quá 48h) → reset về ngày 1.
 ///
 /// CÁC BƯỚC GÁN TRÊN EDITOR (sau khi đã gán DailyRewardSlotUI cho 7 ô D1 → D7):
 ///   1) Thêm component DailyRewardManager vào GameObject bất kỳ (Panel cha hoặc 1 object rỗng trong scene).
@@ -47,6 +52,11 @@ public class DailyRewardManager : MonoBehaviour
     [Header("Danh sách 7 ô quà (D1 → D7)")]
     [Tooltip("Kéo thả 7 GameObject D1 → D7 từ Hierarchy vào đây, đúng thứ tự D1 trước, D7 cuối.")]
     [SerializeField] private List<DailyRewardSlotUI> rewardSlots = new List<DailyRewardSlotUI>();
+
+    [Header("Cài đặt luật chơi")]
+    [Tooltip("Quá bao nhiêu giờ kể từ lần nhận cuối thì coi là BỎ LỠ 1 NGÀY → reset về ngày 1?\n- 48h (mặc định) = bỏ lỡ đúng 1 ngày thì reset.\n- PHẢI LỚN HƠN 24h (vì cần 24h để qua ngày mới).")]
+    [Range(25f, 120f)]
+    [SerializeField] private float missResetHours = 48f;
 
     /// <summary>
     /// Sự kiện phát ra khi nhận quà loại Item.
@@ -223,7 +233,7 @@ public class DailyRewardManager : MonoBehaviour
     /// <summary>
     /// Xác định ngày hiện có thể nhận quà (dayIndex 1..7).
     /// Trả về -1 khi chưa đủ 24h (phải chờ).
-    /// Có tác dụng PHỤ: nếu quá 48h sẽ tự reset streak về 0 và lưu lại.
+    /// Nếu quá missResetHours → tự reset streak về 0 và lưu lại.
     /// </summary>
     private int GetNextClaimableDayIndex()
     {
@@ -232,14 +242,14 @@ public class DailyRewardManager : MonoBehaviour
 
         TimeSpan elapsed = DateTime.UtcNow - lastClaimTime;
 
-        // Quá 48h → bỏ lỡ ngày → reset streak về 0 (lưu lại để không phải reset lại mãi).
-        if (elapsed.TotalHours >= 48f)
+        // Quá missResetHours (mặc định 48h) → bỏ lỡ 1 ngày → reset streak về 0.
+        if (elapsed.TotalHours >= missResetHours)
         {
             if (streakCount != 0)
             {
                 streakCount = 0;
                 SaveProgress();
-                Debug.Log("[DailyReward] Quá 48h chưa điểm danh → Streak đã reset về 0.");
+                Debug.Log($"[DailyReward] Bỏ lỡ {Mathf.FloorToInt((float)elapsed.TotalHours)}h (> {missResetHours}h) → Streak đã reset về 0.");
             }
             return 1;
         }
@@ -248,7 +258,7 @@ public class DailyRewardManager : MonoBehaviour
         if (elapsed.TotalHours < 24f)
             return -1;
 
-        // Đủ 24h → nhận ngày tiếp theo (sau ngày 7 sẽ quay vòng về ngày 1).
+        // Đủ 24h nhưng chưa quá missResetHours → nhận ngày tiếp theo trong chu kỳ.
         int next = streakCount + 1;
         if (next > MaxRewardDays) next = 1;
         return next;
