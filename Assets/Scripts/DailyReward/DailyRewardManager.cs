@@ -63,6 +63,38 @@ public class DailyRewardManager : MonoBehaviour
     /// <summary>Số streak hiện tại (0..7), dùng để hiển thị lên UI khác nếu cần.</summary>
     public int StreakCount => streakCount;
 
+    /// <summary>
+    /// Đang có ít nhất 1 ngày có thể nhận quà (Claimable) hay không.
+    /// Dùng để bật/tắt notify ở ICON DẪN VÀO panel Daily Reward trên menu chính.
+    /// </summary>
+    public bool HasRewardToClaim => GetNextClaimableDayIndex() >= 0;
+
+    /// <summary>
+    /// Kiểm tra TRỰC TIẾP (đọc PlayerPrefs ngay lúc gọi) hiện có ngày được nhận quà hay không.
+    /// KHÔNG phụ thuộc vào instance nào — luôn đọc dữ liệu mới nhất vừa được lưu.
+    /// Dùng cho notify của icon ngoài menu để tránh kẹt notify khi có nhiều manager / sai tham chiếu.
+    /// Luật đơn giản: chưa nhận lần nào HOẶC đã cách lần nhận >= 24h → có quà để nhận (true).
+    /// </summary>
+    public static bool IsClaimableNow()
+    {
+        string raw = PlayerPrefs.GetString(KEY_LAST_CLAIM, "");
+        if (string.IsNullOrEmpty(raw))
+            return true; // Chưa từng nhận quà → ngày 1 đang chờ nhận.
+
+        if (!TryParseTime(raw, out DateTime lastClaim))
+            return true; // Dữ liệu hỏng → coi như có quà để nhận.
+
+        // Quá 48h sẽ tự reset streak và nhận lại → claimable.
+        // Nên chỉ cần so 24h: cách lần nhận gần nhất >= 24h là được nhận.
+        return (DateTime.UtcNow - lastClaim).TotalHours >= 24f;
+    }
+
+    /// <summary>
+    /// Sự kiện phát ra mỗi khi trạng thái điểm danh thay đổi
+    /// (nhận quà, mở panel, reset...) — để notify icon menu tự cập nhật.
+    /// </summary>
+    public event Action OnRewardStateChanged;
+
     // Đăng ký trong Awake để hệ thống khác có thể gọi trước khi scene chạy.
     private void Awake()
     {
@@ -256,6 +288,9 @@ public class DailyRewardManager : MonoBehaviour
 
             slot.UpdateState(state);
         }
+
+        // Báo cho notify icon ngoài menu biết để ẩn/bật theo trạng thái mới nhất.
+        OnRewardStateChanged?.Invoke();
     }
 
     // ──────────────────── Nhận quà ────────────────────
