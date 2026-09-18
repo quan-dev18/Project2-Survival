@@ -17045,9 +17045,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4a28c17b2ba9ac4e9c198be36b11f93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  androidBannerId: ca-app-pub-7087538734337269/9374062130
-  androidRewardedId: ca-app-pub-7087538734337269/8737436180
-  androidVictoryRewardedId: ca-app-pub-7087538734337269/3521602675
+  androidBannerId: ca-app-pub-3940256099942544/6300978111
+  androidRewardedId: ca-app-pub-3940256099942544/5224354917
+  androidVictoryRewardedId: ca-app-pub-3940256099942544/5224354917
   rewardCoinAmount: 670
   mainMenuSceneName: MainMenu
   previewDpi: 420

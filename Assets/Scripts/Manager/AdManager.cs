@@ -13,6 +13,8 @@ public class AdManager : MonoBehaviour
 {
     public static AdManager Instance { get; private set; }
 
+    // Config below is consumed in device-only (#if) code paths; unused in the Editor by design.
+#pragma warning disable CS0414
     [Header("Ad Units")]
     [Tooltip("Google test banner. Replace with your real unit ID for release builds.")]
     [SerializeField] private string androidBannerId = "ca-app-pub-3940256099942544/6300978111";
@@ -24,6 +26,7 @@ public class AdManager : MonoBehaviour
     [Header("Reward")]
     [Tooltip("Coins granted per completed rewarded ad.")]
     [SerializeField] private int rewardCoinAmount = 100;
+#pragma warning restore CS0414
 
     [Header("Scenes")]
     [Tooltip("Banner is visible only in this scene.")]
