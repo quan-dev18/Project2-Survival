@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using GoogleMobileAds.Api;
+using GoogleMobileAds.Common;
 
 /// <summary>
 /// Owns the AdMob banner: shows it on the main menu, hides it everywhere else.
