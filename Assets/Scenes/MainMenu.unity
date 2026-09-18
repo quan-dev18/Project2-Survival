@@ -4630,6 +4630,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: db8175a0540ca304982053a7b68f3528, type: 2}
   - {fileID: 11400000, guid: 78536be9d817a1d4984b7edb59e207fe, type: 2}
   - {fileID: 11400000, guid: 973d29e00a3679942b14e1d660420cd8, type: 2}
+  - {fileID: 11400000, guid: 4c9f2d9176abb3744b76ae523b5ea2ab, type: 2}
   mapContainer: {fileID: 1612929568}
   transitionDuration: 0.35
   minScale: 0.5
