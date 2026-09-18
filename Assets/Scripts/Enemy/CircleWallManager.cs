@@ -23,8 +23,11 @@ public class CircleWallManager : MonoBehaviour
     private class WallEnemy
     {
         public GameObject gameObject;
+        public Transform transform;
         public EnemyController controller;
-        public Rigidbody2D rb;
+        public EnemyMovement[] movements;
+        public BossController[] bossControllers;
+        public Rigidbody2D[] rigidbodies;
         public float angle;
     }
 
@@ -36,7 +39,23 @@ public class CircleWallManager : MonoBehaviour
 
     private void Start()
     {
-        playerTransform = ObjectPooling.Instance.targetTransform;
+        playerTransform = ObjectPooling.Instance != null ? ObjectPooling.Instance.targetTransform : null;
+        GameManager.OnStateChanged += OnGameStateChanged;
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.OnStateChanged -= OnGameStateChanged;
+        if (Instance == this) Instance = null;
+        ClearAll();
+    }
+
+    private void OnGameStateChanged(GameState state)
+    {
+        if (state == GameState.GameOver)
+        {
+            ClearAll();
+        }
     }
 
     public void TryActivate(StageSO stage, int phaseIndex)
@@ -45,16 +64,23 @@ public class CircleWallManager : MonoBehaviour
         if (phaseIndex < 0 || phaseIndex >= stage.Phases.Count) return;
 
         StageSO.CircleWallConfig config = stage.Phases[phaseIndex].CircleWall;
-        if (config == null || !config.Enabled) return;
+        if (config == null || !config.Enabled)
+        {
+            ClearAll();
+            return;
+        }
 
         ActivateWall(config);
     }
 
     private void ActivateWall(StageSO.CircleWallConfig config)
     {
-        if (playerTransform == null)
+        if (playerTransform == null && ObjectPooling.Instance != null)
             playerTransform = ObjectPooling.Instance.targetTransform;
         if (playerTransform == null) return;
+
+        // Clear any previous active wall to prevent duplicate overlapping walls
+        ClearAll();
 
         WallEntry entry = new WallEntry
         {
@@ -64,7 +90,7 @@ public class CircleWallManager : MonoBehaviour
             center = playerTransform.position
         };
 
-        float angleStep = 360f / config.WallEnemyCount;
+        float angleStep = config.WallEnemyCount > 0 ? 360f / config.WallEnemyCount : 0f;
         for (int i = 0; i < config.WallEnemyCount; i++)
         {
             float angle = angleStep * i * Mathf.Deg2Rad;
@@ -73,9 +99,36 @@ public class CircleWallManager : MonoBehaviour
             GameObject obj = ObjectPooling.Instance.Spawn(config.WallEnemyKey, pos, Quaternion.identity);
             if (obj == null) continue;
 
-            EnemyController ec = obj.GetComponent<EnemyController>();
-            EnemyMovement em = obj.GetComponent<EnemyMovement>();
-            Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
+            // Find all components across root and children to support any enemy prefab hierarchy
+            EnemyController ec = obj.GetComponentInChildren<EnemyController>(true);
+            if (ec == null) ec = obj.GetComponentInParent<EnemyController>();
+
+            EnemyMovement[] movements = obj.GetComponentsInChildren<EnemyMovement>(true);
+            foreach (var em in movements)
+            {
+                if (em != null)
+                {
+                    em.enabled = false;
+                    em.ResetKnockback(); // frozen enemies must not bank knockback
+                }
+            }
+
+            BossController[] bosses = obj.GetComponentsInChildren<BossController>(true);
+            foreach (var bc in bosses)
+            {
+                if (bc != null) bc.enabled = false;
+            }
+
+            Rigidbody2D[] rbs = obj.GetComponentsInChildren<Rigidbody2D>(true);
+            foreach (var rb in rbs)
+            {
+                if (rb != null)
+                {
+                    rb.velocity = Vector2.zero;
+                    rb.angularVelocity = 0f;
+                    rb.bodyType = RigidbodyType2D.Kinematic;
+                }
+            }
 
             if (ec != null)
             {
@@ -86,20 +139,21 @@ public class CircleWallManager : MonoBehaviour
                 ec.SetCurrentHealth(ec.maxHealth);
             }
 
-            if (em != null)
-                em.enabled = false;
-
-            if (rb != null)
+            // Directly enforce initial position
+            obj.transform.position = pos;
+            foreach (var rb in rbs)
             {
-                rb.velocity = Vector2.zero;
-                rb.bodyType = RigidbodyType2D.Kinematic;
+                if (rb != null) rb.position = pos;
             }
 
             WallEnemy wallEnemy = new WallEnemy
             {
                 gameObject = obj,
+                transform = obj.transform,
                 controller = ec,
-                rb = rb,
+                movements = movements,
+                bossControllers = bosses,
+                rigidbodies = rbs,
                 angle = angle
             };
 
@@ -112,17 +166,23 @@ public class CircleWallManager : MonoBehaviour
     private void Update()
     {
         if (activeWalls.Count == 0) return;
-        if (playerTransform == null) return;
+        if (playerTransform == null)
+        {
+            if (ObjectPooling.Instance != null)
+                playerTransform = ObjectPooling.Instance.targetTransform;
+            if (playerTransform == null) return;
+        }
+
+        Vector2 playerPos = playerTransform.position;
 
         for (int w = activeWalls.Count - 1; w >= 0; w--)
         {
             WallEntry entry = activeWalls[w];
 
             entry.elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(entry.elapsed / entry.config.ShrinkDuration);
+            float duration = Mathf.Max(entry.config.ShrinkDuration, 0.001f);
+            float t = Mathf.Clamp01(entry.elapsed / duration);
             entry.currentRadius = Mathf.Lerp(entry.config.StartRadius, entry.config.EndRadius, t);
-
-            Vector2 playerPos = playerTransform.position;
 
             for (int i = entry.enemies.Count - 1; i >= 0; i--)
             {
@@ -134,16 +194,51 @@ public class CircleWallManager : MonoBehaviour
                     continue;
                 }
 
-                EnemyHealth eh = enemy.gameObject.GetComponent<EnemyHealth>();
+                EnemyHealth eh = enemy.gameObject.GetComponentInChildren<EnemyHealth>(true);
+                if (eh == null) eh = enemy.gameObject.GetComponentInParent<EnemyHealth>();
                 if (eh != null && eh.CurrentHealth <= 0f)
                 {
+                    RestoreEnemyState(enemy);
                     entry.enemies.RemoveAt(i);
                     continue;
                 }
 
-                Vector2 pos = entry.center + new Vector2(Mathf.Cos(enemy.angle), Mathf.Sin(enemy.angle)) * entry.currentRadius;
-                enemy.rb.MovePosition(pos);
+                // Continuously enforce that movement scripts remain disabled
+                if (enemy.movements != null)
+                {
+                    for (int m = 0; m < enemy.movements.Length; m++)
+                    {
+                        if (enemy.movements[m] != null && enemy.movements[m].enabled)
+                            enemy.movements[m].enabled = false;
+                    }
+                }
+                if (enemy.bossControllers != null)
+                {
+                    for (int b = 0; b < enemy.bossControllers.Length; b++)
+                    {
+                        if (enemy.bossControllers[b] != null && enemy.bossControllers[b].enabled)
+                            enemy.bossControllers[b].enabled = false;
+                    }
+                }
 
+                // Calculate target position on the circle
+                Vector2 pos = entry.center + new Vector2(Mathf.Cos(enemy.angle), Mathf.Sin(enemy.angle)) * entry.currentRadius;
+
+                // Lock position directly onto transform & rigidbodies
+                enemy.transform.position = pos;
+                if (enemy.rigidbodies != null)
+                {
+                    for (int r = 0; r < enemy.rigidbodies.Length; r++)
+                    {
+                        if (enemy.rigidbodies[r] != null)
+                        {
+                            enemy.rigidbodies[r].velocity = Vector2.zero;
+                            enemy.rigidbodies[r].position = pos;
+                        }
+                    }
+                }
+
+                // Attack check
                 if (enemy.controller != null && enemy.controller.CanAttack)
                 {
                     float dist = Vector2.Distance(pos, playerPos);
@@ -159,14 +254,62 @@ public class CircleWallManager : MonoBehaviour
         }
     }
 
+    private void RestoreEnemyState(WallEnemy enemy)
+    {
+        if (enemy == null || enemy.gameObject == null) return;
+
+        if (enemy.rigidbodies != null)
+        {
+            for (int r = 0; r < enemy.rigidbodies.Length; r++)
+            {
+                if (enemy.rigidbodies[r] != null)
+                {
+                    // All enemy prefabs are authored Kinematic (transform-driven,
+                    // top-down). Restoring Dynamic + prefab gravityScale 1 made
+                    // released wall enemies accelerate downward forever.
+                    enemy.rigidbodies[r].bodyType = RigidbodyType2D.Kinematic;
+                    enemy.rigidbodies[r].velocity = Vector2.zero;
+                }
+            }
+        }
+
+        if (enemy.movements != null)
+        {
+            for (int m = 0; m < enemy.movements.Length; m++)
+            {
+                if (enemy.movements[m] != null)
+                {
+                    enemy.movements[m].ResetKnockback(); // never launch on stale hits
+                    enemy.movements[m].enabled = true;
+                }
+            }
+        }
+
+        if (enemy.bossControllers != null)
+        {
+            for (int b = 0; b < enemy.bossControllers.Length; b++)
+            {
+                if (enemy.bossControllers[b] != null)
+                    enemy.bossControllers[b].enabled = true;
+            }
+        }
+    }
+
     public void ClearAll()
     {
         for (int w = activeWalls.Count - 1; w >= 0; w--)
         {
             for (int i = activeWalls[w].enemies.Count - 1; i >= 0; i--)
             {
-                if (activeWalls[w].enemies[i].gameObject != null)
-                    activeWalls[w].enemies[i].gameObject.SetActive(false);
+                WallEnemy enemy = activeWalls[w].enemies[i];
+                if (enemy.gameObject != null)
+                {
+                    RestoreEnemyState(enemy);
+                    if (ObjectPooling.Instance != null)
+                        ObjectPooling.Instance.Despawn(enemy.gameObject);
+                    else
+                        enemy.gameObject.SetActive(false);
+                }
             }
         }
         activeWalls.Clear();

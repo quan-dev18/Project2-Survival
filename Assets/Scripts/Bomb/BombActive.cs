@@ -95,7 +95,8 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
         // khoảng cách thật (X,Y) từ player tới vị trí nổ => gần to, xa nhỏ.
         ExplosionSFX.Play2D(explosionSound, transform.position);
 
-        if (explosionVFX != null)
+        if (explosionVFX != null &&
+            (GameSettingsManager.Instance == null || GameSettingsManager.Instance.ShowVFX))
             ObjectPooling.Instance.Spawn(explosionVFX, transform.position, Quaternion.identity);
 
         ObjectPooling.Instance.Despawn(gameObject);

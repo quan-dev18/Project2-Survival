@@ -26,6 +26,8 @@ public class HeroSelectManager : MonoBehaviour
 
     [Header("Outside Equipment UI")]
     [SerializeField] private Image outsideHeroIcon;
+    [Tooltip("Tên hero hiển thị ở nút 'Thay đổi' bên ngoài (kéo TMP_Text của nút vào).")]
+    [SerializeField] private TextMeshProUGUI outsideHeroNameText;
 
     [Header("Tween Animation")]
     [SerializeField] private UISlideTween slideTween;
@@ -44,6 +46,7 @@ public class HeroSelectManager : MonoBehaviour
 
         RestoreSelectedHeroIcon();
         GenerateListUI();
+        RefreshOutsideName();
     }
 
     private void Start()
@@ -71,6 +74,22 @@ public class HeroSelectManager : MonoBehaviour
         {
             if (outsideHeroIcon != null) outsideHeroIcon.sprite = heroList[savedIndex].heroIcon;
         }
+    }
+
+    // Cập nhật tên hero hiển thị ở nút 'Thay đổi' bên ngoài
+    private void RefreshOutsideName()
+    {
+        if (outsideHeroNameText == null) return;
+
+        HeroSelectSO hero = currentSelectedHero;
+        if (hero == null)
+        {
+            int savedIndex = UserData.Instance != null ? UserData.Instance.SelectedHeroIndex : 0;
+            if (savedIndex >= 0 && savedIndex < heroList.Count && heroList[savedIndex] != null)
+                hero = heroList[savedIndex];
+        }
+
+        outsideHeroNameText.text = hero != null ? hero.heroName : string.Empty;
     }
 
     private void GenerateListUI()
@@ -177,6 +196,8 @@ public class HeroSelectManager : MonoBehaviour
             if (goldCostText != null)
                 goldCostText.text = FormatHelper.FormatGold(data.GoldCost);
         }
+
+        RefreshOutsideName();
     }
 
     private void OnConfirmSelect()

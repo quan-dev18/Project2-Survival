@@ -194,7 +194,7 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
                 if (dmg != null)
                     dmg.TakeDamage(finalDamage);
             }
-            ObjectPooling.Instance.Spawn("VFX_NO", other.transform.position, Quaternion.identity);
+            PlayPooledOneShotVFX("VFX_NO2", other.transform.position);
         }
 
         if (infinitePierced)
@@ -266,6 +266,54 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         }
 
         DespawnSelf();
+    }
+
+    private void PlayPooledOneShotVFX(string key, Vector3 pos)
+    {
+        // Tôn trọng cờ "Hiển thị VFX": tắt thì bỏ qua spawn để tiết kiệm hiệu năng.
+        if (GameSettingsManager.Instance != null && !GameSettingsManager.Instance.ShowVFX)
+            return;
+        if (ObjectPooling.Instance == null) return;
+        GameObject vfx = ObjectPooling.Instance.Spawn(key, pos, Quaternion.identity);
+        if (vfx == null) return;
+        // ParticleSystem: must Play() after SetActive (animations auto-play via Animator)
+        foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ps.Clear(true);
+            ps.Play(true);
+        }
+        // Auto-despawn after longest particle lifetime (or fixed 1s fallback for animations)
+        float lifetime = 1f;
+        foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            var main = ps.main;
+            float d = main.duration + main.startLifetime.constantMax;
+            if (d > lifetime) lifetime = d;
+        }
+        var animator = vfx.GetComponentInChildren<Animator>(true);
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            float animLen = 0f;
+            foreach (var clip in animator.runtimeAnimatorController.animationClips)
+                if (clip.length > animLen) animLen = clip.length;
+            if (animLen > lifetime) lifetime = animLen;
+        }
+        // Chạy coroutine trên ObjectPooling.Instance (luôn active) thay vì bullet:
+        // bullet có thể đã bị despawn (inactive) trong cùng callback vật lý,
+        // StartCoroutine trên gameObject inactive sẽ ném lỗi.
+        ObjectPooling.Instance.StartCoroutine(DespawnVFXAfter(vfx, lifetime + 0.1f));
+    }
+
+    private System.Collections.IEnumerator DespawnVFXAfter(GameObject vfx, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (vfx == null) yield break;
+        foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        if (ObjectPooling.Instance != null)
+            ObjectPooling.Instance.Despawn(vfx);
+        else
+            Destroy(vfx);
     }
 
     private void DespawnSelf()

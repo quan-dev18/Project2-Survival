@@ -1,0 +1,413 @@
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// ============================================================================
+/// PerformanceSettingUIController - UI View Controller cho phần hiệu năng.
+///
+/// ▐▌ VAI TRÒ
+///   - Cập nhật UI (Text FPS, Button frame rate / chất lượng, Toggle adaptive)
+///     theo đúng dữ liệu của PerformanceManager.
+///   - KHÔNG chứa logic quyết định: mọi thay đổi chỉ đẩy xuống Core Manager qua
+///     SetFrameRateMode / SetQualityLevel / SetAdaptiveEnabled, và chỉ update UI
+///     khi nhận sự kiện (OnFPSUpdated / OnFrameRateModeChanged / ...).
+///   - Tách bạch UI vs Logic theo đúng pattern của dự án.
+///
+/// ▐▌ CÁCH GẮN TRONG UNITY EDITOR
+///   1. Gắn script lên GameObject panel Settings (PanelPerformance).
+///   2. Kéo thả:
+///        - TMP_Text "Fps Text"      (text xanh 1 dòng, dòng 1: FPS, dòng 2: budget)
+///        - Button "Frame Rate Button"  (mỗi lần ấn cycle qua Auto/30/60/90/120)
+///        - TMP_Text "Frame Rate Label" (text hiển thị FPS mode hiện tại: Auto, FPS 30...)
+///        - 3 nút chất lượng "Low/Medium/High": kéo vào các ô qualityLowButton /
+///          qualityMediumButton / qualityHighButton. Nút khớp với RenderProfile
+///          GPU trong PerformanceManager (Low → renderProfileLow, Medium → mức
+///          giữa, High → renderProfileHigh). Nút đang chọn giữ màu gốc; nút chưa
+///          chọn bị nền xám tối + chữ sáng (màu chỉnh được trong Inspector).
+///        - Toggle "Adaptive Toggle"
+///        - Toggle "VSync Toggle"
+///        - GameObject "Low Power Warning"  (panel cảnh báo pin yếu, mặc định tắt)
+///        - TMP_Text "Performance Level Text" (tùy chọn: High/Medium/Low)
+///   3. PerformanceManager tự sinh runtime, KHÔNG cần kéo.
+/// ============================================================================
+public class PerformanceSettingUIController : MonoBehaviour
+{
+    [Header("FPS Overlay (có thể để trống)")]
+    [Tooltip("Text hiển thị FPS và frame budget hiện tại. Để trống nếu không cần.")]
+    [SerializeField] private TMP_Text fpsText;
+
+    [Tooltip("Text hiển thị mức hiệu năng (High/Medium/Low). Để trống nếu không cần.")]
+    [SerializeField] private TMP_Text performanceLevelText;
+
+    [Header("Frame Rate")]
+    [Tooltip("Nút cycle frame rate: mỗi lần ấn chuyển Auto -> 30 -> 60 -> 90 -> 120 -> Auto...")]
+    [SerializeField] private Button frameRateButton;
+    [Tooltip("Text hiển thị FPS mode hiện tại trên nút. Để trống nếu không cần.")]
+    [SerializeField] private TMP_Text frameRateLabel;
+
+    [Header("Chất lượng đồ họa (3 nút theo Render Profile GPU)")]
+    [Tooltip("Nút Low: áp Render Profile thấp nhất (renderProfileLow — bóng tắt, MSAA 0).")]
+    [SerializeField] private Button qualityLowButton;
+    [Tooltip("Nút Medium: cân bằng hình ảnh/hiệu năng (renderProfileMedium).")]
+    [SerializeField] private Button qualityMediumButton;
+    [Tooltip("Nút High: chất lượng cao nhất (renderProfileHigh).")]
+    [SerializeField] private Button qualityHighButton;
+
+    [Tooltip("Màu nền cho nút KHÔNG được chọn (xám tối). Nút đang chọn giữ màu gốc.")]
+    [SerializeField] private Color unselectedBgColor = new Color(0.25f, 0.25f, 0.25f, 1f);
+    [Tooltip("Màu chữ cho nút KHÔNG được chọn (sáng).")]
+    [SerializeField] private Color unselectedTextColor = new Color(0.9f, 0.9f, 0.9f, 1f);
+
+    [Header("Adaptive Throttling")]
+    [Tooltip("Toggle bật/tắt tự điều chỉnh hiệu năng (chống nóng máy, tiết kiệm pin).")]
+    [SerializeField] private Toggle adaptiveToggle;
+
+    [Header("VSync")]
+    [Tooltip("Toggle bật/tắt VSync (đồng bộ với PerformanceManager).")]
+    [SerializeField] private Toggle vSyncToggle;
+
+    [Header("Cảnh báo pin yếu")]
+    [Tooltip("Root panel cảnh báo pin yếu, hiện/ẩn theo event OnBatteryWarning. Có thể để trống.")]
+    [SerializeField] private GameObject lowPowerWarningRoot;
+
+    private PerformanceManager performance;
+    private bool syncingUI;              // chặn hồi tiếp khi tự set giá trị dropdown/toggle
+    private bool subscribed;
+
+    // ──────────────────── Unity Callbacks ─────────────────
+
+    /// <summary>
+    /// Gắn sự kiện UI (dropdown, toggle) một lần.
+    /// </summary>
+    private void Awake()
+    {
+        if (frameRateButton != null)
+            frameRateButton.onClick.AddListener(OnFrameRateButtonClicked);
+        if (qualityLowButton != null)
+            qualityLowButton.onClick.AddListener(OnQualityLowClicked);
+        if (qualityMediumButton != null)
+            qualityMediumButton.onClick.AddListener(OnQualityMediumClicked);
+        if (qualityHighButton != null)
+            qualityHighButton.onClick.AddListener(OnQualityHighClicked);
+        if (adaptiveToggle != null)
+            adaptiveToggle.onValueChanged.AddListener(OnAdaptiveToggleChanged);
+        if (vSyncToggle != null)
+            vSyncToggle.onValueChanged.AddListener(OnVSyncToggleChanged);
+    }
+
+    /// <summary>
+    /// Tìm PerformanceManager, điền options chất lượng một lần và đăng ký event.
+    /// Nếu manager được auto-create hơi trễ (AfterSceneLoad), thử lại sau 1 frame.
+    /// </summary>
+    private void Start()
+    {
+        if (TryResolvePerformance())
+            Bind();
+        else
+            Invoke(nameof(TryBindDelayed), 0.1f);
+    }
+
+    /// <summary>
+    /// Thử tìm lại manager sau khi auto-create đã chạy xong.
+    /// </summary>
+    private void TryBindDelayed()
+    {
+        if (TryResolvePerformance())
+            Bind();
+        else
+            Debug.LogWarning("[PerformanceSettingUIController] Không tìm thấy PerformanceManager! (<i>Script tự tạo khi scene load</i>)");
+    }
+
+    /// <summary>
+    /// Tìm PerformanceManager qua Instance hoặc FindObjectOfType.
+    /// </summary>
+    private bool TryResolvePerformance()
+    {
+        performance = PerformanceManager.Instance != null
+            ? PerformanceManager.Instance
+            : FindObjectOfType<PerformanceManager>();
+        return performance != null;
+    }
+
+    /// <summary>
+    /// Đăng ký toàn bộ event và đồng bộ UI 1 lần.
+    /// </summary>
+    private void Bind()
+    {
+        performance.OnFPSUpdated += OnFPSUpdated;
+        performance.OnFrameRateModeChanged += OnFrameRateModeChanged;
+        performance.OnQualityLevelChanged += OnQualityLevelChanged;
+        performance.OnAdaptiveEnabledChanged += OnAdaptiveEnabledChanged;
+        performance.OnVSyncChanged += OnVSyncChanged;
+        performance.OnAdaptiveStepChanged += OnAdaptiveStepChanged;
+        performance.OnBatteryWarning += OnBatteryWarning;
+        subscribed = true;
+
+        RefreshAllUI();
+    }
+
+    /// <summary>
+    /// Khi panel bật lại, đồng bộ lại toàn bộ UI theo trạng thái manager hiện tại.
+    /// </summary>
+    private void OnEnable()
+    {
+        if (performance == null || !subscribed) return;
+        RefreshAllUI();
+    }
+
+    /// <summary>
+    /// Hủy đăng ký event (cả callback UI lẫn manager) để tránh leak.
+    /// </summary>
+    private void OnDestroy()
+    {
+        if (performance != null)
+        {
+            performance.OnFPSUpdated -= OnFPSUpdated;
+            performance.OnFrameRateModeChanged -= OnFrameRateModeChanged;
+            performance.OnQualityLevelChanged -= OnQualityLevelChanged;
+            performance.OnAdaptiveEnabledChanged -= OnAdaptiveEnabledChanged;
+            performance.OnVSyncChanged -= OnVSyncChanged;
+            performance.OnAdaptiveStepChanged -= OnAdaptiveStepChanged;
+            performance.OnBatteryWarning -= OnBatteryWarning;
+        }
+
+        if (frameRateButton != null)
+            frameRateButton.onClick.RemoveListener(OnFrameRateButtonClicked);
+        if (qualityLowButton != null)
+            qualityLowButton.onClick.RemoveListener(OnQualityLowClicked);
+        if (qualityMediumButton != null)
+            qualityMediumButton.onClick.RemoveListener(OnQualityMediumClicked);
+        if (qualityHighButton != null)
+            qualityHighButton.onClick.RemoveListener(OnQualityHighClicked);
+        if (adaptiveToggle != null)
+            adaptiveToggle.onValueChanged.RemoveListener(OnAdaptiveToggleChanged);
+        if (vSyncToggle != null)
+            vSyncToggle.onValueChanged.RemoveListener(OnVSyncToggleChanged);
+    }
+
+    // ──────────────────── UI -> Core (không logic ở đây) ─────
+
+    /// <summary>
+    /// Người chơi bấm nút frame rate: cycle sang chế độ tiếp theo (Auto -> 30 -> 60 -> 90 -> 120 -> Auto...).
+    /// </summary>
+    private void OnFrameRateButtonClicked()
+    {
+        if (syncingUI || performance == null) return;
+        FrameRateMode next = performance.CurrentMode + 1;
+        if (!System.Enum.IsDefined(typeof(FrameRateMode), next))
+            next = FrameRateMode.Auto;
+        performance.SetFrameRateMode(next);
+    }
+
+    /// <summary>
+    /// Người chơi bấm nút chất lượng: đẩy thẳng xuống PerformanceManager.
+    /// Các nút Low/Medium/High khớp với Render Profile GPU đã định sẵn
+    /// (renderProfileLow / renderProfileMedium / renderProfileHigh).
+    /// </summary>
+    private void OnQualityLowClicked() => OnQualityButtonClicked(PerformanceLevel.Low);
+    private void OnQualityMediumClicked() => OnQualityButtonClicked(PerformanceLevel.Medium);
+    private void OnQualityHighClicked() => OnQualityButtonClicked(PerformanceLevel.High);
+
+    private void OnQualityButtonClicked(PerformanceLevel preset)
+    {
+        if (performance == null) return;
+        performance.SetQualityPreset(preset);
+    }
+
+    /// <summary>
+    /// Người chơi bật/tắt adaptive: đẩy thẳng xuống PerformanceManager.
+    /// Lưu ý: Offline sẽ không show panel cảnh báo pin nữa vì logic nằm ở Core.
+    /// </summary>
+    private void OnAdaptiveToggleChanged(bool enabled)
+    {
+        if (syncingUI || performance == null) return;
+        performance.SetAdaptiveEnabled(enabled);
+    }
+
+    /// <summary>
+    /// Người chơi bật/tắt VSync: đẩy thẳng xuống PerformanceManager.
+    /// </summary>
+    private void OnVSyncToggleChanged(bool enabled)
+    {
+        if (syncingUI || performance == null) return;
+        performance.SetVSyncEnabled(enabled);
+    }
+
+    // ──────────────────── Core -> UI (chỉ update giao diện) ─
+
+    /// <summary>
+    /// Cập nhật text FPS + frame budget mỗi khi manager bám mẫu FPS mới.
+    /// </summary>
+    private void OnFPSUpdated(float fps)
+    {
+        if (fpsText == null || performance == null) return;
+
+        float frameTimeMs = performance.SmoothedFrameTimeMs;
+        float budgetMs = performance.CurrentFrameBudgetMs;
+        fpsText.text = $"{fps:0} FPS";
+        if (frameTimeMs > 0f)
+            fpsText.text += $"\n{frameTimeMs:0.0}ms / {budgetMs:0.0}ms";
+    }
+
+    /// <summary>
+    /// Đồng bộ text frame rate theo manager.
+    /// </summary>
+    private void OnFrameRateModeChanged(FrameRateMode mode)
+    {
+        RefreshFrameRateLabel(mode);
+    }
+
+    /// <summary>
+    /// Đồng bộ dropdown chất lượng theo mức áp dụng của manager.
+    /// </summary>
+    private void OnQualityLevelChanged(int level)
+    {
+        RefreshQualityButtons();
+    }
+
+    /// <summary>
+    /// Đồng bộ toggle adaptive theo manager.
+    /// </summary>
+    private void OnAdaptiveEnabledChanged(bool enabled)
+    {
+        RefreshAdaptiveToggle(enabled);
+    }
+
+    /// <summary>
+    /// Đồng bộ toggle VSync theo manager.
+    /// </summary>
+    private void OnVSyncChanged(bool enabled)
+    {
+        if (vSyncToggle != null && vSyncToggle.isOn != enabled)
+            vSyncToggle.isOn = enabled;
+    }
+
+    /// <summary>
+    /// Cập nhật text mức hiệu năng khi adaptive hạ/nâng bước.
+    /// </summary>
+    private void OnAdaptiveStepChanged(PerformanceLevel level)
+    {
+        if (performanceLevelText != null)
+            performanceLevelText.text = level.ToString();
+        RefreshQualityButtons();
+    }
+
+    /// <summary>
+    /// Hiện cảnh báo pin yếu theo event từ manager.
+    /// </summary>
+    private void OnBatteryWarning(float batteryPercent)
+    {
+        if (lowPowerWarningRoot != null)
+            lowPowerWarningRoot.SetActive(true);
+    }
+
+    // ──────────────────── Helpers / Data binding ─────────────
+
+    /// <summary>
+    /// Cập nhật text hiển thị FPS mode hiện tại trên nút.
+    /// </summary>
+    private void RefreshFrameRateLabel(FrameRateMode mode)
+    {
+        if (frameRateLabel == null) return;
+        frameRateLabel.text = mode switch
+        {
+            FrameRateMode.Auto   => "Auto",
+            FrameRateMode.FPS30  => "FPS 30",
+            FrameRateMode.FPS60  => "FPS 60",
+            FrameRateMode.FPS90  => "FPS 90",
+            FrameRateMode.FPS120 => "FPS 120",
+            _ => mode.ToString()
+        };
+    }
+
+    /// <summary>
+    /// Đồng bộ toàn bộ UI với trạng thái hiện tại của manager.
+    /// </summary>
+    private void RefreshAllUI()
+    {
+        syncingUI = true;
+
+        RefreshFrameRateLabel(performance.CurrentMode);
+        RefreshQualityButtons();
+        RefreshAdaptiveToggle(performance.AdaptiveEnabled);
+        if (vSyncToggle != null && vSyncToggle.isOn != performance.VSyncEnabled)
+            vSyncToggle.isOn = performance.VSyncEnabled;
+        if (performanceLevelText != null)
+            performanceLevelText.text = performance.CurrentPerformanceLevel.ToString();
+
+        syncingUI = false;
+    }
+
+    /// <summary>
+    /// Bộ nhớ màu gốc của 1 nút chất lượng để có thể phục hồi khi được chọn.
+    /// </summary>
+    private struct QualityButtonStyle
+    {
+        public Button button;
+        public Image bg;
+        public TMP_Text label;
+        public Color bgOriginal;
+        public Color labelOriginal;
+    }
+    private QualityButtonStyle lowStyle, midStyle, highStyle;
+
+    /// <summary>
+    /// Đồng bộ 3 nút chất lượng theo Render Scale GPU ĐANG ÁP DỤNG (kể cả khi
+    /// adaptive/cấu hình thấp đang làm lệch mức). Mức highlight được lấy từ
+    /// PerformanceManager.CurrentRenderScaleLevel (so CurrentRenderScale với
+    /// renderScale của 3 RenderProfile định sẵn) — UI không tự tính toán gì.
+    /// Nút chọn giữ màu gốc, các nút còn lại nền xám tối + chữ sáng.
+    /// </summary>
+    private void RefreshQualityButtons()
+    {
+        if (performance == null) return;
+
+        PerformanceLevel level = performance.CurrentRenderScaleLevel;
+        bool isLow = level == PerformanceLevel.Low;
+        bool isHigh = level == PerformanceLevel.High;
+        bool isMid = level == PerformanceLevel.Medium;
+
+        // Cache màu gốc chỉ 1 lần — trước khi bắt đầu đổi màu nút
+        if (lowStyle.button == null && qualityLowButton != null) lowStyle = CacheButtonStyle(qualityLowButton);
+        if (midStyle.button == null && qualityMediumButton != null) midStyle = CacheButtonStyle(qualityMediumButton);
+        if (highStyle.button == null && qualityHighButton != null) highStyle = CacheButtonStyle(qualityHighButton);
+
+        ApplyButtonStyle(lowStyle, isLow);
+        ApplyButtonStyle(midStyle, isMid);
+        ApplyButtonStyle(highStyle, isHigh);
+    }
+
+    /// <summary>
+    /// Lưu lại màu nền + chữ gốc của một nút (chỉ gọi 1 lần ở lần highlight đầu).
+    /// </summary>
+    private QualityButtonStyle CacheButtonStyle(Button b)
+    {
+        QualityButtonStyle s;
+        s.button = b;
+        s.bg = b.targetGraphic as Image;
+        s.label = b.GetComponentInChildren<TMP_Text>(true);
+        s.bgOriginal = s.bg != null ? s.bg.color : Color.white;
+        s.labelOriginal = s.label != null ? s.label.color : Color.white;
+        return s;
+    }
+
+    /// <summary>
+    /// Áp màu cho 1 nút: được chọn = phục hồi màu gốc, không chọn = nền xám
+    /// tối + chữ sáng.
+    /// </summary>
+    private void ApplyButtonStyle(QualityButtonStyle s, bool selected)
+    {
+        if (s.button == null) return;
+        if (s.bg != null) s.bg.color = selected ? s.bgOriginal : unselectedBgColor;
+        if (s.label != null) s.label.color = selected ? s.labelOriginal : unselectedTextColor;
+    }
+
+    /// <summary>
+    /// Set giá trị toggle adaptive mà không kích hoạt onValueChanged.
+    /// </summary>
+    private void RefreshAdaptiveToggle(bool enabled)
+    {
+        if (adaptiveToggle != null && adaptiveToggle.isOn != enabled)
+            adaptiveToggle.isOn = enabled;
+    }
+}

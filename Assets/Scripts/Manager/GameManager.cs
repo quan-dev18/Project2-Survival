@@ -4,6 +4,7 @@ using UnityEngine;
 public enum GameState
 {
     Menu,
+    Tutorial,
     Playing,
     Paused,
     LevelUp,
@@ -40,6 +41,19 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // Một số scene (GameMap2/3/4) quên kéo tay reference panel thành null.
+        // Tự tìm GameOverPanel trong scene (kể cả panel đang ẩn) để chắc chắn
+        // panel.Show() luôn có đối tượng gọi khi GameOver.
+        if (panel == null)
+        {
+#if UNITY_2023_1_OR_NEWER
+            panel = FindFirstObjectByType<GameOverPanel>(FindObjectsInactive.Include);
+#else
+            panel = FindObjectOfType<GameOverPanel>(true);
+#endif
+        }
+
         currentState = GameState.Menu;
         TotalElapsedTime = 0f;
         KillCount = 0;
@@ -47,7 +61,25 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        SetState(GameState.Playing);
+        // Nếu có TutorialController trong scene thì bắt đầu ở trạng thái Tutorial
+        // Ngược lại (các map thường) thì chạy thẳng vào Playing
+        var tutorial = FindFirstObjectByType<TutorialController>();
+        if (tutorial != null)
+        {
+            SetState(GameState.Tutorial);
+        }
+        else
+        {
+            SetState(GameState.Playing);
+        }
+    }
+
+    public void CompleteTutorial()
+    {
+        if (currentState == GameState.Tutorial)
+        {
+            SetState(GameState.Playing);
+        }
     }
 
     private void Update()
@@ -59,11 +91,16 @@ public class GameManager : MonoBehaviour
     public void SetState(GameState newState)
     {
         if (currentState == newState) return;
+
+        // Không cho chuyển sang LevelUp nếu đang Tutorial
+        if (newState == GameState.LevelUp && currentState == GameState.Tutorial)
+            return;
+
         currentState = newState;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log($"GameState: {currentState}");
 #endif
-        Time.timeScale = currentState == GameState.Playing ? 1f : 0f;
+        Time.timeScale = (currentState == GameState.Playing || currentState == GameState.Tutorial) ? 1f : 0f;
 
         if (currentState == GameState.Playing)
         {

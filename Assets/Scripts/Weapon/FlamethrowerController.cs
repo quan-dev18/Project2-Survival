@@ -19,8 +19,17 @@ public class FlamethrowerController : MonoBehaviour
     [SerializeField] private float coneAngle = 45f;
     [SerializeField] private LayerMask enemyMask = ~0;
     [SerializeField] private float damagePerTick = 5f;
-    [Tooltip("If true, scales damage with WeaponSO.Damage * (1+bonusBulletDamagePercent) instead of damagePerTick")]
+    [Tooltip("If true, adds WeaponSO.BulletCount*2 as flat damage per tick")]
     [SerializeField] private bool useWeaponDamage = false;
+
+    [Header("Sound")]
+    [Tooltip("Volume tiếng lửa loop khi phun (0-1). Clip lấy từ WeaponSO.ShootSFX.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float fireSoundVolume = 1f;
+    [Tooltip("Pitch tiếng lửa loop (1 = bình thường).")]
+    [SerializeField] private float fireSoundPitch = 1f;
+    [Tooltip("Còn bao nhiêu đạn thì bắt đầu fade out tiếng lửa (0 = tắt fade).")]
+    [SerializeField] private float fireSoundFadeAmmo = 4f;
 
     [Header("Hands")]
     [SerializeField] private Transform leftHand;
@@ -82,6 +91,13 @@ public class FlamethrowerController : MonoBehaviour
     public float fireRange => baseFireRange * (1f + bonusFireRangePercent);
     public float reloadTime => Mathf.Max(0.1f, baseReloadTime / Mathf.Max(0.01f, 1f + bonusReloadSpeedPercent + killStacks * 0.02f));
     public int magazineSize => Mathf.RoundToInt(baseMagazineSize * (1f + bonusMagazineSizePercent));
+
+    /// <summary>Sát thương nền mỗi tick (gồm cả flat damage từ WeaponSO nếu bật useWeaponDamage).</summary>
+    public float BaseDamagePerTick =>
+        damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
+
+    /// <summary>Sát thương thực tế mỗi tick sau buff % — dùng cho Stat UI.</summary>
+    public float EffectiveDamagePerTick => BaseDamagePerTick * (1f + bonusBulletDamagePercent);
     #endregion
 
     #region Runtime state
@@ -90,6 +106,7 @@ public class FlamethrowerController : MonoBehaviour
     private bool isReloading;
     private float reloadTimer;
     private Transform currentHand;
+    private AudioClip fireLoopClip;
     #endregion
 
     public event Action<int, int> OnAmmoChanged;
@@ -104,6 +121,18 @@ public class FlamethrowerController : MonoBehaviour
 
     private static readonly Collider2D[] s_ConeOverlapBuffer = new Collider2D[32];
 
+    /// <summary>Áp sprite skin đang trang bị lên vũ khí (gọi khi vào game / đổi súng).</summary>
+    public void ApplySkinSprite(Sprite sprite)
+    {
+        if (sprite == null) return;
+
+        if (weaponSprite == null)
+            weaponSprite = GetComponentInChildren<SpriteRenderer>(true);
+
+        if (weaponSprite != null)
+            weaponSprite.sprite = sprite;
+    }
+
     private void Awake()
     {
         baseFireRate = weaponStats != null ? weaponStats.FireRate : 0.1f;
@@ -111,6 +140,7 @@ public class FlamethrowerController : MonoBehaviour
         baseReloadTime = weaponStats != null ? weaponStats.ReloadTime : 1.5f;
         baseMagazineSize = weaponStats != null ? weaponStats.MagazineSize : 100;
         currentAmmo = magazineSize;
+        fireLoopClip = weaponStats != null ? weaponStats.ShootSFX : null;
 
         if (TryGetComponent(out CircleCollider2D rangeTrigger))
             rangeTrigger.radius = fireRange;
@@ -139,8 +169,18 @@ public class FlamethrowerController : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        if (AudioManager.Instance != null && fireLoopClip != null)
+            AudioManager.Instance.StopLoopSFX(fireLoopClip);
+    }
+
     private void Update()
     {
+        // Không xử lý khi game không ở trạng thái Playing
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing)
+            return;
+
         // Keep fire VFX glued to muzzle even in World space
         if (fireEffect != null && weaponFront != null)
             fireEffect.transform.SetPositionAndRotation(weaponFront.position, weaponFront.rotation);
@@ -164,6 +204,7 @@ public class FlamethrowerController : MonoBehaviour
         // Flamethrower fires whenever not reloading/has ammo, not only when hasTarget - so particles show even without lock
         bool shouldFire = !isReloading && currentAmmo > 0;
         UpdateFireEffect(shouldFire);
+        UpdateFireSound(shouldFire);
 
         if (shouldFire)
         {
@@ -208,6 +249,39 @@ public class FlamethrowerController : MonoBehaviour
         else if (!shouldFire && fireEffect.isPlaying) fireEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
     }
 
+    /// <summary>
+    /// Bật/tắt tiếng lửa LOOP theo đúng cờ shouldFire (giống UpdateFireEffect).
+    /// Kiểm tra qua AudioManager.IsLoopActive để tự phục hồi sau khi audio bị
+    /// tắt bởi StopAllSFX (pause), đổi scene... mà không phải bấm lại từ đầu.
+    /// Gát thêm Time.timeScale để ngưng tiếng khi dừng game (level up panel...).
+    /// </summary>
+    private void UpdateFireSound(bool shouldFire)
+    {
+        AudioManager manager = AudioManager.Instance;
+        if (manager == null) return;
+
+        AudioClip clip = fireLoopClip;
+        if (clip == null) return;
+
+        bool shouldPlay = shouldFire && Time.timeScale > 0f;
+
+        if (shouldPlay)
+        {
+            float targetVolume = fireSoundVolume;
+            if (fireSoundFadeAmmo > 0f && currentAmmo < fireSoundFadeAmmo)
+                targetVolume *= Mathf.Clamp01(currentAmmo / fireSoundFadeAmmo);
+
+            if (!manager.IsLoopActive(clip))
+                manager.PlayLoopSFX(clip, targetVolume, fireSoundPitch);
+            else
+                manager.SetLoopVolume(clip, targetVolume);
+        }
+        else if (manager.IsLoopActive(clip))
+        {
+            manager.StopLoopSFX(clip);
+        }
+    }
+
     private void ConeDamage()
     {
         if (weaponFront == null) return;
@@ -234,7 +308,8 @@ public class FlamethrowerController : MonoBehaviour
             if (dmg == null) dmg = hit.GetComponentInChildren<IDamageable>();
             if (dmg == null) continue;
 
-            float finalDamage = damagePerTick * (1f + bonusBulletDamagePercent);
+            float baseDmg = damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
+            float finalDamage = baseDmg * (1f + bonusBulletDamagePercent);
             dmg.TakeDamage(finalDamage);
 
             if (bonusBulletExecutePercent > 0f && dmg is EnemyHealth eh && eh.CurrentHealth > 0f && eh.CurrentHealth <= eh.MaxHealth * bonusBulletExecutePercent)

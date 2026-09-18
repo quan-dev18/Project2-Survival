@@ -17,6 +17,16 @@ public class GameData
     public List<string> stageIds;
     public List<float> stageBestProgress;
 
+    // ──────── Skin Shop ────────
+    // Danh sách composite ID (weaponID_skinID) các skin đã mua.
+    public List<string> ownedSkins;
+    // Dictionary dạng parallel list: equippedSkinIds[i] = skinID đang trang bị của equippedWeaponIds[i].
+    public List<string> equippedWeaponIds;
+    public List<string> equippedSkinIds;
+
+    // ──────── Tutorial ────────
+    public bool tutorialCompleted;
+
     public GameData()
     {
         version = 1;
@@ -30,5 +40,9 @@ public class GameData
 
         stageIds = new List<string>();
         stageBestProgress = new List<float>();
+
+        ownedSkins = new List<string>();
+        equippedWeaponIds = new List<string>();
+        equippedSkinIds = new List<string>();
     }
 }

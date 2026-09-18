@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61950fa7d1b939c488092411ace8061d, type: 3}
   m_Name: Hero2
   m_EditorClassIdentifier: 
+  heroName: Kurishi
   heroIcon: {fileID: 21300000, guid: 7083d8f19ec987546a77ee33705eec5a, type: 3}
   previewPrefab: {fileID: 6044015267666217839, guid: 99dd841ea972eab4581a451a5d54fb9f, type: 3}
   isUnlocked: 0

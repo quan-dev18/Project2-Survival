@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: SM_1
   m_EditorClassIdentifier: 
   upgradeName: Special Mags I
-  description: Max Ammo +20%
+  description: Max Ammo +25%
   icon: {fileID: 1214430488, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 9
-    amount: 20
+    amount: 25
   requires: []

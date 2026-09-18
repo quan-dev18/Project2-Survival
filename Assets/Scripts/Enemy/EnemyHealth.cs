@@ -112,7 +112,11 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         if (GameManager.Instance != null)
             GameManager.Instance.AddKill();
 
-        enemyMovement.enabled = false;
+        if (enemyMovement != null)
+        {
+            enemyMovement.enabled = false;
+            enemyMovement.ResetKnockback(); // corpses must not slide on banked hits
+        }
         Collider2D col = GetComponentInParent<Collider2D>();
         if (col != null) col.enabled = false;
         _animator.SetBool("isDead",true);
@@ -156,6 +160,9 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     public void ShowBurnVFX(float duration)
     {
+        // Tôn trọng cờ "Hiển thị VFX": tắt thì không spawn hiệu ứng cháy.
+        if (GameSettingsManager.Instance != null && !GameSettingsManager.Instance.ShowVFX)
+            return;
         if (burnVFXPrefab == null) return;
         if (activeBurnVFX != null)
         {

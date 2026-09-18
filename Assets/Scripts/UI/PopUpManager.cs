@@ -71,6 +71,11 @@ public class PopUpManager : MonoBehaviour
 
     public void Show(Vector3 position, float amount, PopupType type = PopupType.Damage)
     {
+        // Tôn trọng cờ "Hiển thị sát thương" từ Core (GameSettingsManager):
+        // tắt thì không spawn popup nào, tiết kiệm cả pool lẫn draw call.
+        if (GameSettingsManager.Instance != null && !GameSettingsManager.Instance.ShowDamage)
+            return;
+
         if (popupPrefab == null || ObjectPooling.Instance == null) return;
 
         PopupStyle style = GetStyle(type);

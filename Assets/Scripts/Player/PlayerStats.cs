@@ -456,6 +456,14 @@ public class PlayerStats : MonoBehaviour
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
+    /// <summary>Directly sets current health, bypassing armor, invulnerability and on-hit effects. For debug tools. Does not revive.</summary>
+    public void SetHealth(float value)
+    {
+        if (isDead) return;
+        CurrentHealth = Mathf.Clamp(value, 0f, MaxHealth);
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+    }
+
     public void AddMaxArmorFlat(float amount)
     {
         bonusMaxArmorFlat += amount;

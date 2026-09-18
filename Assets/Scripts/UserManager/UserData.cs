@@ -32,6 +32,16 @@ public class UserData : MonoBehaviour
         }
     }
 
+    public bool TutorialCompleted
+    {
+        get => data.tutorialCompleted;
+        set
+        {
+            data.tutorialCompleted = value;
+            Save();
+        }
+    }
+
     public event Action<int> OnGoldChanged;
     public event Action<int> OnSessionGoldChanged;
 
@@ -49,6 +59,9 @@ public class UserData : MonoBehaviour
         if (data == null) data = new GameData();
         data.unlockedHeroes ??= new bool[0];
         data.unlockedWeapons ??= new bool[0];
+        data.ownedSkins ??= new List<string>();
+        data.equippedWeaponIds ??= new List<string>();
+        data.equippedSkinIds ??= new List<string>();
         MigrateFromPlayerPrefs();
         MigratePerkLevelsFromPlayerPrefs();
     }
@@ -84,6 +97,18 @@ public class UserData : MonoBehaviour
 
         string savedWeaponName = PlayerPrefs.GetString("SelectedWeaponName", "");
         PlayerPrefs.DeleteKey("SelectedWeaponName");
+
+        // Migrate tutorial completion from PlayerPrefs
+        if (PlayerPrefs.HasKey(TutorialController.KEY_TUTORIAL_COMPLETED))
+        {
+            bool completed = PlayerPrefs.GetInt(TutorialController.KEY_TUTORIAL_COMPLETED, 0) == 1;
+            if (completed && !data.tutorialCompleted)
+            {
+                data.tutorialCompleted = true;
+                migrated = true;
+            }
+            PlayerPrefs.DeleteKey(TutorialController.KEY_TUTORIAL_COMPLETED);
+        }
 
         for (int i = 0; i < 10; i++)
         {
@@ -170,7 +195,52 @@ public class UserData : MonoBehaviour
         SyncArray(ref data.unlockedWeapons, count, i => weapons[i] != null && weapons[i].IsUnlocked);
         if (data.selectedWeaponIndex < 0 || data.selectedWeaponIndex >= count)
             data.selectedWeaponIndex = 0;
+        InitSkinDefaults(weapons);
         Save();
+    }
+
+    /// <summary>
+    /// Đảm bảo mỗi súng đều SỞ HỮU SẴN skin mặc định (<see cref="WeaponSO.DefaultSkin"/>)
+    /// và tự trang bị skin mặc định nếu súng chưa chọn skin nào.
+    /// </summary>
+    public void InitSkinDefaults(List<WeaponSO> weapons)
+    {
+        if (weapons == null) return;
+
+        data.ownedSkins ??= new List<string>();
+        data.equippedWeaponIds ??= new List<string>();
+        data.equippedSkinIds ??= new List<string>();
+
+        bool changed = false;
+
+        for (int i = 0; i < weapons.Count; i++)
+        {
+            WeaponSO weapon = weapons[i];
+            if (weapon == null) continue;
+
+            WeaponSkinData def = weapon.DefaultSkin;
+            if (def == null || string.IsNullOrEmpty(def.skinID)) continue;
+
+            string weaponId = weapon.WeaponID;
+
+            // 1) Cấp sở hữu skin mặc định nếu chưa có.
+            string compositeId = MakeSkinCompositeId(weaponId, def.skinID);
+            if (!data.ownedSkins.Contains(compositeId))
+            {
+                data.ownedSkins.Add(compositeId);
+                changed = true;
+            }
+
+            // 2) Nếu súng chưa trang bị skin nào → mặc định dùng skin mặc định.
+            if (string.IsNullOrEmpty(GetEquippedSkinId(weaponId)))
+            {
+                data.equippedWeaponIds.Add(weaponId);
+                data.equippedSkinIds.Add(def.skinID);
+                changed = true;
+            }
+        }
+
+        if (changed) Save();
     }
 
     #region Gold
@@ -395,6 +465,100 @@ public class UserData : MonoBehaviour
         {
             Debug.LogWarning($"[UserData] Migrate perk levels failed: {e.Message}");
         }
+    }
+
+    #endregion
+
+    #region Skin Shop
+
+    /// <summary>
+    /// Tạo composite ID từ weaponID và skinID (vd: "ak47_gold").
+    /// </summary>
+    public static string MakeSkinCompositeId(string weaponId, string skinId)
+    {
+        return $"{weaponId}_{skinId}";
+    }
+
+    /// <summary>
+    /// Kiểm tra người chơi đã sở hữu skin chưa, theo composite ID.
+    /// </summary>
+    public bool IsSkinOwned(string weaponId, string skinId)
+    {
+        if (data.ownedSkins == null) return false;
+        string compositeId = MakeSkinCompositeId(weaponId, skinId);
+        return data.ownedSkins.Contains(compositeId);
+    }
+
+    /// <summary>
+    /// Mua skin: trừ gold và đánh dấu đã sở hữu. Trả về true nếu giao dịch thành công.
+    /// </summary>
+    public bool BuySkin(string weaponId, string skinId, int price)
+    {
+        if (string.IsNullOrEmpty(weaponId) || string.IsNullOrEmpty(skinId)) return false;
+        if (IsSkinOwned(weaponId, skinId)) return false;
+        if (!HasEnoughGold(price)) return false;
+
+        data.playerGold -= price;
+        OnGoldChanged?.Invoke(data.playerGold);
+
+        data.ownedSkins ??= new List<string>();
+        data.ownedSkins.Add(MakeSkinCompositeId(weaponId, skinId));
+
+        Save();
+        return true;
+    }
+
+    /// <summary>
+    /// Trang bị skin cho 1 khẩu súng. Tự động đánh dấu skin là đã sở hữu nếu chưa có.
+    /// </summary>
+    public void EquipSkin(string weaponId, string skinId)
+    {
+        if (string.IsNullOrEmpty(weaponId) || string.IsNullOrEmpty(skinId)) return;
+
+        // Đảm bảo skin đã thuộc sở hữu
+        if (!IsSkinOwned(weaponId, skinId))
+        {
+            data.ownedSkins ??= new List<string>();
+            data.ownedSkins.Add(MakeSkinCompositeId(weaponId, skinId));
+        }
+
+        data.equippedWeaponIds ??= new List<string>();
+        data.equippedSkinIds ??= new List<string>();
+
+        int index = data.equippedWeaponIds.IndexOf(weaponId);
+        if (index >= 0)
+        {
+            data.equippedSkinIds[index] = skinId;
+        }
+        else
+        {
+            data.equippedWeaponIds.Add(weaponId);
+            data.equippedSkinIds.Add(skinId);
+        }
+
+        Save();
+    }
+
+    /// <summary>
+    /// Lấy skinID đang trang bị của 1 khẩu súng. Trả về null nếu chưa trang bị.
+    /// </summary>
+    public string GetEquippedSkinId(string weaponId)
+    {
+        if (data.equippedWeaponIds == null || data.equippedSkinIds == null) return null;
+
+        int index = data.equippedWeaponIds.IndexOf(weaponId);
+        if (index >= 0 && index < data.equippedSkinIds.Count)
+            return data.equippedSkinIds[index];
+
+        return null;
+    }
+
+    /// <summary>
+    /// Kiểm tra 1 skin có đang được trang bị cho khẩu súng của nó không.
+    /// </summary>
+    public bool IsSkinEquipped(string weaponId, string skinId)
+    {
+        return GetEquippedSkinId(weaponId) == skinId;
     }
 
     #endregion

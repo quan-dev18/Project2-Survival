@@ -13,14 +13,10 @@ MonoBehaviour:
   m_Name: SM_2B
   m_EditorClassIdentifier: 
   upgradeName: Special Mags II
-  description: 'Bullet damage +40%
-
-    Max ammo -30%'
+  description: Become invulnerable while reloading
   icon: {fileID: 1059971654, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
-  - stat: 13
+  - stat: 28
     amount: 40
-  - stat: 9
-    amount: -30
   requires:
   - {fileID: 11400000, guid: ea98cd06de0a7f5489301b538e0c4323, type: 2}
