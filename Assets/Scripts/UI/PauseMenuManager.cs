@@ -288,21 +288,10 @@ public class PauseMenuManager : MonoBehaviour
         }
         if (owned.Count == 0) return;
 
-        // Gom các upgrade là "tier cũ": bị đòi hỏi (Requires) bởi 1 upgrade cấp cao hơn đang có.
-        // VD: có Pierce I + Pierce II (II requires I) -> chỉ hiện II.
-        HashSet<UpgradeSO> lowerTiers = new HashSet<UpgradeSO>();
+        // Hiện TẤT CẢ upgrade đang có, kể cả các tier cũ (Pierce I + Pierce II đều hiện,
+        // không gom tier cao nhất như trước).
         foreach (UpgradeSO up in owned)
         {
-            if (up.Requires == null) continue;
-            foreach (UpgradeSO req in up.Requires)
-            {
-                if (req != null) lowerTiers.Add(req);
-            }
-        }
-
-        foreach (UpgradeSO up in owned)
-        {
-            if (lowerTiers.Contains(up)) continue; // đã có tier mới thay thế -> bỏ qua
             UpgradeUIItem item = Instantiate(upgradeItemPrefab, upgradeContent);
             item.SetData(up);
         }
