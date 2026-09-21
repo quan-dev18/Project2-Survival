@@ -165,8 +165,8 @@ public class SettingsFeatureController : MonoBehaviour
     private void OnVSyncChanged(bool enabled)
     {
         if (syncingUI || performance == null) return;
-        // Đảo trạng thái: switch ON -> VSync OFF, switch OFF -> VSync ON.
-        performance.SetVSyncEnabled(!enabled);
+        // Switch ON = VSync BẬT (khớp PerformanceManager.SetVSyncEnabled).
+        performance.SetVSyncEnabled(enabled);
     }
 
     // ──────────────────── Core -> UI (chỉ cập nhật giao diện) ─
@@ -193,8 +193,8 @@ public class SettingsFeatureController : MonoBehaviour
 
     private void OnVSyncCoreChanged(bool enabled)
     {
-        // Đảo trạng thái: VSync bật -> switch hiện OFF, VSync tắt -> switch hiện ON.
-        SyncSwitch(vSyncSwitch, !enabled);
+        // Switch ON = VSync BẬT.
+        SyncSwitch(vSyncSwitch, enabled);
     }
 
     // ──────────────────── Helpers / Data binding ─────────────
@@ -210,8 +210,8 @@ public class SettingsFeatureController : MonoBehaviour
         SyncSwitch(showFPSSwitch, settings.ShowFPS);
         SyncSwitch(showDamageSwitch, settings.ShowDamage);
         SyncSwitch(showVFXSwitch, settings.ShowVFX);
-        // Đảo trạng thái: switch ON = VSync OFF, switch OFF = VSync ON.
-        SyncSwitch(vSyncSwitch, !performance.VSyncEnabled);
+        // Switch ON = VSync BẬT.
+        SyncSwitch(vSyncSwitch, performance.VSyncEnabled);
 
         syncingUI = false;
     }
