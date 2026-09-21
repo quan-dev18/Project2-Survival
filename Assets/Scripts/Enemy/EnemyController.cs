@@ -38,6 +38,8 @@ public class EnemyController : MonoBehaviour
     public bool CanAttack => Time.time >= nextAttackTime;
 
     private SpriteRenderer[] spriteRenderers;
+    private float lastSortingY = float.MinValue;
+    private int lastSortingOrder = int.MinValue;
 
     private void Awake()
     {
@@ -59,7 +61,14 @@ public class EnemyController : MonoBehaviour
     {
         if (spriteRenderers == null || spriteRenderers.Length == 0) return;
 
-        int order = Mathf.RoundToInt(-transform.position.y * 100f);
+        float currentY = transform.position.y;
+        if (Mathf.Abs(currentY - lastSortingY) < 0.05f) return;
+        lastSortingY = currentY;
+
+        int order = Mathf.RoundToInt(-currentY * 100f);
+        if (order == lastSortingOrder) return;
+        lastSortingOrder = order;
+
         for (int i = 0; i < spriteRenderers.Length; i++)
         {
             if (spriteRenderers[i] != null && spriteRenderers[i].sortingOrder != order)

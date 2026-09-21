@@ -349,19 +349,16 @@ public class FlamethrowerController : MonoBehaviour
 
     private void FireLastAmmoBurst()
     {
-        for (int i = 0; i < 10; i++)
+        int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 3f, s_ConeOverlapBuffer, enemyMask);
+        for (int j = 0; j < hitCount; j++)
         {
-            int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 3f, s_ConeOverlapBuffer, enemyMask);
-            for (int j = 0; j < hitCount; j++)
+            IDamageable dmg;
+            if (!s_ConeOverlapBuffer[j].TryGetComponent(out dmg))
             {
-                IDamageable dmg;
-                if (!s_ConeOverlapBuffer[j].TryGetComponent(out dmg))
-                {
-                    dmg = s_ConeOverlapBuffer[j].GetComponentInChildren<IDamageable>();
-                    if (dmg == null) dmg = s_ConeOverlapBuffer[j].GetComponentInParent<IDamageable>();
-                }
-                if (dmg != null) dmg.TakeDamage(5f);
+                dmg = s_ConeOverlapBuffer[j].GetComponentInChildren<IDamageable>();
+                if (dmg == null) dmg = s_ConeOverlapBuffer[j].GetComponentInParent<IDamageable>();
             }
+            if (dmg != null) dmg.TakeDamage(50f);
         }
     }
 

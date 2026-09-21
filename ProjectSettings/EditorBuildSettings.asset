@@ -14,9 +14,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameTutorial.unity
     guid: aaf1ba6efba8b3249a9ceae72b22b3e8
-  - enabled: 0
-    path: Assets/Scenes/GameMap1 1.unity
-    guid: ec8f6305a879fee4ba09d76a88b295d7
   - enabled: 1
     path: Assets/Scenes/GameMap1.unity
     guid: b8a82f254f6b799418dc5808e68d7462

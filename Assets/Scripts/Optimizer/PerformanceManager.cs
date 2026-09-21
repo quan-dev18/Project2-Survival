@@ -158,7 +158,7 @@ public sealed class PerformanceManager : MonoBehaviour
     [SerializeField] private int frameRateDropPerStep = 15;
 
     [Tooltip("Trần FPS tối thiểu cho phép khi adaptive đang hạ mức.")]
-    [SerializeField] private int minimumTargetFPS = 60;
+    [SerializeField] private int minimumTargetFPS = 30;
 
     [Header("=== Pin & nhiệt (mobile) ===")]
     [Tooltip("Ngưỡng % pin coi là yếu để kích hoạt tiết kiệm điện (mobile only).")]
@@ -872,9 +872,12 @@ private static UniversalRenderPipelineAsset GetURPAsset()
 
         PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
         RenderProfile profile = GetRenderProfile(tier);
+        PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
+        RenderProfile profile = GetRenderProfile(tier);
 
         bool changed = false;
 
+        float scale = Mathf.Clamp(profile.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
         float scale = Mathf.Clamp(profile.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
         if (Mathf.Abs(urp.renderScale - scale) > 0.001f)
         {
@@ -884,21 +887,30 @@ private static UniversalRenderPipelineAsset GetURPAsset()
 
         int msaa = RenderProfile.ValidateMsaa(profile.msaaSampleCount);
         if (urp.msaaSampleCount != msaa)
+        int msaa = RenderProfile.ValidateMsaa(profile.msaaSampleCount);
+        if (urp.msaaSampleCount != msaa)
         {
+            urp.msaaSampleCount = msaa;
             urp.msaaSampleCount = msaa;
             changed = true;
         }
 
         float shadowDistance = Mathf.Max(0f, profile.shadowDistance);
         if (Mathf.Abs(urp.shadowDistance - shadowDistance) > 0.01f)
+        float shadowDistance = Mathf.Max(0f, profile.shadowDistance);
+        if (Mathf.Abs(urp.shadowDistance - shadowDistance) > 0.01f)
         {
+            urp.shadowDistance = shadowDistance;
             urp.shadowDistance = shadowDistance;
             changed = true;
         }
 
         int cascades = RenderProfile.ValidateCascades(profile.shadowCascadeCount);
         if (urp.shadowCascadeCount != cascades)
+        int cascades = RenderProfile.ValidateCascades(profile.shadowCascadeCount);
+        if (urp.shadowCascadeCount != cascades)
         {
+            urp.shadowCascadeCount = cascades;
             urp.shadowCascadeCount = cascades;
             changed = true;
         }

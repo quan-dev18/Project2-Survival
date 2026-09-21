@@ -17,6 +17,18 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
     private float wanderTimer;
     private static readonly Collider2D[] s_SeparationBuffer = new Collider2D[16];
 
+    private bool isOnScreen = true;
+    private Vector2 cachedSeparation;
+    private float separationTimer;
+    private const float SeparationInterval = 0.08f;
+
+    public void SetOnScreen(bool onScreen)
+    {
+        isOnScreen = onScreen;
+        if (!onScreen)
+            cachedSeparation = Vector2.zero;
+    }
+
     private void Awake()
     {
         if (enemyController == null)
@@ -30,6 +42,9 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
     {
         targetTransform = ObjectPooling.Instance.targetTransform;
         knockbackVelocity = Vector2.zero;
+        cachedSeparation = Vector2.zero;
+        separationTimer = Random.Range(0f, SeparationInterval);
+        isOnScreen = true;
         if (hasAttackParam)
             _animator.SetBool("isAttack", false);
     }
@@ -68,7 +83,19 @@ public class EnemyMovement : MonoBehaviour, IPoolSpawnable, IKnockbackable
 
         Vector2 moveDir = toTarget / dist;
         Flip(moveDir.x);
-        Vector2 separation = GetSeparation(enemyController.movementSpeed);
+
+        Vector2 separation = Vector2.zero;
+        if (isOnScreen)
+        {
+            separationTimer -= Time.deltaTime;
+            if (separationTimer <= 0f)
+            {
+                separationTimer = SeparationInterval;
+                cachedSeparation = GetSeparation(enemyController.movementSpeed);
+            }
+            separation = cachedSeparation;
+        }
+
         Vector2 velocity = moveDir * enemyController.movementSpeed + separation + knockbackVelocity;
 
         transform.position += (Vector3)(velocity * Time.deltaTime);
