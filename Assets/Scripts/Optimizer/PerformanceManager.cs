@@ -22,7 +22,8 @@ public enum FrameRateMode
     FPS30 = 1,
     FPS60 = 2,
     FPS90 = 3,
-    FPS120 = 4
+    FPS120 = 4,
+    Unlimited = 5
 }
 
 /// <summary>
@@ -223,15 +224,67 @@ public sealed class PerformanceManager : MonoBehaviour
     public int RawTargetFPS => GetTargetFPS(frameRateMode);
 
     /// <summary>
-    /// FPS mục tiêu đang thực sự áp dụng: mục tiêu gốc trừ bước hạ của adaptive.
-    /// KHÔNG clamp theo tần số quét hiện tại của màn hình vì:
-    ///   1. Screen.currentResolution.refreshRateRatio (Android) trả tần số ĐANG
-    ///      chạy (thường 60) chứ không phải tần số tối đa → clamp sai sẽ chặn luôn
-    ///      việc đạt 90/120 trên màn hình 90/120Hz.
-    ///   2. Làm nút VSync "vô hình": tắt VSync thì target cũng bị ép bằng khi bật.
-    ///   Việc không vượt quá Hz của panel do VSync / phần cứng tự xử lý.
+    /// Tần số quét TỐI ĐA mà màn hình hiện tại hỗ trợ (Hz) — khác với tần số ĐANG chạy.
+    /// refreshRateRatio của currentResolution chỉ trả mode đang dùng (Windows/Android có
+    /// thể đang set 60Hz dù panel 144Hz) nên ta ưu tiên lấy max từ Screen.resolutions.
+    /// Không đọc được / giá trị vô lý thì giả định 60 — an toàn cho mọi máy.
     /// </summary>
-    public int AppliedTargetFPS => Mathf.Max(minimumTargetFPS, RawTargetFPS - adaptiveStep * frameRateDropPerStep);
+    public int DisplayMaxRefreshHz
+    {
+        get
+        {
+            int maxHz = 120;
+
+#if UNITY_2022_2_OR_NEWER
+            Resolution current = Screen.currentResolution;
+            Resolution[] supported = null;
+            try { supported = Screen.resolutions; }
+            catch { }
+
+            if (supported != null && supported.Length > 0)
+            {
+                foreach (Resolution r in supported)
+                {
+                    if (r.width == current.width && r.height == current.height)
+                        maxHz = Mathf.Max(maxHz, Mathf.RoundToInt((float)r.refreshRateRatio.value));
+                }
+
+                // Không tìm được mode trùng độ phân giải (vd đang windowed) → lấy max mọi res.
+                if (maxHz <= 120)
+                {
+                    foreach (Resolution r in supported)
+                        maxHz = Mathf.Max(maxHz, Mathf.RoundToInt((float)r.refreshRateRatio.value));
+                }
+            }
+#else
+            maxHz = Screen.currentResolution.refreshRate;
+#endif
+
+            return maxHz >= 30 ? maxHz : 120; // nếu đọc sai, giả định 120Hz để adaptive không bị clamp quá sớm
+        }
+    }
+
+    /// <summary>
+    /// FPS mục tiêu đang thực sự áp dụng: mục tiêu gốc trừ bước hạ của adaptive,
+    /// sau đó CLAMP xuống tần số quét màn hình.
+    /// Lý do bắt buộc clamp:
+    ///   - Render quá Hz của panel tạo khung hình mà màn hình không hiển thị nổi
+    ///     → GPU chạy phế, máy nóng, thermal throttle → FPS nhấp nhô = cảm giác lag.
+    ///   - Chế độ 90/120 trên màn 60Hz chỉ làm adaptive hạ/nâng chất lượng liên tục
+    ///     (SetQualityLevel giữa trận → giật), chứ không bao giờ ra được 90+.
+    ///   Với màn hỗ trợ 90/120Hz thì clamp vẫn cho phép đúng 90/120 — cao nhất có thể.
+    /// </summary>
+    public int AppliedTargetFPS
+    {
+        get
+        {
+            if (frameRateMode == FrameRateMode.Unlimited)
+                return -1;
+
+            int computed = Mathf.Max(minimumTargetFPS, RawTargetFPS - adaptiveStep * frameRateDropPerStep);
+            return Mathf.Clamp(Mathf.Min(computed, DisplayMaxRefreshHz), minimumTargetFPS, DisplayMaxRefreshHz);
+        }
+    }
 
     /// <summary>FPS trung bình (làm mượt) của cửa sổ mẫu vừa qua.</summary>
     public float SmoothedFPS => smoothedFPS;
@@ -344,7 +397,7 @@ public sealed class PerformanceManager : MonoBehaviour
         minFrameTimeMs = float.MaxValue;
         frameRateMode = (FrameRateMode)Mathf.Clamp(
             PlayerPrefs.GetInt(KEY_FRAME_RATE_MODE, (int)FrameRateMode.Auto),
-            (int)FrameRateMode.Auto, (int)FrameRateMode.FPS120);
+            (int)FrameRateMode.Auto, (int)FrameRateMode.Unlimited);
 
         adaptiveEnabled = PlayerPrefs.GetInt(KEY_ADAPTIVE_ENABLED, adaptiveEnabledByDefault ? 1 : 0) == 1;
         lowGraphicsEnabled = PlayerPrefs.GetInt(KEY_LOW_GRAPHICS, lowGraphicsEnabledByDefault ? 1 : 0) == 1;
@@ -633,7 +686,7 @@ public sealed class PerformanceManager : MonoBehaviour
         ApplyFrameRate();
         SavePreferences();
         OnFrameRateModeChanged?.Invoke(frameRateMode);
-        //Debug.Log($"[PerformanceManager] 🚀 Đổi chế độ frame rate: {mode} (Target={AppliedTargetFPS} FPS)");
+        Debug.Log($"[PerformanceManager] 🚀 Đổi frame rate: {mode} | VSync={vSyncEnabled} | Target={AppliedTargetFPS} | vSyncCount={QualitySettings.vSyncCount} | targetFrameRate={Application.targetFrameRate} | DisplayMax={DisplayMaxRefreshHz}Hz");
     }
 
     /// <summary>
@@ -744,6 +797,7 @@ public sealed class PerformanceManager : MonoBehaviour
             case FrameRateMode.FPS60: return 60;
             case FrameRateMode.FPS90: return 90;
             case FrameRateMode.FPS120: return 120;
+            case FrameRateMode.Unlimited: return -1;
             default:
 #if UNITY_2022_2_OR_NEWER
                 double refresh = System.Math.Max(1.0, Screen.currentResolution.refreshRateRatio.value);
@@ -909,24 +963,45 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     }
 
     /// <summary>
-    /// Áp dụng chế độ đồng bộ hiện tại:
-    /// - Nếu bật VSync thủ công: vSyncCount = 1 và bỏ targetFrameRate (màn hình tự đồng bộ).
-    /// - Ngược lại: tắt VSync mọi mức (vì VSync đè lên targetFrameRate làm chọn
-    ///   FPS 120/60/30 vô dụng) rồi áp targetFrameRate theo chế độ người chơi chọn.
+    /// Áp dụng chế độ đồng bộ hiện tại.
+    /// VSync bật = KHÓA FPS ĐÚNG THEO CON SỐ ĐÃ ĐẶT (không phải theo Hz màn hình):
+    /// - Nếu số đặt &gt;= tần số quét: vSyncCount = 1 (khóa = Hz màn hình, cao nhất có thể).
+    /// - Nếu số đặt chia hết tần số quét (60-&gt;30/20, 120-&gt;60/40): vSyncCount = tỉ lệ →
+    ///   khóa đúng số đặt, mượt không rách hình.
+    /// - Nếu không chia hết: tắt vSync, dùng targetFrameRate giữ đúng con số (hạn chế rách hình).
+    /// VSync tắt: targetFrameRate theo chế độ người chơi chọn.
     /// </summary>
     private void ApplyFrameRate()
     {
-        if (vSyncEnabled)
+        int desired = AppliedTargetFPS;
+        int refresh = DisplayMaxRefreshHz;
+        bool unlimited = frameRateMode == FrameRateMode.Unlimited;
+
+        if (!vSyncEnabled)
         {
-            QualitySettings.vSyncCount = 1;
-            Application.targetFrameRate = -1;
+            if (QualitySettings.vSyncCount > 0)
+                QualitySettings.vSyncCount = 0;
+
+            // Chế độ Không giới hạn: không cap (targetFrameRate = -1 cho GPU chạy max).
+            Application.targetFrameRate = unlimited ? -1 : desired;
             return;
         }
 
-        if (QualitySettings.vSyncCount > 0)
+        if (unlimited || desired >= refresh)
+        {
+            QualitySettings.vSyncCount = 1;
+            Application.targetFrameRate = -1;
+        }
+        else if (refresh % desired == 0)
+        {
+            QualitySettings.vSyncCount = refresh / desired;
+            Application.targetFrameRate = -1;
+        }
+        else
+        {
             QualitySettings.vSyncCount = 0;
-
-        Application.targetFrameRate = AppliedTargetFPS;
+            Application.targetFrameRate = desired;
+        }
     }
 
     /// <summary>
