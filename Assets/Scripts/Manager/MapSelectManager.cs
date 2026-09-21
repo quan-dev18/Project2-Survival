@@ -38,6 +38,14 @@ public class MapSelectionManager : MonoBehaviour
     private Vector2 dragStartPos;
     private bool isDragging = false;
 
+    // Map mới đang được tween vào giữa lúc transition (chưa phải currentMapInstance).
+    // Dùng để dọn dẹp khi người chơi bấm nút map INF giữa lúc đang lướt — tránh map
+    // "orphan" (tween xong OnComplete ghi đè currentIndex về map thường, còn map INF
+    // thì bị bỏ rơi nằm dưới). Tween/instances rác tích tụ chính là lý do map INF
+    // "bị đè dưới và không bật lên được" sau nhiều lần lặp lại.
+    private Sequence mapAnimSeq;
+    private GameObject pendingMapInstance;
+
     [Header("--- INF (ENDLESS) MAP ---")]
     [Tooltip("Map INF (endless). Đã nằm SẴN trong mapList (database) — kéo PreMapSO của nó vào đây để " +
              "hệ thống biết map nào là INF. Map INF KHÔNG nằm trong carousel chọn map thường (không swipe tới được); " +
@@ -175,8 +183,17 @@ public class MapSelectionManager : MonoBehaviour
         seq.Join(newMap.transform.DOScale(1f, transitionDuration).SetEase(transitionEase));
         seq.Join(newCG.DOFade(1f, transitionDuration).SetEase(transitionEase));
 
+        // Nhớ sequence đang chạy + map mới để hủy đúng lúc nếu người chơi bấm nút map INF
+        // (ShowInfiniteMap/ShowMapAtIndex) giữa chừng — nếu không, OnComplete của tween
+        // cũ vẫn chạy và ghi đè currentIndex về map thường, làm map INF bị "kẹt dưới".
+        mapAnimSeq = seq;
+        pendingMapInstance = newMap;
+
         seq.OnComplete(() =>
         {
+            mapAnimSeq = null;
+            pendingMapInstance = null;
+
             if (oldMap != null) Destroy(oldMap); // Xóa map cũ giải phóng RAM
 
             currentMapInstance = newMap;
@@ -441,7 +458,12 @@ public class MapSelectionManager : MonoBehaviour
     /// </summary>
     private void ShowMapAtIndex(int index)
     {
-        if (mapList.Count == 0 || mapList[index] == null) return;
+        if (mapList.Count == 0 || index < 0 || index >= mapList.Count || mapList[index] == null) return;
+
+        // Hủy transition swipe đang dang dở (nếu có) trước khi thay map:
+        // nếu không, tween cũ chạy nốt xong vẫn ghi đè currentIndex về map thường
+        // → map INF vừa bật bị kẹt dưới + tích lũy instance rác trên container.
+        CancelTransition();
 
         if (currentMapInstance != null)
             Destroy(currentMapInstance);
@@ -455,6 +477,28 @@ public class MapSelectionManager : MonoBehaviour
 
         ShowCurrentMapProgress();
         RefreshStartButton();
+    }
+
+    /// <summary>
+    /// Hủy transition chuyển map đang chạy: kill tween + xóa map mới đang bay vào,
+    /// đưa isTransitioning về false. Map hiện tại (currentMapInstance) sẽ do người
+    /// gọi xử lý tiếp (ShowMapAtIndex thay map mới ngay sau đó).
+    /// </summary>
+    private void CancelTransition()
+    {
+        if (mapAnimSeq != null)
+        {
+            mapAnimSeq.Kill();
+            mapAnimSeq = null;
+        }
+
+        if (pendingMapInstance != null)
+        {
+            Destroy(pendingMapInstance);
+            pendingMapInstance = null;
+        }
+
+        isTransitioning = false;
     }
 
     //  Ấn nút "Bắt đầu" -> Vào thẳng Scene Game

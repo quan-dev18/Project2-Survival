@@ -222,7 +222,15 @@ public sealed class PerformanceManager : MonoBehaviour
     /// <summary>FPS mục tiêu gốc theo chế độ đã chọn (trước khi adaptive giảm).</summary>
     public int RawTargetFPS => GetTargetFPS(frameRateMode);
 
-    /// <summary>FPS mục tiêu đang thực sự áp dụng (đã trừ bước hạ của adaptive).</summary>
+    /// <summary>
+    /// FPS mục tiêu đang thực sự áp dụng: mục tiêu gốc trừ bước hạ của adaptive.
+    /// KHÔNG clamp theo tần số quét hiện tại của màn hình vì:
+    ///   1. Screen.currentResolution.refreshRateRatio (Android) trả tần số ĐANG
+    ///      chạy (thường 60) chứ không phải tần số tối đa → clamp sai sẽ chặn luôn
+    ///      việc đạt 90/120 trên màn hình 90/120Hz.
+    ///   2. Làm nút VSync "vô hình": tắt VSync thì target cũng bị ép bằng khi bật.
+    ///   Việc không vượt quá Hz của panel do VSync / phần cứng tự xử lý.
+    /// </summary>
     public int AppliedTargetFPS => Mathf.Max(minimumTargetFPS, RawTargetFPS - adaptiveStep * frameRateDropPerStep);
 
     /// <summary>FPS trung bình (làm mượt) của cửa sổ mẫu vừa qua.</summary>
@@ -397,7 +405,8 @@ public sealed class PerformanceManager : MonoBehaviour
 
     private void OnGameStateChanged(GameState state)
     {
-        // Khi chuyển state -> re-apply render profile (force render scale 1 trong gameplay)
+        // Khi chuyển state -> re-apply render profile theo mức chất lượng đã chọn
+        // (render scale áp dụng đồng nhất cả menu lẫn gameplay).
         ApplyRenderProfile();
     }
 
@@ -851,6 +860,9 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     /// <summary>
     /// Áp dụng RenderProfile của mức đang áp dụng xuống URP asset (chỉ khi đang dùng URP).
     /// Gồm: render scale, MSAA, shadow distance (0 = tắt bóng), số cascade.
+    /// Áp dụng ĐỒNG NHẤT cả menu lẫn gameplay theo chất lượng người chơi chọn —
+    /// trước đây gameplay bị ÉP render scale = 1.0 (bất chấp mức chất lượng) nên
+    /// máy yếu/chọn Low vẫn chạy full resolution → lag trận đấu.
     /// Tránh ghi lại khi giá trị chưa đổi để không gây re-alloc render target.
     /// </summary>
     private void ApplyRenderProfile()
@@ -893,7 +905,7 @@ private static UniversalRenderPipelineAsset GetURPAsset()
         }
 
         if (changed)
-            Debug.Log($"[PerformanceManager] 🎨 Render Profile: {tier} | Scale={scale:0.00} MSAA={msaa}x Shadows={(shadowDistance > 0f ? "ON" : "OFF")} Cascades={cascades}");
+            Debug.Log($"[PerformanceManager] Render Profile {tier} | Scale={scale:0.00} MSAA={msaa}x Shadows={shadowDistance} Cascades={cascades}");
     }
 
     /// <summary>
