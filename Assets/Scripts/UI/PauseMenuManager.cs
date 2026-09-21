@@ -17,6 +17,9 @@ public class PauseMenuManager : MonoBehaviour
     [SerializeField] private GameObject upgradePanel;    // Panel chứa ScrollView upgrade — nếu không gán Content tay thì tự lấy từ đây
     [SerializeField] private StatUIItem statItemPrefab;  // Prefab dòng chỉ số
     [SerializeField] private UpgradeUIItem upgradeItemPrefab; // Prefab dòng upgrade (Icon + Name + Desc)
+    [Header("Tier upgrade")]
+    [Tooltip("Scale của tier THẤP (vd: Haste II, Haste I). Tier cao nhất luôn = 1. Ví dụ 0.82 = nhỏ 18%.")]
+    [SerializeField] private float lowTierScale = 0.82f;
     [SerializeField] private TMP_Text warningText;       // (tùy chọn) hiện cảnh báo nếu thiếu dữ liệu
     [Tooltip("Bật nếu muốn manager tự bật/tắt statsPanel khi pause/resume. Nếu panel nằm trong PausePanel thì để OFF")]
     [SerializeField] private bool toggleStatsPanel = false;
@@ -265,6 +268,8 @@ public class PauseMenuManager : MonoBehaviour
     }
 
     // Danh sách upgrade người chơi đang có (từ LevelUpPanel.OwnedUpgrades)
+    /// Hiển thị: tier cao nhất giữ nguyên size (scale 1), các tier thấp hơn thu nhỏ lại
+    /// và xếp ở bên dưới (không nhánh, không indent, không bấm mở).
     private void AddOwnedUpgrades()
     {
         if (upgradeContent == null)
@@ -281,20 +286,84 @@ public class PauseMenuManager : MonoBehaviour
         LevelUpPanel panel = LevelUpPanel.Instance;
         if (panel == null) return;
 
-        List<UpgradeSO> owned = new List<UpgradeSO>();
+        HashSet<UpgradeSO> owned = new HashSet<UpgradeSO>();
         foreach (UpgradeSO up in panel.OwnedUpgrades)
         {
             if (up != null) owned.Add(up);
         }
         if (owned.Count == 0) return;
 
-        // Hiện TẤT CẢ upgrade đang có, kể cả các tier cũ (Pierce I + Pierce II đều hiện,
-        // không gom tier cao nhất như trước).
+        // Thông tin theo "gia đình" (family): các upgrade liên quan tới nhau xếp liền kề.
+        // Tier cao nhất: scale 1. Mọi tier còn lại: thu nhỏ chung 1 mức (lowTierScale).
+        // VD: Haste III - II - I đứng liền nhau, III to nhất rồi tới II, I.
+        List<UpgradeSO> topTiers = new List<UpgradeSO>();
         foreach (UpgradeSO up in owned)
         {
-            UpgradeUIItem item = Instantiate(upgradeItemPrefab, upgradeContent);
-            item.SetData(up);
+            bool isRequiredByOther = false;
+            foreach (UpgradeSO other in owned)
+            {
+                if (other == up || other.Requires == null) continue;
+                foreach (UpgradeSO req in other.Requires)
+                {
+                    if (req == up) { isRequiredByOther = true; break; }
+                }
+                if (isRequiredByOther) break;
+            }
+            if (!isRequiredByOther) topTiers.Add(up);
         }
+
+        HashSet<UpgradeSO> placed = new HashSet<UpgradeSO>();
+        foreach (UpgradeSO top in topTiers)
+            AppendFamily(top, owned, placed);
+
+        // Fallback: upgrade "mồ côi" (không thuộc gia đình nào) thì xếp cuối, coi như tier thấp.
+        foreach (UpgradeSO up in owned)
+        {
+            if (placed.Add(up))
+                CreateUpgradeRow(up, true);
+        }
+    }
+
+    /// <summary>
+    /// Xếp 1 gia đình upgrade liền kề: tier cao nhất (to) đứng trước,
+    /// các tier thấp hơn (nằm trong Requires của nó, đệ quy) xếp ngay sau, đều thu nhỏ.
+    /// </summary>
+    private void AppendFamily(UpgradeSO top, HashSet<UpgradeSO> owned, HashSet<UpgradeSO> placed)
+    {
+        if (top == null || !placed.Add(top)) return;
+
+        CreateUpgradeRow(top, false); // tier cao nhất: scale 1
+
+        if (top.Requires == null) return;
+        foreach (UpgradeSO req in top.Requires)
+        {
+            if (req == null || !owned.Contains(req)) continue;
+            if (!placed.Add(req)) continue;
+
+            CreateUpgradeRow(req, true); // tier thấp: thu nhỏ
+            AppendLowerTiers(req, owned, placed);
+        }
+    }
+
+    /// <summary>Xếp tiếp các tier thấp hơn nữa (vd: II -> I), tất cả cùng 1 mức thu nhỏ.</summary>
+    private void AppendLowerTiers(UpgradeSO up, HashSet<UpgradeSO> owned, HashSet<UpgradeSO> placed)
+    {
+        if (up.Requires == null) return;
+        foreach (UpgradeSO req in up.Requires)
+        {
+            if (req == null || !owned.Contains(req)) continue;
+            if (!placed.Add(req)) continue;
+
+            CreateUpgradeRow(req, true);
+            AppendLowerTiers(req, owned, placed);
+        }
+    }
+
+    private void CreateUpgradeRow(UpgradeSO upgrade, bool isLowTier)
+    {
+        UpgradeUIItem item = Instantiate(upgradeItemPrefab, upgradeContent);
+        item.SetData(upgrade);
+        item.Rect.localScale = Vector3.one * (isLowTier ? lowTierScale : 1f);
     }
 
     // Xóa toàn bộ dòng cũ (chạy ngược để Destroy từng cái dưới Content)
