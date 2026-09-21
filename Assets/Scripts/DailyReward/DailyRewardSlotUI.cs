@@ -22,6 +22,8 @@ using UnityEngine.UI;
 ///                        CÓ THỂ nhận quà (Claimable), TẮT ở mọi ô khác (Locked/Claimed).
 ///                        (Trước đây tên là objCheckmark — hệ thống vẫn nhận theo tham chiếu cũ
 ///                        nhờ FormerlySerializedAs, gán lại không bị mất.)
+///        - objCheckmark: Dấu ✓ đã nhận quà. ĐỂ ẨN sẵn — manager tự BẬT khi ô ĐÃ nhận quà (Claimed),
+///                        TẮT ở các ô khác (Locked/Claimable).
 ///        - objHighlight : GameObject viền/sáng highlight — ĐỂ ẨN sẵn (manager sẽ tự bật khi ô có thể nhận quà).
 ///        - canvasGroup (Tùy chọn): KHÔNG BẮT BUỘC. Hệ thống làm tối bằng cách đổi màu sang tối hơn,
 ///          nên bạn KHÔNG cần CanvasGroup. Nếu ô của bạn đang có CanvasGroup với alpha < 1, nó sẽ khiến
@@ -38,6 +40,8 @@ public class DailyRewardSlotUI : MonoBehaviour
     [SerializeField] private Button btnClaim;
     [Tooltip("Badge thông báo (✓/dấu chấm...). Chỉ BẬT ở ngày ĐANG CÓ THỂ nhận quà (Claimable). Ô Locked/Claimed không hiện. Nên để ẨN sẵn trong Editor.")]
     [SerializeField, FormerlySerializedAs("objCheckmark")] private GameObject objNotify;
+    [Tooltip("Dấu ✓ ĐÃ NHẬN quà. Chỉ BẬT ở ngày đã Claimed, ẨN ở các ô khác. (So với Obj Notify: cái này trạng thái ĐÃ nhận.)")]
+    [SerializeField] private GameObject objCheckmark;
     [Tooltip("Viền/sáng highlight. Nên để ẨN sẵn trong Editor, manager sẽ bật khi ô có thể nhận quà.")]
     [SerializeField] private GameObject objHighlight;
     [Tooltip("(Tùy chọn) Để trống hoặc alpha = 1. Hệ thống không dùng alpha để làm mờ — dùng dark-tint thay thế. Nếu alpha < 1 thì ô sẽ bị trong suốt.")]
@@ -101,9 +105,10 @@ public class DailyRewardSlotUI : MonoBehaviour
     /// <summary>
 ///    Cập nhật hiển thị của ô theo trạng thái:
 ///   - Locked    : làm TỐI TOÀN BỘ toàn ô (dark-tint, KHÔNG trong suốt) + tắt Button + tắt Highlight
-///                 + KHÔNG có notify (vì ô chưa tới ngày nhận).
-///   - Claimable : ô sáng bình thường + bật Highlight + bật Button + Notify SÁNG.
-///   - Claimed   : chỉ GIẢM ALPHA của ICON quà (khung UI giữ nguyên) + tắt Button + tắt Highlight + tắt Notify.
+///                 + KHÔNG có notify + KHÔNG dấu ✓ (ô chưa tới ngày nhận).
+///   - Claimable : ô sáng bình thường + bật Highlight + bật Button + Notify SÁNG (gợi ý nhấn).
+///   - Claimed   : chỉ GIẢM ALPHA của ICON quà (khung UI giữ nguyên) + BẬT dấu ✓ + tắt Button
+///                 + tắt Highlight + tắt Notify.
     /// </summary>
     public void UpdateState(RewardState state)
     {
@@ -119,6 +124,10 @@ public class DailyRewardSlotUI : MonoBehaviour
         //    và ô đã nhận (Claimed) đều KHÔNG hiện notify ──
         if (objNotify != null)
             objNotify.SetActive(state == RewardState.Claimable);
+
+        // ── Dấu ✓: chỉ BẬT ở ô ĐÃ nhận quà (Claimed) ──
+        if (objCheckmark != null)
+            objCheckmark.SetActive(state == RewardState.Claimed);
 
         // ── Độ sáng UI theo từng trạng thái ──
         switch (state)

@@ -70,6 +70,9 @@ public sealed class AudioManager : MonoBehaviour
     [Tooltip("Tiếng khi TẮT (off) một Toggle/switch trong UI.")]
     [SerializeField] private AudioClip uiToggleOffSFX;
 
+    [Tooltip("Tiếng khi NHẬN ĐỒ (claim) — dùng cho Daily Reward, nhận quà hằng ngày, nhận thưởng...")]
+    [SerializeField] private AudioClip uiClaimSFX;
+
     [Header("=== Âm thanh thu thập ===")]
     [Tooltip("Tiếng khi nhặt viên kinh nghiệm (EXP).")]
     [SerializeField] private AudioClip xpCollectSFX;
@@ -655,6 +658,23 @@ public sealed class AudioManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Phát tiếng khi NHẬN ĐỒ (claim) — gắn được ngay trong Unity:
+    /// EventSystem/Button -> OnClick -> kéo AudioManager vào -> chọn PlayUIClaim.
+    /// </summary>
+    public void PlayUIClaim(float volume = 1f)
+    {
+        PlaySFX(uiClaimSFX, volume);
+    }
+
+    /// <summary>
+    /// Phiên bản PlayUIClaim có clip tự truyền từ bên ngoài (không cần cấu hình Inspector).
+    /// </summary>
+    public void PlayUIClaim(AudioClip clip, float volume = 1f)
+    {
+        PlaySFX(clip, volume);
+    }
+
+    /// <summary>
     /// HÀM HỖ TRỢ UI TOGGLE: phát tiếng theo trạng thái BẬT/TẮT.
     /// Cách dùng trong code:
     ///   myToggle.onValueChanged.AddListener(isOn => AudioManager.Instance.PlayUIToggle(isOn));
@@ -802,6 +822,13 @@ public sealed class AudioManager : MonoBehaviour
     {
         Debug.Log($"[AudioManager] Test Toggle-Off: clip={(uiToggleOffSFX != null ? uiToggleOffSFX.name : "(TRONG !)")}");
         PlayUIToggle(false);
+    }
+
+    [ContextMenu("Test Play UI Claim")]
+    private void TestPlayUIClaim()
+    {
+        Debug.Log($"[AudioManager] Test Claim: clip={(uiClaimSFX != null ? uiClaimSFX.name : "(TRONG !)")}, SFXVolume={sfxVolume}");
+        PlayUIClaim();
     }
 #endif
 }

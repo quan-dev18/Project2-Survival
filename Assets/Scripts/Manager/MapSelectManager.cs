@@ -26,6 +26,9 @@ public class MapSelectionManager : MonoBehaviour
     public TextMeshProUGUI startButtonText;
     [Tooltip("Màu của nút Bắt đầu khi map bị khóa (xám).")]
     public Color lockedButtonColor = new Color(0.45f, 0.45f, 0.45f, 1f);
+    [Tooltip("GameObject thông báo khi map ĐANG KHÓA (vd: dòng chữ 'Hoàn thành 100% map trước đó để mở khóa map này'). " +
+             "Hệ thống sẽ SetActive: BẬT khi map hiện tại bị khóa, TẮT khi map mở. Nên để ẨN sẵn.")]
+    public GameObject lockedMapNotifier;
 
     [Header("--- SWIPE SETTINGS ---")]
     public float swipeThreshold = 50f;
@@ -37,6 +40,13 @@ public class MapSelectionManager : MonoBehaviour
 
     private string defaultStartText;      // Text gốc của nút để khôi phục lại
     private ColorBlock defaultButtonColors; // Màu gốc của nút để khôi phục lại
+    private Tween lockedNotifyTween;      // Tween hiện/ẩn thông báo "hoàn thành map trước".
+
+    [Header("--- LOCKED NOTIFY ANIMATION ---")]
+    [Tooltip("Thời gian (giây) hiện thông báo khi map bị khóa.")]
+    public float lockedNotifyInDuration = 0.25f;
+    [Tooltip("Thời gian (giây) ẩn thông báo khi map được mở.")]
+    public float lockedNotifyOutDuration = 0.15f;
 
     private void Start()
     {
@@ -223,8 +233,8 @@ public class MapSelectionManager : MonoBehaviour
 
     /// <summary>
     /// Cập nhật trạng thái nút Bắt đầu theo map đang hiển thị:
-    /// - Map KHÓA  : nút màu xám + xóa text + không bấm được.
-    /// - Map MỞ    : khôi phục màu + text gốc.
+    /// - Map KHÓA  : nút màu xám + xóa text + không bấm được + BẬT thông báo "hoàn thành map trước".
+    /// - Map MỞ    : khôi phục màu + text gốc + TẮT thông báo.
     /// </summary>
     private void RefreshStartButton()
     {
@@ -234,6 +244,9 @@ public class MapSelectionManager : MonoBehaviour
 
         // Chặn/bật bấm nút.
         startButton.interactable = unlocked;
+
+        // Bật/tắt thông báo "hoàn thành map trước đó để chơi map này" khi map đang khóa.
+        SetLockedNotifier(!unlocked);
 
         // Đổi màu nút theo trạng thái.
         ColorBlock cb = startButton.colors;
@@ -254,6 +267,50 @@ public class MapSelectionManager : MonoBehaviour
         // Xóa / khôi phục text trên nút.
         if (startButtonText != null)
             startButtonText.text = unlocked ? defaultStartText : string.Empty;
+    }
+
+    /// <summary>
+    /// Hiện/ẩn thông báo "hoàn thành map trước đó" kèm hiệu ứng DOTween:
+    ///   - HIỆN (map khóa) : fade in + scale nảy lên (Ease.OutBack) cho bắt mắt.
+    ///   - ẨN (map mở)     : fade out rồi mới SetActive(false) — kết thúc mượt, không lag "tắt ngay".
+    /// </summary>
+    private void SetLockedNotifier(bool show)
+    {
+        if (lockedMapNotifier == null) return;
+
+        // Hủy tween cũ để không đè 2 hiệu ứng chồng lên nhau khi lướt liên tục.
+        if (lockedNotifyTween != null)
+        {
+            lockedNotifyTween.Kill();
+            lockedNotifyTween = null;
+        }
+
+        CanvasGroup cg = GetOrAddCanvasGroup(lockedMapNotifier);
+
+        if (show)
+        {
+            // Bật GameObject rồi chạy hiệu ứng từ trong suốt + nhỏ lên.
+            lockedMapNotifier.SetActive(true);
+            cg.alpha = 0f;
+            lockedMapNotifier.transform.localScale = Vector3.one * 0.8f;
+
+            lockedNotifyTween = DOTween.Sequence()
+                .Join(cg.DOFade(1f, lockedNotifyInDuration))
+                .Join(lockedMapNotifier.transform.DOScale(Vector3.one, lockedNotifyInDuration).SetEase(Ease.OutBack));
+        }
+        else
+        {
+            // Đã tắt sẵn rồi thì không cần chạy hiệu ứng fade nữa (tránh tween trên object inactive).
+            if (!lockedMapNotifier.activeSelf)
+            {
+                lockedNotifyTween = null;
+                return;
+            }
+
+            // Fade ra xong mới tắt GameObject → không bị "tắt cái rụp".
+            lockedNotifyTween = cg.DOFade(0f, lockedNotifyOutDuration)
+                .OnComplete(() => lockedMapNotifier.SetActive(false));
+        }
     }
 
     private void ResetRectTransform(RectTransform rt)
