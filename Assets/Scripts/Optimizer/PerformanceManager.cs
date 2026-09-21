@@ -222,7 +222,15 @@ public sealed class PerformanceManager : MonoBehaviour
     /// <summary>FPS mục tiêu gốc theo chế độ đã chọn (trước khi adaptive giảm).</summary>
     public int RawTargetFPS => GetTargetFPS(frameRateMode);
 
-    /// <summary>FPS mục tiêu đang thực sự áp dụng (đã trừ bước hạ của adaptive).</summary>
+    /// <summary>
+    /// FPS mục tiêu đang thực sự áp dụng: mục tiêu gốc trừ bước hạ của adaptive.
+    /// KHÔNG clamp theo tần số quét hiện tại của màn hình vì:
+    ///   1. Screen.currentResolution.refreshRateRatio (Android) trả tần số ĐANG
+    ///      chạy (thường 60) chứ không phải tần số tối đa → clamp sai sẽ chặn luôn
+    ///      việc đạt 90/120 trên màn hình 90/120Hz.
+    ///   2. Làm nút VSync "vô hình": tắt VSync thì target cũng bị ép bằng khi bật.
+    ///   Việc không vượt quá Hz của panel do VSync / phần cứng tự xử lý.
+    /// </summary>
     public int AppliedTargetFPS => Mathf.Max(minimumTargetFPS, RawTargetFPS - adaptiveStep * frameRateDropPerStep);
 
     /// <summary>FPS trung bình (làm mượt) của cửa sổ mẫu vừa qua.</summary>
@@ -851,8 +859,10 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     /// <summary>
     /// Áp dụng RenderProfile của mức đang áp dụng xuống URP asset (chỉ khi đang dùng URP).
     /// Gồm: render scale, MSAA, shadow distance (0 = tắt bóng), số cascade.
+    /// Áp dụng ĐỒNG NHẤT cả menu lẫn gameplay theo chất lượng người chơi chọn —
+    /// trước đây gameplay bị ÉP render scale = 1.0 (bất chấp mức chất lượng) nên
+    /// máy yếu/chọn Low vẫn chạy full resolution → lag trận đấu.
     /// Tránh ghi lại khi giá trị chưa đổi để không gây re-alloc render target.
-    /// Khi đang Playing (gameplay): luôn force render scale = 1 để đảm bảo chất lượng.
     /// </summary>
     private void ApplyRenderProfile()
     {
@@ -860,69 +870,41 @@ private static UniversalRenderPipelineAsset GetURPAsset()
         if (urp == null)
             return;
 
-        // Nếu đang trong gameplay → luôn render scale 1, không giảm
-        bool inGameplay = GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.Playing;
-        if (inGameplay)
-        {
-            if (Mathf.Abs(urp.renderScale - 1f) > 0.001f)
-            {
-                urp.renderScale = 1f;
-                Debug.Log("[PerformanceManager] Gameplay: render scale forced to 1.0");
-            }
-            // Vẫn áp MSAA, shadows trong gameplay
-            PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
-            RenderProfile profile = GetRenderProfile(tier);
-
-            int msaa = RenderProfile.ValidateMsaa(profile.msaaSampleCount);
-            if (urp.msaaSampleCount != msaa)
-                urp.msaaSampleCount = msaa;
-
-            float shadowDistance = Mathf.Max(0f, profile.shadowDistance);
-            if (Mathf.Abs(urp.shadowDistance - shadowDistance) > 0.01f)
-                urp.shadowDistance = shadowDistance;
-
-            int cascades = RenderProfile.ValidateCascades(profile.shadowCascadeCount);
-            if (urp.shadowCascadeCount != cascades)
-                urp.shadowCascadeCount = cascades;
-            return;
-        }
-
-        // Ngoài gameplay (menu, loading...) → áp render profile bình thường
-        PerformanceLevel tierMenu = GetPerformanceLevelForQuality(AppliedQualityLevel);
-        RenderProfile profileMenu = GetRenderProfile(tierMenu);
+        PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
+        RenderProfile profile = GetRenderProfile(tier);
 
         bool changed = false;
 
-        float scale = Mathf.Clamp(profileMenu.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
+        float scale = Mathf.Clamp(profile.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
         if (Mathf.Abs(urp.renderScale - scale) > 0.001f)
         {
             urp.renderScale = scale;
             changed = true;
         }
 
-        int msaaMenu = RenderProfile.ValidateMsaa(profileMenu.msaaSampleCount);
-        if (urp.msaaSampleCount != msaaMenu)
+        int msaa = RenderProfile.ValidateMsaa(profile.msaaSampleCount);
+        if (urp.msaaSampleCount != msaa)
         {
-            urp.msaaSampleCount = msaaMenu;
+            urp.msaaSampleCount = msaa;
             changed = true;
         }
 
-        float shadowDistanceMenu = Mathf.Max(0f, profileMenu.shadowDistance);
-        if (Mathf.Abs(urp.shadowDistance - shadowDistanceMenu) > 0.01f)
+        float shadowDistance = Mathf.Max(0f, profile.shadowDistance);
+        if (Mathf.Abs(urp.shadowDistance - shadowDistance) > 0.01f)
         {
-            urp.shadowDistance = shadowDistanceMenu;
+            urp.shadowDistance = shadowDistance;
             changed = true;
         }
 
-        int cascadesMenu = RenderProfile.ValidateCascades(profileMenu.shadowCascadeCount);
-        if (urp.shadowCascadeCount != cascadesMenu)
+        int cascades = RenderProfile.ValidateCascades(profile.shadowCascadeCount);
+        if (urp.shadowCascadeCount != cascades)
         {
-            urp.shadowCascadeCount = cascadesMenu;
+            urp.shadowCascadeCount = cascades;
             changed = true;
         }
 
         if (changed)
-            Debug.Log($"[PerformanceManager] Menu: Render Profile {tierMenu} | Scale={scale:0.00} MSAA={msaaMenu}x");
+            Debug.Log($"[PerformanceManager] Render Profile {tier} | Scale={scale:0.00} MSAA={msaa}x Shadows={shadowDistance} Cascades={cascades}");
     }
 
     /// <summary>
