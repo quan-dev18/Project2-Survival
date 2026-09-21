@@ -17,10 +17,14 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
     private Tween magnetTween;
     private Vector3 aimPoint;
 
+    private float checkTimer;
+    private const float CheckInterval = 0.1f;
+
     public void OnSpawned()
     {
         magnetized = false;
         bouncing = false;
+        checkTimer = Random.Range(0f, CheckInterval);
         magnetTween?.Kill();
         cachedStats = null;
         ResolveTarget();
@@ -56,11 +60,15 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
 
         if (cachedStats == null) return;
 
-        float dist = Vector2.Distance(target.position, transform.position);
-
         if (!magnetized)
         {
-            if (dist <= cachedStats.CollectRange)
+            checkTimer -= Time.deltaTime;
+            if (checkTimer > 0f) return;
+            checkTimer = CheckInterval;
+
+            float range = cachedStats.CollectRange;
+            Vector2 diff = (Vector2)target.position - (Vector2)transform.position;
+            if (diff.sqrMagnitude <= range * range)
             {
                 magnetized = true;
                 BackBounce();

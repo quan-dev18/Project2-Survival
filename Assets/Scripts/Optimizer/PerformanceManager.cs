@@ -158,7 +158,7 @@ public sealed class PerformanceManager : MonoBehaviour
     [SerializeField] private int frameRateDropPerStep = 15;
 
     [Tooltip("Trần FPS tối thiểu cho phép khi adaptive đang hạ mức.")]
-    [SerializeField] private int minimumTargetFPS = 60;
+    [SerializeField] private int minimumTargetFPS = 30;
 
     [Header("=== Pin & nhiệt (mobile) ===")]
     [Tooltip("Ngưỡng % pin coi là yếu để kích hoạt tiết kiệm điện (mobile only).")]
@@ -852,7 +852,6 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     /// Áp dụng RenderProfile của mức đang áp dụng xuống URP asset (chỉ khi đang dùng URP).
     /// Gồm: render scale, MSAA, shadow distance (0 = tắt bóng), số cascade.
     /// Tránh ghi lại khi giá trị chưa đổi để không gây re-alloc render target.
-    /// Khi đang Playing (gameplay): luôn force render scale = 1 để đảm bảo chất lượng.
     /// </summary>
     private void ApplyRenderProfile()
     {
@@ -860,69 +859,41 @@ private static UniversalRenderPipelineAsset GetURPAsset()
         if (urp == null)
             return;
 
-        // Nếu đang trong gameplay → luôn render scale 1, không giảm
-        bool inGameplay = GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.Playing;
-        if (inGameplay)
-        {
-            if (Mathf.Abs(urp.renderScale - 1f) > 0.001f)
-            {
-                urp.renderScale = 1f;
-                Debug.Log("[PerformanceManager] Gameplay: render scale forced to 1.0");
-            }
-            // Vẫn áp MSAA, shadows trong gameplay
-            PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
-            RenderProfile profile = GetRenderProfile(tier);
-
-            int msaa = RenderProfile.ValidateMsaa(profile.msaaSampleCount);
-            if (urp.msaaSampleCount != msaa)
-                urp.msaaSampleCount = msaa;
-
-            float shadowDistance = Mathf.Max(0f, profile.shadowDistance);
-            if (Mathf.Abs(urp.shadowDistance - shadowDistance) > 0.01f)
-                urp.shadowDistance = shadowDistance;
-
-            int cascades = RenderProfile.ValidateCascades(profile.shadowCascadeCount);
-            if (urp.shadowCascadeCount != cascades)
-                urp.shadowCascadeCount = cascades;
-            return;
-        }
-
-        // Ngoài gameplay (menu, loading...) → áp render profile bình thường
-        PerformanceLevel tierMenu = GetPerformanceLevelForQuality(AppliedQualityLevel);
-        RenderProfile profileMenu = GetRenderProfile(tierMenu);
+        PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
+        RenderProfile profile = GetRenderProfile(tier);
 
         bool changed = false;
 
-        float scale = Mathf.Clamp(profileMenu.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
+        float scale = Mathf.Clamp(profile.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
         if (Mathf.Abs(urp.renderScale - scale) > 0.001f)
         {
             urp.renderScale = scale;
             changed = true;
         }
 
-        int msaaMenu = RenderProfile.ValidateMsaa(profileMenu.msaaSampleCount);
-        if (urp.msaaSampleCount != msaaMenu)
+        int msaa = RenderProfile.ValidateMsaa(profile.msaaSampleCount);
+        if (urp.msaaSampleCount != msaa)
         {
-            urp.msaaSampleCount = msaaMenu;
+            urp.msaaSampleCount = msaa;
             changed = true;
         }
 
-        float shadowDistanceMenu = Mathf.Max(0f, profileMenu.shadowDistance);
-        if (Mathf.Abs(urp.shadowDistance - shadowDistanceMenu) > 0.01f)
+        float shadowDistance = Mathf.Max(0f, profile.shadowDistance);
+        if (Mathf.Abs(urp.shadowDistance - shadowDistance) > 0.01f)
         {
-            urp.shadowDistance = shadowDistanceMenu;
+            urp.shadowDistance = shadowDistance;
             changed = true;
         }
 
-        int cascadesMenu = RenderProfile.ValidateCascades(profileMenu.shadowCascadeCount);
-        if (urp.shadowCascadeCount != cascadesMenu)
+        int cascades = RenderProfile.ValidateCascades(profile.shadowCascadeCount);
+        if (urp.shadowCascadeCount != cascades)
         {
-            urp.shadowCascadeCount = cascadesMenu;
+            urp.shadowCascadeCount = cascades;
             changed = true;
         }
 
         if (changed)
-            Debug.Log($"[PerformanceManager] Menu: Render Profile {tierMenu} | Scale={scale:0.00} MSAA={msaaMenu}x");
+            Debug.Log($"[PerformanceManager] 🎨 Render Profile: {tier} | Scale={scale:0.00} MSAA={msaa}x Shadows={(shadowDistance > 0f ? "ON" : "OFF")} Cascades={cascades}");
     }
 
     /// <summary>

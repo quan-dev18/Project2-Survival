@@ -77,8 +77,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         }
         if (activeBurnVFX != null)
         {
-            Destroy(activeBurnVFX);
-            activeBurnVFX = null;
+            activeBurnVFX.SetActive(false);
         }
     }
 
@@ -131,7 +130,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         _animator.SetBool("isDead",true);
         // Hide burn VFX on death
         if (burnVFXRoutine != null) { StopCoroutine(burnVFXRoutine); burnVFXRoutine = null; }
-        if (activeBurnVFX != null) { Destroy(activeBurnVFX); activeBurnVFX = null; }
+        if (activeBurnVFX != null) { activeBurnVFX.SetActive(false); }
         deathWatchdog = StartCoroutine(DeathWatchdog());
     }
 
@@ -209,11 +208,18 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     private IEnumerator BurnVFXTimer(float duration)
     {
         yield return new WaitForSeconds(duration);
-        if (activeBurnVFX != null) Destroy(activeBurnVFX);
-        activeBurnVFX = null;
+        if (activeBurnVFX != null) activeBurnVFX.SetActive(false);
         burnVFXRoutine = null;
     }
 
+    private void OnDestroy()
+    {
+        if (activeBurnVFX != null)
+        {
+            Destroy(activeBurnVFX);
+            activeBurnVFX = null;
+        }
+    }
 
     private void DropXP()
     {
