@@ -1,0 +1,1704 @@
+fileFormatVersion: 2
+guid: 12cbced1fbd6feb45b0608fd4f57dd1f
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 50
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: tanya_degurechaff_0
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 263
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60c13d36b84c9ae4286cc0d2faaf832c
+      internalID: -846219768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_1
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 263
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 465c6ffcb02a5784b80ed7c5aebb6177
+      internalID: 644878930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_2
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 262
+        width: 45
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ef43a0b1f25cc26408f296c4d663f532
+      internalID: 289985628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 262
+        width: 45
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b684a4f2d38835c43bdf0950e7ddd832
+      internalID: 806582459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_4
+      rect:
+        serializedVersion: 2
+        x: 253
+        y: 262
+        width: 44
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8a38d1c900482f941ab881c399c21e3a
+      internalID: 1492073388
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_5
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 262
+        width: 45
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 82ffdd825fe4f4646a9d893acf2ae6af
+      internalID: 833873807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_6
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 262
+        width: 45
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 774215bc6b660d9449d43f062f73f3c4
+      internalID: -1210578213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_7
+      rect:
+        serializedVersion: 2
+        x: 436
+        y: 262
+        width: 45
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e0f82ff2848f8b346afe1ab23dfa547b
+      internalID: -693379437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_8
+      rect:
+        serializedVersion: 2
+        x: 497
+        y: 262
+        width: 45
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61087c6104a80534dbf677e931a97f8a
+      internalID: -1179801940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_9
+      rect:
+        serializedVersion: 2
+        x: 558
+        y: 262
+        width: 45
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 025d691b1b798f44bb85bcef4c1b1303
+      internalID: -1463252374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_10
+      rect:
+        serializedVersion: 2
+        x: 619
+        y: 262
+        width: 45
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eb84d980f4d575d45a0299a442d9e8f0
+      internalID: 1354770708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_11
+      rect:
+        serializedVersion: 2
+        x: 680
+        y: 262
+        width: 45
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 458e9546a922a3c47b933b176d44e381
+      internalID: 2083192427
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_12
+      rect:
+        serializedVersion: 2
+        x: 741
+        y: 262
+        width: 45
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bb3c6ad3a3ec092428dc3210f4c3db1c
+      internalID: 282915560
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_13
+      rect:
+        serializedVersion: 2
+        x: 801
+        y: 263
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7ea715fde8d1fe1429e6846d12d6f0b4
+      internalID: 1415310438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_14
+      rect:
+        serializedVersion: 2
+        x: 862
+        y: 263
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: efd5f4e7fc08224459d65fabf39767f8
+      internalID: -2015290049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_15
+      rect:
+        serializedVersion: 2
+        x: 923
+        y: 263
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 31bd7e2e42f8cfe40ac72b197c6fd12e
+      internalID: -1450810260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_16
+      rect:
+        serializedVersion: 2
+        x: 984
+        y: 263
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d55776b1ba0570e4393a0c0fac9be920
+      internalID: -1703143441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_34
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 187
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b800de9907e1e424fb381cd59170c6c7
+      internalID: 1269605445
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_35
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 187
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 059f50549a1b97a40bb0bee2e28354c8
+      internalID: 210148607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_36
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 186
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f4fe8ae9c58b3846b5ae20e267804af
+      internalID: 1576551117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_37
+      rect:
+        serializedVersion: 2
+        x: 191
+        y: 186
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf81e21063477ef4995687d7f213e8d1
+      internalID: 996889472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_38
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 186
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b3a271a7bf0759f4aa7367b6ae785d59
+      internalID: -437940372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_39
+      rect:
+        serializedVersion: 2
+        x: 313
+        y: 186
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 08616160a87a0524f957200a69c8e287
+      internalID: -2116886673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_40
+      rect:
+        serializedVersion: 2
+        x: 374
+        y: 186
+        width: 47
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2a8eeb619177c0346a8f5a7b2fc41149
+      internalID: 613538335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_41
+      rect:
+        serializedVersion: 2
+        x: 435
+        y: 186
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c82c8b18761469448969689fddf671c4
+      internalID: -1210241626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_42
+      rect:
+        serializedVersion: 2
+        x: 496
+        y: 186
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 53b06532430cf4642b04d78b04d6f227
+      internalID: 220232471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_43
+      rect:
+        serializedVersion: 2
+        x: 557
+        y: 186
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b4bc73bd5010e942a1841f42564af73
+      internalID: -1105094606
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_44
+      rect:
+        serializedVersion: 2
+        x: 618
+        y: 187
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 78c08ace1385cc446b2a51fec5b82e20
+      internalID: 1076058264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_45
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 186
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f5c77dac2c39f604db882901b636d207
+      internalID: 2135186315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_46
+      rect:
+        serializedVersion: 2
+        x: 740
+        y: 186
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 173cb048eb69495419b8c54fbe09c844
+      internalID: -1227404587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_47
+      rect:
+        serializedVersion: 2
+        x: 801
+        y: 187
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fe8280c955699424fafaf6f8db57c806
+      internalID: 1000560544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_48
+      rect:
+        serializedVersion: 2
+        x: 862
+        y: 187
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 786c347c97a31e540ab0fc22f413a2aa
+      internalID: 1286659869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_49
+      rect:
+        serializedVersion: 2
+        x: 923
+        y: 187
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7c323a7bc2687414cba7d2e8ef79210f
+      internalID: -1209009803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_50
+      rect:
+        serializedVersion: 2
+        x: 984
+        y: 187
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b257c34348cff54ba68108e2f7d43f7
+      internalID: -431546892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_68
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 103
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58405a9b6b9811d45aeabaaede6edbd3
+      internalID: 1618463547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_69
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 103
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5d4d288ed042cca49b7217c445d62f10
+      internalID: -2010110267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_70
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 102
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eab974b0dc79d1c418d4f48ef85bd6a5
+      internalID: 804210505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_71
+      rect:
+        serializedVersion: 2
+        x: 194
+        y: 102
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 63e6e50d00519e14bb3b49966d32d753
+      internalID: -1046357457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_72
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 102
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5bb6c62fd5a610a4e886a4f5174bca3c
+      internalID: 841581243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_73
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 102
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9d16b411b53b8484f9dd934ad47e486a
+      internalID: 1854431432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_74
+      rect:
+        serializedVersion: 2
+        x: 377
+        y: 102
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 491b191f1edd07c458e882dbe3fa0d0f
+      internalID: -768234518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_75
+      rect:
+        serializedVersion: 2
+        x: 438
+        y: 102
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7d659eca87334b347859fd8158026a23
+      internalID: -1725459275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_76
+      rect:
+        serializedVersion: 2
+        x: 499
+        y: 102
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: acd3e4917fd79a54b91fe157b5ca7940
+      internalID: 1076359033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_77
+      rect:
+        serializedVersion: 2
+        x: 560
+        y: 102
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 01b7c7f9dab108945a8c3c7b6cc14137
+      internalID: 805506442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_78
+      rect:
+        serializedVersion: 2
+        x: 621
+        y: 102
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6d68322901c4b254399f63de51925eec
+      internalID: 1911132468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_79
+      rect:
+        serializedVersion: 2
+        x: 682
+        y: 102
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8b54db44b6bcde44e8150c64538056d9
+      internalID: -456809872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_80
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 102
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 84b2ad25cbed3d84195a9fca1078979f
+      internalID: -150102512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_81
+      rect:
+        serializedVersion: 2
+        x: 803
+        y: 103
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e730f1cf43e9847458c87059929b048e
+      internalID: -669611190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_82
+      rect:
+        serializedVersion: 2
+        x: 864
+        y: 103
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f193f738e1f160c4b846519670a92f39
+      internalID: 1830903613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_83
+      rect:
+        serializedVersion: 2
+        x: 925
+        y: 103
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 02d05d085a4e9ea4cb8cf725692ab1b6
+      internalID: -1406287793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_84
+      rect:
+        serializedVersion: 2
+        x: 986
+        y: 103
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a76eb74616cd30341bc5dc0d56fc6324
+      internalID: -1585218773
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_102
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 19
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f6f3e8520d313194ea4b18757c8f61af
+      internalID: -1147018398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_103
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 19
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2694ce86f27077f4f8a7b76611f0b383
+      internalID: -1129263017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_104
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 18
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 97b32fbf2fc21324fa4da2eff8e8556c
+      internalID: 1446811643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_105
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 18
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 555ab50dbfa05ec4fa05bc2b15fb4a8f
+      internalID: -1369863432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_106
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 18
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bf9d7ad5a56283349bef320086523630
+      internalID: -994429360
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_107
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 18
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e34a07ce94755254e85bd512131dd16b
+      internalID: 269060984
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_108
+      rect:
+        serializedVersion: 2
+        x: 376
+        y: 18
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cbdd9d1bd58f68d4c8fb9e419737eece
+      internalID: 1330882724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_109
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 18
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91f835f4a48ac5646ac75ff19a85995c
+      internalID: -1141038584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_110
+      rect:
+        serializedVersion: 2
+        x: 498
+        y: 18
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c503f48c9d9545f4fb6a2713942c2b66
+      internalID: -1901617345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_111
+      rect:
+        serializedVersion: 2
+        x: 559
+        y: 18
+        width: 46
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bc9225ae2fccd7a49b57df98acb5e8c6
+      internalID: -73876886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_112
+      rect:
+        serializedVersion: 2
+        x: 620
+        y: 18
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 63481b60c8573124aa2d21878796bf9f
+      internalID: -310453288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_113
+      rect:
+        serializedVersion: 2
+        x: 681
+        y: 18
+        width: 46
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60d0819f593100c4ea3b2f4161373157
+      internalID: -1680207381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_114
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 18
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad867302bb4e9ce4c8b53ceccc3cc02d
+      internalID: 1618606985
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_115
+      rect:
+        serializedVersion: 2
+        x: 803
+        y: 19
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6486c651758107849818702ad53d7092
+      internalID: 885221569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_116
+      rect:
+        serializedVersion: 2
+        x: 864
+        y: 19
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b2e25bcc06cf0064ba0085c750164e8b
+      internalID: -1947945843
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_117
+      rect:
+        serializedVersion: 2
+        x: 925
+        y: 19
+        width: 46
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 37690c269a0714642b6a6cd027b8e5ea
+      internalID: 1965674038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tanya_degurechaff_118
+      rect:
+        serializedVersion: 2
+        x: 986
+        y: 19
+        width: 46
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c96917e40341e264780919a76cf6cc6d
+      internalID: 934064873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      tanya_degurechaff_0: -846219768
+      tanya_degurechaff_1: 644878930
+      tanya_degurechaff_10: 1354770708
+      tanya_degurechaff_100: 1369838042
+      tanya_degurechaff_101: 368617287
+      tanya_degurechaff_102: -1147018398
+      tanya_degurechaff_103: -1129263017
+      tanya_degurechaff_104: 1446811643
+      tanya_degurechaff_105: -1369863432
+      tanya_degurechaff_106: -994429360
+      tanya_degurechaff_107: 269060984
+      tanya_degurechaff_108: 1330882724
+      tanya_degurechaff_109: -1141038584
+      tanya_degurechaff_11: 2083192427
+      tanya_degurechaff_110: -1901617345
+      tanya_degurechaff_111: -73876886
+      tanya_degurechaff_112: -310453288
+      tanya_degurechaff_113: -1680207381
+      tanya_degurechaff_114: 1618606985
+      tanya_degurechaff_115: 885221569
+      tanya_degurechaff_116: -1947945843
+      tanya_degurechaff_117: 1965674038
+      tanya_degurechaff_118: 934064873
+      tanya_degurechaff_119: 976859532
+      tanya_degurechaff_12: 282915560
+      tanya_degurechaff_120: -983839060
+      tanya_degurechaff_121: 92840063
+      tanya_degurechaff_122: 1830696154
+      tanya_degurechaff_123: 686544969
+      tanya_degurechaff_124: -1460842348
+      tanya_degurechaff_125: 427210032
+      tanya_degurechaff_126: 1604579014
+      tanya_degurechaff_127: -2049285399
+      tanya_degurechaff_128: -2005998415
+      tanya_degurechaff_129: 1287044892
+      tanya_degurechaff_13: 1415310438
+      tanya_degurechaff_130: -285151460
+      tanya_degurechaff_131: -23737958
+      tanya_degurechaff_132: 349760919
+      tanya_degurechaff_133: 475560827
+      tanya_degurechaff_134: 1610430581
+      tanya_degurechaff_135: -1115311368
+      tanya_degurechaff_14: -2015290049
+      tanya_degurechaff_15: -1450810260
+      tanya_degurechaff_16: -1703143441
+      tanya_degurechaff_17: -38931393
+      tanya_degurechaff_18: 268873131
+      tanya_degurechaff_19: -114502327
+      tanya_degurechaff_2: 289985628
+      tanya_degurechaff_20: -651165740
+      tanya_degurechaff_21: 540269187
+      tanya_degurechaff_22: -486310272
+      tanya_degurechaff_23: -1145808143
+      tanya_degurechaff_24: -2116010204
+      tanya_degurechaff_25: -1661659940
+      tanya_degurechaff_26: -601293247
+      tanya_degurechaff_27: 1536383707
+      tanya_degurechaff_28: -1611224165
+      tanya_degurechaff_29: -1626275064
+      tanya_degurechaff_3: 806582459
+      tanya_degurechaff_30: -1090855704
+      tanya_degurechaff_31: -601846150
+      tanya_degurechaff_32: -1523580094
+      tanya_degurechaff_33: 695394001
+      tanya_degurechaff_34: 1269605445
+      tanya_degurechaff_35: 210148607
+      tanya_degurechaff_36: 1576551117
+      tanya_degurechaff_37: 996889472
+      tanya_degurechaff_38: -437940372
+      tanya_degurechaff_39: -2116886673
+      tanya_degurechaff_4: 1492073388
+      tanya_degurechaff_40: 613538335
+      tanya_degurechaff_41: -1210241626
+      tanya_degurechaff_42: 220232471
+      tanya_degurechaff_43: -1105094606
+      tanya_degurechaff_44: 1076058264
+      tanya_degurechaff_45: 2135186315
+      tanya_degurechaff_46: -1227404587
+      tanya_degurechaff_47: 1000560544
+      tanya_degurechaff_48: 1286659869
+      tanya_degurechaff_49: -1209009803
+      tanya_degurechaff_5: 833873807
+      tanya_degurechaff_50: -431546892
+      tanya_degurechaff_51: 1021239135
+      tanya_degurechaff_52: -791601028
+      tanya_degurechaff_53: -1296931639
+      tanya_degurechaff_54: 1601762517
+      tanya_degurechaff_55: 1720462407
+      tanya_degurechaff_56: 914998383
+      tanya_degurechaff_57: 1295001339
+      tanya_degurechaff_58: 1262656106
+      tanya_degurechaff_59: -303321039
+      tanya_degurechaff_6: -1210578213
+      tanya_degurechaff_60: 1160725417
+      tanya_degurechaff_61: 516485867
+      tanya_degurechaff_62: -1891798106
+      tanya_degurechaff_63: 1998147628
+      tanya_degurechaff_64: 1692764292
+      tanya_degurechaff_65: 69325596
+      tanya_degurechaff_66: -937173070
+      tanya_degurechaff_67: 1177715174
+      tanya_degurechaff_68: 1618463547
+      tanya_degurechaff_69: -2010110267
+      tanya_degurechaff_7: -693379437
+      tanya_degurechaff_70: 804210505
+      tanya_degurechaff_71: -1046357457
+      tanya_degurechaff_72: 841581243
+      tanya_degurechaff_73: 1854431432
+      tanya_degurechaff_74: -768234518
+      tanya_degurechaff_75: -1725459275
+      tanya_degurechaff_76: 1076359033
+      tanya_degurechaff_77: 805506442
+      tanya_degurechaff_78: 1911132468
+      tanya_degurechaff_79: -456809872
+      tanya_degurechaff_8: -1179801940
+      tanya_degurechaff_80: -150102512
+      tanya_degurechaff_81: -669611190
+      tanya_degurechaff_82: 1830903613
+      tanya_degurechaff_83: -1406287793
+      tanya_degurechaff_84: -1585218773
+      tanya_degurechaff_85: -1297207746
+      tanya_degurechaff_86: 786403172
+      tanya_degurechaff_87: -43113559
+      tanya_degurechaff_88: -887565309
+      tanya_degurechaff_89: -1420782993
+      tanya_degurechaff_9: -1463252374
+      tanya_degurechaff_90: 764563413
+      tanya_degurechaff_91: -1215379676
+      tanya_degurechaff_92: -1739232888
+      tanya_degurechaff_93: 1863462512
+      tanya_degurechaff_94: 269783084
+      tanya_degurechaff_95: -579981487
+      tanya_degurechaff_96: -1609805037
+      tanya_degurechaff_97: -262165596
+      tanya_degurechaff_98: 519245991
+      tanya_degurechaff_99: -1108995769
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

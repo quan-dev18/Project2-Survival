@@ -115,9 +115,13 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         if (other.TryGetComponent(out Bullet _))
             return;
 
-        IDamageable damageable = other.GetComponentInChildren<IDamageable>();
-        if (damageable == null)
-            damageable = other.GetComponentInParent<IDamageable>();
+        IDamageable damageable;
+        if (!other.TryGetComponent(out damageable))
+        {
+            damageable = other.GetComponentInChildren<IDamageable>();
+            if (damageable == null)
+                damageable = other.GetComponentInParent<IDamageable>();
+        }
 
         if (damageable == null)
             return;
@@ -143,8 +147,8 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             damageable.TakeDamage(9999f);
         }
 
-        IKnockbackable knockbackable = other.GetComponent<IKnockbackable>();
-        if (knockbackable == null)
+        IKnockbackable knockbackable;
+        if (!other.TryGetComponent(out knockbackable))
             knockbackable = other.GetComponentInParent<IKnockbackable>();
 
         if (knockbackable != null)
@@ -174,8 +178,12 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
                 if (hit == other) continue;
                 if (owner != null && (hit.transform == owner || hit.transform.IsChildOf(owner) || hit.transform.root == owner)) continue;
                 if (hit.GetComponentInParent<PlayerStats>() != null) continue;
-                IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
-                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                IDamageable dmg;
+                if (!hit.TryGetComponent(out dmg))
+                {
+                    dmg = hit.GetComponentInChildren<IDamageable>();
+                    if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                }
                 if (dmg != null && dmg != damageable)
                     dmg.TakeDamage(explosionDamage);
             }
@@ -189,8 +197,12 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             {
                 if (hit == other) continue;
                 if (owner != null && hit.transform.IsChildOf(owner)) continue;
-                IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
-                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                IDamageable dmg;
+                if (!hit.TryGetComponent(out dmg))
+                {
+                    dmg = hit.GetComponentInChildren<IDamageable>();
+                    if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                }
                 if (dmg != null)
                     dmg.TakeDamage(finalDamage);
             }
@@ -230,8 +242,13 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private void BounceToNewTarget(Transform excludeTarget)
     {
         // Resolve exclude root to avoid matching child colliders of same enemy
-        IDamageable excludeDmg = excludeTarget.GetComponentInParent<IDamageable>();
-        if (excludeDmg == null) excludeDmg = excludeTarget.GetComponentInChildren<IDamageable>();
+        IDamageable excludeDmg;
+        if (!excludeTarget.TryGetComponent(out excludeDmg))
+        {
+            excludeDmg = excludeTarget.GetComponentInChildren<IDamageable>();
+            if (excludeDmg == null)
+                excludeDmg = excludeTarget.GetComponentInParent<IDamageable>();
+        }
         Transform excludeRoot = excludeDmg != null ? (excludeDmg as Component)?.transform : excludeTarget;
 
         // Find all valid enemies in range (no GC alloc - uses static buffer)
@@ -243,8 +260,12 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             Collider2D hit = s_BounceOverlapBuffer[i];
             if (hit == null) continue;
             if (hit.transform.IsChildOf(owner)) continue;
-            IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
-            if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+            IDamageable dmg;
+            if (!hit.TryGetComponent(out dmg))
+            {
+                dmg = hit.GetComponentInChildren<IDamageable>();
+                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+            }
             if (dmg == null) continue;
             if (dmg == excludeDmg) continue;
             Transform hitRoot = (dmg as Component)?.transform;

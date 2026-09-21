@@ -25,6 +25,13 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         if (playerStats.CurrentHealth <= 0f)
         {
+            // Log player died event
+            float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
+            int killCount = GameManager.Instance != null ? GameManager.Instance.KillCount : 0;
+            int highestLevel = PlayerXP.Instance != null ? PlayerXP.Instance.CurrentLevel : 1;
+            string stageId = PlayerPrefs.GetString("SelectedMapIndex", "0");
+            FirebaseAnalyticsHelper.LogPlayerDied(timeAlive, killCount, highestLevel, stageId);
+
             Debug.Log("Player died");
             GameManager.Instance?.SetState(GameState.GameOver);
         }

@@ -24,6 +24,10 @@ public class GoldGem : XPGem
             PlayerStats ps = target != null ? target.GetComponent<PlayerStats>() : null;
             int amount = ps != null ? ps.GetGoldGainAmount(goldAmount) : goldAmount;
             UserData.Instance.AddGold(amount);
+
+            // Log gold earned event
+            int totalSessionGold = UserData.Instance.SessionGold;
+            FirebaseAnalyticsHelper.LogGoldEarned(amount, "gem", totalSessionGold);
         }
 
         PlayCollectSFX();

@@ -592,12 +592,14 @@ public class UserData : MonoBehaviour
         data.stageBestProgress ??= new List<float>();
 
         int index = data.stageIds.IndexOf(stageId);
+        bool isNewBest = false;
         if (index >= 0)
         {
             // Đã có kỷ lục: chỉ cập nhật nếu cao hơn, không ghi đè xuống thấp hơn.
             if (newProgress > data.stageBestProgress[index])
             {
                 data.stageBestProgress[index] = newProgress;
+                isNewBest = true;
                 Save();
             }
         }
@@ -606,8 +608,12 @@ public class UserData : MonoBehaviour
             // Chưa từng chơi stage này: thêm kỷ lục mới.
             data.stageIds.Add(stageId);
             data.stageBestProgress.Add(newProgress);
+            isNewBest = true;
             Save();
         }
+
+        if (isNewBest)
+            FirebaseAnalyticsHelper.LogStageProgressRecord(stageId, newProgress, true);
     }
 
     #endregion

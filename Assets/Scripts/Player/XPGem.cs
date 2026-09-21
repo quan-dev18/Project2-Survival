@@ -11,6 +11,7 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
     protected const float ArrivalTolerance = 0.5f;
 
     protected Transform target;
+    private PlayerStats cachedStats;
     private bool magnetized;
     private bool bouncing;
     private Tween magnetTween;
@@ -21,6 +22,7 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
         magnetized = false;
         bouncing = false;
         magnetTween?.Kill();
+        cachedStats = null;
         ResolveTarget();
     }
 
@@ -36,7 +38,12 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
             target = player != null ? player.transform : null;
         }
         if (target == null)
+        {
             Debug.LogWarning($"XPGem: no player found at {transform.position}, orb cannot magnetize. Tag the player 'Player' or add PlayerXP to it.");
+            return;
+        }
+        if (cachedStats == null)
+            cachedStats = target.GetComponent<PlayerStats>();
     }
 
     private void Update()
@@ -47,14 +54,13 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
             return;
         }
 
-        PlayerStats stats = target.GetComponent<PlayerStats>();
-        if (stats == null) return;
+        if (cachedStats == null) return;
 
         float dist = Vector2.Distance(target.position, transform.position);
 
         if (!magnetized)
         {
-            if (dist <= stats.CollectRange)
+            if (dist <= cachedStats.CollectRange)
             {
                 magnetized = true;
                 BackBounce();

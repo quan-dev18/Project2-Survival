@@ -247,6 +247,9 @@ public class DailyRewardManager : MonoBehaviour
         {
             if (streakCount != 0)
             {
+                // Log streak reset event
+                FirebaseAnalyticsHelper.LogDailyRewardStreakReset(streakCount, "timeout");
+
                 streakCount = 0;
                 SaveProgress();
                 Debug.Log($"[DailyReward] Bỏ lỡ {Mathf.FloorToInt((float)elapsed.TotalHours)}h (> {missResetHours}h) → Streak đã reset về 0.");
@@ -329,6 +332,9 @@ public class DailyRewardManager : MonoBehaviour
         lastClaimTime = DateTime.UtcNow;
         streakCount = dayIndex; // Sau ngày 7, GetNextClaimableDayIndex() sẽ tự quay vòng về 1.
         SaveProgress();
+
+        // Log daily reward claimed event
+        FirebaseAnalyticsHelper.LogDailyRewardClaimed(dayIndex, streakCount, item.type.ToString(), item.amount, item.rewardName);
 
         // ── Bước 3: cập nhật lại trạng thái tất cả các ô ──
         RefreshAllSlots();

@@ -36,6 +36,7 @@ public class DebugMenu : MonoBehaviour
     private List<GameObject> spawnedUpgradeButtons = new List<GameObject>();
     private bool m_isPlaceholder;
     private static bool s_creatingPlaceholder;
+    private float playerSearchCooldown;
 
     // Guarantees a DebugMenu exists in every scene (the full UI only lives in
     // GameMap1; elsewhere this acts as a placeholder that reports what is missing).
@@ -192,11 +193,16 @@ public class DebugMenu : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F1) || Input.GetKeyDown(toggleKey))
             ToggleDebugMenu();
 
-        // Player may spawn after Awake, so (re)acquire lazily
+        // Player may spawn after Awake, so (re)acquire lazily (throttled to avoid per-frame FindGameObjectWithTag)
         if (playerStats == null)
         {
-            var player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) playerStats = player.GetComponent<PlayerStats>();
+            playerSearchCooldown -= Time.unscaledDeltaTime;
+            if (playerSearchCooldown <= 0f)
+            {
+                playerSearchCooldown = 0.5f;
+                var player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null) playerStats = player.GetComponent<PlayerStats>();
+            }
         }
 
         // Update health slider from actual health

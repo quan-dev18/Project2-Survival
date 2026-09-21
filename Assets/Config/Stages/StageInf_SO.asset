@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
-  m_Name: StageInfinite_SO
+  m_Name: StageInf_SO
   m_EditorClassIdentifier: 
   stageID: Infinite
   maxProgress: 2
   isInfinite: 1
-  infiniteDifficultyStep: 20
-  attackIncrementPercent: 10
-  speedIncrementPercent: 5
-  healthIncrementPercent: 10
+  infiniteDifficultyStep: 25
+  attackIncrementPercent: 5
+  speedIncrementPercent: 1
+  healthIncrementPercent: 20
   statsIncrementInterval: 60
   phases:
   - phaseName: Test
     duration: 20
     enemies:
-    - mobKey: Enemy3
+    - mobKey: Enemy
       spawnPerSecond: 1
       spawnLimit: 10
       isBoss: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
       spawnLimit: 3
       isBoss: 0
       isElite: 0
-    - mobKey: Enemy1
+    - mobKey: Enemy
       spawnPerSecond: 2
       spawnLimit: 4
       isBoss: 0

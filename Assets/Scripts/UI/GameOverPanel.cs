@@ -10,8 +10,8 @@ public class GameOverPanel : MonoBehaviour
     [SerializeField] private TMP_Text statsText;
     [SerializeField] private TMP_Text goldText;
 
-    [Header("Claim Choice (assign in Inspector)")]
-    [SerializeField] private Button claimButton;
+    [Header("Double Reward (assign in Inspector)")]
+    [Tooltip("Only this button shows: the base 1x payout is auto-claimed on Show.")]
     [SerializeField] private Button doubleButton;
 
     [SerializeField] private float floatDistance = 40f;
@@ -21,7 +21,7 @@ public class GameOverPanel : MonoBehaviour
     private float titleBaseY;
 
     private int pendingGold;
-    private bool claimed;
+    private bool doubled;
 
     private void Awake()
     {
@@ -63,13 +63,16 @@ public class GameOverPanel : MonoBehaviour
                 if (goldText != null)
                     goldText.text = $"Gold Earned: {sessionGold}";
 
-                // Hold (don't auto-claim): the player picks Claim or Double below.
+                // Base 1x payout is auto-claimed; only the Double button remains.
                 if (UserData.Instance != null)
+                {
                     UserData.Instance.AddSessionGold(sessionGold);
+                    UserData.Instance.ClaimSessionGold();
+                }
                 pendingGold = sessionGold;
-                claimed = false;
-                SetChoiceVisible(pendingGold > 0);
-                RefreshChoiceButtons();
+                doubled = false;
+                SetDoubleVisible(pendingGold > 0);
+                RefreshDoubleButton();
             }
         }
 
@@ -79,79 +82,67 @@ public class GameOverPanel : MonoBehaviour
     private void Update()
     {
         // The victory ad may finish loading after the panel is already up.
-        if (!claimed && (claimButton != null || doubleButton != null))
-            RefreshChoiceButtons();
+        if (!doubled && doubleButton != null)
+            RefreshDoubleButton();
     }
 
-    /// <summary>Grants the held 1x payout. Safe to call repeatedly or on exit.</summary>
+    /// <summary>Claims any residual session gold. Safe to call repeatedly or on exit.</summary>
     public void ClaimGold()
     {
-        if (claimed) return;
-        claimed = true;
         if (UserData.Instance != null)
             UserData.Instance.ClaimSessionGold();
-        SetChoiceVisible(false);
     }
 
-    /// <summary>Shows the victory rewarded ad; on completion grants 2x the held payout.</summary>
+    /// <summary>Shows the victory rewarded ad; on completion grants +1x on top of the auto-claimed base.</summary>
     public void ClaimDoubleGold()
     {
-        if (claimed) return;
+        if (doubled) return;
         AdManager ads = AdManager.Instance;
         if (ads == null || !ads.IsVictoryRewardedReady)
         {
             Debug.LogWarning("[GameOverPanel] Double-coin ad not ready yet.");
             return;
         }
-        SetChoiceInteractable(false);
+        SetDoubleInteractable(false);
         ads.ShowVictoryRewardedAd(
             onEarned: () =>
             {
-                if (claimed) return;
-                claimed = true;
+                if (doubled) return;
+                doubled = true;
                 int bonus = pendingGold;
-                if (UserData.Instance != null)
-                {
-                    UserData.Instance.ClaimSessionGold(); // 1x held payout
-                    if (bonus > 0)
-                        UserData.Instance.AddGold(bonus); // +1x again = 2x total
-                }
+                if (bonus > 0 && UserData.Instance != null)
+                    UserData.Instance.AddGold(bonus); // base 1x already claimed in Show()
                 if (goldText != null)
                     goldText.text = $"Gold Earned: {pendingGold + bonus} (Doubled!)";
-                SetChoiceVisible(false);
+                SetDoubleVisible(false);
+                FirebaseAnalyticsHelper.LogAdRewardedCompleted("victory", bonus);
             },
             onFinished: () =>
             {
-                // Skipped/failed: 1x stays claimable, never forfeited.
-                if (!claimed) SetChoiceInteractable(true);
+                // Skipped/failed: base 1x is already secured, just re-enable.
+                if (!doubled) SetDoubleInteractable(true);
             });
     }
 
-    private void RefreshChoiceButtons()
+    private void RefreshDoubleButton()
     {
-        bool canDouble = !claimed && AdManager.Instance != null && AdManager.Instance.IsVictoryRewardedReady;
-        if (doubleButton != null)
-        {
-            // Grey out only when ads exist but aren't loaded; without AdManager
-            // (direct scene testing) leave clickable so the path logs its warning.
-            doubleButton.interactable = canDouble || AdManager.Instance == null;
-            TMP_Text label = doubleButton.GetComponentInChildren<TMP_Text>();
+        if (doubleButton == null) return;
+        bool canDouble = !doubled && AdManager.Instance != null && AdManager.Instance.IsVictoryRewardedReady;
+        // Grey out only when ads exist but aren't loaded; without AdManager
+        // (direct scene testing) leave clickable so the path logs its warning.
+        doubleButton.interactable = canDouble || AdManager.Instance == null;
+        TMP_Text label = doubleButton.GetComponentInChildren<TMP_Text>();
             if (label != null && pendingGold > 0)
-                label.text = $"DOUBLE {pendingGold * 2}";
-        }
-        if (claimButton != null)
-            claimButton.interactable = !claimed;
+                label.text = $"Claim x2 ({pendingGold * 2})";
     }
 
-    private void SetChoiceInteractable(bool value)
+    private void SetDoubleInteractable(bool value)
     {
-        if (claimButton != null) claimButton.interactable = value;
         if (doubleButton != null) doubleButton.interactable = value;
     }
 
-    private void SetChoiceVisible(bool value)
+    private void SetDoubleVisible(bool value)
     {
-        if (claimButton != null) claimButton.gameObject.SetActive(value);
         if (doubleButton != null) doubleButton.gameObject.SetActive(value);
     }
 

@@ -175,7 +175,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   damagePerTick: 5
-  useWeaponDamage: 0
+  useWeaponDamage: 1
+  fireSoundVolume: 1
+  fireSoundPitch: 1
+  fireSoundFadeAmmo: 4
   leftHand: {fileID: 0}
   rightHand: {fileID: 0}
   handSwitchDeadZone: 0.3

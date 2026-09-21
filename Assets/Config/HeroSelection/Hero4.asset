@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61950fa7d1b939c488092411ace8061d, type: 3}
+  m_Name: Hero4
+  m_EditorClassIdentifier: 
+  heroName: Tanya
+  heroIcon: {fileID: -846219768, guid: 12cbced1fbd6feb45b0608fd4f57dd1f, type: 3}
+  previewPrefab: {fileID: 6044015267666217839, guid: 4627d590226b03d48a397fd069167a45, type: 3}
+  isUnlocked: 0
+  goldCost: 67

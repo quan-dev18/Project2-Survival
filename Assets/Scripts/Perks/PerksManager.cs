@@ -193,6 +193,10 @@ public class PerksManager : MonoBehaviour
         UserData.Instance?.AddPerkLevel(perk.PerkID, perk.MaxLevel);
         OnPerkUpgraded?.Invoke(perk, level + 1); // Thông báo để cập nhật chỉ số Player
 
+        // Log perk upgraded event
+        FirebaseAnalyticsHelper.LogPerkUpgraded(perk.PerkID, perk.PerkName, level + 1, cost);
+        FirebaseAnalyticsHelper.LogGoldSpent(cost, "perk", perk.PerkID, UserData.Instance.Gold);
+
         RefreshSlot(_selectedSlot);              // Cập nhật cấp hiển thị trên Slot
         RefreshUpgradeButton();                  // Tính lại giá mới lên Nút
     }

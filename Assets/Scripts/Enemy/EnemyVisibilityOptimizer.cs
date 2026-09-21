@@ -47,8 +47,8 @@ public class EnemyVisibilityOptimizer : MonoBehaviour
 
         if (!visible)
         {
-            float dist = Vector3.Distance(mainCam.transform.position, transform.position);
-            visible = dist <= activeDistance;
+            float sqrDist = (mainCam.transform.position - transform.position).sqrMagnitude;
+            visible = sqrDist <= activeDistance * activeDistance;
         }
 
         if (visible == isOnScreen) return;

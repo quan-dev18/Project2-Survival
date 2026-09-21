@@ -19,7 +19,7 @@ MonoBehaviour:
   skinList:
   - skinID: thoila
     isDefault: 0
-    skinName: May Thoi La
+    skinName: "M\xE1y Th\u1ED5i L\xE1"
     tier: 0
     skinIcon: {fileID: 1392107807, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: 1392107807, guid: 67463b703454b35409398623a8578d2a, type: 3}
@@ -27,10 +27,11 @@ MonoBehaviour:
   shootSFX: {fileID: 8300000, guid: ccc3e28412bbafe469e0847088e45feb, type: 3}
   reloadSFX: {fileID: 0}
   weaponName: Flamethrower
-  fireRate: 0.2
-  fireRange: 3
+  fireRate: 0.1
+  fireRange: 4
   reloadTime: 2
-  magazineSize: 15
+  magazineSize: 20
   bulletCount: 1
   spread: 0
+  basePierce: 0
   bulletSO: {fileID: 11400000, guid: d050ec4de6e4a7b44a8bbcfaff689128, type: 2}

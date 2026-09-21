@@ -19,10 +19,24 @@ MonoBehaviour:
   skinList:
   - skinID: rongdo
     isDefault: 0
-    skinName: AK Rong Do
+    skinName: "AK R\u1ED3ng \u0110\u1ECF"
     tier: 3
     skinIcon: {fileID: 1870977277, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: 1870977277, guid: 67463b703454b35409398623a8578d2a, type: 3}
+    price: 100
+  - skinID: subgun
+    isDefault: 0
+    skinName: "MKMS B\xE1n T\u1EF1 \u0110\u1ED9ng"
+    tier: 2
+    skinIcon: {fileID: 1322956448, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    weaponSprite: {fileID: 1322956448, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    price: 100
+  - skinID: subgun_color
+    isDefault: 0
+    skinName: "MKMS B\xE1n T\u1EF1 \u0110\u1ED9ng (S\u01A1n)"
+    tier: 3
+    skinIcon: {fileID: 1289516873, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    weaponSprite: {fileID: 1289516873, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
     price: 100
   shootSFX: {fileID: 8300000, guid: 23b5c9143c69cdd47952785bc961c1c3, type: 3}
   reloadSFX: {fileID: 8300000, guid: 25e9d8f99b150fa4182b386d002f79ca, type: 3}
@@ -30,7 +44,8 @@ MonoBehaviour:
   fireRate: 0.2
   fireRange: 5
   reloadTime: 1.5
-  magazineSize: 12
+  magazineSize: 10
   bulletCount: 1
   spread: 5
+  basePierce: 0
   bulletSO: {fileID: 11400000, guid: 7d2e8960fe4aa8d4193f87ff8b46dd77, type: 2}

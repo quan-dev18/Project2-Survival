@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Audio.meta
+guid: e7bb80675cb88a240b3403fba2052d74
+========
+guid: b2d0a1063e56a414ebaa436f01c0208e
+>>>>>>>> 48285f1 (Add gameplay fixes and Character 4):Assets/Animations/Character4.meta
+folderAsset: yes
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

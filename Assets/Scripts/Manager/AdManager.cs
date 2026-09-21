@@ -121,11 +121,13 @@ public class AdManager : MonoBehaviour
     /// <summary>Shows the shop rewarded ad; grants <see cref="rewardCoinAmount"/> coins on completion.</summary>
     public void ShowRewardedAd()
     {
+        FirebaseAnalyticsHelper.LogAdRewardedShown("shop");
         ShowSlot(shopSlot, _ =>
         {
             if (UserData.Instance != null)
             {
                 UserData.Instance.AddGold(rewardCoinAmount);
+                FirebaseAnalyticsHelper.LogAdRewardedCompleted("shop", rewardCoinAmount);
                 Debug.Log($"[AdManager] Shop reward earned: +{rewardCoinAmount} coins.");
             }
         }, null);
@@ -138,6 +140,7 @@ public class AdManager : MonoBehaviour
     /// </summary>
     public void ShowVictoryRewardedAd(System.Action onEarned, System.Action onFinished)
     {
+        FirebaseAnalyticsHelper.LogAdRewardedShown("victory");
         if (!ShowSlot(victorySlot, _ =>
         {
             try { onEarned?.Invoke(); }

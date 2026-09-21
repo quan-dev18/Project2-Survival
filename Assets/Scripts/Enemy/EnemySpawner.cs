@@ -29,6 +29,8 @@ public class EnemySpawner : MonoBehaviour
     private float eliteRetryTimer;
     private bool bossRetryWarningShown;
     private bool eliteRetryWarningShown;
+    private int lastDisplayedMinutes = -1;
+    private int lastDisplayedSeconds = -1;
 
     public event System.Action<EnemyHealth> OnBossSpawned;
     public event System.Action<int> OnInfiniteLoop;
@@ -264,7 +266,12 @@ public class EnemySpawner : MonoBehaviour
 
         int minutes = Mathf.FloorToInt(totalTime / 60f);
         int seconds = Mathf.FloorToInt(totalTime % 60f);
-        phaseTimerText.text = $"{minutes:00}:{seconds:00}";
+        if (minutes != lastDisplayedMinutes || seconds != lastDisplayedSeconds)
+        {
+            lastDisplayedMinutes = minutes;
+            lastDisplayedSeconds = seconds;
+            phaseTimerText.text = $"{minutes:00}:{seconds:00}";
+        }
     }
 
     private void UpdateSpawning()
