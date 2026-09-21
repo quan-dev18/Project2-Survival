@@ -24,6 +24,20 @@ MonoBehaviour:
     skinIcon: {fileID: -585015684, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: -585015684, guid: 67463b703454b35409398623a8578d2a, type: 3}
     price: 100
+  - skinID: sweeper
+    isDefault: 0
+    skinName: "S\xFAng C\xE0n Qu\xE9t"
+    tier: 2
+    skinIcon: {fileID: 402457114, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    weaponSprite: {fileID: 402457114, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    price: 100
+  - skinID: sweeper_col
+    isDefault: 0
+    skinName: "S\xFAng C\xE0n Qu\xE9t (S\u01A1n)"
+    tier: 3
+    skinIcon: {fileID: -95672626, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    weaponSprite: {fileID: -95672626, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    price: 100
   shootSFX: {fileID: 8300000, guid: 40f0d6f08672bef42ab5cd6e23a106d5, type: 3}
   reloadSFX: {fileID: 8300000, guid: f0ec494150d06c64eb431e14ad64d872, type: 3}
   weaponName: AWP
