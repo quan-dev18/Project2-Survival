@@ -115,6 +115,7 @@ public class GameOverPanel : MonoBehaviour
                 if (goldText != null)
                     goldText.text = $"Gold Earned: {pendingGold + bonus} (Doubled!)";
                 SetDoubleVisible(false);
+                FirebaseAnalyticsHelper.LogAdRewardedCompleted("victory", bonus);
             },
             onFinished: () =>
             {

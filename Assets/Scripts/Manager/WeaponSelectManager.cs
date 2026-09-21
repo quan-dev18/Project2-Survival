@@ -323,6 +323,10 @@ public class WeaponSelectManager : MonoBehaviour
 
             UserData.Instance.UnlockWeapon(weaponIndex, currentSelectedWeapon.GoldCost);
 
+            // Log weapon unlocked event
+            FirebaseAnalyticsHelper.LogWeaponUnlocked(currentSelectedWeapon.WeaponName, currentSelectedWeapon.WeaponName, currentSelectedWeapon.GoldCost);
+            FirebaseAnalyticsHelper.LogGoldSpent(currentSelectedWeapon.GoldCost, "weapon", currentSelectedWeapon.WeaponName, UserData.Instance.Gold);
+
             foreach (WeaponSlotUI slot in allSlots)
             {
                 if (slot != null && slot.GetWeaponData() == currentSelectedWeapon)

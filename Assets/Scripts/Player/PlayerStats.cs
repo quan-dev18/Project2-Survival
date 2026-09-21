@@ -131,6 +131,8 @@ public class PlayerStats : MonoBehaviour
     public WeaponController ActiveWeapon => Weapons != null && ActiveWeaponIndex >= 0 && ActiveWeaponIndex < Weapons.Length
         ? Weapons[ActiveWeaponIndex] : null;
 
+    private SpriteFlashEffect cachedFlashEffect;
+
     public void SetActiveWeaponIndex(int index)
     {
         ActiveWeaponIndex = index;
@@ -174,6 +176,8 @@ public class PlayerStats : MonoBehaviour
                 flamethrowers = foundF;
         }
 
+        cachedFlashEffect = GetComponentInChildren<SpriteFlashEffect>();
+
         int heroIndex = PlayerPrefs.GetInt("SelectedHeroIndex", 0);
         if (characterList != null && heroIndex >= 0 && heroIndex < characterList.Count)
             characterStats = characterList[heroIndex];
@@ -216,8 +220,12 @@ public class PlayerStats : MonoBehaviour
                 int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 4f, s_BurnAuraBuffer);
                 for (int i = 0; i < hitCount; i++)
                 {
-                    EnemyHealth enemy = s_BurnAuraBuffer[i].GetComponentInChildren<EnemyHealth>();
-                    if (enemy == null) enemy = s_BurnAuraBuffer[i].GetComponentInParent<EnemyHealth>();
+                    EnemyHealth enemy = null;
+                    if (!s_BurnAuraBuffer[i].TryGetComponent(out enemy))
+                    {
+                        enemy = s_BurnAuraBuffer[i].GetComponentInChildren<EnemyHealth>();
+                        if (enemy == null) enemy = s_BurnAuraBuffer[i].GetComponentInParent<EnemyHealth>();
+                    }
                     if (enemy != null && UnityEngine.Random.value < chance)
                     {
                         enemy.TakeDamage(5f);
@@ -406,7 +414,8 @@ public class PlayerStats : MonoBehaviour
         }
         CurrentHealth = Mathf.Max(CurrentHealth - remaining, 0f);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
-        GetComponentInChildren<SpriteFlashEffect>()?.Flash();
+        if (cachedFlashEffect != null && cachedFlashEffect.gameObject.activeInHierarchy)
+            cachedFlashEffect.Flash();
         // Trigger synergies on hit
         SynergyManager.Instance?.OnPlayerHit();
         // Reset stacking buff on hit

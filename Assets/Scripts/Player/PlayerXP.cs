@@ -80,6 +80,11 @@ public class PlayerXP : MonoBehaviour
 
             AudioManager.Instance?.PlayLevelUp();
 
+            // Log level up event
+            int totalUpgrades = LevelUpPanel.Instance != null ? LevelUpPanel.Instance.OwnedUpgrades.Count : 0;
+            float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
+            FirebaseAnalyticsHelper.LogLevelUp(CurrentLevel, timeAlive, totalUpgrades);
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.Log($"Level up! Now level {CurrentLevel}");
 #endif

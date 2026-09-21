@@ -24,6 +24,18 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
 
     private static readonly int FlashColorID = Shader.PropertyToID("_FlashColor");
     private static readonly int FlashAmountID = Shader.PropertyToID("_FlashAmount");
+    private static readonly System.Collections.Generic.Dictionary<float, WaitForSeconds> s_WaitCache =
+        new System.Collections.Generic.Dictionary<float, WaitForSeconds>();
+
+    private static WaitForSeconds GetWait(float seconds)
+    {
+        if (!s_WaitCache.TryGetValue(seconds, out var wait))
+        {
+            wait = new WaitForSeconds(seconds);
+            s_WaitCache[seconds] = wait;
+        }
+        return wait;
+    }
 
     private void Awake()
     {
@@ -110,9 +122,9 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
             float flashInterval = Mathf.Lerp(0.5f, 0.05f, progress);
 
             SetFlash(flashRed);
-            yield return new WaitForSeconds(flashInterval * 0.5f);
+            yield return GetWait(flashInterval * 0.5f);
             SetFlash(flashWhite);
-            yield return new WaitForSeconds(flashInterval * 0.5f);
+            yield return GetWait(flashInterval * 0.5f);
         }
     }
 

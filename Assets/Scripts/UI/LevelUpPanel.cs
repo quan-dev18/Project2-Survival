@@ -322,6 +322,11 @@ public class LevelUpPanel : MonoBehaviour
         UpgradeSO upgrade = choices[choiceIndex];
         ApplyUpgrade(upgrade);
         ownedUpgrades.Add(upgrade);
+
+        // Log upgrade chosen event
+        int upgradeTier = GetUpgradeTier(upgrade);
+        FirebaseAnalyticsHelper.LogUpgradeChosen(upgrade.UpgradeName, upgradeTier, choiceIndex + 1, ownedUpgrades.Count);
+
         choices.Clear();
         if (rainEffect != null) rainEffect.gameObject.SetActive(false);
         GameManager.Instance.SetState(GameState.Playing);

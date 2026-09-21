@@ -119,6 +119,10 @@ public class SkinShopManager : MonoBehaviour
             return;
         }
 
+        // Log skin purchased event
+        FirebaseAnalyticsHelper.LogSkinPurchased(weapon.WeaponID, skin.skinID, skin.tier.ToString(), skin.price);
+        FirebaseAnalyticsHelper.LogGoldSpent(skin.price, "skin", skin.skinID, UserData.Instance.Gold);
+
         // Mua thành công → cập nhật ngay UI của slot này
         slot.SetOwned(true);
     }

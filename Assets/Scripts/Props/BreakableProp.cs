@@ -26,6 +26,9 @@ public class BreakableProp : MonoBehaviour, IDamageable, IPoolSpawnable
         GetComponentInChildren<SpriteFlashEffect>()?.Flash();
         if (currentHp <= 0f)
         {
+            PropDropEntry entry = GetRandomDropEntry();
+            string dropType = entry != null ? entry.poolKey : "none";
+            FirebaseAnalyticsHelper.LogPropBroken(gameObject.name, dropType);
             SpawnDrop();
             if (ObjectPooling.Instance != null)
                 ObjectPooling.Instance.Despawn(gameObject);

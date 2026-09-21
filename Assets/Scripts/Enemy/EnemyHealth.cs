@@ -14,6 +14,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     private Coroutine deathWatchdog;
     private GameObject pooledRoot;
+    private SpriteFlashEffect cachedFlashEffect;
     private static readonly WaitForSeconds s_WaitOneSecond = new WaitForSeconds(1f);
 
     public float CurrentHealth => enemyController.currentHealth;
@@ -31,6 +32,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         {
             _animator = GetComponent<Animator>();
         }
+        cachedFlashEffect = GetComponent<SpriteFlashEffect>();
     }
 
     private GameObject GetPooledRoot()
@@ -83,7 +85,8 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     public void TakeDamage(float amount)
     {
         if (CurrentHealth <= 0f) return;
-        GetComponent<SpriteFlashEffect>()?.Flash();
+        if (cachedFlashEffect != null && cachedFlashEffect.gameObject.activeInHierarchy)
+            cachedFlashEffect.Flash();
         float health = Mathf.Max(0f, CurrentHealth - amount);
         enemyController.SetCurrentHealth(health);
         OnHealthChanged?.Invoke(health, enemyController.maxHealth);
@@ -111,6 +114,12 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
         if (GameManager.Instance != null)
             GameManager.Instance.AddKill();
+
+        // Log enemy killed event
+        string enemyType = enemyController != null ? enemyController.gameObject.name : "unknown";
+        int playerLevel = PlayerXP.Instance != null ? PlayerXP.Instance.CurrentLevel : 1;
+        float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
+        FirebaseAnalyticsHelper.LogEnemyKilled(enemyType, playerLevel, timeAlive);
 
         if (enemyMovement != null)
         {

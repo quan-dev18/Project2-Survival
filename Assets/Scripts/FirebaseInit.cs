@@ -4,20 +4,34 @@ using UnityEngine;
 
 public class FirebaseInit : MonoBehaviour
 {
+    public static FirebaseInit Instance { get; private set; }
+    public bool IsInitialized { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     void Start()
     {
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+        {
             var dependencyStatus = task.Result;
-            if (dependencyStatus == DependencyStatus.Available) {
-                // 1. Ép Editor bật tính năng thu thập dữ liệu
+            if (dependencyStatus == DependencyStatus.Available)
+            {
                 FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
-                
-                // 2. Gửi một sự kiện mở app kèm thông số cụ thể để trang web dễ bắt dữ liệu
-                FirebaseAnalytics.LogEvent("test_game_start", "environment", "unity_editor");
-                
-                Debug.Log("Firebase Analytics đã gọi lệnh gửi event test từ Editor!");
-            } else {
-                Debug.LogError($"Không thể khởi tạo Firebase: {dependencyStatus}");
+                IsInitialized = true;
+                Debug.Log("Firebase Analytics initialized successfully.");
+            }
+            else
+            {
+                Debug.LogError($"Firebase initialization failed: {dependencyStatus}");
             }
         });
     }

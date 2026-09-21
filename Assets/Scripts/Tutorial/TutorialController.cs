@@ -216,10 +216,14 @@ public class TutorialController : MonoBehaviour
     {
         if (currentStepIndex < stepTitles.Count - 1)
         {
+            // Log tutorial step completed
+            FirebaseAnalyticsHelper.LogTutorialStepCompleted(currentStepIndex + 1, stepTitles[currentStepIndex]);
             ShowStep(currentStepIndex + 1);
         }
         else
         {
+            // Log tutorial step completed for last step
+            FirebaseAnalyticsHelper.LogTutorialStepCompleted(currentStepIndex + 1, stepTitles[currentStepIndex]);
             FinishGuidanceAndStartWaves();
         }
     }
@@ -356,6 +360,7 @@ public class TutorialController : MonoBehaviour
             if (GameManager.Instance != null && GameManager.Instance.IsWin)
             {
                 SetTutorialCompleted(true);
+                FirebaseAnalyticsHelper.LogTutorialCompleted();
                 Debug.Log("[TutorialController] Người chơi đã hoàn thành Stage Tutorial!");
             }
         }

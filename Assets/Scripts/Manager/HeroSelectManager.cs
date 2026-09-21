@@ -214,6 +214,10 @@ public class HeroSelectManager : MonoBehaviour
 
             UserData.Instance.UnlockHero(heroIndex, currentSelectedHero.GoldCost);
 
+            // Log hero unlocked event
+            FirebaseAnalyticsHelper.LogHeroUnlocked(currentSelectedHero.heroName, currentSelectedHero.heroName, currentSelectedHero.GoldCost);
+            FirebaseAnalyticsHelper.LogGoldSpent(currentSelectedHero.GoldCost, "hero", currentSelectedHero.heroName, UserData.Instance.Gold);
+
             if (currentSelectedSlot != null)
                 currentSelectedSlot.SetUnlocked(true);
 

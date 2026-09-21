@@ -117,5 +117,12 @@ public class BossController : MonoBehaviour, IPoolSpawnable
     {
         currentState = BossState.Dead;
         OnStateChanged?.Invoke(currentState);
+
+        // Log boss killed event
+        string bossType = gameObject.name;
+        float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
+        int playerLevel = PlayerXP.Instance != null ? PlayerXP.Instance.CurrentLevel : 1;
+        int killCount = GameManager.Instance != null ? GameManager.Instance.KillCount : 0;
+        FirebaseAnalyticsHelper.LogBossKilled(bossType, timeAlive, playerLevel, killCount);
     }
 }

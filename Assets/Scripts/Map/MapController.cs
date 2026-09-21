@@ -22,6 +22,7 @@ public class MapController : MonoBehaviour
 
     [SerializeField] private float chunkSize = 20f;
     private readonly Dictionary<Vector2Int, GameObject> spawnedChunkMap = new Dictionary<Vector2Int, GameObject>();
+    private readonly Dictionary<int, Queue<GameObject>> chunkPools = new Dictionary<int, Queue<GameObject>>();
 
     private static readonly string[] s_AllDirections = {
         "Right", "RightUp", "Up", "LeftUp", "Left", "LeftDown", "Down", "RightDown"
@@ -157,10 +158,40 @@ public class MapController : MonoBehaviour
         if (terrainChunks == null || terrainChunks.Count == 0) return;
 
         int randChunk = Random.Range(0, terrainChunks.Count);
-        lastChunk = Instantiate(terrainChunks[randChunk], pos, Quaternion.identity);
-        lastChunk.transform.parent = transform;
+        GameObject chunk = TryGetPooledChunk(randChunk);
+        if (chunk == null)
+        {
+            chunk = Instantiate(terrainChunks[randChunk], pos, Quaternion.identity);
+            chunk.transform.parent = transform;
+        }
+        else
+        {
+            chunk.transform.position = pos;
+            chunk.SetActive(true);
+        }
+        lastChunk = chunk;
         SpawnedChunks.Add(lastChunk);
         spawnedChunkMap[coord] = lastChunk;
+    }
+
+    private GameObject TryGetPooledChunk(int prefabIndex)
+    {
+        if (!chunkPools.TryGetValue(prefabIndex, out var queue) || queue.Count == 0)
+            return null;
+        return queue.Dequeue();
+    }
+
+    private void ReturnToPool(GameObject chunk, int prefabIndex)
+    {
+        if (chunk == null) return;
+        chunk.SetActive(false);
+        chunk.transform.parent = transform;
+        if (!chunkPools.TryGetValue(prefabIndex, out var queue))
+        {
+            queue = new Queue<GameObject>();
+            chunkPools[prefabIndex] = queue;
+        }
+        queue.Enqueue(chunk);
     }
 
     void ChunkOptimizer()
@@ -177,8 +208,8 @@ public class MapController : MonoBehaviour
             GameObject chunk = SpawnedChunks[i];
             if (chunk == null) continue;
 
-            OpDistance = Vector3.Distance(playerPos, chunk.transform.position);
-            chunk.SetActive(OpDistance <= maxDistace);
+            float sqrDist = (playerPos - (Vector3)chunk.transform.position).sqrMagnitude;
+            chunk.SetActive(sqrDist <= maxDistace * maxDistace);
         }
     }
 }

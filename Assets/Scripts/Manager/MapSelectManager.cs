@@ -275,7 +275,7 @@ public class MapSelectionManager : MonoBehaviour
         return cg;
     }
 
-    // Ấn nút "Bắt đầu" -> Vào thẳng Scene Game
+    //  Ấn nút "Bắt đầu" -> Vào thẳng Scene Game
     private void OnStartButtonClicked()
     {
         if (mapList.Count == 0 || mapList[currentIndex] == null) return;
@@ -290,6 +290,11 @@ public class MapSelectionManager : MonoBehaviour
         // Lưu thông tin Map đã chọn
         PlayerPrefs.SetInt("SelectedMapIndex", currentIndex);
         PlayerPrefs.Save();
+
+        // Log map selected event
+        PreMapSO map = mapList[currentIndex];
+        string stageId = map.stageData != null ? map.stageData.StageID : "unknown";
+        FirebaseAnalyticsHelper.LogMapSelected(map.name, stageId, currentIndex);
 
         // Chuyển Scene
         string sceneName = mapList[currentIndex].sceneToLoad;

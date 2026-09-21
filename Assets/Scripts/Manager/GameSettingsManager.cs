@@ -144,6 +144,7 @@ public sealed class GameSettingsManager : MonoBehaviour
         PlayerPrefs.SetInt(KEY_SHOW_FPS, showFPS ? 1 : 0);
         PlayerPrefs.Save();
         OnShowFPSChanged?.Invoke(showFPS);
+        FirebaseAnalyticsHelper.LogSettingChanged("show_fps", showFPS);
         Debug.Log($"[GameSettingsManager] 🚀 Hiện FPS: {(showFPS ? "BẬT" : "TẮT")}");
     }
 
@@ -159,6 +160,7 @@ public sealed class GameSettingsManager : MonoBehaviour
         PlayerPrefs.SetInt(KEY_SHOW_DAMAGE, showDamage ? 1 : 0);
         PlayerPrefs.Save();
         OnShowDamageChanged?.Invoke(showDamage);
+        FirebaseAnalyticsHelper.LogSettingChanged("show_damage", showDamage);
         Debug.Log($"[GameSettingsManager] 🚀 Hiển thị sát thương: {(showDamage ? "BẬT" : "TẮT")}");
     }
 
@@ -174,6 +176,7 @@ public sealed class GameSettingsManager : MonoBehaviour
         PlayerPrefs.SetInt(KEY_SHOW_VFX, showVFX ? 1 : 0);
         PlayerPrefs.Save();
         OnShowVFXChanged?.Invoke(showVFX);
+        FirebaseAnalyticsHelper.LogSettingChanged("show_vfx", showVFX);
         Debug.Log($"[GameSettingsManager] 🚀 Hiển thị VFX: {(showVFX ? "BẬT" : "TẮT")}");
     }
 }

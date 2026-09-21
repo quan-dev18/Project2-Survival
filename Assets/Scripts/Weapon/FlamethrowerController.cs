@@ -304,8 +304,12 @@ public class FlamethrowerController : MonoBehaviour
             float angle = Vector2.Angle(barrelDir, toEnemy.normalized);
             if (angle > halfAngle) continue;
 
-            IDamageable dmg = hit.GetComponentInParent<IDamageable>();
-            if (dmg == null) dmg = hit.GetComponentInChildren<IDamageable>();
+            IDamageable dmg;
+            if (!hit.TryGetComponent(out dmg))
+            {
+                dmg = hit.GetComponentInChildren<IDamageable>();
+                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+            }
             if (dmg == null) continue;
 
             float baseDmg = damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
@@ -315,8 +319,12 @@ public class FlamethrowerController : MonoBehaviour
             if (bonusBulletExecutePercent > 0f && dmg is EnemyHealth eh && eh.CurrentHealth > 0f && eh.CurrentHealth <= eh.MaxHealth * bonusBulletExecutePercent)
                 dmg.TakeDamage(eh.CurrentHealth);
 
-            var kb = hit.GetComponentInParent<IKnockbackable>();
-            if (kb == null) kb = hit.GetComponent<IKnockbackable>();
+            IKnockbackable kb;
+            if (!hit.TryGetComponent(out kb))
+            {
+                kb = hit.GetComponentInChildren<IKnockbackable>();
+                if (kb == null) kb = hit.GetComponentInParent<IKnockbackable>();
+            }
             if (kb != null) kb.ApplyKnockback(barrelDir, 3f * (1f + bonusBulletKnockbackPercent));
 
             if (dmg is EnemyHealth eh2 && eh2.CurrentHealth <= 0f)
@@ -346,7 +354,12 @@ public class FlamethrowerController : MonoBehaviour
             int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 3f, s_ConeOverlapBuffer, enemyMask);
             for (int j = 0; j < hitCount; j++)
             {
-                var dmg = s_ConeOverlapBuffer[j].GetComponentInParent<IDamageable>();
+                IDamageable dmg;
+                if (!s_ConeOverlapBuffer[j].TryGetComponent(out dmg))
+                {
+                    dmg = s_ConeOverlapBuffer[j].GetComponentInChildren<IDamageable>();
+                    if (dmg == null) dmg = s_ConeOverlapBuffer[j].GetComponentInParent<IDamageable>();
+                }
                 if (dmg != null) dmg.TakeDamage(5f);
             }
         }

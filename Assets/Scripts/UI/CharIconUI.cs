@@ -9,9 +9,13 @@ public class CharIconUI : MonoBehaviour
 
     private PlayerEquipment playerEquipment;
 
-    private void Start()
+    private void Awake()
     {
         playerEquipment = FindObjectOfType<PlayerEquipment>();
+    }
+
+    private void Start()
+    {
         UpdateIcon();
     }
 
