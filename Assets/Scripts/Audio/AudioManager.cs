@@ -80,6 +80,9 @@ public sealed class AudioManager : MonoBehaviour
     [Tooltip("Tiếng khi nhặt vàng (Gold).")]
     [SerializeField] private AudioClip goldCollectSFX;
 
+    [Tooltip("Tiếng khi nhặt mảnh khiên (Armor/Shield).")]
+    [SerializeField] private AudioClip shieldCollectSFX;
+
     [Tooltip("Tiếng khi lên cấp (Level Up).")]
     [SerializeField] private AudioClip levelUpSFX;
 
@@ -720,6 +723,14 @@ public sealed class AudioManager : MonoBehaviour
     public void PlayGoldCollect(float volume = 1f)
     {
         PlaySFX(goldCollectSFX, volume, 1f, 0.08f);
+    }
+
+    /// <summary>
+    /// Phát tiếng nhặt mảnh khiên (Armor/Shield).
+    /// </summary>
+    public void PlayShieldCollect(float volume = 1f)
+    {
+        PlaySFX(shieldCollectSFX, volume, 1f, 0.08f);
     }
 
     /// <summary>

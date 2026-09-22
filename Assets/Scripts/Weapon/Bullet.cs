@@ -169,13 +169,15 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         }
 
         // Explosion on kill - skip owner/player
-        if (wouldKill && explosionDamagePercent > 0f && bulletStats.ExplosionRadius > 0f)
+        if (wouldKill && explosionDamagePercent > 0f && bulletStats.ExplosionRadius > 0f && UnityEngine.Random.value < 0.25f)
         {
             float explosionDamage = finalDamage * explosionDamagePercent;
-            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, bulletStats.ExplosionRadius);
+            float explosionRadius = bulletStats.ExplosionRadius * 0.5f;
+            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, explosionRadius);
             foreach (Collider2D hit in hits)
             {
                 if (hit == other) continue;
+                if (hit == null || !hit.gameObject.activeInHierarchy) continue; // killed earlier in this blast
                 if (owner != null && (hit.transform == owner || hit.transform.IsChildOf(owner) || hit.transform.root == owner)) continue;
                 if (hit.GetComponentInParent<PlayerStats>() != null) continue;
                 IDamageable dmg;
@@ -187,6 +189,7 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
                 if (dmg != null && dmg != damageable)
                     dmg.TakeDamage(explosionDamage);
             }
+            PlayPooledOneShotVFXScaled("VFX_NO2", other.transform.position, 0.5f);
         }
 
         // Multiple damage: AOE on every hit
@@ -196,6 +199,7 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             foreach (Collider2D hit in hits)
             {
                 if (hit == other) continue;
+                if (hit == null || !hit.gameObject.activeInHierarchy) continue; // killed earlier in this blast
                 if (owner != null && hit.transform.IsChildOf(owner)) continue;
                 IDamageable dmg;
                 if (!hit.TryGetComponent(out dmg))
@@ -322,6 +326,37 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         // Chạy coroutine trên ObjectPooling.Instance (luôn active) thay vì bullet:
         // bullet có thể đã bị despawn (inactive) trong cùng callback vật lý,
         // StartCoroutine trên gameObject inactive sẽ ném lỗi.
+        ObjectPooling.Instance.StartCoroutine(DespawnVFXAfter(vfx, lifetime + 0.1f));
+    }
+
+    private void PlayPooledOneShotVFXScaled(string key, Vector3 pos, float scale)
+    {
+        if (GameSettingsManager.Instance != null && !GameSettingsManager.Instance.ShowVFX)
+            return;
+        if (ObjectPooling.Instance == null) return;
+        GameObject vfx = ObjectPooling.Instance.Spawn(key, pos, Quaternion.identity);
+        if (vfx == null) return;
+        vfx.transform.localScale = Vector3.one * scale;
+        foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ps.Clear(true);
+            ps.Play(true);
+        }
+        float lifetime = 1f;
+        foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            var main = ps.main;
+            float d = main.duration + main.startLifetime.constantMax;
+            if (d > lifetime) lifetime = d;
+        }
+        var animator = vfx.GetComponentInChildren<Animator>(true);
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            float animLen = 0f;
+            foreach (var clip in animator.runtimeAnimatorController.animationClips)
+                if (clip.length > animLen) animLen = clip.length;
+            if (animLen > lifetime) lifetime = animLen;
+        }
         ObjectPooling.Instance.StartCoroutine(DespawnVFXAfter(vfx, lifetime + 0.1f));
     }
 

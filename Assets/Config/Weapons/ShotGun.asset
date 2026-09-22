@@ -26,11 +26,12 @@ MonoBehaviour:
     price: 100
   shootSFX: {fileID: 8300000, guid: 9c2311ed8179ac1498a4bbcece2d3390, type: 3}
   reloadSFX: {fileID: 8300000, guid: 0554fbc56fc3c9e4fb69826db943a8b4, type: 3}
-  weaponName: ShotGun
+  weaponName: Shotgun
   fireRate: 0.4
   fireRange: 4
   reloadTime: 0.7
   magazineSize: 2
   bulletCount: 4
   spread: 15
+  basePierce: 0
   bulletSO: {fileID: 11400000, guid: 945e346cca3380d42b8c431c5011e1c6, type: 2}

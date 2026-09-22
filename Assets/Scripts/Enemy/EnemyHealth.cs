@@ -21,6 +21,25 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     public float MaxHealth => enemyController != null ? enemyController.maxHealth : 0f;
 
+    /// <summary>Active while <see cref="EnemySpawner.SpawnEnemy"/> prepares pooled boss data
+    /// (global bonuses, color, etc.) and <see cref="OnEnable"/> might have already run
+    /// with the old 0-health corpse state. Suppresses invokes until <see cref="OnRewardsDone"/>.</summary>
+    [HideInInspector] public bool suppressInvokesUntilAwakeDone;
+    /// <summary>While true, damage popups are suppressed (avoids fake crit burst on respawn).</summary>
+    [HideInInspector] public bool silenceDamagePopups;
+    /// <summary>While true, OnDeath / kill / analytics are suppressed.</summary>
+    [HideInInspector] public bool silenceDeathEvents;
+
+    /// <summary>Called once bonuses are applied; applies real HP and re-enables events.</summary>
+    public void OnRewardsDone()
+    {
+        enemyController.ResetHealth();
+        silenceDamagePopups = false;
+        silenceDeathEvents = false;
+        suppressInvokesUntilAwakeDone = false;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+    }
+
     public event System.Action<float, float> OnHealthChanged;
     public event System.Action OnDeath;
 
@@ -52,7 +71,8 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     private void OnEnable()
     {
         pooledRoot = null;
-        enemyController.ResetHealth();
+        if (!suppressInvokesUntilAwakeDone)
+            enemyController.ResetHealth();
         Collider2D col = GetComponentInParent<Collider2D>();
         if (col != null) col.enabled = true;
         enemyMovement.enabled = true;
@@ -83,6 +103,12 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
     public void TakeDamage(float amount)
     {
+        // Late hit on a despawned enemy: ignore (prevents double death rewards).
+        // Pooled respawns may briefly silence health to skip the 0->full "fake heal"
+        // OnEnable burst: in that window this is a no-op, lost on purpose (no salt,
+        // just a dummy 0-hit from the object's corpse state).
+        if (!gameObject.activeInHierarchy) return;
+        if (suppressInvokesUntilAwakeDone) return;
         if (CurrentHealth <= 0f) return;
         if (cachedFlashEffect != null && cachedFlashEffect.gameObject.activeInHierarchy)
             cachedFlashEffect.Flash();
@@ -90,10 +116,13 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         enemyController.SetCurrentHealth(health);
         OnHealthChanged?.Invoke(health, enemyController.maxHealth);
 
-        if (PopUpManager.Instance != null)
+        // Fake-burst popups are suppressed while pooled respawn is still installing
+        // real bonuses (see OnRewardsDone). Without this, pooled bosses flash a
+        // spurious 30-70% damage popup immediately after spawn.
+        if (!silenceDamagePopups && PopUpManager.Instance != null)
             PopUpManager.Instance.Show(transform.position, amount, PopupType.Damage);
 
-        if (health <= 0f)
+        if (!silenceDeathEvents && health <= 0f)
         {
             Die();
         }

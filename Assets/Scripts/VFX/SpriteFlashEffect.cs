@@ -44,6 +44,10 @@ public class SpriteFlashEffect : MonoBehaviour
     /// <param name="duration">Thời gian hiệu ứng (giây)</param>
     public void Flash(Color color, float duration)
     {
+        // Pooled/despawned objects can receive late hits (e.g. bazooka AOE
+        // snapshots); coroutines can't start while inactive.
+        if (!isActiveAndEnabled) return;
+
         if (_flashRoutine != null)
             StopCoroutine(_flashRoutine);
 

@@ -49,6 +49,7 @@ public class PlayerStats : MonoBehaviour
     public bool bonusSpiritBurn { get; private set; }
     public bool bonusSpiritEmpowered { get; private set; }
     public float bonusGoldGainPercent { get; private set; }
+    public float bonusHealMaxHealthPercent { get; private set; }
     #endregion
 
     #region Stat Caps
@@ -92,6 +93,7 @@ public class PlayerStats : MonoBehaviour
 
     #region Events
     public event System.Action<float, float> OnHealthChanged;
+    public event System.Action<float, float> OnArmorChanged;
     #endregion
 
     public WeaponController[] Weapons
@@ -178,7 +180,11 @@ public class PlayerStats : MonoBehaviour
 
         cachedFlashEffect = GetComponentInChildren<SpriteFlashEffect>();
 
-        int heroIndex = PlayerPrefs.GetInt("SelectedHeroIndex", 0);
+        int heroIndex = 0;
+        if (UserData.Instance != null)
+            heroIndex = UserData.Instance.SelectedHeroIndex;
+        else
+            heroIndex = PlayerPrefs.GetInt("SelectedHeroIndex", 0);
         if (characterList != null && heroIndex >= 0 && heroIndex < characterList.Count)
             characterStats = characterList[heroIndex];
 
@@ -256,6 +262,7 @@ public class PlayerStats : MonoBehaviour
         {
             float regenAmount = bonusArmorRegenPerSecond * Time.deltaTime;
             CurrentArmor = Mathf.Min(CurrentArmor + regenAmount, MaxArmor);
+            OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
         }
     }
 
@@ -273,6 +280,7 @@ public class PlayerStats : MonoBehaviour
         CurrentHealth = MaxHealth;
         CurrentArmor = MaxArmor;
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
     }
 
     //bonus percent
@@ -285,7 +293,14 @@ public class PlayerStats : MonoBehaviour
         OnHealthChanged?.Invoke(CurrentHealth, newMax);
     }
 
-    public void AddMaxArmorPercent(float amount) => bonusMaxArmorPercent += amount;
+    public void AddMaxArmorPercent(float amount)
+    {
+        float oldMax = MaxArmor;
+        bonusMaxArmorPercent += amount;
+        float newMax = MaxArmor;
+        CurrentArmor = Mathf.Min(CurrentArmor + (newMax - oldMax), newMax);
+        OnArmorChanged?.Invoke(CurrentArmor, newMax);
+    }
 
     public void AddRecoveryRatePercent(float amount) => bonusRecoveryRatePercent += amount;
 
@@ -382,6 +397,8 @@ public class PlayerStats : MonoBehaviour
 
     public void AddGoldGainPercent(float amount) => bonusGoldGainPercent += amount;
 
+    public void AddHealMaxHealthPercent(float amount) => bonusHealMaxHealthPercent += amount;
+
     public void AddTC1(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC1();
     public void AddTC2A(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2A();
     public void AddTC2B(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2B();
@@ -411,6 +428,7 @@ public class PlayerStats : MonoBehaviour
             float absorbed = Mathf.Min(CurrentArmor, remaining);
             CurrentArmor -= absorbed;
             remaining -= absorbed;
+            OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
         }
         CurrentHealth = Mathf.Max(CurrentHealth - remaining, 0f);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
@@ -477,14 +495,12 @@ public class PlayerStats : MonoBehaviour
     {
         bonusMaxArmorFlat += amount;
         CurrentArmor = Mathf.Min(CurrentArmor + amount, MaxArmor);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
     }
 
     public void AddRecoveryRateFlat(float amount) => bonusRecoveryRateFlat += amount;
 
     public void AddCollectRangeFlat(float amount) => bonusCollectRangeFlat += amount;
-
-    [Header("Passive Heal")]
-    [SerializeField] private float passiveHealPerSecond = 1f;
 
     private static readonly Collider2D[] s_BurnAuraBuffer = new Collider2D[32];
 
@@ -493,7 +509,9 @@ public class PlayerStats : MonoBehaviour
         if (isDead) return;
         if (CurrentHealth < MaxHealth)
         {
-            float heal = (RecoveryRate + passiveHealPerSecond) * Time.deltaTime;
+            float heal = RecoveryRate * Time.deltaTime;
+            if (bonusHealMaxHealthPercent > 0f)
+                heal += MaxHealth * bonusHealMaxHealthPercent * Time.deltaTime;
             CurrentHealth = Mathf.Min(CurrentHealth + heal, MaxHealth);
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         }

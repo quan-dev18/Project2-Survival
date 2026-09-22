@@ -174,7 +174,7 @@ MonoBehaviour:
   enemyMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  damagePerTick: 5
+  damagePerTick: 2.5
   useWeaponDamage: 1
   fireSoundVolume: 1
   fireSoundPitch: 1
