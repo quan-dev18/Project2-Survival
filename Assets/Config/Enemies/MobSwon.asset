@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce465405f9ad3c7428f2cb2de51a57c6, type: 3}
   m_Name: MobSwon
   m_EditorClassIdentifier: 
-  maxHealth: 12
-  movementSpeed: 3
+  maxHealth: 7777
+  movementSpeed: 4.5
   attackDamage: 5
   attackRange: 1
   attackSpeed: 1

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: StageTut_SO
   m_EditorClassIdentifier: 
-  stageID: 0
+  stageID: 1
   maxProgress: 5
   isInfinite: 0
   infiniteDifficultyStep: 10
@@ -152,7 +152,7 @@ MonoBehaviour:
       wallEnemyHP: 200
       wallEnemyDamage: 15
   - phaseName: V
-    duration: 300
+    duration: 240
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3

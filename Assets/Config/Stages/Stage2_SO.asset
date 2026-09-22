@@ -12,13 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: Stage2_SO
   m_EditorClassIdentifier: 
-  stageID: 2
-  maxProgress: 22
-  isInfinite: 0
-  infiniteDifficultyStep: 10
   attackIncrementPercent: 10
-  speedIncrementPercent: 5
-  healthIncrementPercent: 10
+  speedIncrementPercent: 1
+  healthIncrementPercent: 20
   statsIncrementInterval: 60
   phases:
   - phaseName: I
@@ -28,24 +24,21 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy1
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
-      startRadius: 10
+      startRadius: 20
       endRadius: 3
-      shrinkDuration: 10
-      wallEnemyCount: 100
-      wallEnemyKey: Enemy2
+      shrinkDuration: 60
+      wallEnemyCount: 30
+      wallEnemyKey: Enemy1
       wallEnemyHP: 250
       wallEnemyDamage: 10
   - phaseName: II
@@ -55,23 +48,20 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy1
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
       endRadius: 3
-      shrinkDuration: 10
-      wallEnemyCount: 100
+      shrinkDuration: 60
+      wallEnemyCount: 30
       wallEnemyKey: Enemy1
       wallEnemyHP: 250
       wallEnemyDamage: 10
@@ -82,17 +72,14 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 7
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 7
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 7
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -109,22 +96,18 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -141,17 +124,14 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 1
       spawnLimit: 10
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy3
-      spawnPerSecond: 1
+      spawnPerSecond: 2
       spawnLimit: 10
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -168,7 +148,6 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -185,26 +164,23 @@ MonoBehaviour:
       spawnPerSecond: 3
       spawnLimit: 10
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy3
       spawnPerSecond: 2
       spawnLimit: 2
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy1
       spawnPerSecond: 2
       spawnLimit: 10
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 1
-      startRadius: 20
-      endRadius: 10
-      shrinkDuration: 25
-      wallEnemyCount: 150
+      startRadius: 60
+      endRadius: 30
+      shrinkDuration: 60
+      wallEnemyCount: 100
       wallEnemyKey: Enemy3
-      wallEnemyHP: 300
-      wallEnemyDamage: 15
+      wallEnemyHP: 250
+      wallEnemyDamage: 10
   - phaseName: VIII
     duration: 60
     enemies:
@@ -212,17 +188,14 @@ MonoBehaviour:
       spawnPerSecond: 2
       spawnLimit: 15
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 2
       isBoss: 0
-      isElite: 0
     - mobKey: Enemy2
       spawnPerSecond: 2
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -236,10 +209,9 @@ MonoBehaviour:
     duration: 60
     enemies:
     - mobKey: Enemy1
-      spawnPerSecond: 15
-      spawnLimit: 50
+      spawnPerSecond: 10
+      spawnLimit: 40
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -256,12 +228,11 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 12
       isBoss: 0
-      isElite: 0
     - mobKey: BossA
       spawnPerSecond: 1
       spawnLimit: 1
       isBoss: 0
-      isElite: 0
+      isElite: 1
     circleWall:
       enabled: 0
       startRadius: 20
@@ -278,7 +249,6 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 5
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -295,7 +265,6 @@ MonoBehaviour:
       spawnPerSecond: 5
       spawnLimit: 20
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -312,7 +281,6 @@ MonoBehaviour:
       spawnPerSecond: 6
       spawnLimit: 20
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -329,7 +297,6 @@ MonoBehaviour:
       spawnPerSecond: 6
       spawnLimit: 20
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -346,7 +313,6 @@ MonoBehaviour:
       spawnPerSecond: 6
       spawnLimit: 20
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -363,7 +329,6 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 10
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 20
@@ -377,19 +342,18 @@ MonoBehaviour:
     duration: 60
     enemies:
     - mobKey: Enemy2
-      spawnPerSecond: 20
-      spawnLimit: 50
+      spawnPerSecond: 5
+      spawnLimit: 30
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 1
-      startRadius: 20
-      endRadius: 10
-      shrinkDuration: 25
-      wallEnemyCount: 150
+      startRadius: 60
+      endRadius: 30
+      shrinkDuration: 60
+      wallEnemyCount: 100
       wallEnemyKey: Enemy3
       wallEnemyHP: 300
-      wallEnemyDamage: 15
+      wallEnemyDamage: 10
   - phaseName: XVIII
     duration: 60
     enemies:
@@ -397,7 +361,6 @@ MonoBehaviour:
       spawnPerSecond: 7
       spawnLimit: 20
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 60
@@ -414,7 +377,6 @@ MonoBehaviour:
       spawnPerSecond: 8
       spawnLimit: 20
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 60
@@ -424,14 +386,20 @@ MonoBehaviour:
       wallEnemyKey: Enemy3
       wallEnemyHP: 300
       wallEnemyDamage: 10
+      startRadius: 20
+      endRadius: 20
+      shrinkDuration: 1
+      wallEnemyCount: 150
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 300
+      wallEnemyDamage: 15
   - phaseName: XX
     duration: 60
     enemies:
     - mobKey: Enemy3
-      spawnPerSecond: 8
+      spawnPerSecond: 10
       spawnLimit: 20
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 60
@@ -445,10 +413,9 @@ MonoBehaviour:
     duration: 60
     enemies:
     - mobKey: Enemy3
-      spawnPerSecond: 10
+      spawnPerSecond: 15
       spawnLimit: 20
       isBoss: 0
-      isElite: 0
     circleWall:
       enabled: 0
       startRadius: 60
@@ -465,18 +432,16 @@ MonoBehaviour:
       spawnPerSecond: 4
       spawnLimit: 12
       isBoss: 0
-      isElite: 0
     - mobKey: BossB
       spawnPerSecond: 1
       spawnLimit: 1
       isBoss: 1
-      isElite: 0
     circleWall:
       enabled: 1
-      startRadius: 20
-      endRadius: 10
-      shrinkDuration: 25
-      wallEnemyCount: 150
+      startRadius: 60
+      endRadius: 40
+      shrinkDuration: 60
+      wallEnemyCount: 100
       wallEnemyKey: Enemy3
       wallEnemyHP: 300
-      wallEnemyDamage: 15
+      wallEnemyDamage: 10
