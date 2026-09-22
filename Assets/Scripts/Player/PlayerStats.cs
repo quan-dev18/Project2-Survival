@@ -498,6 +498,13 @@ public class PlayerStats : MonoBehaviour
         OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
     }
 
+    public void AddArmor(float amount)
+    {
+        if (isDead) return;
+        CurrentArmor = Mathf.Min(CurrentArmor + amount, MaxArmor);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
+    }
+
     public void AddRecoveryRateFlat(float amount) => bonusRecoveryRateFlat += amount;
 
     public void AddCollectRangeFlat(float amount) => bonusCollectRangeFlat += amount;

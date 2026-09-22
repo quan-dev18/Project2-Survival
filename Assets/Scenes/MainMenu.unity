@@ -592,19 +592,10 @@ MonoBehaviour:
   lowGraphicsEnabledByDefault: 0
   renderProfileHigh:
     renderScale: 1
-    msaaSampleCount: 4
-    shadowDistance: 50
-    shadowCascadeCount: 4
   renderProfileMedium:
     renderScale: 0.875
-    msaaSampleCount: 2
-    shadowDistance: 30
-    shadowCascadeCount: 2
   renderProfileLow:
     renderScale: 0.7
-    msaaSampleCount: 0
-    shadowDistance: 0
-    shadowCascadeCount: 1
 --- !u!4 &13141792
 Transform:
   m_ObjectHideFlags: 0
@@ -19874,6 +19865,7 @@ MonoBehaviour:
   uiClaimSFX: {fileID: 8300000, guid: 8d66bfdd1fb91ba40be3591709c3de34, type: 3}
   xpCollectSFX: {fileID: 8300000, guid: 7e78ec3fdcab23a48aa251403861bf02, type: 3}
   goldCollectSFX: {fileID: 8300000, guid: 8ad9536ec4a66a84a8be2f4e0e23f741, type: 3}
+  shieldCollectSFX: {fileID: 8300000, guid: 8ad9536ec4a66a84a8be2f4e0e23f741, type: 3}
   levelUpSFX: {fileID: 8300000, guid: 1d16e9f97e2fe754c97f1d654597397c, type: 3}
   bgmFadeDuration: 0.5
   defaultBGMVolume: 0.6
