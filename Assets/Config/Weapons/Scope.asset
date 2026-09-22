@@ -18,9 +18,14 @@ MonoBehaviour:
   shootSFX: {fileID: 8300000, guid: 40f0d6f08672bef42ab5cd6e23a106d5, type: 3}
   reloadSFX: {fileID: 8300000, guid: f0ec494150d06c64eb431e14ad64d872, type: 3}
   weaponName: AWP
-  fireRate: 1.5
+  fireRate: 2
   fireRange: 7
   reloadTime: 1
   magazineSize: 1
   bulletCount: 1
   spread: 1
+<<<<<<< Updated upstream
+=======
+  basePierce: 2
+  bulletSO: {fileID: 11400000, guid: 5559ee3547c44b94b968b0abc8db99de, type: 2}
+>>>>>>> Stashed changes

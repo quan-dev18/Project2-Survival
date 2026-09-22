@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Stage2_SO
   m_EditorClassIdentifier: 
   attackIncrementPercent: 10
-  speedIncrementPercent: 5
-  healthIncrementPercent: 10
+  speedIncrementPercent: 1
+  healthIncrementPercent: 20
   statsIncrementInterval: 60
   phases:
   - phaseName: I
@@ -89,6 +89,7 @@ MonoBehaviour:
       wallEnemyKey: Enemy1
       wallEnemyHP: 250
       wallEnemyDamage: 10
+<<<<<<< Updated upstream
   - phaseName: IV
     duration: 60
     enemies:
@@ -117,6 +118,8 @@ MonoBehaviour:
       wallEnemyKey: Enemy1
       wallEnemyHP: 250
       wallEnemyDamage: 10
+=======
+>>>>>>> Stashed changes
   - phaseName: V
     duration: 60
     enemies:
@@ -129,7 +132,7 @@ MonoBehaviour:
       spawnLimit: 10
       isBoss: 0
     - mobKey: Enemy3
-      spawnPerSecond: 1
+      spawnPerSecond: 2
       spawnLimit: 10
       isBoss: 0
     circleWall:
@@ -209,8 +212,8 @@ MonoBehaviour:
     duration: 60
     enemies:
     - mobKey: Enemy1
-      spawnPerSecond: 15
-      spawnLimit: 50
+      spawnPerSecond: 10
+      spawnLimit: 40
       isBoss: 0
     circleWall:
       enabled: 0
@@ -232,6 +235,10 @@ MonoBehaviour:
       spawnPerSecond: 1
       spawnLimit: 1
       isBoss: 0
+<<<<<<< Updated upstream
+=======
+      isElite: 1
+>>>>>>> Stashed changes
     circleWall:
       enabled: 0
       startRadius: 20
@@ -257,6 +264,7 @@ MonoBehaviour:
       wallEnemyKey: Enemy1
       wallEnemyHP: 250
       wallEnemyDamage: 10
+<<<<<<< Updated upstream
   - phaseName: XII
     duration: 60
     enemies:
@@ -289,6 +297,8 @@ MonoBehaviour:
       wallEnemyKey: Enemy1
       wallEnemyHP: 250
       wallEnemyDamage: 10
+=======
+>>>>>>> Stashed changes
   - phaseName: XIV
     duration: 60
     enemies:
@@ -341,11 +351,12 @@ MonoBehaviour:
     duration: 60
     enemies:
     - mobKey: Enemy2
-      spawnPerSecond: 20
-      spawnLimit: 50
+      spawnPerSecond: 5
+      spawnLimit: 30
       isBoss: 0
     circleWall:
       enabled: 1
+<<<<<<< Updated upstream
       startRadius: 60
       endRadius: 30
       shrinkDuration: 60
@@ -385,11 +396,20 @@ MonoBehaviour:
       wallEnemyKey: Enemy3
       wallEnemyHP: 300
       wallEnemyDamage: 10
+=======
+      startRadius: 20
+      endRadius: 20
+      shrinkDuration: 1
+      wallEnemyCount: 150
+      wallEnemyKey: Enemy2
+      wallEnemyHP: 300
+      wallEnemyDamage: 15
+>>>>>>> Stashed changes
   - phaseName: XX
     duration: 60
     enemies:
     - mobKey: Enemy3
-      spawnPerSecond: 8
+      spawnPerSecond: 10
       spawnLimit: 20
       isBoss: 0
     circleWall:
@@ -405,7 +425,7 @@ MonoBehaviour:
     duration: 60
     enemies:
     - mobKey: Enemy3
-      spawnPerSecond: 10
+      spawnPerSecond: 15
       spawnLimit: 20
       isBoss: 0
     circleWall:

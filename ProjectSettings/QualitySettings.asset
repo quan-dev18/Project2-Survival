@@ -120,7 +120,11 @@ QualitySettings:
     globalTextureMipmapLimit: 0
     textureMipmapLimitSettings: []
     anisotropicTextures: 1
+<<<<<<< Updated upstream
     antiAliasing: 0
+=======
+    antiAliasing: 2
+>>>>>>> Stashed changes
     softParticles: 0
     softVegetation: 0
     realtimeReflectionProbes: 0

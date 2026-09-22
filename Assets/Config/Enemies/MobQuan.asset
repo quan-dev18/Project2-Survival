@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce465405f9ad3c7428f2cb2de51a57c6, type: 3}
-  m_Name: MobC
+  m_Name: MobQuan
   m_EditorClassIdentifier: 
-  maxHealth: 50
+  maxHealth: 67
   movementSpeed: 2.5
   attackDamage: 5
   attackRange: 1
   attackSpeed: 1
-  xpReward: 2
+  xpReward: 1
   enemyType: 0
