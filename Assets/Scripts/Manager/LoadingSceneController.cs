@@ -103,6 +103,22 @@ public class LoadingSceneController : MonoBehaviour
 
         yield return new WaitForSeconds(isFirst ? 0.3f : 0.15f);
 
+        // Kiểm tra Remote Config mỗi lần loading: cái nào bật, cái nào tắt
+        if (RemoteConfigController.Instance == null)
+        {
+            var rcGo = new GameObject("RemoteConfigController");
+            rcGo.AddComponent<RemoteConfigController>();
+        }
+
+        if (RemoteConfigController.Instance != null)
+        {
+            while (!RemoteConfigController.Instance.EvaluateAllConfigs())
+            {
+                // Nếu đang bảo trì hoặc bắt buộc cập nhật, giữ màn hình loading và hiển thị thông báo
+                yield return new WaitForSeconds(1f);
+            }
+        }
+
         MarkFirstTimeDone();
         operation.allowSceneActivation = true;
     }

@@ -88,7 +88,7 @@ public class SkinShopManager : MonoBehaviour
                 SkinSlotUI slotScript = slotObj.GetComponent<SkinSlotUI>();
                 if (slotScript == null) continue;
 
-                slotScript.Setup(skin, weapon, owned, OnSlotClicked);
+                slotScript.Setup(skin, weapon, owned, OnSlotClicked, OnAdSlotClicked);
 
                 // Reset transform về an toàn (tránh layout lệch trong ScrollRect)
                 slotObj.transform.localScale = Vector3.one;
@@ -109,7 +109,6 @@ public class SkinShopManager : MonoBehaviour
 
         if (!UserData.Instance.HasEnoughGold(skin.price))
         {
-            Debug.Log("[SkinShop] Không đủ vàng.");
             return;
         }
 
@@ -119,11 +118,59 @@ public class SkinShopManager : MonoBehaviour
             return;
         }
 
+        string compositeId = UserData.MakeSkinCompositeId(weapon.WeaponID, skin.skinID);
+        if (AdUnlockTracker.Instance != null)
+            AdUnlockTracker.Instance.ResetAdWatch(compositeId);
+
         // Log skin purchased event
         FirebaseAnalyticsHelper.LogSkinPurchased(weapon.WeaponID, skin.skinID, skin.tier.ToString(), skin.price);
         FirebaseAnalyticsHelper.LogGoldSpent(skin.price, "skin", skin.skinID, UserData.Instance.Gold);
 
         // Mua thành công → cập nhật ngay UI của slot này
         slot.SetOwned(true);
+    }
+
+    /// <summary>Xử lý khi bấm nút xem quảng cáo để mở khóa skin.</summary>
+    private void OnAdSlotClicked(SkinSlotUI slot)
+    {
+        if (slot == null || UserData.Instance == null) return;
+        if (slot.IsOwned) return;
+
+        WeaponSkinData skin = slot.GetSkinData();
+        WeaponSO weapon = slot.GetParentWeapon();
+        if (skin == null || weapon == null) return;
+
+        string compositeId = UserData.MakeSkinCompositeId(weapon.WeaponID, skin.skinID);
+        int required = FirebaseRemoteConfigHelper.Instance != null ? FirebaseRemoteConfigHelper.Instance.SkinAdWatchCount : 2;
+
+        AdManager ads = AdManager.Instance;
+        if (ads != null)
+        {
+            ads.ShowUnlockRewardedAd("skin_unlock", () =>
+            {
+                if (AdUnlockTracker.Instance != null)
+                {
+                    AdUnlockTracker.Instance.RecordAdWatch(compositeId);
+                    int current = AdUnlockTracker.Instance.GetAdWatchCount(compositeId);
+
+                    if (current >= required)
+                    {
+                        UserData.Instance.UnlockSkin(weapon.WeaponID, skin.skinID);
+                        AdUnlockTracker.Instance.ResetAdWatch(compositeId);
+                        FirebaseAnalyticsHelper.LogSkinUnlockedByAd(weapon.WeaponID, skin.skinID, current);
+
+                        slot.SetOwned(true);
+                    }
+                    else
+                    {
+                        slot.UpdateAdButtonVisual();
+                    }
+                }
+            });
+        }
+        else
+        {
+            Debug.LogWarning("[SkinShop] AdManager not found.");
+        }
     }
 }

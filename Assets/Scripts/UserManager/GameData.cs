@@ -24,6 +24,10 @@ public class GameData
     public List<string> equippedWeaponIds;
     public List<string> equippedSkinIds;
 
+    // ──────── Ad-Based Unlocking ────────
+    public List<string> adWatchKeys;
+    public List<int> adWatchCounts;
+
     // ──────── Tutorial ────────
     public bool tutorialCompleted;
 
@@ -44,5 +48,8 @@ public class GameData
         ownedSkins = new List<string>();
         equippedWeaponIds = new List<string>();
         equippedSkinIds = new List<string>();
+
+        adWatchKeys = new List<string>();
+        adWatchCounts = new List<int>();
     }
 }

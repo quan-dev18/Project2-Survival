@@ -8,6 +8,9 @@ using DG.Tweening; // Import DOTween (๑•̀ㅂ•́)و✧
 
 public class MapSelectionManager : MonoBehaviour
 {
+    public static bool debugMode = false;
+    public static MapSelectionManager Instance { get; private set; }
+
     [Header("--- MAP DATABASE ---")]
     public List<PreMapSO> mapList = new List<PreMapSO>();
     private int currentIndex = 0;
@@ -235,6 +238,8 @@ public class MapSelectionManager : MonoBehaviour
     {
         if (mapList == null || mapList.Count == 0 || index < 0 || index >= mapList.Count) return false;
 
+        if (debugMode) return true;
+
         // Map INF: luôn mở khi được hiển thị (nút Bắt đầu chạy được ngay).
         // Nó KHÔNG nằm trong carousel chọn map thường — chỉ hiện khi bấm nút ShowInfiniteMap.
         if (infiniteMap != null && mapList[index] == infiniteMap) return true;
@@ -268,6 +273,8 @@ public class MapSelectionManager : MonoBehaviour
         if (infIndex >= 0)
             hardCap = Mathf.Min(hardCap, infIndex - 1);
         if (hardCap < 0) return 0;
+
+        if (debugMode) return hardCap;
 
         int lastUnlocked = -1;
         for (int i = 0; i <= hardCap; i++)

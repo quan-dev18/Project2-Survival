@@ -400,6 +400,13 @@ public class EnemySpawner : MonoBehaviour
 
                 // Reset bonuses from previous spawn, then apply current global values
                 ec.ResetBonuses();
+                if (FirebaseRemoteConfigHelper.Instance != null)
+                {
+                    ec.difficultyHpMultiplier = Mathf.Max(0.01f, FirebaseRemoteConfigHelper.Instance.DifficultyHpMultiplier);
+                    ec.difficultySpeedMultiplier = Mathf.Max(0.01f, FirebaseRemoteConfigHelper.Instance.DifficultySpeedMultiplier);
+                    ec.difficultyDamageMultiplier = Mathf.Max(0.01f, FirebaseRemoteConfigHelper.Instance.DifficultyDamageMultiplier);
+                }
+
                 if (globalHealthBonusPercent > 0f)
                     ec.AddMaxHealthPercent(globalHealthBonusPercent / 100f);
                 if (globalSpeedBonusPercent > 0f)
