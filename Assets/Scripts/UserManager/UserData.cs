@@ -9,6 +9,8 @@ public class UserData : MonoBehaviour
 
     private GameData data;
 
+    public GameData GetData() => data;
+
     public int Gold => data.playerGold;
     public int SessionGold { get; private set; }
 
@@ -506,6 +508,19 @@ public class UserData : MonoBehaviour
 
         Save();
         return true;
+    }
+
+    /// <summary>
+    /// Mở khóa skin không tốn vàng (dùng cho mở khóa bằng xem quảng cáo).
+    /// </summary>
+    public void UnlockSkin(string weaponId, string skinId)
+    {
+        if (string.IsNullOrEmpty(weaponId) || string.IsNullOrEmpty(skinId)) return;
+        if (IsSkinOwned(weaponId, skinId)) return;
+
+        data.ownedSkins ??= new List<string>();
+        data.ownedSkins.Add(MakeSkinCompositeId(weaponId, skinId));
+        Save();
     }
 
     /// <summary>

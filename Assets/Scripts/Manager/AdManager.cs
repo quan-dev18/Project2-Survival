@@ -128,7 +128,6 @@ public class AdManager : MonoBehaviour
             {
                 UserData.Instance.AddGold(rewardCoinAmount);
                 FirebaseAnalyticsHelper.LogAdRewardedCompleted("shop", rewardCoinAmount);
-                Debug.Log($"[AdManager] Shop reward earned: +{rewardCoinAmount} coins.");
             }
         }, null);
     }
@@ -151,6 +150,28 @@ public class AdManager : MonoBehaviour
             // Not ready (or Editor): release the caller UI immediately.
             onFinished?.Invoke();
         }
+    }
+
+    /// <summary>
+    /// Shows a rewarded ad to unlock content (hero or skin).
+    /// </summary>
+    public void ShowUnlockRewardedAd(string placement, System.Action onEarned, System.Action onFinished = null)
+    {
+        FirebaseAnalyticsHelper.LogAdRewardedShown(placement);
+#if UNITY_ANDROID && !UNITY_EDITOR
+        if (!ShowSlot(shopSlot, _ =>
+        {
+            try { onEarned?.Invoke(); }
+            finally { onFinished?.Invoke(); }
+        },
+        onFinished))
+        {
+            onFinished?.Invoke();
+        }
+#else
+        onEarned?.Invoke();
+        onFinished?.Invoke();
+#endif
     }
 
     /// <returns>False when there was nothing to show.</returns>
@@ -197,7 +218,6 @@ public class AdManager : MonoBehaviour
             slot.ad = ad;
             slot.ad.OnAdFullScreenContentClosed += () => LoadSlot(slot);
             slot.ad.OnAdFullScreenContentFailed += (_) => LoadSlot(slot);
-            Debug.Log($"[AdManager] {slot.label} rewarded ad loaded.");
         });
 #endif
     }
@@ -212,6 +232,11 @@ public class AdManager : MonoBehaviour
 
     private void CreateBanner()
     {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsBannerEnabled)
+        {
+            return;
+        }
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         bannerView?.Destroy();
         bannerView = new BannerView(androidBannerId, AdSize.Banner, AdPosition.Top);
@@ -224,10 +249,43 @@ public class AdManager : MonoBehaviour
     private void UpdateBannerVisibility()
     {
         if (bannerView == null) return;
-        if (SceneManager.GetActiveScene().name == mainMenuSceneName)
+
+        bool bannerEnabled = FirebaseRemoteConfigHelper.Instance == null || FirebaseRemoteConfigHelper.Instance.IsBannerEnabled;
+        if (bannerEnabled && SceneManager.GetActiveScene().name == mainMenuSceneName)
             bannerView.Show();
         else
             bannerView.Hide();
+    }
+
+    /// <summary>
+    /// Refresh ad states when remote config changes.
+    /// </summary>
+    public void RefreshAdSettings()
+    {
+        UpdateBannerVisibility();
+#if UNITY_EDITOR
+        UpdatePreviewVisibility();
+#endif
+    }
+
+    /// <summary>
+    /// Shows an interstitial ad via InterstitialAdManager if cooldown and config permit.
+    /// </summary>
+    public void ShowInterstitialAd(System.Action onClosed = null)
+    {
+        if (InterstitialAdManager.Instance != null)
+            InterstitialAdManager.Instance.ShowInterstitialAd(onClosed);
+        else
+            onClosed?.Invoke();
+    }
+
+    /// <summary>
+    /// Shows an app open ad via AppOpenAdManager if config permits.
+    /// </summary>
+    public void ShowAppOpenAd()
+    {
+        if (AppOpenAdManager.Instance != null)
+            AppOpenAdManager.Instance.ShowAd();
     }
 
 #if UNITY_EDITOR

@@ -57,9 +57,13 @@ public class GameOverPanel : MonoBehaviour
                 GoldConfig config = Resources.Load<GoldConfig>("GoldConfig");
                 int sessionGold = 0;
                 if (config != null)
-                    sessionGold = (kills * config.goldPerKill) + (timeSeconds * config.goldPerSecond);
+                    sessionGold = Mathf.RoundToInt((kills * config.GetGoldPerKill()) + (timeSeconds * config.GetGoldPerSecond()));
                 else
-                    sessionGold = kills + timeSeconds;
+                {
+                    float killRate = FirebaseRemoteConfigHelper.Instance != null ? FirebaseRemoteConfigHelper.Instance.GoldKillRate : 1.0f;
+                    float timeRate = FirebaseRemoteConfigHelper.Instance != null ? FirebaseRemoteConfigHelper.Instance.GoldTimeRate : 1.0f;
+                    sessionGold = Mathf.RoundToInt((kills * 10f * killRate) + (timeSeconds * 1f * timeRate));
+                }
                 if (goldText != null)
                     goldText.text = $"Gold Earned: {sessionGold}";
 

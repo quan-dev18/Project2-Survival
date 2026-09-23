@@ -18,12 +18,16 @@ public class SkinSlotUI : MonoBehaviour
     [Tooltip("Nút duy nhất: hiện giá (chưa mua) hoặc 'Đã sở hữu'.")]
     [SerializeField] private Button actionButton;
     [SerializeField] private TextMeshProUGUI actionButtonText;
+    [Tooltip("Nút xem quảng cáo để mở khóa skin (tùy chọn / tự tạo nếu bật remote config).")]
+    [SerializeField] private Button adButton;
+    [SerializeField] private TextMeshProUGUI adButtonText;
     [Tooltip("(Tuỳ chọn) Ảnh khoá hiện khi skin chưa được sở hữu.")]
     [SerializeField] private GameObject lockOverlay;
 
     private WeaponSkinData skinData;
     private WeaponSO parentWeapon;
     private System.Action<SkinSlotUI> onClickCallback;
+    private System.Action<SkinSlotUI> onAdClickCallback;
     private bool isOwned;
 
     /// <summary>Skin này đã được người chơi sở hữu chưa.</summary>
@@ -34,16 +38,13 @@ public class SkinSlotUI : MonoBehaviour
     /// <summary>
     /// Khởi tạo slot với dữ liệu skin và khẩu súng cha.
     /// </summary>
-    /// <param name="skin">Dữ liệu skin.</param>
-    /// <param name="weapon">WeaponSO chứa skin này.</param>
-    /// <param name="owned">Người chơi đã sở hữu skin chưa.</param>
-    /// <param name="callback">Callback khi bấm nút (chỉ gọi khi chưa sở hữu).</param>
-    public void Setup(WeaponSkinData skin, WeaponSO weapon, bool owned, System.Action<SkinSlotUI> callback)
+    public void Setup(WeaponSkinData skin, WeaponSO weapon, bool owned, System.Action<SkinSlotUI> callback, System.Action<SkinSlotUI> adCallback = null)
     {
         skinData = skin;
         parentWeapon = weapon;
         isOwned = owned;
         onClickCallback = callback;
+        onAdClickCallback = adCallback;
 
         ApplyVisual();
 
@@ -57,6 +58,63 @@ public class SkinSlotUI : MonoBehaviour
                     onClickCallback?.Invoke(this);
             });
         }
+
+        SetupAdButton();
+    }
+
+    private void SetupAdButton()
+    {
+        bool adUnlockEnabled = FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsSkinAdUnlockEnabled;
+        if (!adUnlockEnabled || isOwned)
+        {
+            if (adButton != null) adButton.gameObject.SetActive(false);
+            return;
+        }
+
+        if (adButton == null && actionButton != null)
+        {
+            GameObject clone = Instantiate(actionButton.gameObject, actionButton.transform.parent);
+            clone.name = "SkinAdButton";
+            adButton = clone.GetComponent<Button>();
+            adButtonText = clone.GetComponentInChildren<TextMeshProUGUI>();
+
+            RectTransform rt = clone.GetComponent<RectTransform>();
+            RectTransform srcRt = actionButton.GetComponent<RectTransform>();
+            if (rt != null && srcRt != null && (actionButton.transform.parent == null || actionButton.transform.parent.GetComponent<UnityEngine.UI.LayoutGroup>() == null))
+            {
+                rt.anchoredPosition = srcRt.anchoredPosition + new Vector2(0f, srcRt.rect.height + 6f);
+            }
+        }
+
+        if (adButton != null)
+        {
+            adButton.gameObject.SetActive(true);
+            adButton.interactable = true;
+            adButton.onClick.RemoveAllListeners();
+            adButton.onClick.AddListener(() =>
+            {
+                if (!isOwned)
+                    onAdClickCallback?.Invoke(this);
+            });
+            UpdateAdButtonVisual();
+        }
+    }
+
+    public void UpdateAdButtonVisual()
+    {
+        if (adButton == null || skinData == null || parentWeapon == null) return;
+        if (isOwned)
+        {
+            adButton.gameObject.SetActive(false);
+            return;
+        }
+
+        string compositeId = UserData.MakeSkinCompositeId(parentWeapon.WeaponID, skinData.skinID);
+        int watched = AdUnlockTracker.Instance != null ? AdUnlockTracker.Instance.GetAdWatchCount(compositeId) : 0;
+        int required = FirebaseRemoteConfigHelper.Instance != null ? FirebaseRemoteConfigHelper.Instance.SkinAdWatchCount : 2;
+
+        if (adButtonText != null)
+            adButtonText.text = $"Ads ({watched}/{required})";
     }
 
     /// <summary>Lấy dữ liệu skin đang giữ.</summary>
@@ -69,6 +127,7 @@ public class SkinSlotUI : MonoBehaviour
     public void SetOwned(bool owned)
     {
         isOwned = owned;
+        if (adButton != null) adButton.gameObject.SetActive(false);
         ApplyVisual();
     }
 

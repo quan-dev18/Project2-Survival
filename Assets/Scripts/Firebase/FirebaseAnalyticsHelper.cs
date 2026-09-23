@@ -291,4 +291,64 @@ public static class FirebaseAnalyticsHelper
         FirebaseAnalytics.LogEvent("first_perk_upgraded",
             new Parameter("perk_id", perkId));
     }
+
+    // ──────────────────── P6: Remote Config & Additional Ads ────────────────────
+
+    public static void LogDebugModeActivated()
+    {
+        FirebaseAnalytics.LogEvent("debug_mode_activated");
+    }
+
+    public static void LogDebugModeDeactivated()
+    {
+        FirebaseAnalytics.LogEvent("debug_mode_deactivated");
+    }
+
+    public static void LogInterstitialAdShown()
+    {
+        FirebaseAnalytics.LogEvent("interstitial_ad_shown");
+    }
+
+    public static void LogInterstitialAdClicked()
+    {
+        FirebaseAnalytics.LogEvent("interstitial_ad_clicked");
+    }
+
+    public static void LogAppOpenAdShown()
+    {
+        FirebaseAnalytics.LogEvent("app_open_ad_shown");
+    }
+
+    public static void LogHeroUnlockedByAd(string heroId, int adWatchCount)
+    {
+        FirebaseAnalytics.LogEvent("hero_unlocked_by_ad",
+            new Parameter("hero_id", heroId),
+            new Parameter("ad_watch_count", adWatchCount));
+    }
+
+    public static void LogSkinUnlockedByAd(string weaponId, string skinId, int adWatchCount)
+    {
+        FirebaseAnalytics.LogEvent("skin_unlocked_by_ad",
+            new Parameter("weapon_id", weaponId),
+            new Parameter("skin_id", skinId),
+            new Parameter("ad_watch_count", adWatchCount));
+    }
+
+    public static void LogMaintenanceModeTriggered()
+    {
+        FirebaseAnalytics.LogEvent("maintenance_mode_triggered");
+    }
+
+    public static void LogForceUpdateTriggered(string requiredVersion, string currentVersion)
+    {
+        FirebaseAnalytics.LogEvent("force_update_triggered",
+            new Parameter("required_version", requiredVersion),
+            new Parameter("current_version", currentVersion));
+    }
+
+    public static void LogABTestGroupAssigned(string groupName)
+    {
+        FirebaseAnalytics.LogEvent("ab_test_group_assigned",
+            new Parameter("group_name", groupName));
+    }
 }

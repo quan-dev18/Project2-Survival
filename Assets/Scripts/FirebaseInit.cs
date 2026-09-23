@@ -1,5 +1,6 @@
 using Firebase;
 using Firebase.Analytics;
+using GoogleMobileAds.Common;
 using UnityEngine;
 
 public class FirebaseInit : MonoBehaviour
@@ -27,7 +28,23 @@ public class FirebaseInit : MonoBehaviour
             {
                 FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
                 IsInitialized = true;
-                Debug.Log("Firebase Analytics initialized successfully.");
+
+                // Initialize Remote Config and handlers on main thread
+                MobileAdsEventExecutor.ExecuteInUpdate(() =>
+                {
+                    if (FirebaseRemoteConfigHelper.Instance == null)
+                    {
+                        var go = new GameObject("FirebaseRemoteConfigHelper");
+                        go.AddComponent<FirebaseRemoteConfigHelper>();
+                    }
+                    FirebaseRemoteConfigHelper.Instance.Initialize();
+
+                    if (RemoteConfigController.Instance == null)
+                    {
+                        var rcGo = new GameObject("RemoteConfigController");
+                        rcGo.AddComponent<RemoteConfigController>();
+                    }
+                });
             }
             else
             {

@@ -2,42 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Quản lý LOGIC hệ thống Daily Reward (điểm danh 7 ngày).
-/// Lớp này tách biệt hoàn toàn Game Logic khỏi UI: nó chỉ "lái" các ô DailyRewardSlotUI
-/// đã được kéo thả sẵn từ Hierarchy (KHÔNG dùng Instantiate).
-///
-/// Dữ liệu lưu vào PlayerPrefs:
-///   - "DailyReward_LastClaimTime_Ticks": thời điểm nhận quà gần nhất (DateTime.UtcNow.Ticks).
-///   - "DailyReward_StreakCount"        : số ngày liên tiếp đã điểm danh (0..7).
-///
-/// LOGIC THỜI GIAN (theo DateTime.UtcNow):
-///   - Chưa từng nhận quà                       → nhận được ngay NGÀY 1.
-///   - Cách lần nhận gần nhất < 24h             → phải chờ (chưa tới lượt).
-///   - Cách từ 24h cho tới missResetHours (48h) → nhận NGÀY TIẾP THEO (ngày gọi quà hằng ngày).
-///   - Cách quá missResetHours (48h) = BỎ LỠ 1 NGÀY → reset StreakCount về 0, quay lại NGÀY 1.
-///   - Đã nhận hết NGÀY 7                        → sau đủ 24h quay VÒNG MỚI từ ngày 1.
-///
-/// Tóm tắt luật chơi:
-///   * Mỗi ngày vào game → có 1 ngày để nhận (ngày tiếp theo).
-///   * Đủ 7 ngày liên tiếp → reset về ngày 1 để nhận tiếp.
-///   * Bỏ lỡ 1 ngày không nhận (quá 48h) → reset về ngày 1.
-///
-/// CÁC BƯỚC GÁN TRÊN EDITOR (sau khi đã gán DailyRewardSlotUI cho 7 ô D1 → D7):
-///   1) Thêm component DailyRewardManager vào GameObject bất kỳ (Panel cha hoặc 1 object rỗng trong scene).
-///   2) Kéo asset DailyRewardDataSO (đã tạo ở Create → Daily Reward → DailyRewardData)
-///      vào ô "Reward Data".
-///   3) Mở rộng ô "Reward Slots" và kéo 7 ô D1 → D7 từ Hierarchy vào theo đúng thứ tự:
-///        - Phần tử [0] = D1, [1] = D2, ... [6] = D7.
-///      (Dùng danh sách kéo thả này — hệ thống SẼ KHÔNG generate/Instantiate ô nào cả.)
-///   4) Bấm Play: các ô sẽ tự hiển thị đúng trạng thái Locked / Claimable / Claimed.
-///   5) Muốn thử lại từ đầu: click chuột phải vào component → "Reset Daily Reward (test)".
-///
-/// LƯU Ý:
-///   - Quà loại Coin sẽ được cộng qua UserData.Instance.AddGold() (nếu singleton UserData có trong scene).
-///   - Quà loại Item sẽ phát sự kiện OnItemReward — bạn ghi lại sự kiện này từ hệ thống
-///     inventory/popup của game để xử lý cộng vật phẩm.
-/// </summary>
 public class DailyRewardManager : MonoBehaviour
 {
     // ── Khóa lưu trữ PlayerPrefs (đặt cố định để tránh nhầm key) ──
@@ -352,8 +316,9 @@ public class DailyRewardManager : MonoBehaviour
             case RewardType.Coin:
                 if (UserData.Instance != null)
                 {
-                    UserData.Instance.AddGold(item.amount);
-                    Debug.Log($"[DailyReward] +{item.amount} Vàng (ngày {item.dayIndex}).");
+                    float multiplier = FirebaseRemoteConfigHelper.Instance != null ? FirebaseRemoteConfigHelper.Instance.DailyRewardMultiplier : 1.0f;
+                    int finalAmount = Mathf.Max(1, Mathf.RoundToInt(item.amount * multiplier));
+                    UserData.Instance.AddGold(finalAmount);
                 }
                 else
                 {
@@ -364,7 +329,6 @@ public class DailyRewardManager : MonoBehaviour
             case RewardType.Item:
                 // Để hệ thống inventory/popup của bạn lắng nghe sự kiện này để cộng vật phẩm.
                 OnItemReward?.Invoke(item);
-                Debug.Log($"[DailyReward] Nhận vật phẩm '{item.rewardName}' x{item.amount} (ngày {item.dayIndex}).");
                 break;
         }
     }
@@ -387,6 +351,5 @@ public class DailyRewardManager : MonoBehaviour
         lastClaimTime = DateTime.MinValue;
 
         RefreshAllSlots();
-        Debug.Log("[DailyReward] Đã reset toàn bộ tiến trình điểm danh (thử lại từ ngày 1).");
     }
 }

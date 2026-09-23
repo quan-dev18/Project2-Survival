@@ -23,10 +23,14 @@ public class EnemyController : MonoBehaviour
     public float bonusMaxHealthFlat { get; private set; }
     public float bonusAttackDamageFlat { get; private set; }
 
+    [HideInInspector] public float difficultyHpMultiplier = 1f;
+    [HideInInspector] public float difficultySpeedMultiplier = 1f;
+    [HideInInspector] public float difficultyDamageMultiplier = 1f;
+
     //final stats
-    public float maxHealth => (baseMaxHealth + bonusMaxHealthFlat) * (1f + bonusMaxHealthPercent);
-    public float movementSpeed => Mathf.Min(baseMovementSpeed * (1f + bonusMovementSpeedPercent) * speedMultiplier, 10f);
-    public float attackDamage => (baseAttackDamage + bonusAttackDamageFlat) * (1f + bonusAttackDamagePercent);
+    public float maxHealth => (baseMaxHealth + bonusMaxHealthFlat) * (1f + bonusMaxHealthPercent) * difficultyHpMultiplier;
+    public float movementSpeed => Mathf.Min(baseMovementSpeed * (1f + bonusMovementSpeedPercent) * speedMultiplier * difficultySpeedMultiplier, 10f);
+    public float attackDamage => (baseAttackDamage + bonusAttackDamageFlat) * (1f + bonusAttackDamagePercent) * difficultyDamageMultiplier;
     public float attackSpeed => Mathf.Min(baseAttackSpeed * (1f + bonusAttackSpeedPercent), 2.5f);
 
     [HideInInspector] public float speedMultiplier = 1f;
@@ -113,6 +117,9 @@ public class EnemyController : MonoBehaviour
         bonusAttackSpeedPercent = 0f;
         bonusMaxHealthFlat = 0f;
         bonusAttackDamageFlat = 0f;
+        difficultyHpMultiplier = 1f;
+        difficultySpeedMultiplier = 1f;
+        difficultyDamageMultiplier = 1f;
     }
 
     public void Attack()
