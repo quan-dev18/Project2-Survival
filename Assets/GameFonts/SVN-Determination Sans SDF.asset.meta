@@ -1,6 +1,11 @@
 fileFormatVersion: 2
+<<<<<<< Updated upstream:Assets/GameFonts/SVN-Determination Sans SDF.asset.meta
 guid: 50c284b314a218f4386507cf418d8709
 NativeFormatImporter:
+=======
+guid: eda9ec9b1c949ee4da677d49c6272bc9
+TextScriptImporter:
+>>>>>>> Stashed changes:Assets/StreamingAssets/google-services-desktop.json.meta
   externalObjects: {}
   mainObjectFileID: 11400000
   userData: 
