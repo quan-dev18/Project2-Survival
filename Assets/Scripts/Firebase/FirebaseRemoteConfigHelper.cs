@@ -156,6 +156,7 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
 
         if (remoteConfigType == null)
         {
+            Debug.LogError("[FirebaseRemoteConfig] LỖI: Chưa có thư viện Firebase.RemoteConfig.dll trong dự án! Game đang chạy giá trị mặc định nội bộ và không thể kết nối Firebase.");
             IsFetched = true;
             OnConfigFetched?.Invoke();
             yield break;
@@ -201,27 +202,26 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
             yield return WaitForTask(setDefaultsTask);
         }
 
-        // Fetch and activate
+        // Fetch and activate (TimeSpan.Zero ensures cache expiration = 0 so server is always queried)
         bool fetchCompleted = false;
-        object fetchAndActivateTask = null;
         object fetchAsyncTask = null;
+        object fetchAndActivateTask = null;
         MethodInfo activateMethod = null;
 
         try
         {
-            MethodInfo fetchMethod = remoteConfigType.GetMethod("FetchAndActivateAsync", Type.EmptyTypes);
-            if (fetchMethod != null)
+            MethodInfo fetchAsyncMethod = remoteConfigType.GetMethod("FetchAsync", new Type[] { typeof(TimeSpan) });
+            if (fetchAsyncMethod != null)
             {
-                fetchAndActivateTask = fetchMethod.Invoke(defaultInstance, null);
+                fetchAsyncTask = fetchAsyncMethod.Invoke(defaultInstance, new object[] { TimeSpan.Zero });
+                activateMethod = remoteConfigType.GetMethod("ActivateAsync", Type.EmptyTypes);
             }
             else
             {
-                // Fallback to FetchAsync(TimeSpan.Zero) then ActivateAsync()
-                MethodInfo fetchAsyncMethod = remoteConfigType.GetMethod("FetchAsync", new Type[] { typeof(TimeSpan) });
-                if (fetchAsyncMethod != null)
+                MethodInfo fetchMethod = remoteConfigType.GetMethod("FetchAndActivateAsync", Type.EmptyTypes);
+                if (fetchMethod != null)
                 {
-                    fetchAsyncTask = fetchAsyncMethod.Invoke(defaultInstance, new object[] { TimeSpan.Zero });
-                    activateMethod = remoteConfigType.GetMethod("ActivateAsync", Type.EmptyTypes);
+                    fetchAndActivateTask = fetchMethod.Invoke(defaultInstance, null);
                 }
             }
         }
@@ -230,12 +230,7 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
             Debug.LogWarning("[FirebaseRemoteConfig] Fetch/Activate error: " + ex.Message);
         }
 
-        if (fetchAndActivateTask != null)
-        {
-            yield return WaitForTask(fetchAndActivateTask);
-            fetchCompleted = true;
-        }
-        else if (fetchAsyncTask != null)
+        if (fetchAsyncTask != null)
         {
             yield return WaitForTask(fetchAsyncTask);
 
@@ -257,6 +252,11 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
                 yield return WaitForTask(activateTask);
             }
 
+            fetchCompleted = true;
+        }
+        else if (fetchAndActivateTask != null)
+        {
+            yield return WaitForTask(fetchAndActivateTask);
             fetchCompleted = true;
         }
 
@@ -310,6 +310,14 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
         while (!(bool)isCompletedProp.GetValue(taskObj))
         {
             yield return null;
+        }
+
+        PropertyInfo isFaultedProp = taskObj.GetType().GetProperty("IsFaulted");
+        if (isFaultedProp != null && (bool)isFaultedProp.GetValue(taskObj))
+        {
+            PropertyInfo exProp = taskObj.GetType().GetProperty("Exception");
+            object ex = exProp?.GetValue(taskObj);
+            Debug.LogError("[FirebaseRemoteConfig] Task thất bại: " + ex);
         }
     }
 

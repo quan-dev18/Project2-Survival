@@ -14,6 +14,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-unity:13.17.0' // Assets/Firebase/Editor/AnalyticsDependencies.xml:21
     implementation 'com.google.firebase:firebase-app-unity:13.17.0' // Assets/Firebase/Editor/AppDependencies.xml:25
     implementation 'com.google.firebase:firebase-common:22.2.1' // Assets/Firebase/Editor/AppDependencies.xml:16
+    implementation 'com.google.firebase:firebase-config:22.1.0' // Assets/Firebase/Editor/RemoteConfigDependencies.xml:11
+    implementation 'com.google.firebase:firebase-config-unity:13.17.0' // Assets/Firebase/Editor/RemoteConfigDependencies.xml:16
 // Android Resolver Dependencies End
 **DEPS**}
 
