@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce465405f9ad3c7428f2cb2de51a57c6, type: 3}
   m_Name: MobB
   m_EditorClassIdentifier: 
-  maxHealth: 8
+  maxHealth: 16
   movementSpeed: 2.5
   attackDamage: 5
   attackRange: 1

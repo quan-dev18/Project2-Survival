@@ -518,6 +518,9 @@ public class LevelUpPanel : MonoBehaviour
             case UpgradeType.GoldGainPercent:
                 playerStats?.AddGoldGainPercent(pct);
                 break;
+            case UpgradeType.HealMaxHealthPercentPerSecond:
+                playerStats?.AddHealMaxHealthPercent(pct);
+                break;
         }
     }
 
@@ -687,6 +690,9 @@ public class LevelUpPanel : MonoBehaviour
                 break;
             case UpgradeType.GoldGainPercent:
                 ps?.AddGoldGainPercent(pct);
+                break;
+            case UpgradeType.HealMaxHealthPercentPerSecond:
+                ps?.AddHealMaxHealthPercent(pct);
                 break;
         }
     }

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2391c1e03f155a469b3457ccedc6818, type: 3}
   m_Name: Character4
   m_EditorClassIdentifier: 
-  maxHealth: 250
-  maxArmor: 5
+  maxHealth: 50
+  maxArmor: 125
   recoveryRate: 0
   movementSpeed: 5
   collectRange: 2

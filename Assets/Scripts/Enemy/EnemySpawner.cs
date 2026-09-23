@@ -384,8 +384,20 @@ public class EnemySpawner : MonoBehaviour
         {
             // Apply global stat scaling (linear: flat % bonus)
             EnemyController ec = enemy.GetComponent<EnemyController>();
+            EnemyHealth eh = null;
             if (ec != null)
             {
+                eh = enemy.GetComponent<EnemyHealth>();
+                if (eh != null)
+                {
+                    // Tagler: OnEnable a garanti bir heal tam dolumu yapmi$tir (eski
+                    // aktif durumun 0 canindan dolayi yanli$ erken olum tellerinden
+                    // once korumak icin). Bu turu devre di$i birakiyoruz.
+                    eh.suppressInvokesUntilAwakeDone = true;
+                    eh.silenceDamagePopups = true;
+                    eh.silenceDeathEvents = true;
+                }
+
                 // Reset bonuses from previous spawn, then apply current global values
                 ec.ResetBonuses();
                 if (globalHealthBonusPercent > 0f)
@@ -397,6 +409,10 @@ public class EnemySpawner : MonoBehaviour
 
                 enemy.GetComponent<EnemyColorVariant>()?.ApplyRandomColor();
             }
+
+            // Restore real HP after bonuses are set, then re-enable health events
+            if (eh != null)
+                eh.OnRewardsDone();
 
             activeEnemies.Add(enemy);
             state.spawned.Add(enemy);

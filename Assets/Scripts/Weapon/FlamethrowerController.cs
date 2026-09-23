@@ -94,7 +94,7 @@ public class FlamethrowerController : MonoBehaviour
 
     /// <summary>Sát thương nền mỗi tick (gồm cả flat damage từ WeaponSO nếu bật useWeaponDamage).</summary>
     public float BaseDamagePerTick =>
-        damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
+        damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 1f : 0f);
 
     /// <summary>Sát thương thực tế mỗi tick sau buff % — dùng cho Stat UI.</summary>
     public float EffectiveDamagePerTick => BaseDamagePerTick * (1f + bonusBulletDamagePercent);
@@ -201,8 +201,8 @@ public class FlamethrowerController : MonoBehaviour
         bool hasTarget = target != null && IsTargetInRange();
         if (hasTarget) Aim();
 
-        // Flamethrower fires whenever not reloading/has ammo, not only when hasTarget - so particles show even without lock
-        bool shouldFire = !isReloading && currentAmmo > 0;
+        // Only fire when an enemy is actually in range: saves ammo/particles/sound and stops wasteful spraying.
+        bool shouldFire = !isReloading && currentAmmo > 0 && hasTarget;
         UpdateFireEffect(shouldFire);
         UpdateFireSound(shouldFire);
 
@@ -312,7 +312,7 @@ public class FlamethrowerController : MonoBehaviour
             }
             if (dmg == null) continue;
 
-            float baseDmg = damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
+            float baseDmg = BaseDamagePerTick;
             float finalDamage = baseDmg * (1f + bonusBulletDamagePercent);
             dmg.TakeDamage(finalDamage);
 

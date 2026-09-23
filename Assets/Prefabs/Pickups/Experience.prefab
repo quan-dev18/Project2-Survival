@@ -49,6 +49,13 @@ MonoBehaviour:
   magnetSpeed: 12
   backDistance: 1
   backDuration: 0.15
+  tierSmallColor: {r: 0, g: 1, b: 0.126, a: 1}
+  tierMidColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  tierBigColor: {r: 1, g: 0, b: 0, a: 1}
+  shieldPieceChance: 5
+  shieldArmorAmount: 5
+  shieldDespawnTime: 30
+  shieldPieceSprite: {fileID: -1945291573, guid: 734e6b363ade5ac48a6beca8265f29c3, type: 3}
 --- !u!1 &6163268696217798519
 GameObject:
   m_ObjectHideFlags: 0

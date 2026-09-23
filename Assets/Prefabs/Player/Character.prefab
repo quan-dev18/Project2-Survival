@@ -1129,7 +1129,6 @@ MonoBehaviour:
   maxCollectRange: 20
   maxGrowthRate: 5
   damageTakenBuffDuration: 2
-  passiveHealPerSecond: 1
 --- !u!114 &585351823340672582
 MonoBehaviour:
   m_ObjectHideFlags: 0

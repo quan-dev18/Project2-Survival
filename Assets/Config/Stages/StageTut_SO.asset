@@ -152,7 +152,7 @@ MonoBehaviour:
       wallEnemyHP: 200
       wallEnemyDamage: 15
   - phaseName: V
-    duration: 300
+    duration: 240
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3

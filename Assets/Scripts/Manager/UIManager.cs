@@ -12,6 +12,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float hpSlowLerpSpeed = 2.5f;
     [SerializeField] private float hpSlowDelay = 0.5f;
 
+    [Header("Armor")]
+    [SerializeField] private TMP_Text currentArmorText;
+
     public Image HealthFillSlow => healthFillSlow;
     public Image healthFillslow => healthFillSlow;
 
@@ -35,6 +38,8 @@ public class UIManager : MonoBehaviour
     private float hpSlowDelayTimer;
     private bool hasInitializedHealth;
 
+    private bool hasInitializedArmor;
+
     private void Awake()
     {
         pauseBtn?.onClick.AddListener(OnPauseClicked);
@@ -49,7 +54,9 @@ public class UIManager : MonoBehaviour
         if (playerStats != null)
         {
             playerStats.OnHealthChanged += UpdateHealthUI;
+            playerStats.OnArmorChanged += UpdateArmorUI;
             UpdateHealthUI(playerStats.CurrentHealth, playerStats.MaxHealth);
+            UpdateArmorUI(playerStats.CurrentArmor, playerStats.MaxArmor);
         }
 
         var xp = PlayerXP.Instance != null ? PlayerXP.Instance : FindObjectOfType<PlayerXP>();
@@ -80,7 +87,10 @@ public class UIManager : MonoBehaviour
             xp.OnXPChanged -= UpdateExpBar;
         }
         if (playerStats != null)
-            playerStats.OnHealthChanged -= UpdateHealthUI;
+            {
+                playerStats.OnHealthChanged -= UpdateHealthUI;
+                playerStats.OnArmorChanged -= UpdateArmorUI;
+            }
         GameManager.OnStateChanged -= OnGameStateChanged;
     }
 
@@ -184,6 +194,12 @@ public class UIManager : MonoBehaviour
 
         if (currentHPText != null)
             currentHPText.text = $"{Mathf.CeilToInt(current)}/{Mathf.CeilToInt(max)}";
+    }
+
+    private void UpdateArmorUI(float current, float max)
+    {
+        if (currentArmorText != null)
+            currentArmorText.text = $"{Mathf.CeilToInt(current)}/{Mathf.CeilToInt(max)}";
     }
 
     private void OnLevelUp(int newLevel)

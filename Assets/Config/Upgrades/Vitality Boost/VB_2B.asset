@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: VB_2B
   m_EditorClassIdentifier: 
   upgradeName: Vitality Boost II
-  description: "M\xE1u t\u1ED1i \u0111a +200%\nK\xEDch c\u1EE1 nh\xE2n v\u1EADt tr\u1EDF
-    l\xEAn b\xE9o h\u01A1n 50%"
+  description: "M\xE1u t\u1ED1i \u0111a +150%\nK\xEDch c\u1EE1 nh\xE2n v\u1EADt tr\u1EDF
+    l\xEAn b\xE9o h\u01A1n 36%"
   icon: {fileID: 1506831793, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 0
-    amount: 200
+    amount: 150
   - stat: 40
-    amount: 50
+    amount: 36
   requires:
   - {fileID: 11400000, guid: 5c73676f91bcd1e4eb6b25b3ebfb9594, type: 2}

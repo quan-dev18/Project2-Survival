@@ -7,7 +7,28 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
     [SerializeField] private float magnetSpeed = 16f;
     [SerializeField] private float backDistance = 1f;
     [SerializeField] private float backDuration = 0.15f;
+    [Header("Value Tiers")]
+    [Tooltip("1 XP and below (matches the classic green look).")]
+    [SerializeField] private Color tierSmallColor = new Color(0f, 1f, 0.126f, 1f);
+    [Tooltip("2 to 10 XP.")]
+    [SerializeField] private Color tierMidColor = Color.yellow;
+    [Tooltip("11 XP and up.")]
+    [SerializeField] private Color tierBigColor = Color.red;
+    
+    [Header("Shield Piece")]
+    [Tooltip("Chance (0-100%) for this gem to become a shield piece instead of XP.")]
+    [SerializeField] private float shieldPieceChance = 5f;
+    [Tooltip("Armor amount restored when shield piece is collected.")]
+    [SerializeField] private float shieldArmorAmount = 5f;
+    [Tooltip("Time in seconds before shield piece despawns if not collected.")]
+    [SerializeField] private float shieldDespawnTime = 30f;
+    [Tooltip("Sprite to use for shield piece (armor/shield icon).")]
+    [SerializeField] private Sprite shieldPieceSprite;
     private const float RetargetThreshold = 0.1f;
+    private SpriteRenderer gemRenderer;
+
+    /// <summary>GoldGem opts out (it has its own gold look).</summary>
+    protected virtual bool UseValueTiers => true;
     protected const float ArrivalTolerance = 0.5f;
 
     protected Transform target;
@@ -19,6 +40,17 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
 
     private float checkTimer;
     private const float CheckInterval = 0.1f;
+    
+    private bool isShieldPiece;
+    private float despawnTimer;
+    private Sprite originalSprite;
+
+    private void Awake()
+    {
+        gemRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (gemRenderer != null)
+            originalSprite = gemRenderer.sprite;
+    }
 
     public void OnSpawned()
     {
@@ -27,10 +59,40 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
         checkTimer = Random.Range(0f, CheckInterval);
         magnetTween?.Kill();
         cachedStats = null;
+        despawnTimer = 0f;
+        
+        // Determine if this is a shield piece
+        isShieldPiece = Random.value * 100f < shieldPieceChance;
+        
+        if (isShieldPiece && shieldPieceSprite != null && gemRenderer != null)
+        {
+            gemRenderer.sprite = shieldPieceSprite;
+        }
+        else if (!isShieldPiece && originalSprite != null && gemRenderer != null)
+        {
+            gemRenderer.sprite = originalSprite;
+        }
+        
         ResolveTarget();
+        ApplyTierColor();
     }
 
-    public void SetAmount(float amount) => xpAmount = amount;
+    public void SetAmount(float amount)
+    {
+        xpAmount = amount;
+        ApplyTierColor();
+    }
+
+    private void ApplyTierColor()
+    {
+        if (!UseValueTiers || gemRenderer == null) return;
+        if (xpAmount < 2f)
+            gemRenderer.color = tierSmallColor;
+        else if (xpAmount <= 10f)
+            gemRenderer.color = tierMidColor;
+        else
+            gemRenderer.color = tierBigColor;
+    }
 
     private void ResolveTarget()
     {
@@ -59,6 +121,17 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
         }
 
         if (cachedStats == null) return;
+
+        if (isShieldPiece)
+        {
+            despawnTimer += Time.deltaTime;
+            if (despawnTimer >= shieldDespawnTime)
+            {
+                if (ObjectPooling.Instance != null)
+                    ObjectPooling.Instance.Despawn(gameObject);
+                return;
+            }
+        }
 
         if (!magnetized)
         {
@@ -121,8 +194,18 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
             return;
         }
 
-        if (target.TryGetComponent(out PlayerXP playerXP))
-            playerXP.AddExperience(playerXP.PickupValue(xpAmount));
+        if (isShieldPiece)
+        {
+            if (target.TryGetComponent(out PlayerStats playerStats))
+            {
+                playerStats.AddArmor(shieldArmorAmount);
+            }
+        }
+        else
+        {
+            if (target.TryGetComponent(out PlayerXP playerXP))
+                playerXP.AddExperience(playerXP.PickupValue(xpAmount));
+        }
         PlayCollectSFX();
         if (ObjectPooling.Instance != null)
             ObjectPooling.Instance.Despawn(gameObject);
@@ -134,7 +217,10 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
     /// </summary>
     protected virtual void PlayCollectSFX()
     {
-        AudioManager.Instance?.PlayXPCollect();
+        if (isShieldPiece)
+            AudioManager.Instance?.PlayShieldCollect();
+        else
+            AudioManager.Instance?.PlayXPCollect();
     }
 
     private void OnDisable()

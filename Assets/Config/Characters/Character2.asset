@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Character2
   m_EditorClassIdentifier: 
   maxHealth: 200
-  maxArmor: 15
+  maxArmor: 50
   recoveryRate: 0
   movementSpeed: 3
   collectRange: 2

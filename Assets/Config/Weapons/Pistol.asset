@@ -33,7 +33,7 @@ MonoBehaviour:
     price: 100
   shootSFX: {fileID: 8300000, guid: 89f75350cafb2a4428386df166291fcb, type: 3}
   reloadSFX: {fileID: 8300000, guid: bf0efb84ea2cf5d45bc7aba7d30a7206, type: 3}
-  weaponName: Piss tool
+  weaponName: Pistol
   fireRate: 0.7
   fireRange: 5
   reloadTime: 1
