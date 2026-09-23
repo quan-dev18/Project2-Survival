@@ -1,7 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Threading.Tasks;
+using Firebase.RemoteConfig;
 using UnityEngine;
 
 /// <summary>
@@ -139,185 +140,86 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
 
     private IEnumerator InitAndFetchRoutine()
     {
-        Type remoteConfigType = Type.GetType("Firebase.RemoteConfig.FirebaseRemoteConfig, Firebase.RemoteConfig");
-        if (remoteConfigType == null)
+        FirebaseRemoteConfig remoteConfig = null;
+        try
         {
-            // Scan loaded assemblies in case assembly name differs
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                var t = asm.GetType("Firebase.RemoteConfig.FirebaseRemoteConfig");
-                if (t != null)
-                {
-                    remoteConfigType = t;
-                    break;
-                }
-            }
+            remoteConfig = FirebaseRemoteConfig.DefaultInstance;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[FirebaseRemoteConfig] Lỗi khởi tạo FirebaseRemoteConfig.DefaultInstance: " + ex);
         }
 
-        if (remoteConfigType == null)
+        if (remoteConfig == null)
         {
-            Debug.LogError("[FirebaseRemoteConfig] LỖI: Chưa có thư viện Firebase.RemoteConfig.dll trong dự án! Game đang chạy giá trị mặc định nội bộ và không thể kết nối Firebase.");
+            Debug.LogError("[FirebaseRemoteConfig] FirebaseRemoteConfig.DefaultInstance is null.");
             IsFetched = true;
             OnConfigFetched?.Invoke();
             yield break;
         }
 
-        object defaultInstance = null;
-        try
-        {
-            PropertyInfo defaultProp = remoteConfigType.GetProperty("DefaultInstance", BindingFlags.Public | BindingFlags.Static);
-            if (defaultProp != null)
-                defaultInstance = defaultProp.GetValue(null);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogWarning("[FirebaseRemoteConfig] Failed to get DefaultInstance: " + ex.Message);
-        }
-
-        if (defaultInstance == null)
-        {
-            Debug.LogWarning("[FirebaseRemoteConfig] FirebaseRemoteConfig.DefaultInstance is null.");
-            IsFetched = true;
-            OnConfigFetched?.Invoke();
-            yield break;
-        }
-
-        // Set defaults
-        object setDefaultsTask = null;
-        try
-        {
-            MethodInfo setDefaultsMethod = remoteConfigType.GetMethod("SetDefaultsAsync", new Type[] { typeof(Dictionary<string, object>) });
-            if (setDefaultsMethod != null)
-            {
-                setDefaultsTask = setDefaultsMethod.Invoke(defaultInstance, new object[] { defaultValues });
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogWarning("[FirebaseRemoteConfig] SetDefaultsAsync error: " + ex.Message);
-        }
-
-        if (setDefaultsTask != null)
-        {
-            yield return WaitForTask(setDefaultsTask);
-        }
-
-        // Fetch and activate (TimeSpan.Zero ensures cache expiration = 0 so server is always queried)
-        bool fetchCompleted = false;
-        object fetchAsyncTask = null;
-        object fetchAndActivateTask = null;
-        MethodInfo activateMethod = null;
-
-        try
-        {
-            MethodInfo fetchAsyncMethod = remoteConfigType.GetMethod("FetchAsync", new Type[] { typeof(TimeSpan) });
-            if (fetchAsyncMethod != null)
-            {
-                fetchAsyncTask = fetchAsyncMethod.Invoke(defaultInstance, new object[] { TimeSpan.Zero });
-                activateMethod = remoteConfigType.GetMethod("ActivateAsync", Type.EmptyTypes);
-            }
-            else
-            {
-                MethodInfo fetchMethod = remoteConfigType.GetMethod("FetchAndActivateAsync", Type.EmptyTypes);
-                if (fetchMethod != null)
-                {
-                    fetchAndActivateTask = fetchMethod.Invoke(defaultInstance, null);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogWarning("[FirebaseRemoteConfig] Fetch/Activate error: " + ex.Message);
-        }
-
-        if (fetchAsyncTask != null)
-        {
-            yield return WaitForTask(fetchAsyncTask);
-
-            object activateTask = null;
-            try
-            {
-                if (activateMethod != null)
-                {
-                    activateTask = activateMethod.Invoke(defaultInstance, null);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning("[FirebaseRemoteConfig] ActivateAsync error: " + ex.Message);
-            }
-
-            if (activateTask != null)
-            {
-                yield return WaitForTask(activateTask);
-            }
-
-            fetchCompleted = true;
-        }
-        else if (fetchAndActivateTask != null)
-        {
-            yield return WaitForTask(fetchAndActivateTask);
-            fetchCompleted = true;
-        }
-
-        if (fetchCompleted)
-        {
-            // Pull values into cached dictionary
-            try
-            {
-                MethodInfo getValueMethod = remoteConfigType.GetMethod("GetValue", new Type[] { typeof(string) });
-                if (getValueMethod != null)
-                {
-                    foreach (var key in defaultValues.Keys)
-                    {
-                        object configValObj = getValueMethod.Invoke(defaultInstance, new object[] { key });
-                        if (configValObj != null)
-                        {
-                            PropertyInfo strProp = configValObj.GetType().GetProperty("StringValue");
-                            if (strProp != null)
-                            {
-                                string strVal = strProp.GetValue(configValObj)?.ToString() ?? "";
-                                if (!string.IsNullOrEmpty(strVal))
-                                {
-                                    cachedValues[key] = strVal;
-                                    PlayerPrefs.SetString(PREF_CACHE_PREFIX + key, strVal);
-                                }
-                            }
-                        }
-                    }
-                    PlayerPrefs.Save();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning("[FirebaseRemoteConfig] Failed to cache values: " + ex.Message);
-            }
-
-            Debug.Log("[FirebaseRemoteConfig] Values fetched and activated successfully!");
-        }
-
-        IsFetched = true;
-        OnConfigFetched?.Invoke();
-    }
-
-    private IEnumerator WaitForTask(object taskObj)
-    {
-        if (taskObj == null) yield break;
-
-        PropertyInfo isCompletedProp = taskObj.GetType().GetProperty("IsCompleted");
-        if (isCompletedProp == null) yield break;
-
-        while (!(bool)isCompletedProp.GetValue(taskObj))
+        // 1. Set default values
+        Task setDefaultsTask = remoteConfig.SetDefaultsAsync(defaultValues);
+        while (!setDefaultsTask.IsCompleted)
         {
             yield return null;
         }
 
-        PropertyInfo isFaultedProp = taskObj.GetType().GetProperty("IsFaulted");
-        if (isFaultedProp != null && (bool)isFaultedProp.GetValue(taskObj))
+        // 2. Fetch with TimeSpan.Zero so cache is bypassed and fresh values are fetched
+        Task fetchTask = remoteConfig.FetchAsync(TimeSpan.Zero);
+        while (!fetchTask.IsCompleted)
         {
-            PropertyInfo exProp = taskObj.GetType().GetProperty("Exception");
-            object ex = exProp?.GetValue(taskObj);
-            Debug.LogError("[FirebaseRemoteConfig] Task thất bại: " + ex);
+            yield return null;
+        }
+
+        if (fetchTask.IsFaulted)
+        {
+            Debug.LogError("[FirebaseRemoteConfig] Fetch thất bại: " + fetchTask.Exception);
+        }
+
+        // 3. Activate fetched values
+        Task<bool> activateTask = remoteConfig.ActivateAsync();
+        while (!activateTask.IsCompleted)
+        {
+            yield return null;
+        }
+
+        // 4. Extract values directly into local cache and PlayerPrefs
+        try
+        {
+            foreach (var key in defaultValues.Keys)
+            {
+                ConfigValue cv = remoteConfig.GetValue(key);
+                string strVal = cv.StringValue;
+                if (string.IsNullOrEmpty(strVal))
+                {
+                    strVal = cv.BooleanValue.ToString();
+                }
+
+                if (!string.IsNullOrEmpty(strVal))
+                {
+                    cachedValues[key] = strVal;
+                    PlayerPrefs.SetString(PREF_CACHE_PREFIX + key, strVal);
+                }
+            }
+            PlayerPrefs.Save();
+            Debug.Log("[FirebaseRemoteConfig] Values fetched and activated successfully!");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[FirebaseRemoteConfig] Failed to cache values: " + ex.Message);
+        }
+
+        IsFetched = true;
+        OnConfigFetched?.Invoke();
+
+        if (RemoteConfigController.Instance != null)
+        {
+            RemoteConfigController.Instance.EvaluateAllConfigs();
+        }
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.RefreshAdSettings();
         }
     }
 
@@ -331,6 +233,8 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
                 return res;
             if (strVal == "1") return true;
             if (strVal == "0") return false;
+            if (string.Equals(strVal, "true", StringComparison.OrdinalIgnoreCase)) return true;
+            if (string.Equals(strVal, "false", StringComparison.OrdinalIgnoreCase)) return false;
         }
 
         if (defaultValues.TryGetValue(key, out object def) && def is bool defBool)

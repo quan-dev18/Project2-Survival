@@ -84,14 +84,18 @@ public class AdManager : MonoBehaviour
 
     private void Start()
     {
+        if (FirebaseRemoteConfigHelper.Instance != null)
+        {
+            FirebaseRemoteConfigHelper.Instance.OnConfigFetched += RefreshAdSettings;
+        }
+
         MobileAds.Initialize(_ =>
         {
-            CreateBanner();
-            UpdateBannerVisibility();
             shopSlot = new RewardedSlot { label = "Shop", adUnitId = androidRewardedId };
             victorySlot = new RewardedSlot { label = "Victory", adUnitId = androidVictoryRewardedId };
             LoadSlot(shopSlot);
             LoadSlot(victorySlot);
+            RefreshAdSettings();
         });
 #if UNITY_EDITOR
         CreatePreview();
@@ -102,6 +106,10 @@ public class AdManager : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.activeSceneChanged -= OnSceneChanged;
+        if (FirebaseRemoteConfigHelper.Instance != null)
+        {
+            FirebaseRemoteConfigHelper.Instance.OnConfigFetched -= RefreshAdSettings;
+        }
         if (Instance == this)
         {
             bannerView?.Destroy();
@@ -121,6 +129,11 @@ public class AdManager : MonoBehaviour
     /// <summary>Shows the shop rewarded ad; grants <see cref="rewardCoinAmount"/> coins on completion.</summary>
     public void ShowRewardedAd()
     {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAdsEnabled)
+        {
+            return;
+        }
+
         FirebaseAnalyticsHelper.LogAdRewardedShown("shop");
         ShowSlot(shopSlot, _ =>
         {
@@ -139,6 +152,13 @@ public class AdManager : MonoBehaviour
     /// </summary>
     public void ShowVictoryRewardedAd(System.Action onEarned, System.Action onFinished)
     {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAdsEnabled)
+        {
+            onEarned?.Invoke();
+            onFinished?.Invoke();
+            return;
+        }
+
         FirebaseAnalyticsHelper.LogAdRewardedShown("victory");
         if (!ShowSlot(victorySlot, _ =>
         {
@@ -157,6 +177,13 @@ public class AdManager : MonoBehaviour
     /// </summary>
     public void ShowUnlockRewardedAd(string placement, System.Action onEarned, System.Action onFinished = null)
     {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAdsEnabled)
+        {
+            onEarned?.Invoke();
+            onFinished?.Invoke();
+            return;
+        }
+
         FirebaseAnalyticsHelper.LogAdRewardedShown(placement);
 #if UNITY_ANDROID && !UNITY_EDITOR
         if (!ShowSlot(shopSlot, _ =>
@@ -250,7 +277,7 @@ public class AdManager : MonoBehaviour
     {
         if (bannerView == null) return;
 
-        bool bannerEnabled = FirebaseRemoteConfigHelper.Instance == null || FirebaseRemoteConfigHelper.Instance.IsBannerEnabled;
+        bool bannerEnabled = FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsBannerEnabled;
         if (bannerEnabled && SceneManager.GetActiveScene().name == mainMenuSceneName)
             bannerView.Show();
         else
@@ -262,7 +289,25 @@ public class AdManager : MonoBehaviour
     /// </summary>
     public void RefreshAdSettings()
     {
-        UpdateBannerVisibility();
+        bool bannerEnabled = FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsBannerEnabled;
+        if (!bannerEnabled)
+        {
+            if (bannerView != null)
+            {
+                bannerView.Hide();
+                bannerView.Destroy();
+                bannerView = null;
+            }
+        }
+        else
+        {
+            if (bannerView == null)
+            {
+                CreateBanner();
+            }
+            UpdateBannerVisibility();
+        }
+
 #if UNITY_EDITOR
         UpdatePreviewVisibility();
 #endif

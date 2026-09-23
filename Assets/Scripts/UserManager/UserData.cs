@@ -247,6 +247,13 @@ public class UserData : MonoBehaviour
 
     #region Gold
 
+    public void SetGold(int amount)
+    {
+        data.playerGold = Mathf.Max(0, amount);
+        OnGoldChanged?.Invoke(data.playerGold);
+        Save();
+    }
+
     public void AddGold(int amount)
     {
         if (amount <= 0) return;

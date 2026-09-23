@@ -131,13 +131,20 @@ public class GameOverPanel : MonoBehaviour
     private void RefreshDoubleButton()
     {
         if (doubleButton == null) return;
+        bool adsGloballyEnabled = FirebaseRemoteConfigHelper.Instance == null || FirebaseRemoteConfigHelper.Instance.IsAdsEnabled;
+        if (!adsGloballyEnabled)
+        {
+            SetDoubleVisible(false);
+            return;
+        }
+
         bool canDouble = !doubled && AdManager.Instance != null && AdManager.Instance.IsVictoryRewardedReady;
         // Grey out only when ads exist but aren't loaded; without AdManager
         // (direct scene testing) leave clickable so the path logs its warning.
         doubleButton.interactable = canDouble || AdManager.Instance == null;
         TMP_Text label = doubleButton.GetComponentInChildren<TMP_Text>();
-            if (label != null && pendingGold > 0)
-                label.text = $"Claim x2 ({pendingGold * 2})";
+        if (label != null && pendingGold > 0)
+            label.text = $"Claim x2 ({pendingGold * 2})";
     }
 
     private void SetDoubleInteractable(bool value)

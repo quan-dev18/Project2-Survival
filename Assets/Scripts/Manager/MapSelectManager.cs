@@ -24,6 +24,21 @@ public class MapSelectionManager : MonoBehaviour
     [Header("--- UI BUTTON ---")]
     public Button startButton; // Nút "Bắt đầu" ngoài màn hình main menu
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    public void RefreshDebugState()
+    {
+        RefreshStartButton();
+    }
+
     [Header("--- LOCKED MAP ---")]
     [Tooltip("Text của nút Bắt đầu (tự tìm nếu để trống). Bị xóa khi map bị khóa.")]
     public TextMeshProUGUI startButtonText;
