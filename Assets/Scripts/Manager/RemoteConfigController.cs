@@ -25,12 +25,25 @@ public class RemoteConfigController : MonoBehaviour
 
     private void Start()
     {
+        if (FirebaseRemoteConfigHelper.Instance != null)
+        {
+            FirebaseRemoteConfigHelper.Instance.OnConfigFetched += HandleConfigFetched;
+        }
         EvaluateAllConfigs();
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (FirebaseRemoteConfigHelper.Instance != null)
+        {
+            FirebaseRemoteConfigHelper.Instance.OnConfigFetched -= HandleConfigFetched;
+        }
+    }
+
+    private void HandleConfigFetched()
+    {
+        EvaluateAllConfigs();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -109,10 +122,10 @@ public class RemoteConfigController : MonoBehaviour
         }
 
         // 2. Check Force Update
-        if (ForceUpdateHandler.Instance != null && ForceUpdateHandler.Instance.CheckForceUpdate())
-        {
-            return false; // Block game entry
-        }
+        // if (ForceUpdateHandler.Instance != null && ForceUpdateHandler.Instance.CheckForceUpdate())
+        // {
+        //     return false; // Block game entry
+        // }
 
         // 3. Apply Debug Mode
         if (DebugModeHandler.Instance != null)
@@ -124,6 +137,12 @@ public class RemoteConfigController : MonoBehaviour
         if (ABTestManager.Instance != null)
         {
             ABTestManager.Instance.UpdateGroup();
+        }
+
+        // 5. Refresh Ads State
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.RefreshAdSettings();
         }
 
         return true;

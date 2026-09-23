@@ -42,7 +42,7 @@ public class InterstitialAdManager : MonoBehaviour
 
     public void LoadAd()
     {
-        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsInterstitialEnabled)
+        if (FirebaseRemoteConfigHelper.Instance != null && (!FirebaseRemoteConfigHelper.Instance.IsAdsEnabled || !FirebaseRemoteConfigHelper.Instance.IsInterstitialEnabled))
             return;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -99,7 +99,7 @@ public class InterstitialAdManager : MonoBehaviour
     {
         if (FirebaseRemoteConfigHelper.Instance != null)
         {
-            if (!FirebaseRemoteConfigHelper.Instance.IsInterstitialEnabled)
+            if (!FirebaseRemoteConfigHelper.Instance.IsAdsEnabled || !FirebaseRemoteConfigHelper.Instance.IsInterstitialEnabled)
             {
                 onClosed?.Invoke();
                 return false;

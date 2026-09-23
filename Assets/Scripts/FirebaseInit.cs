@@ -8,6 +8,17 @@ public class FirebaseInit : MonoBehaviour
     public static FirebaseInit Instance { get; private set; }
     public bool IsInitialized { get; private set; }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void AutoInitialize()
+    {
+        if (Instance == null)
+        {
+            var go = new GameObject("FirebaseInit");
+            go.AddComponent<FirebaseInit>();
+            DontDestroyOnLoad(go);
+        }
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -19,6 +30,8 @@ public class FirebaseInit : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private volatile bool pendingMainThreadInit = false;
+
     void Start()
     {
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
@@ -28,28 +41,37 @@ public class FirebaseInit : MonoBehaviour
             {
                 FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
                 IsInitialized = true;
-
-                // Initialize Remote Config and handlers on main thread
-                MobileAdsEventExecutor.ExecuteInUpdate(() =>
-                {
-                    if (FirebaseRemoteConfigHelper.Instance == null)
-                    {
-                        var go = new GameObject("FirebaseRemoteConfigHelper");
-                        go.AddComponent<FirebaseRemoteConfigHelper>();
-                    }
-                    FirebaseRemoteConfigHelper.Instance.Initialize();
-
-                    if (RemoteConfigController.Instance == null)
-                    {
-                        var rcGo = new GameObject("RemoteConfigController");
-                        rcGo.AddComponent<RemoteConfigController>();
-                    }
-                });
+                pendingMainThreadInit = true;
             }
             else
             {
                 Debug.LogError($"Firebase initialization failed: {dependencyStatus}");
             }
         });
+    }
+
+    void Update()
+    {
+        if (pendingMainThreadInit)
+        {
+            pendingMainThreadInit = false;
+            InitializeRemoteConfigHandlers();
+        }
+    }
+
+    private void InitializeRemoteConfigHandlers()
+    {
+        if (FirebaseRemoteConfigHelper.Instance == null)
+        {
+            var go = new GameObject("FirebaseRemoteConfigHelper");
+            go.AddComponent<FirebaseRemoteConfigHelper>();
+        }
+        FirebaseRemoteConfigHelper.Instance.Initialize();
+
+        if (RemoteConfigController.Instance == null)
+        {
+            var rcGo = new GameObject("RemoteConfigController");
+            rcGo.AddComponent<RemoteConfigController>();
+        }
     }
 }

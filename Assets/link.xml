@@ -1,0 +1,8 @@
+<linker>
+  <assembly fullname="Firebase.App" preserve="all"/>
+  <assembly fullname="Firebase.RemoteConfig" preserve="all"/>
+  <assembly fullname="Firebase.Analytics" preserve="all"/>
+  <assembly fullname="Firebase.Platform" preserve="all"/>
+  <assembly fullname="Firebase.TaskExtension" preserve="all"/>
+</linker>
+

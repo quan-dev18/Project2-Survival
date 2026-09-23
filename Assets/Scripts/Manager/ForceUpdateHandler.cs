@@ -32,7 +32,7 @@ public class ForceUpdateHandler : MonoBehaviour
         if (FirebaseRemoteConfigHelper.Instance != null)
         {
             FirebaseRemoteConfigHelper.Instance.OnConfigFetched += HandleConfigFetched;
-            CheckForceUpdate();
+            //CheckForceUpdate();
         }
     }
 
@@ -44,43 +44,43 @@ public class ForceUpdateHandler : MonoBehaviour
 
     private void HandleConfigFetched()
     {
-        CheckForceUpdate();
+        //CheckForceUpdate();
     }
 
     /// <summary>
     /// Checks if an update is required. Returns true if current version is older.
     /// </summary>
-    public bool CheckForceUpdate()
-    {
-        if (FirebaseRemoteConfigHelper.Instance == null) return false;
+    // public bool CheckForceUpdate()
+    // {
+    //     if (FirebaseRemoteConfigHelper.Instance == null) return false;
 
-        string requiredVersion = FirebaseRemoteConfigHelper.Instance.ForceUpdateVersion;
-        if (string.IsNullOrEmpty(requiredVersion))
-        {
-            IsUpdateRequired = false;
-            HideUpdateUI();
-            return false;
-        }
+    //     string requiredVersion = FirebaseRemoteConfigHelper.Instance.ForceUpdateVersion;
+    //     if (string.IsNullOrEmpty(requiredVersion))
+    //     {
+    //         IsUpdateRequired = false;
+    //         HideUpdateUI();
+    //         return false;
+    //     }
 
-        string currentVersion = Application.version;
-        if (IsVersionOlder(currentVersion, requiredVersion))
-        {
-            if (!IsUpdateRequired)
-            {
-                IsUpdateRequired = true;
-                FirebaseAnalyticsHelper.LogForceUpdateTriggered(requiredVersion, currentVersion);
-                Debug.LogWarning($"[ForceUpdateHandler] Update REQUIRED: Current {currentVersion} < Required {requiredVersion}");
-            }
-            ShowUpdateUI(requiredVersion, currentVersion);
-            return true;
-        }
-        else
-        {
-            IsUpdateRequired = false;
-            HideUpdateUI();
-            return false;
-        }
-    }
+    //     string currentVersion = Application.version;
+    //     if (IsVersionOlder(currentVersion, requiredVersion))
+    //     {
+    //         if (!IsUpdateRequired)
+    //         {
+    //             IsUpdateRequired = true;
+    //             FirebaseAnalyticsHelper.LogForceUpdateTriggered(requiredVersion, currentVersion);
+    //             Debug.LogWarning($"[ForceUpdateHandler] Update REQUIRED: Current {currentVersion} < Required {requiredVersion}");
+    //         }
+    //         ShowUpdateUI(requiredVersion, currentVersion);
+    //         return true;
+    //     }
+    //     else
+    //     {
+    //         IsUpdateRequired = false;
+    //         HideUpdateUI();
+    //         return false;
+    //     }
+    // }
 
     private bool IsVersionOlder(string current, string required)
     {

@@ -112,10 +112,30 @@ public class LoadingSceneController : MonoBehaviour
 
         if (RemoteConfigController.Instance != null)
         {
-            while (!RemoteConfigController.Instance.EvaluateAllConfigs())
+            bool canProceed = true;
+            try
+            {
+                canProceed = RemoteConfigController.Instance.EvaluateAllConfigs();
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning("[LoadingSceneController] Remote config evaluation warning: " + ex.Message);
+                canProceed = true;
+            }
+
+            while (!canProceed)
             {
                 // Nếu đang bảo trì hoặc bắt buộc cập nhật, giữ màn hình loading và hiển thị thông báo
                 yield return new WaitForSeconds(1f);
+                try
+                {
+                    canProceed = RemoteConfigController.Instance.EvaluateAllConfigs();
+                }
+                catch
+                {
+                    canProceed = true;
+                    break;
+                }
             }
         }
 

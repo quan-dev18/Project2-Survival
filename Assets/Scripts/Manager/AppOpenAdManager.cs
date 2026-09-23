@@ -54,7 +54,7 @@ public class AppOpenAdManager : MonoBehaviour
 
     public void LoadAd()
     {
-        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAppOpenEnabled)
+        if (FirebaseRemoteConfigHelper.Instance != null && (!FirebaseRemoteConfigHelper.Instance.IsAdsEnabled || !FirebaseRemoteConfigHelper.Instance.IsAppOpenEnabled))
             return;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -114,7 +114,7 @@ public class AppOpenAdManager : MonoBehaviour
         int delay = 5;
         if (FirebaseRemoteConfigHelper.Instance != null)
         {
-            if (!FirebaseRemoteConfigHelper.Instance.IsAppOpenEnabled)
+            if (!FirebaseRemoteConfigHelper.Instance.IsAdsEnabled || !FirebaseRemoteConfigHelper.Instance.IsAppOpenEnabled)
                 yield break;
             delay = FirebaseRemoteConfigHelper.Instance.AppOpenDelay;
         }
@@ -128,7 +128,7 @@ public class AppOpenAdManager : MonoBehaviour
     {
         if (isShowing) return;
 
-        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAppOpenEnabled)
+        if (FirebaseRemoteConfigHelper.Instance != null && (!FirebaseRemoteConfigHelper.Instance.IsAdsEnabled || !FirebaseRemoteConfigHelper.Instance.IsAppOpenEnabled))
         {
             return;
         }
