@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MobSwon
   m_EditorClassIdentifier: 
   maxHealth: 7777
-  movementSpeed: 4.5
+  movementSpeed: 4
   attackDamage: 5
   attackRange: 1
   attackSpeed: 1
