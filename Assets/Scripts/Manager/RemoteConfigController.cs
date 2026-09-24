@@ -109,7 +109,6 @@ public class RemoteConfigController : MonoBehaviour
 
         if (FirebaseRemoteConfigHelper.Instance == null)
         {
-            Debug.Log("[RemoteConfigController] FirebaseRemoteConfigHelper not available yet.");
             return true;
         }
 

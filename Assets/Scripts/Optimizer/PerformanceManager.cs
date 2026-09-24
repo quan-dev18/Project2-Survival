@@ -382,8 +382,6 @@ public sealed class PerformanceManager : MonoBehaviour
 
         // Bộ nhớ thấp: hạ mức tối đa ngay để cứu game khỏi súp sệt / bị kill.
         Application.lowMemory += OnLowMemoryWarning;
-
-        Debug.Log($"[PerformanceManager] 🚀 Khởi tạo: Mode={frameRateMode}, Target={AppliedTargetFPS} FPS, Quality={AppliedQualityLevel}, Adaptive={adaptiveEnabled}");
     }
 
     /// <summary>
@@ -534,7 +532,6 @@ public sealed class PerformanceManager : MonoBehaviour
     private void AdaptiveStepDown()
     {
         adaptiveStep = Mathf.Min(maxAdaptiveStep, adaptiveStep + 1);
-        Debug.Log($"[PerformanceManager] ⚠️ Hiệu năng tụt, hạ xuống mức {CurrentPerformanceLevel} (Target={AppliedTargetFPS} FPS, Quality={AppliedQualityLevel})");
         ApplyAdaptiveStep();
     }
 
@@ -544,7 +541,6 @@ public sealed class PerformanceManager : MonoBehaviour
     private void AdaptiveStepUp()
     {
         adaptiveStep = Mathf.Max(0, adaptiveStep - 1);
-        Debug.Log($"[PerformanceManager] ✅ Hiệu năng hồi phục, nâng lên mức {CurrentPerformanceLevel} (Target={AppliedTargetFPS} FPS, Quality={AppliedQualityLevel})");
         ApplyAdaptiveStep();
     }
 
@@ -557,7 +553,6 @@ public sealed class PerformanceManager : MonoBehaviour
     {
         simulateBatteryPercent = Mathf.Clamp(percent, -1f, 100f);
         batteryWarningRaised = false;
-        Debug.Log($"[PerformanceManager] 🔋 Mô phỏng pin: {(simulateBatteryPercent < 0f ? "TẮT (dùng pin thật)" : simulateBatteryPercent + "%")}");
     }
 
     /// <summary>
@@ -714,7 +709,6 @@ public sealed class PerformanceManager : MonoBehaviour
         ApplyAll();
         SavePreferences();
         OnAdaptiveEnabledChanged?.Invoke(adaptiveEnabled);
-        Debug.Log($"[PerformanceManager] 🚀 Adaptive Throttling: {(adaptiveEnabled ? "BẬT" : "TẮT")}");
     }
 
     /// <summary>
@@ -768,7 +762,6 @@ private void ResetAdaptiveState()
         ApplyFrameRate();
         SavePreferences();
         OnVSyncChanged?.Invoke(vSyncEnabled);
-        Debug.Log($"[PerformanceManager] 🎮 VSync: {(vSyncEnabled ? "BẬT" : "TẮT")} (Target={AppliedTargetFPS} FPS)");
     }
 
     // =============================================================
@@ -939,24 +932,18 @@ private void ResetAdaptiveState()
         PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
         RenderProfile profile = GetRenderProfile(tier);
 
-        bool changed = false;
-
         float scale = Mathf.Clamp(profile.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
         if (Mathf.Abs(urp.renderScale - scale) > 0.001f)
         {
             urp.renderScale = scale;
-            changed = true;
         }
 
         // Pixel art không cần MSAA — ép 0 để khỏi nhòe + đỡ fillrate.
         if (urp.msaaSampleCount != 0)
         {
             urp.msaaSampleCount = 0;
-            changed = true;
         }
 
-        if (changed)
-            Debug.Log($"[PerformanceManager] Render Profile {tier} | Scale={scale:0.00} MSAA=0");
     }
 
     /// <summary>

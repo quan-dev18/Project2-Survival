@@ -86,9 +86,6 @@ public class BombActive : MonoBehaviour, IDamageable, IPoolSpawnable
         StopFlash();
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        Debug.Log($"[Bomb] Explode at {transform.position}, radius={explosionRadius}, hits={hits.Length}");
-#endif
 
         foreach (Collider2D hit in hits)
         {

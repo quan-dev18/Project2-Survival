@@ -140,7 +140,7 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        playerHealth.DealDamage(attackDamage);
+        playerHealth.DealDamage(attackDamage, this);
         CameraShake.Shake(0.5f, 0.3f);
         float interval = attackSpeed > 0f ? 1f / attackSpeed : 1f;
         nextAttackTime = Time.time + interval;

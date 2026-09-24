@@ -50,7 +50,6 @@ public class DebugMenu : MonoBehaviour
             go.AddComponent<DebugMenu>();
             s_creatingPlaceholder = false;
             DontDestroyOnLoad(go);
-            Debug.Log("[DebugMenu] No scene instance found; created runtime placeholder (limited controls).");
         }
     }
 
@@ -82,8 +81,6 @@ public class DebugMenu : MonoBehaviour
 
         RebindReferences();
         if (debugPanel != null) debugPanel.SetActive(false);
-
-        Debug.Log($"[DebugMenu] Initialized (toggleKey={toggleKey}, panel={(debugPanel != null ? debugPanel.name : "NULL")}, toggleButton={(toggleButton != null ? toggleButton.name : "NULL")}). Click the Game view, then press {toggleKey} or the toggle button.");
     }
 
     // Resolves scene references and wires listeners. Safe to call multiple
@@ -147,7 +144,6 @@ public class DebugMenu : MonoBehaviour
                 var c = graphic.color;
                 c.a = 1f;
                 graphic.color = c;
-                Debug.Log("[DebugMenu] Toggle button was invisible; made it visible.");
             }
             toggleButton.onClick.RemoveListener(ToggleDebugMenu);
             toggleButton.onClick.AddListener(ToggleDebugMenu);
@@ -229,7 +225,6 @@ public class DebugMenu : MonoBehaviour
         // Slow motion when panel is open, restore normal speed when closed
         Time.timeScale = newState ? 0.1f : 1f; // Slowed but inputs still work
 
-        Debug.Log("[DebugMenu] Panel " + (newState ? "opened" : "closed"));
         if (newState) RefreshUpgradeList();
     }
 
@@ -330,7 +325,6 @@ public class DebugMenu : MonoBehaviour
         if (panel != null)
         {
             panel.GrantUpgrade(upgrade);
-            Debug.Log($"[Debug] Added upgrade: {upgrade.UpgradeName}");
             RefreshUpgradeList();
         }
         else Debug.LogWarning("[DebugMenu] No LevelUpPanel in scene - cannot grant upgrade.");

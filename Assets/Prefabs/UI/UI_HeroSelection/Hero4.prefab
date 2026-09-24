@@ -153,11 +153,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'HP: 250
+  m_text: 'HP: 50
 
     Recovery: 0/s
 
-    DEF: 5
+    Armor: 150
 
     Move Speed: 5
 

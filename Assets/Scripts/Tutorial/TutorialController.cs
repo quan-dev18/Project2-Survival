@@ -81,7 +81,6 @@ public class TutorialController : MonoBehaviour
     public static void ResetTutorialStatus()
     {
         SetTutorialCompleted(false);
-        Debug.Log("[TutorialController] Trạng thái Tutorial đã reset về Chưa Hoàn Thành.");
     }
 
     private void Awake()
@@ -361,7 +360,6 @@ public class TutorialController : MonoBehaviour
             {
                 SetTutorialCompleted(true);
                 FirebaseAnalyticsHelper.LogTutorialCompleted();
-                Debug.Log("[TutorialController] Người chơi đã hoàn thành Stage Tutorial!");
             }
         }
     }

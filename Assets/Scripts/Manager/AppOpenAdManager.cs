@@ -12,12 +12,17 @@ public class AppOpenAdManager : MonoBehaviour
 {
     public static AppOpenAdManager Instance { get; private set; }
 
+    // Both fields are only read inside UNITY_ANDROID builds; silence CS0414 elsewhere.
+#pragma warning disable CS0414
     [SerializeField] private string androidAppOpenId = "ca-app-pub-3940256099942544/9257395921";
+#pragma warning restore CS0414
 
     private AppOpenAd appOpenAd;
     private DateTime loadTime;
     private bool isShowing = false;
+#pragma warning disable CS0414
     private bool isLoading = false;
+#pragma warning restore CS0414
     private Coroutine delayRoutine;
 
     public bool IsReady => appOpenAd != null && appOpenAd.CanShowAd() && (DateTime.UtcNow - loadTime).TotalHours < 4;

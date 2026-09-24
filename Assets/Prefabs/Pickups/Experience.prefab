@@ -52,7 +52,7 @@ MonoBehaviour:
   tierSmallColor: {r: 0, g: 1, b: 0.126, a: 1}
   tierMidColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   tierBigColor: {r: 1, g: 0, b: 0, a: 1}
-  shieldPieceChance: 5
+  shieldPieceChance: 3
   shieldArmorAmount: 5
   shieldDespawnTime: 30
   shieldPieceSprite: {fileID: -1945291573, guid: 734e6b363ade5ac48a6beca8265f29c3, type: 3}

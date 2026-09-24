@@ -19,4 +19,6 @@ MonoBehaviour:
   maxLevel: 1
   baseCost: 10000
   costMultiplier: 1
-  statMods: []
+  statMods:
+  - stat: 49
+    amountPerLevel: 1

@@ -455,7 +455,6 @@ public class UserData : MonoBehaviour
             PlayerPrefs.DeleteKey(oldKey);
             if (old == null || old.ids == null || old.levels == null) return;
 
-            bool changed = false;
             for (int i = 0; i < old.ids.Count && i < old.levels.Count; i++)
             {
                 string id = old.ids[i];
@@ -465,10 +464,8 @@ public class UserData : MonoBehaviour
                 if (level > existing)
                 {
                     SetPerkLevel(id, level);
-                    changed = true;
                 }
             }
-            if (changed) Debug.Log("[UserData] Đã nhập perk level từ dữ liệu cũ.");
         }
         catch (System.Exception e)
         {

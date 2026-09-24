@@ -144,7 +144,8 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         if (executePercent > 0f && damageable is EnemyHealth enemyHealth
             && enemyHealth.CurrentHealth > 0f && enemyHealth.CurrentHealth <= enemyHealth.MaxHealth * executePercent)
         {
-            damageable.TakeDamage(9999f);
+            // Fixed execute damage: flat value, never scaled by damage multipliers.
+            damageable.TakeDamage(999f);
         }
 
         IKnockbackable knockbackable;

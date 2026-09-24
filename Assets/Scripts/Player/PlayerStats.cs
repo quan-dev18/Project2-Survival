@@ -50,6 +50,8 @@ public class PlayerStats : MonoBehaviour
     public bool bonusSpiritEmpowered { get; private set; }
     public float bonusGoldGainPercent { get; private set; }
     public float bonusHealMaxHealthPercent { get; private set; }
+    public bool bonusDoubleShieldArmor { get; private set; }
+    public float bonusThornsDamage { get; private set; }
     #endregion
 
     #region Stat Caps
@@ -89,6 +91,12 @@ public class PlayerStats : MonoBehaviour
     public float CurrentHealth { get; private set; }
     public float CurrentArmor { get; private set; }
     private bool isDead;
+    #endregion
+
+    #region Revive (Perk)
+    [SerializeField] private float reviveInvulnerableDuration = 2f;
+    private float reviveInvulnerableTimer;
+    public int ReviveCharges { get; private set; }
     #endregion
 
     #region Events
@@ -193,6 +201,13 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
+        // Tick down revive invulnerability window
+        if (reviveInvulnerableTimer > 0f)
+        {
+            reviveInvulnerableTimer -= Time.deltaTime;
+            if (reviveInvulnerableTimer < 0f) reviveInvulnerableTimer = 0f;
+        }
+
         //regenerate health over time
         RegenOverTime();
 
@@ -335,6 +350,10 @@ public class PlayerStats : MonoBehaviour
 
     public void AddArmorRegenPerSecond(float amount) => bonusArmorRegenPerSecond += amount;
 
+    public void AddDoubleShieldArmor(float amount) => bonusDoubleShieldArmor = amount > 0f;
+
+    public void AddThornsDamage(float amount) => bonusThornsDamage += amount;
+
     public void AddStackingBuffPercent(float amount) => bonusStackingBuffPercent += amount;
 
     public void AddMysteryCube(float amount)
@@ -399,6 +418,33 @@ public class PlayerStats : MonoBehaviour
 
     public void AddHealMaxHealthPercent(float amount) => bonusHealMaxHealthPercent += amount;
 
+    /// <summary>
+    /// Thêm số lần hồi sinh (1 per level mặc định). PerkBuffApplier cộng delta mỗi tick
+    /// nên chỉ tăng, không giảm trừ khi player thực sự sử dụng 1 lượt hồi sinh.
+    /// </summary>
+    public void AddRevive(float amount)
+    {
+        int charges = Mathf.RoundToInt(amount);
+        ReviveCharges = Mathf.Max(0, ReviveCharges + charges);
+    }
+
+    /// <summary>
+    /// Tiêu thụ 1 lượt hồi sinh: hồi đầy máu & giáp, cộng thêm quãng thời gian bất tử ngắn.
+    /// Trả về false khi hết lượt (để player chết như bình thường).
+    /// </summary>
+    public bool TryRevive()
+    {
+        if (ReviveCharges <= 0) return false;
+
+        ReviveCharges--;
+        CurrentHealth = MaxHealth;
+        CurrentArmor = MaxArmor;
+        reviveInvulnerableTimer = reviveInvulnerableDuration;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
+        return true;
+    }
+
     public void AddTC1(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC1();
     public void AddTC2A(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2A();
     public void AddTC2B(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2B();
@@ -408,9 +454,15 @@ public class PlayerStats : MonoBehaviour
     public int GetGoldGainAmount(int baseAmount)
         => Mathf.RoundToInt(baseAmount * (1f + bonusGoldGainPercent));
 
-    public void TakeDamage(float amount)
+    /// <summary>Armor value above which Diamond Armor III thorns trigger.</summary>
+    private const float ThornsArmorThreshold = 10f;
+
+    public void TakeDamage(float amount, EnemyController attacker = null)
     {
         if (isDead || amount <= 0f) return;
+
+        // Invulnerable window right after revive
+        if (reviveInvulnerableTimer > 0f) return;
 
         // Invulnerable while reloading - any weapon reloading = invuln
         {
@@ -420,6 +472,14 @@ public class PlayerStats : MonoBehaviour
             var allFInv = GetAllFlamethrowers();
             if (bonusInvulnerableWhileReloading && allFInv != null)
                 foreach (var f in allFInv) if (f != null && f.IsReloading) return;
+        }
+
+        // Diamond Armor III: while armor holds above threshold, reflect damage to the attacker
+        if (bonusThornsDamage > 0f && attacker != null && CurrentArmor > ThornsArmorThreshold)
+        {
+            EnemyHealth attackerHealth = attacker.GetComponentInChildren<EnemyHealth>(true);
+            if (attackerHealth != null)
+                attackerHealth.TakeDamage(bonusThornsDamage);
         }
 
         float remaining = amount;

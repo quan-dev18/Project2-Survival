@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb6a6c9e052f3224aa42128bd8cbfcde, type: 3}
+  m_Name: EE_2B
+  m_EditorClassIdentifier: 
+  upgradeName: Eagle Eyes II
+  description: "T\u1EA7m t\u1EA5n c\xF4ng +36%\nS\xE1t th\u01B0\u01A1ng +20%"
+  icon: {fileID: 301586615, guid: f06329fd5ca37d34c9e9a5e3935d5f10, type: 3}
+  statMods:
+  - stat: 7
+    amount: 36
+  - stat: 13
+    amount: 20
+  requires:
+  - {fileID: 11400000, guid: e0e10001000000000000000000000001, type: 2}

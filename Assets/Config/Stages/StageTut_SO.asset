@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: StageTut_SO
   m_EditorClassIdentifier: 
-  stageID: 1
-  maxProgress: 5
+  stageID: 0
+  maxProgress: 6
   isInfinite: 0
   infiniteDifficultyStep: 10
   attackIncrementPercent: 10
@@ -22,7 +22,8 @@ MonoBehaviour:
   statsIncrementInterval: 60
   phases:
   - phaseName: I
-    duration: 30
+    duration: 3
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 1
@@ -49,7 +50,8 @@ MonoBehaviour:
       wallEnemyHP: 250
       wallEnemyDamage: 10
   - phaseName: II
-    duration: 30
+    duration: 3
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3
@@ -76,7 +78,8 @@ MonoBehaviour:
       wallEnemyHP: 250
       wallEnemyDamage: 15
   - phaseName: Rest_I
-    duration: 10
+    duration: 1
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 2
@@ -93,7 +96,8 @@ MonoBehaviour:
       wallEnemyHP: 250
       wallEnemyDamage: 15
   - phaseName: III
-    duration: 30
+    duration: 3
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3
@@ -120,7 +124,8 @@ MonoBehaviour:
       wallEnemyHP: 250
       wallEnemyDamage: 10
   - phaseName: IV
-    duration: 30
+    duration: 3
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 2
@@ -152,7 +157,8 @@ MonoBehaviour:
       wallEnemyHP: 200
       wallEnemyDamage: 15
   - phaseName: V
-    duration: 240
+    duration: 24
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3

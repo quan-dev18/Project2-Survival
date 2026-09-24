@@ -203,7 +203,6 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
                 }
             }
             PlayerPrefs.Save();
-            Debug.Log("[FirebaseRemoteConfig] Values fetched and activated successfully!");
         }
         catch (Exception ex)
         {

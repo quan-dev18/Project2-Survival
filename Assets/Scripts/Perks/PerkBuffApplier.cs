@@ -143,7 +143,6 @@ public class PerkBuffApplier : MonoBehaviour
         if (manager != null && manager.PerkPool != null && manager.PerkPool.Count > 0)
         {
             perkPool = new List<PerkDataSO>(manager.PerkPool);
-            Debug.Log("[PerkBuff] Đã tự lấy danh sách Perk từ PerksManager trong scene.");
         }
         _poolResolved = perkPool != null && perkPool.Count > 0;
     }
@@ -226,6 +225,10 @@ public class PerkBuffApplier : MonoBehaviour
             case UpgradeType.SpiritEmpowered: ps.AddSpiritEmpowered(pct); break;
             case UpgradeType.GoldGainPercent: ps.AddGoldGainPercent(pct); break;
             case UpgradeType.HealMaxHealthPercentPerSecond: ps.AddHealMaxHealthPercent(pct); break;
+            case UpgradeType.Revive: ps.AddRevive(amount); break;
+            case UpgradeType.VisionRangePercent: CameraController.ApplyVisionBonus(pct); break;
+            case UpgradeType.DoubleShieldArmor: ps.AddDoubleShieldArmor(pct); break;
+            case UpgradeType.ThornsDamage: ps.AddThornsDamage(amount); break;
         }
     }
 

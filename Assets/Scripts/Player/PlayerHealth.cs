@@ -13,10 +13,10 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         DealDamage(amount);
     }
 
-    public void DealDamage(float amount)
+    public void DealDamage(float amount, EnemyController attacker = null)
     {
         if (playerStats == null) return;
-        playerStats.TakeDamage(amount);
+        playerStats.TakeDamage(amount, attacker);
 
         CameraShake.Shake(0.3f, 0.2f);
 
@@ -25,6 +25,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         if (playerStats.CurrentHealth <= 0f)
         {
+            // Perk hồi sinh: nếu còn lượt hồi sinh thì hồi đầy máu thay vì GameOver.
+            if (playerStats.TryRevive())
+            {
+                return;
+            }
+
             // Log player died event
             float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
             int killCount = GameManager.Instance != null ? GameManager.Instance.KillCount : 0;
@@ -32,7 +38,6 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             string stageId = PlayerPrefs.GetString("SelectedMapIndex", "0");
             FirebaseAnalyticsHelper.LogPlayerDied(timeAlive, killCount, highestLevel, stageId);
 
-            Debug.Log("Player died");
             GameManager.Instance?.SetState(GameState.GameOver);
         }
     }

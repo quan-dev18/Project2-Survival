@@ -48,6 +48,10 @@ public class LevelUpPanel : MonoBehaviour
     [Header("Rain Effect")]
     [SerializeField] private ParticleSystem rainEffect;
 
+    [Header("Take All (Rewarded Ad)")]
+    [Tooltip("Optional 'take all 3' button: grants every presented choice after a rewarded ad.")]
+    [SerializeField] private Button takeAllButton;
+
     private readonly List<UpgradeSO> choices = new List<UpgradeSO>();
     private readonly HashSet<UpgradeSO> ownedUpgrades = new HashSet<UpgradeSO>();
     private PlayerStats playerStats;
@@ -70,6 +74,7 @@ public class LevelUpPanel : MonoBehaviour
         button1.onClick.AddListener(() => Choose(0));
         button2.onClick.AddListener(() => Choose(1));
         button3.onClick.AddListener(() => Choose(2));
+        takeAllButton?.onClick.AddListener(OnTakeAllClicked);
     }
 
     private void OnDestroy()
@@ -120,22 +125,27 @@ public class LevelUpPanel : MonoBehaviour
         if (raycaster == null) raycaster = gameObject.AddComponent<GraphicRaycaster>();
     }
 
+    private void ShowPanel()
+    {
+        EnsureTopmostCanvas();
+        RollChoices();
+        gameObject.SetActive(true);
+        transform.SetAsLastSibling();
+        if (rainEffect != null)
+        {
+            rainEffect.gameObject.SetActive(true);
+            var main = rainEffect.main;
+            main.useUnscaledTime = true;
+            rainEffect.Play();
+        }
+        RefreshTakeAllButton();
+    }
+
     private void OnGameStateChanged(GameState state)
     {
         if (state == GameState.LevelUp)
         {
-            EnsureTopmostCanvas();
-            RollChoices();
-            gameObject.SetActive(true);
-            transform.SetAsLastSibling();
-            if(rainEffect != null)
-            {
-                rainEffect.gameObject.SetActive(true);
-                var main = rainEffect.main;
-                main.useUnscaledTime = true;
-                rainEffect.Play();
-            }
-            
+            ShowPanel();
         }
 
         if (state == GameState.Playing)
@@ -185,7 +195,6 @@ public class LevelUpPanel : MonoBehaviour
             if (up == null || ownedUpgrades.Contains(up)) continue;
             ApplyUpgrade(up);
             ownedUpgrades.Add(up);
-            Debug.Log($"[Startup] Applied {up.UpgradeName}");
         }
         startupApplied = true;
         startupRoutine = null;
@@ -316,7 +325,6 @@ public class LevelUpPanel : MonoBehaviour
 
     private void Choose(int choiceIndex)
     {
-        Debug.Log($"[LevelUpPanel] Choose({choiceIndex}) selected!");
         if (choiceIndex >= choices.Count) return;
 
         UpgradeSO upgrade = choices[choiceIndex];
@@ -327,9 +335,68 @@ public class LevelUpPanel : MonoBehaviour
         int upgradeTier = GetUpgradeTier(upgrade);
         FirebaseAnalyticsHelper.LogUpgradeChosen(upgrade.UpgradeName, upgradeTier, choiceIndex + 1, ownedUpgrades.Count);
 
+        AfterPick();
+    }
+
+    /// <summary>
+    /// Take-all button: watch a rewarded ad, then grant every presented choice.
+    /// </summary>
+    private void OnTakeAllClicked()
+    {
+        if (choices.Count == 0) return;
+        if (takeAllButton != null) takeAllButton.interactable = false;
+        AdManager ads = AdManager.Instance;
+        if (ads == null)
+        {
+            RefreshTakeAllButton();
+            return;
+        }
+        ads.ShowTakeAllRewardedAd(onEarned: GrantAllChoices, onFinished: RefreshTakeAllButton);
+    }
+
+    private void GrantAllChoices()
+    {
+        for (int i = 0; i < choices.Count; i++)
+        {
+            UpgradeSO upgrade = choices[i];
+            if (upgrade == null) continue;
+            ApplyUpgrade(upgrade);
+            ownedUpgrades.Add(upgrade);
+            FirebaseAnalyticsHelper.LogUpgradeChosen(upgrade.UpgradeName, GetUpgradeTier(upgrade), i + 1, ownedUpgrades.Count);
+        }
+        AfterPick();
+    }
+
+    private void AfterPick()
+    {
+        PlayerXP.Instance?.ConsumePendingLevelUp();
+        if (PlayerXP.Instance != null && PlayerXP.Instance.PendingLevelUps > 0)
+        {
+            // Still owe the player more picks (multi-level from one orb): stay in
+            // LevelUp (no state change event would fire anyway) and roll fresh choices.
+            ShowPanel();
+            return;
+        }
+
         choices.Clear();
         if (rainEffect != null) rainEffect.gameObject.SetActive(false);
         GameManager.Instance.SetState(GameState.Playing);
+    }
+
+    private void RefreshTakeAllButton()
+    {
+        if (takeAllButton == null) return;
+        takeAllButton.gameObject.SetActive(choices.Count > 0);
+        takeAllButton.interactable = IsTakeAllAdReady();
+    }
+
+    private bool IsTakeAllAdReady()
+    {
+#if UNITY_EDITOR
+        return true; // rewarded ads auto-complete in the Editor
+#else
+        return AdManager.Instance != null && AdManager.Instance.IsTakeAllRewardedReady;
+#endif
     }
 
     /// <summary>Applies an upgrade from outside the normal choice flow (e.g. debug menu) and registers ownership.</summary>
@@ -353,8 +420,6 @@ public class LevelUpPanel : MonoBehaviour
 
         // Register max-level upgrades for synergies
         SynergyManager.Instance?.RegisterMaxLevelUpgrade(upgrade.UpgradeName);
-
-        Debug.Log($"Applied upgrade: {upgrade.UpgradeName}");
     }
 
     private void ApplyStat(UpgradeType stat, float amount)
@@ -520,6 +585,15 @@ public class LevelUpPanel : MonoBehaviour
                 break;
             case UpgradeType.HealMaxHealthPercentPerSecond:
                 playerStats?.AddHealMaxHealthPercent(pct);
+                break;
+            case UpgradeType.VisionRangePercent:
+                CameraController.ApplyVisionBonus(pct);
+                break;
+            case UpgradeType.DoubleShieldArmor:
+                playerStats?.AddDoubleShieldArmor(pct);
+                break;
+            case UpgradeType.ThornsDamage:
+                playerStats?.AddThornsDamage(amount);
                 break;
         }
     }
@@ -693,6 +767,15 @@ public class LevelUpPanel : MonoBehaviour
                 break;
             case UpgradeType.HealMaxHealthPercentPerSecond:
                 ps?.AddHealMaxHealthPercent(pct);
+                break;
+            case UpgradeType.VisionRangePercent:
+                CameraController.ApplyVisionBonus(pct);
+                break;
+            case UpgradeType.DoubleShieldArmor:
+                ps?.AddDoubleShieldArmor(pct);
+                break;
+            case UpgradeType.ThornsDamage:
+                ps?.AddThornsDamage(amount);
                 break;
         }
     }
