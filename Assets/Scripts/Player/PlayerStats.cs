@@ -91,6 +91,12 @@ public class PlayerStats : MonoBehaviour
     private bool isDead;
     #endregion
 
+    #region Revive (Perk)
+    [SerializeField] private float reviveInvulnerableDuration = 2f;
+    private float reviveInvulnerableTimer;
+    public int ReviveCharges { get; private set; }
+    #endregion
+
     #region Events
     public event System.Action<float, float> OnHealthChanged;
     public event System.Action<float, float> OnArmorChanged;
@@ -193,6 +199,13 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
+        // Tick down revive invulnerability window
+        if (reviveInvulnerableTimer > 0f)
+        {
+            reviveInvulnerableTimer -= Time.deltaTime;
+            if (reviveInvulnerableTimer < 0f) reviveInvulnerableTimer = 0f;
+        }
+
         //regenerate health over time
         RegenOverTime();
 
@@ -399,6 +412,33 @@ public class PlayerStats : MonoBehaviour
 
     public void AddHealMaxHealthPercent(float amount) => bonusHealMaxHealthPercent += amount;
 
+    /// <summary>
+    /// Thêm số lần hồi sinh (1 per level mặc định). PerkBuffApplier cộng delta mỗi tick
+    /// nên chỉ tăng, không giảm trừ khi player thực sự sử dụng 1 lượt hồi sinh.
+    /// </summary>
+    public void AddRevive(float amount)
+    {
+        int charges = Mathf.RoundToInt(amount);
+        ReviveCharges = Mathf.Max(0, ReviveCharges + charges);
+    }
+
+    /// <summary>
+    /// Tiêu thụ 1 lượt hồi sinh: hồi đầy máu & giáp, cộng thêm quãng thời gian bất tử ngắn.
+    /// Trả về false khi hết lượt (để player chết như bình thường).
+    /// </summary>
+    public bool TryRevive()
+    {
+        if (ReviveCharges <= 0) return false;
+
+        ReviveCharges--;
+        CurrentHealth = MaxHealth;
+        CurrentArmor = MaxArmor;
+        reviveInvulnerableTimer = reviveInvulnerableDuration;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
+        return true;
+    }
+
     public void AddTC1(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC1();
     public void AddTC2A(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2A();
     public void AddTC2B(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2B();
@@ -411,6 +451,9 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(float amount)
     {
         if (isDead || amount <= 0f) return;
+
+        // Invulnerable window right after revive
+        if (reviveInvulnerableTimer > 0f) return;
 
         // Invulnerable while reloading - any weapon reloading = invuln
         {

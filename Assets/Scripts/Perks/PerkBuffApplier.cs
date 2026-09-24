@@ -226,6 +226,7 @@ public class PerkBuffApplier : MonoBehaviour
             case UpgradeType.SpiritEmpowered: ps.AddSpiritEmpowered(pct); break;
             case UpgradeType.GoldGainPercent: ps.AddGoldGainPercent(pct); break;
             case UpgradeType.HealMaxHealthPercentPerSecond: ps.AddHealMaxHealthPercent(pct); break;
+            case UpgradeType.Revive: ps.AddRevive(amount); break;
         }
     }
 

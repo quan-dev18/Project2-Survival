@@ -25,6 +25,13 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         if (playerStats.CurrentHealth <= 0f)
         {
+            // Perk hồi sinh: nếu còn lượt hồi sinh thì hồi đầy máu thay vì GameOver.
+            if (playerStats.TryRevive())
+            {
+                Debug.Log("Player revived by perk!");
+                return;
+            }
+
             // Log player died event
             float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
             int killCount = GameManager.Instance != null ? GameManager.Instance.KillCount : 0;

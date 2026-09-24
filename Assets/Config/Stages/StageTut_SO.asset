@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: StageTut_SO
   m_EditorClassIdentifier: 
-  stageID: 1
-  maxProgress: 5
+  stageID: 0
+  maxProgress: 6
   isInfinite: 0
   infiniteDifficultyStep: 10
   attackIncrementPercent: 10

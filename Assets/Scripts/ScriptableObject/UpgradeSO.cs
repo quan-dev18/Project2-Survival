@@ -85,5 +85,6 @@ FreeShotChanceWhileStill,
     TC_2A,
     TC_2B,
     TC_3,
-    HealMaxHealthPercentPerSecond
+    HealMaxHealthPercentPerSecond,
+    Revive
 }

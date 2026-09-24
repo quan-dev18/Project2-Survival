@@ -404,6 +404,7 @@ public class PerksManager : MonoBehaviour
             case UpgradeType.DamageTakenFireRatePercent: return "Tốc độ bắn khi bị trúng đòn";
             case UpgradeType.DamageTakenBulletDamagePercent: return "Sát thương khi bị trúng đòn";
             case UpgradeType.GoldGainPercent: return "Vàng nhận thêm";
+            case UpgradeType.Revive: return "Hồi sinh";
             default: return stat.ToString();
         }
     }
@@ -417,6 +418,7 @@ public class PerksManager : MonoBehaviour
             case UpgradeType.BulletPierce:
             case UpgradeType.BulletBounceCount:
             case UpgradeType.ArmorRegenPerSecond:
+            case UpgradeType.Revive:
             case UpgradeType.TC_1:
             case UpgradeType.TC_2A:
             case UpgradeType.TC_2B:
