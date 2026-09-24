@@ -47,6 +47,8 @@ public class MapSelectionManager : MonoBehaviour
     [Tooltip("GameObject thông báo khi map ĐANG KHÓA (vd: dòng chữ 'Hoàn thành 100% map trước đó để mở khóa map này'). " +
              "Hệ thống sẽ SetActive: BẬT khi map hiện tại bị khóa, TẮT khi map mở. Nên để ẨN sẵn.")]
     public GameObject lockedMapNotifier;
+    [Tooltip("Icon hiển thị KHÓA (vd: ổ khóa). Hệ thống sẽ SetActive: BẬT khi map hiện tại bị khóa, TẮT khi map mở. Nên để ẨN sẵn.")]
+    [SerializeField] private GameObject lockedMapIcon;
 
     [Header("--- SWIPE SETTINGS ---")]
     public float swipeThreshold = 50f;
@@ -317,6 +319,10 @@ public class MapSelectionManager : MonoBehaviour
 
         // Chặn/bật bấm nút.
         startButton.interactable = unlocked;
+
+        // Bật/tắt icon khóa khi map đang khóa.
+        if (lockedMapIcon != null)
+            lockedMapIcon.SetActive(!unlocked);
 
         // Bật/tắt thông báo "hoàn thành map trước đó để chơi map này" khi map đang khóa.
         SetLockedNotifier(!unlocked);
