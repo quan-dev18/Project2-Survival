@@ -13,12 +13,14 @@ MonoBehaviour:
   m_Name: QS_2B
   m_EditorClassIdentifier: 
   upgradeName: Quick Shot II
-  description: "T\u1ED1c \u0111\u1ED9 b\u1EAFn +10%\nVi\xEAn \u0111\u1EA1n gi\u1EDD
-    c\xF3 th\u1EC3 n\u1EA3y th\xEAm 1 l\u1EA7n"
+  description: "T\u1ED1c \u0111\u1ED9 b\u1EAFn -10%\nS\xE1t th\u01B0\u01A1ng -20%\nVi\xEAn
+    \u0111\u1EA1n gi\u1EDD c\xF3 th\u1EC3 n\u1EA3y th\xEAm 1 l\u1EA7n"
   icon: {fileID: 170463668, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 6
     amount: 10
+  - stat: 13
+    amount: -20
   - stat: 20
     amount: 1
   requires:

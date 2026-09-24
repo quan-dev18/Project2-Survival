@@ -157,7 +157,7 @@ MonoBehaviour:
 
     Recovery: 3/s
 
-    DEF: 10
+    Armor: 15
 
     Move Speed: 5
 

@@ -69,14 +69,21 @@ public class HeroSelectManager : MonoBehaviour
 
         GameObject clone = Instantiate(selectButton.gameObject, selectButton.transform.parent);
         clone.name = "AdUnlockButton";
+        // Clone copies the select button's visuals/text ("Đã chọn") and active state:
+        // keep it hidden until UpdateAdUnlockUI explicitly shows it for ad-unlock.
+        clone.SetActive(false);
         adUnlockButton = clone.GetComponent<Button>();
         adUnlockButtonText = clone.GetComponentInChildren<TextMeshProUGUI>();
 
+        // Park the clone on the right side of the bottom button strip
+        // (select stays left): side-by-side, below the hero icons.
         RectTransform rt = clone.GetComponent<RectTransform>();
-        RectTransform srcRt = selectButton.GetComponent<RectTransform>();
-        if (rt != null && srcRt != null && (selectButton.transform.parent == null || selectButton.transform.parent.GetComponent<LayoutGroup>() == null))
+        if (rt != null)
         {
-            rt.anchoredPosition = srcRt.anchoredPosition + new Vector2(0f, srcRt.rect.height + 15f);
+            rt.anchorMin = new Vector2(1f, 0.5f);
+            rt.anchorMax = new Vector2(1f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(-170f, 0f);
         }
 
         adUnlockButton.onClick.RemoveAllListeners();

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37198529077e54e4789a66d9cbd2ec95, type: 3}
   m_Name: Stage2_SO
   m_EditorClassIdentifier: 
-  stageID: 
-  maxProgress: 0
+  stageID: 2
+  maxProgress: 17
   isInfinite: 0
   infiniteDifficultyStep: 10
   attackIncrementPercent: 10

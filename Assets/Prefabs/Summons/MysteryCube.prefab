@@ -132,7 +132,7 @@ MonoBehaviour:
   orbitRadius: 2
   orbitSpeed: 120
   activationDelay: 60
-  baseFireRate: 1
+  baseFireRate: 2
   projectileCount: 3
   spread: 50
   pierce: 1

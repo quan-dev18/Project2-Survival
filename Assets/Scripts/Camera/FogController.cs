@@ -23,6 +23,14 @@ public class FogController : MonoBehaviour
     private Vector2 flashPos;
     private Vector2 flashDir;
 
+    /// <summary>Eagle Eyes: widen the visible radius (stacks multiplicatively).</summary>
+    public void AddVisionPercent(float pct)
+    {
+        float mult = 1f + pct;
+        innerRadius *= mult;
+        outerRadius *= mult;
+    }
+
     public void RevealAt(Vector2 worldPos, Vector2 direction)
     {
         flashPos = worldPos;

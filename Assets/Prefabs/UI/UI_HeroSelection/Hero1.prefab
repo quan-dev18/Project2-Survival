@@ -69,7 +69,7 @@ MonoBehaviour:
 
     Recovery: 1/s
 
-    DEF: 10
+    Shield: 25
 
     Move Speed: 4
 

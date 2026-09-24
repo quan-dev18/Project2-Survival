@@ -50,6 +50,8 @@ public class PlayerStats : MonoBehaviour
     public bool bonusSpiritEmpowered { get; private set; }
     public float bonusGoldGainPercent { get; private set; }
     public float bonusHealMaxHealthPercent { get; private set; }
+    public bool bonusDoubleShieldArmor { get; private set; }
+    public float bonusThornsDamage { get; private set; }
     #endregion
 
     #region Stat Caps
@@ -348,6 +350,10 @@ public class PlayerStats : MonoBehaviour
 
     public void AddArmorRegenPerSecond(float amount) => bonusArmorRegenPerSecond += amount;
 
+    public void AddDoubleShieldArmor(float amount) => bonusDoubleShieldArmor = amount > 0f;
+
+    public void AddThornsDamage(float amount) => bonusThornsDamage += amount;
+
     public void AddStackingBuffPercent(float amount) => bonusStackingBuffPercent += amount;
 
     public void AddMysteryCube(float amount)
@@ -448,7 +454,10 @@ public class PlayerStats : MonoBehaviour
     public int GetGoldGainAmount(int baseAmount)
         => Mathf.RoundToInt(baseAmount * (1f + bonusGoldGainPercent));
 
-    public void TakeDamage(float amount)
+    /// <summary>Armor value above which Diamond Armor III thorns trigger.</summary>
+    private const float ThornsArmorThreshold = 10f;
+
+    public void TakeDamage(float amount, EnemyController attacker = null)
     {
         if (isDead || amount <= 0f) return;
 
@@ -463,6 +472,14 @@ public class PlayerStats : MonoBehaviour
             var allFInv = GetAllFlamethrowers();
             if (bonusInvulnerableWhileReloading && allFInv != null)
                 foreach (var f in allFInv) if (f != null && f.IsReloading) return;
+        }
+
+        // Diamond Armor III: while armor holds above threshold, reflect damage to the attacker
+        if (bonusThornsDamage > 0f && attacker != null && CurrentArmor > ThornsArmorThreshold)
+        {
+            EnemyHealth attackerHealth = attacker.GetComponentInChildren<EnemyHealth>(true);
+            if (attackerHealth != null)
+                attackerHealth.TakeDamage(bonusThornsDamage);
         }
 
         float remaining = amount;

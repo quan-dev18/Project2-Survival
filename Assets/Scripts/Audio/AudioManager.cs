@@ -803,42 +803,36 @@ public sealed class AudioManager : MonoBehaviour
     [ContextMenu("Test Play Gold Collect")]
     private void TestPlayGoldCollect()
     {
-        Debug.Log($"[AudioManager] Test Gold: clip={(goldCollectSFX != null ? goldCollectSFX.name : "(TRONG !)")}, SFXVolume={sfxVolume}");
         PlayGoldCollect();
     }
 
     [ContextMenu("Test Play XP Collect")]
     private void TestPlayXPCollect()
     {
-        Debug.Log($"[AudioManager] Test XP: clip={(xpCollectSFX != null ? xpCollectSFX.name : "(TRONG !)")}, SFXVolume={sfxVolume}");
         PlayXPCollect();
     }
 
     [ContextMenu("Test Play Level Up")]
     private void TestPlayLevelUp()
     {
-        Debug.Log($"[AudioManager] Test LevelUp: clip={(levelUpSFX != null ? levelUpSFX.name : "(TRONG !)")}, SFXVolume={sfxVolume}");
         PlayLevelUp();
     }
 
     [ContextMenu("Test Play UI Toggle On")]
     private void TestPlayUIToggleOn()
     {
-        Debug.Log($"[AudioManager] Test Toggle-On: clip={(uiToggleOnSFX != null ? uiToggleOnSFX.name : "(TRONG !)")}");
         PlayUIToggle(true);
     }
 
     [ContextMenu("Test Play UI Toggle Off")]
     private void TestPlayUIToggleOff()
     {
-        Debug.Log($"[AudioManager] Test Toggle-Off: clip={(uiToggleOffSFX != null ? uiToggleOffSFX.name : "(TRONG !)")}");
         PlayUIToggle(false);
     }
 
     [ContextMenu("Test Play UI Claim")]
     private void TestPlayUIClaim()
     {
-        Debug.Log($"[AudioManager] Test Claim: clip={(uiClaimSFX != null ? uiClaimSFX.name : "(TRONG !)")}, SFXVolume={sfxVolume}");
         PlayUIClaim();
     }
 #endif

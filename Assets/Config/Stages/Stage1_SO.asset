@@ -23,6 +23,7 @@ MonoBehaviour:
   phases:
   - phaseName: I
     duration: 30
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 1
@@ -50,6 +51,7 @@ MonoBehaviour:
       wallEnemyDamage: 10
   - phaseName: II
     duration: 30
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3
@@ -77,6 +79,7 @@ MonoBehaviour:
       wallEnemyDamage: 15
   - phaseName: Rest_I
     duration: 10
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 2
@@ -94,6 +97,7 @@ MonoBehaviour:
       wallEnemyDamage: 15
   - phaseName: III
     duration: 30
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3
@@ -121,6 +125,7 @@ MonoBehaviour:
       wallEnemyDamage: 10
   - phaseName: IV
     duration: 30
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 2
@@ -153,6 +158,7 @@ MonoBehaviour:
       wallEnemyDamage: 15
   - phaseName: V
     duration: 30
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3
@@ -180,6 +186,7 @@ MonoBehaviour:
       wallEnemyDamage: 15
   - phaseName: VI
     duration: 30
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy2
       spawnPerSecond: 3
@@ -222,6 +229,7 @@ MonoBehaviour:
       wallEnemyDamage: 15
   - phaseName: VII
     duration: 30
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3
@@ -244,6 +252,7 @@ MonoBehaviour:
       wallEnemyDamage: 15
   - phaseName: Rest_II
     duration: 10
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 1
@@ -266,6 +275,7 @@ MonoBehaviour:
       wallEnemyDamage: 15
   - phaseName: VIII
     duration: 10
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 3
@@ -287,7 +297,8 @@ MonoBehaviour:
       wallEnemyHP: 100
       wallEnemyDamage: 15
   - phaseName: IX
-    duration: 60
+    duration: 120
+    clearEnemy: 1
     enemies:
     - mobKey: Enemy
       spawnPerSecond: 1

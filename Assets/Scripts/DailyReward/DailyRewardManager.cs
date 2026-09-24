@@ -216,7 +216,6 @@ public class DailyRewardManager : MonoBehaviour
 
                 streakCount = 0;
                 SaveProgress();
-                Debug.Log($"[DailyReward] Bỏ lỡ {Mathf.FloorToInt((float)elapsed.TotalHours)}h (> {missResetHours}h) → Streak đã reset về 0.");
             }
             return 1;
         }

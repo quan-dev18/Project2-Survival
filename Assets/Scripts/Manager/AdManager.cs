@@ -23,6 +23,8 @@ public class AdManager : MonoBehaviour
     [SerializeField] private string androidRewardedId = "ca-app-pub-3940256099942544/5224354917";
     [Tooltip("Rewarded unit for the victory double. Test ID until release.")]
     [SerializeField] private string androidVictoryRewardedId = "ca-app-pub-3940256099942544/5224354917";
+    [Tooltip("Dedicated rewarded unit for the level-up take-all button.")]
+    [SerializeField] private string androidTakeAllRewardedId = "ca-app-pub-7087538734337269/6752957592";
 
     [Header("Reward")]
     [Tooltip("Coins granted per completed rewarded ad.")]
@@ -54,6 +56,7 @@ public class AdManager : MonoBehaviour
 
     private RewardedSlot shopSlot;
     private RewardedSlot victorySlot;
+    private RewardedSlot takeAllSlot;
 
     /// <summary>True when the shop rewarded ad is loaded and ready to show.</summary>
     public bool IsRewardedReady => IsSlotReady(shopSlot);
@@ -93,8 +96,10 @@ public class AdManager : MonoBehaviour
         {
             shopSlot = new RewardedSlot { label = "Shop", adUnitId = androidRewardedId };
             victorySlot = new RewardedSlot { label = "Victory", adUnitId = androidVictoryRewardedId };
+            takeAllSlot = new RewardedSlot { label = "TakeAll", adUnitId = androidTakeAllRewardedId };
             LoadSlot(shopSlot);
             LoadSlot(victorySlot);
+            LoadSlot(takeAllSlot);
             RefreshAdSettings();
         });
 #if UNITY_EDITOR
@@ -116,6 +121,7 @@ public class AdManager : MonoBehaviour
             bannerView = null;
             DestroySlot(shopSlot);
             DestroySlot(victorySlot);
+            DestroySlot(takeAllSlot);
         }
     }
 
@@ -201,6 +207,39 @@ public class AdManager : MonoBehaviour
 #endif
     }
 
+    /// <summary>True when the take-all rewarded ad is loaded and ready to show.</summary>
+    public bool IsTakeAllRewardedReady => IsSlotReady(takeAllSlot);
+
+    /// <summary>
+    /// Shows a rewarded ad for the level-up take-all button.
+    /// onEarned grants every presented choice; onFinished always runs after.
+    /// </summary>
+    public void ShowTakeAllRewardedAd(System.Action onEarned, System.Action onFinished = null)
+    {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAdsEnabled)
+        {
+            onEarned?.Invoke();
+            onFinished?.Invoke();
+            return;
+        }
+
+        FirebaseAnalyticsHelper.LogAdRewardedShown("take_all");
+#if UNITY_ANDROID && !UNITY_EDITOR
+        if (!ShowSlot(takeAllSlot, _ =>
+        {
+            try { onEarned?.Invoke(); }
+            finally { onFinished?.Invoke(); }
+        },
+        onFinished))
+        {
+            onFinished?.Invoke();
+        }
+#else
+        onEarned?.Invoke();
+        onFinished?.Invoke();
+#endif
+    }
+
     /// <returns>False when there was nothing to show.</returns>
     private bool ShowSlot(RewardedSlot slot, System.Action<Reward> onReward, System.Action onFinished)
     {
@@ -268,8 +307,6 @@ public class AdManager : MonoBehaviour
         bannerView?.Destroy();
         bannerView = new BannerView(androidBannerId, AdSize.Banner, AdPosition.Top);
         bannerView.LoadAd(new AdRequest());
-#else
-        Debug.Log("[AdManager] Banner ads only run on Android builds (skipped in Editor).");
 #endif
     }
 

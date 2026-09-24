@@ -11,11 +11,16 @@ public class InterstitialAdManager : MonoBehaviour
 {
     public static InterstitialAdManager Instance { get; private set; }
 
+    // Only read inside UNITY_ANDROID builds (see LoadAd); silence CS0414 elsewhere.
+#pragma warning disable CS0414
     [SerializeField] private string androidInterstitialId = "ca-app-pub-3940256099942544/1033173712";
+#pragma warning restore CS0414
 
     private InterstitialAd interstitialAd;
     private float lastInterstitialTime = -999f;
+#pragma warning disable CS0414
     private bool isLoading = false;
+#pragma warning restore CS0414
 
     public bool IsReady => interstitialAd != null && interstitialAd.CanShowAd();
 

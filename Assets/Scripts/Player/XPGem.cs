@@ -16,7 +16,7 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
     [SerializeField] private Color tierBigColor = Color.red;
     
     [Header("Shield Piece")]
-    [Tooltip("Chance (0-100%) for this gem to become a shield piece instead of XP.")]
+    [Tooltip("Chance (0-100%) for this gem to also grant shield in addition to its normal XP.")]
     [SerializeField] private float shieldPieceChance = 5f;
     [Tooltip("Armor amount restored when shield piece is collected.")]
     [SerializeField] private float shieldArmorAmount = 5f;
@@ -29,6 +29,8 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
 
     /// <summary>GoldGem opts out (it has its own gold look).</summary>
     protected virtual bool UseValueTiers => true;
+    /// <summary>GoldGem opts out (gold should never become a shield piece).</summary>
+    protected virtual bool AllowShieldPiece => true;
     protected const float ArrivalTolerance = 0.5f;
 
     protected Transform target;
@@ -61,8 +63,8 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
         cachedStats = null;
         despawnTimer = 0f;
         
-        // Determine if this is a shield piece
-        isShieldPiece = Random.value * 100f < shieldPieceChance;
+        // Determine if this is a shield piece (still grants its normal XP value too)
+        isShieldPiece = AllowShieldPiece && Random.value * 100f < shieldPieceChance;
         
         if (isShieldPiece && shieldPieceSprite != null && gemRenderer != null)
         {
@@ -198,14 +200,12 @@ public class XPGem : MonoBehaviour, IPoolSpawnable
         {
             if (target.TryGetComponent(out PlayerStats playerStats))
             {
-                playerStats.AddArmor(shieldArmorAmount);
+                float armorGain = shieldArmorAmount * (playerStats.bonusDoubleShieldArmor ? 2f : 1f);
+                playerStats.AddArmor(armorGain);
             }
         }
-        else
-        {
-            if (target.TryGetComponent(out PlayerXP playerXP))
-                playerXP.AddExperience(playerXP.PickupValue(xpAmount));
-        }
+        if (target.TryGetComponent(out PlayerXP playerXP))
+            playerXP.AddExperience(playerXP.PickupValue(xpAmount));
         PlayCollectSFX();
         if (ObjectPooling.Instance != null)
             ObjectPooling.Instance.Despawn(gameObject);

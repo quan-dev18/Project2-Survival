@@ -43,6 +43,9 @@ public class StageSO : ScriptableObject
         public string PhaseName => phaseName;
         [SerializeField] private float duration = 20f;
         public float Duration => duration;
+        [Tooltip("Full enemy wipe on phase start: silently removes all alive enemies (incl. elites and bosses) with no XP drops, before spawning this wave's content.")]
+        [SerializeField] private bool clearEnemy = false;
+        public bool ClearEnemy => clearEnemy;
         [SerializeField] private List<PhaseEnemy> enemies;
         public List<PhaseEnemy> Enemies => enemies;
         [SerializeField] private CircleWallConfig circleWall;

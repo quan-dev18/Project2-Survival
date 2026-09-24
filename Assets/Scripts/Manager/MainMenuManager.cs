@@ -23,7 +23,6 @@ public class MainMenuManager : MonoBehaviour
     public void ResetTutorial()
     {
         TutorialController.SetTutorialCompleted(false);
-        Debug.Log("[MainMenuManager] Trạng thái Tutorial đã được reset.");
     }
 
     public void OpenSettings()

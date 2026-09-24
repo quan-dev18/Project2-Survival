@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Stage3_SO
   m_EditorClassIdentifier: 
   stageID: 3
-  maxProgress: 22
+  maxProgress: 28
   isInfinite: 0
   infiniteDifficultyStep: 10
   attackIncrementPercent: 10

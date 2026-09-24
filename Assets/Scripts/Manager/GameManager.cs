@@ -97,9 +97,6 @@ public class GameManager : MonoBehaviour
             return;
 
         currentState = newState;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        Debug.Log($"GameState: {currentState}");
-#endif
         Time.timeScale = (currentState == GameState.Playing || currentState == GameState.Tutorial) ? 1f : 0f;
 
         if (currentState == GameState.Playing)

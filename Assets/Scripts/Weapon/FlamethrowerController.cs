@@ -39,6 +39,10 @@ public class FlamethrowerController : MonoBehaviour
     [Header("Target Detection")]
     [SerializeField] private string targetTag = "Target";
 
+    [Header("Aim")]
+    [Tooltip("Rotation responsiveness. Higher = snappier, lower = smoother. Frame-rate independent.")]
+    [SerializeField] private float aimLerpSpeed = 15f;
+
     [Header("Fog")]
     [SerializeField] private FogController fogController;
 
@@ -395,7 +399,9 @@ public class FlamethrowerController : MonoBehaviour
         Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
         float targetAngle = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
         float frontOffset = Mathf.Atan2(weaponFront.localPosition.y, weaponFront.localPosition.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, targetAngle - frontOffset);
+        float desiredAngle = targetAngle - frontOffset;
+        float smoothedAngle = Mathf.LerpAngle(transform.eulerAngles.z, desiredAngle, 1f - Mathf.Exp(-aimLerpSpeed * Time.deltaTime));
+        transform.rotation = Quaternion.Euler(0f, 0f, smoothedAngle);
         if (weaponSprite != null)
         {
             bool aimingRight = toTarget.x >= 0f;
