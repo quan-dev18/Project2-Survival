@@ -604,7 +604,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: ???
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
   m_sharedMaterial: {fileID: -1269213483947345980, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
@@ -768,6 +768,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   progressBar: {fileID: 2462878313785276776}
   progressPercentText: {fileID: 0}
+  rewardIcon: {fileID: 0}
+  rewardBg: {fileID: 0}
+  rewardAmountText: {fileID: 0}
   fillDuration: 0.4
 --- !u!1 &2476936444702929156
 GameObject:

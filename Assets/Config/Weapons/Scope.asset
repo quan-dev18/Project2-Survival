@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da6a1bb76031b4e45971f2ea8c4a3762, type: 3}
   m_Name: Scope
   m_EditorClassIdentifier: 
-  weaponID: 
+  weaponID: scope
   weaponIcon: {fileID: -536087438, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
   isUnlocked: 0
   goldCost: 50000

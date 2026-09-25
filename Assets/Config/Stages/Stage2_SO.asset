@@ -20,6 +20,7 @@ MonoBehaviour:
   speedIncrementPercent: 1
   healthIncrementPercent: 20
   statsIncrementInterval: 60
+  firstClearAmount: 2000
   phases:
   - phaseName: I
     duration: 60

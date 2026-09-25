@@ -61,6 +61,9 @@ public class UserData : MonoBehaviour
         if (data == null) data = new GameData();
         data.unlockedHeroes ??= new bool[0];
         data.unlockedWeapons ??= new bool[0];
+        data.stageIds ??= new List<string>();
+        data.stageBestProgress ??= new List<float>();
+        data.claimedStageRewards ??= new List<string>();
         data.ownedSkins ??= new List<string>();
         data.equippedWeaponIds ??= new List<string>();
         data.equippedSkinIds ??= new List<string>();
@@ -633,6 +636,47 @@ public class UserData : MonoBehaviour
 
         if (isNewBest)
             FirebaseAnalyticsHelper.LogStageProgressRecord(stageId, newProgress, true);
+    }
+
+    #endregion
+
+    #region Stage First-Clear Reward
+
+    /// <summary>
+    /// Kiểm tra người chơi đã nhận thưởng "hoàn thành 100% lần đầu" của stage này chưa.
+    /// </summary>
+    public bool IsStageRewardClaimed(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId) || data.claimedStageRewards == null) return false;
+        return data.claimedStageRewards.Contains(stageId);
+    }
+
+    /// <summary>
+    /// Đánh dấu đã nhận thưởng lần đầu của stage và lưu. (Vàng được cộng riêng qua AddGold.)
+    /// </summary>
+    public void ClaimStageReward(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId)) return;
+        data.claimedStageRewards ??= new List<string>();
+        if (data.claimedStageRewards.Contains(stageId)) return;
+        data.claimedStageRewards.Add(stageId);
+        Save();
+    }
+
+    /// <summary>
+    /// Trao thưởng "lần đầu đạt 100%" của stage: cộng FirstClearAmount vàng vào ví
+    /// và đánh dấu đã nhận (chỉ đúng 1 lần mỗi stage). Gọi tại đúng thời điểm
+    /// người chơi vượt màn lần đầu tiên (kỷ lục vừa đạt 100%). Idempotent.
+    /// </summary>
+    public void TryGrantFirstClearReward(StageSO stage)
+    {
+        if (stage == null || stage.FirstClearAmount <= 0) return;
+        if (IsStageRewardClaimed(stage.StageID)) return;
+        if (GetStageBestProgress(stage.StageID) < stage.MaxProgress) return;
+
+        AddGold(stage.FirstClearAmount);
+        ClaimStageReward(stage.StageID);
+        FirebaseAnalyticsHelper.LogFirstClearRewardClaimed(stage.StageID, stage.FirstClearAmount);
     }
 
     #endregion
