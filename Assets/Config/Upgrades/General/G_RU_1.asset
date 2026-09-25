@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: G_RU_1
   m_EditorClassIdentifier: 
   upgradeName: Reload Up
-  description: "T\u1ED1c \u0111\u1ED9 n\u1EA1p \u0111\u1EA1n +20%"
+  description: "T\u1ED1c \u0111\u1ED9 n\u1EA1p \u0111\u1EA1n +15%"
   icon: {fileID: 541968776, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 8
-    amount: 20
+    amount: 15
   requires: []

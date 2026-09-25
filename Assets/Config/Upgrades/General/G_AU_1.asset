@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: G_AU_1
   m_EditorClassIdentifier: 
   upgradeName: Armor Up
-  description: "Gi\xE1p t\u1ED1i \u0111a +30%"
-  icon: {fileID: 623327186, guid: c01df3ca53cc39547bd5fff4c771eae2, type: 3}
+  description: "Gi\xE1p t\u1ED1i \u0111a +20%"
+  icon: {fileID: -413144051, guid: cbc8e37964d089a4f95413a47ee26659, type: 3}
   statMods:
   - stat: 1
-    amount: 30
+    amount: 20
   requires: []

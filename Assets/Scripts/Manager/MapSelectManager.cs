@@ -8,6 +8,8 @@ using DG.Tweening; // Import DOTween (๑•̀ㅂ•́)و✧
 
 public class MapSelectionManager : MonoBehaviour
 {
+    private const string PendingFirstClearStageIdKey = "PendingFirstClearStageId";
+
     public static bool debugMode = false;
     public static MapSelectionManager Instance { get; private set; }
 
@@ -32,6 +34,14 @@ public class MapSelectionManager : MonoBehaviour
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
+    }
+
+    public static void QueueNextMapAfterFirstClear(string completedStageId)
+    {
+        if (string.IsNullOrEmpty(completedStageId)) return;
+
+        PlayerPrefs.SetString(PendingFirstClearStageIdKey, completedStageId);
+        PlayerPrefs.Save();
     }
 
     public void RefreshDebugState()
@@ -113,13 +123,14 @@ public class MapSelectionManager : MonoBehaviour
         if (mapList.Count > 0)
         {
             currentIndex = Mathf.Clamp(PlayerPrefs.GetInt("SelectedMapIndex", 0), 0, GetMaxVisibleIndex());
+            ApplyPendingFirstClearSelection();
         }
 
         SpawnInitialMap();
         RefreshStartButton();
 
         // Khởi tạo trạng thái nút bật map INF (mặc định: ngoài map INF).
-        RefreshInfButtonState(false);
+        RefreshInfButtonState(currentIndex == GetInfiniteMapIndex());
     }
 
     private void Update()
@@ -160,6 +171,34 @@ public class MapSelectionManager : MonoBehaviour
         ResetRectTransform(currentMapInstance.GetComponent<RectTransform>());
 
         ShowCurrentMapProgress();
+    }
+
+    private void ApplyPendingFirstClearSelection()
+    {
+        string completedStageId = PlayerPrefs.GetString(PendingFirstClearStageIdKey, string.Empty);
+        if (string.IsNullOrEmpty(completedStageId)) return;
+
+        PlayerPrefs.DeleteKey(PendingFirstClearStageIdKey);
+
+        for (int i = 0; i < mapList.Count; i++)
+        {
+            PreMapSO map = mapList[i];
+            if (map == null || map.stageData == null || map.stageData.StageID != completedStageId)
+                continue;
+
+            int nextIndex = i + 1;
+            if (nextIndex < mapList.Count && IsMapUnlocked(nextIndex))
+            {
+                currentIndex = nextIndex;
+                if (mapList[nextIndex] == infiniteMap)
+                    previousNormalIndex = i;
+
+                PlayerPrefs.SetInt("SelectedMapIndex", currentIndex);
+            }
+            break;
+        }
+
+        PlayerPrefs.Save();
     }
 
     private void ChangeMap(int direction)

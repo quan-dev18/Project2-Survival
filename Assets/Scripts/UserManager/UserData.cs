@@ -64,6 +64,7 @@ public class UserData : MonoBehaviour
         data.stageIds ??= new List<string>();
         data.stageBestProgress ??= new List<float>();
         data.claimedStageRewards ??= new List<string>();
+        data.completedStageIds ??= new List<string>();
         data.ownedSkins ??= new List<string>();
         data.equippedWeaponIds ??= new List<string>();
         data.equippedSkinIds ??= new List<string>();
@@ -636,6 +637,18 @@ public class UserData : MonoBehaviour
 
         if (isNewBest)
             FirebaseAnalyticsHelper.LogStageProgressRecord(stageId, newProgress, true);
+    }
+
+    public bool TryMarkStageCompleted(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId)) return false;
+
+        data.completedStageIds ??= new List<string>();
+        if (data.completedStageIds.Contains(stageId)) return false;
+
+        data.completedStageIds.Add(stageId);
+        Save();
+        return true;
     }
 
     #endregion

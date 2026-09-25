@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: G_SU_1
   m_EditorClassIdentifier: 
   upgradeName: Speed Up
-  description: "T\u1ED1c \u0111\u1ED9 di chuy\u1EC3n +20%"
+  description: "T\u1ED1c \u0111\u1ED9 di chuy\u1EC3n +15%"
   icon: {fileID: -27693983, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 3
-    amount: 20
+    amount: 15
   requires: []

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: G_DU_2
   m_EditorClassIdentifier: 
   upgradeName: Damage Up
-  description: "S\xE1t th\u01B0\u01A1ng +30%"
+  description: "S\xE1t th\u01B0\u01A1ng +20%"
   icon: {fileID: 268695731, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 13
-    amount: 30
+    amount: 20
   requires: []
