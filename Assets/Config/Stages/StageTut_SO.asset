@@ -22,7 +22,7 @@ MonoBehaviour:
   statsIncrementInterval: 60
   phases:
   - phaseName: I
-    duration: 3
+    duration: 30
     clearEnemy: 0
     enemies:
     - mobKey: Enemy
@@ -50,7 +50,7 @@ MonoBehaviour:
       wallEnemyHP: 250
       wallEnemyDamage: 10
   - phaseName: II
-    duration: 3
+    duration: 30
     clearEnemy: 0
     enemies:
     - mobKey: Enemy
@@ -78,7 +78,7 @@ MonoBehaviour:
       wallEnemyHP: 250
       wallEnemyDamage: 15
   - phaseName: Rest_I
-    duration: 1
+    duration: 10
     clearEnemy: 0
     enemies:
     - mobKey: Enemy
@@ -96,7 +96,7 @@ MonoBehaviour:
       wallEnemyHP: 250
       wallEnemyDamage: 15
   - phaseName: III
-    duration: 3
+    duration: 30
     clearEnemy: 0
     enemies:
     - mobKey: Enemy
@@ -124,7 +124,7 @@ MonoBehaviour:
       wallEnemyHP: 250
       wallEnemyDamage: 10
   - phaseName: IV
-    duration: 3
+    duration: 30
     clearEnemy: 0
     enemies:
     - mobKey: Enemy

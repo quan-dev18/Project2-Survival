@@ -17,12 +17,13 @@ MonoBehaviour:
   isInfinite: 0
   infiniteDifficultyStep: 10
   attackIncrementPercent: 10
-  speedIncrementPercent: 5
-  healthIncrementPercent: 10
-  statsIncrementInterval: 60
+  speedIncrementPercent: 1
+  healthIncrementPercent: 7
+  statsIncrementInterval: 50
   phases:
   - phaseName: 1
-    duration: 100
+    duration: 120
+    clearEnemy: 0
     enemies:
     - mobKey: Enemy1
       spawnPerSecond: 1
@@ -38,13 +39,14 @@ MonoBehaviour:
       wallEnemyKey: 
       wallEnemyHP: 0
       wallEnemyDamage: 0
-  - phaseName: Boss
-    duration: 100
+  - phaseName: Wait
+    duration: 10
+    clearEnemy: 0
     enemies:
-    - mobKey: BossB
-      spawnPerSecond: 1
+    - mobKey: Enemy1
+      spawnPerSecond: 0
       spawnLimit: 1
-      isBoss: 1
+      isBoss: 0
       isElite: 0
     circleWall:
       enabled: 0
@@ -55,3 +57,201 @@ MonoBehaviour:
       wallEnemyKey: 
       wallEnemyHP: 0
       wallEnemyDamage: 0
+  - phaseName: 2
+    duration: 10
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy1
+      spawnPerSecond: 0
+      spawnLimit: 1
+      isBoss: 0
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 20
+      endRadius: 4
+      shrinkDuration: 5
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: 3
+    duration: 7
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy1
+      spawnPerSecond: 0
+      spawnLimit: 1
+      isBoss: 0
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 4
+      endRadius: 10
+      shrinkDuration: 2
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: 4
+    duration: 103
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy1
+      spawnPerSecond: 2
+      spawnLimit: 5
+      isBoss: 0
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: 5-slow down
+    duration: 20
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy1
+      spawnPerSecond: 1
+      spawnLimit: 1
+      isBoss: 0
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: Wait
+    duration: 10
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy1
+      spawnPerSecond: 0
+      spawnLimit: 5
+      isBoss: 0
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: MiniA
+    duration: 80
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy2
+      spawnPerSecond: 1
+      spawnLimit: 1
+      isBoss: 0
+      isElite: 1
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: 6-mobs
+    duration: 60
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy1
+      spawnPerSecond: 5
+      spawnLimit: 20
+      isBoss: 0
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: wait
+    duration: 20
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy1
+      spawnPerSecond: 1
+      spawnLimit: 1
+      isBoss: 0
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: MiniB
+    duration: 80
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy3
+      spawnPerSecond: 1
+      spawnLimit: 1
+      isBoss: 0
+      isElite: 1
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: 7-mobs
+    duration: 90
+    clearEnemy: 0
+    enemies:
+    - mobKey: Enemy1
+      spawnPerSecond: 2
+      spawnLimit: 5
+      isBoss: 0
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10
+  - phaseName: Finale
+    duration: 140
+    clearEnemy: 0
+    enemies:
+    - mobKey: BossB
+      spawnPerSecond: 1
+      spawnLimit: 1
+      isBoss: 1
+      isElite: 0
+    circleWall:
+      enabled: 1
+      startRadius: 10
+      endRadius: 10
+      shrinkDuration: 0
+      wallEnemyCount: 100
+      wallEnemyKey: Enemy1
+      wallEnemyHP: 10000
+      wallEnemyDamage: 10

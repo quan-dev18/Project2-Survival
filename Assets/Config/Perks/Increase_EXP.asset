@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 1250023105, guid: ec7cfbc94d3ab244b9c1a460fecb729c, type: 3}
   description: "T\u0103ng t\u1EC9 l\u1EC7 kinh nghi\u1EC7m"
   maxLevel: 5
-  baseCost: 5000
+  baseCost: 7000
   costMultiplier: 1.5
   statMods:
   - stat: 5

@@ -18,7 +18,7 @@ MonoBehaviour:
   description: "T\u0103ng s\u1ED1 v\xE0ng \u0111\u01B0\u1EE3c nh\u1EADn"
   maxLevel: 5
   baseCost: 1000
-  costMultiplier: 1.1
+  costMultiplier: 1.2
   statMods:
   - stat: 43
     amountPerLevel: 10

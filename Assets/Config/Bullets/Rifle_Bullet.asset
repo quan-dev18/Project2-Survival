@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ab172e0351ef8c4a9053eac30f82763, type: 3}
   m_Name: Rifle_Bullet
   m_EditorClassIdentifier: 
-  damage: 6
+  damage: 10
   speed: 16
   speedCurve:
     serializedVersion: 2
