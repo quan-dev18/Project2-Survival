@@ -19842,6 +19842,7 @@ MonoBehaviour:
   androidBannerId: ca-app-pub-7087538734337269/9374062130
   androidRewardedId: ca-app-pub-7087538734337269/8737436180
   androidVictoryRewardedId: ca-app-pub-7087538734337269/3521602675
+  androidTakeAllRewardedId: ca-app-pub-7087538734337269/6752957592
   rewardCoinAmount: 670
   mainMenuSceneName: MainMenu
   previewDpi: 420

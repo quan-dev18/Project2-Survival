@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeName: Diamond Armor I
   description: "C\xE1c m\u1EA3nh gi\xE1p s\u1EBD h\u1ED3i g\u1EA5p \u0111\xF4i s\u1ED1
     l\u01B0\u1EE3ng gi\xE1p"
-  icon: {fileID: 623327186, guid: c01df3ca53cc39547bd5fff4c771eae2, type: 3}
+  icon: {fileID: -413144051, guid: cbc8e37964d089a4f95413a47ee26659, type: 3}
   statMods:
   - stat: 51
     amount: 1

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Eagle Eyes II
   description: "T\u1EA7m t\u1EA5n c\xF4ng +36%\nS\xE1t th\u01B0\u01A1ng +20%"
-  icon: {fileID: 301586615, guid: f06329fd5ca37d34c9e9a5e3935d5f10, type: 3}
+  icon: {fileID: 2100020281, guid: 7fdf1fb212041134fb84ca578f45fa25, type: 3}
   statMods:
   - stat: 7
     amount: 36

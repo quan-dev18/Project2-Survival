@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeName: Eagle Eyes I
   description: "T\u0103ng t\u1EA7m nh\xECn +20%\n(Camera nh\xECn \u0111\u01B0\u1EE3c
     khu v\u1EF1c r\u1ED9ng h\u01A1n)"
-  icon: {fileID: -2071907676, guid: f06329fd5ca37d34c9e9a5e3935d5f10, type: 3}
+  icon: {fileID: 959808508, guid: 7fdf1fb212041134fb84ca578f45fa25, type: 3}
   statMods:
   - stat: 50
     amount: 20

@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeName: Thunder Cloud II
   description: "S\u1EA5m s\xE9t g\xE2y thi\xEAu \u0111\u1ED1t (5 s\xE1t th\u01B0\u01A1ng
     m\u1ED7i gi\xE2y trong v\xF2ng 3s)"
-  icon: {fileID: -237102605, guid: 39d1021474e20bb46a9a3bc096c92430, type: 3}
+  icon: {fileID: -1482521562, guid: 1b51006fe5f79c2428cb3fceef81f445, type: 3}
   statMods:
   - stat: 46
     amount: 1

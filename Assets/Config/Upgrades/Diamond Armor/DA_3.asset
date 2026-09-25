@@ -16,7 +16,7 @@ MonoBehaviour:
   description: "Khi c\xF3 tr\xEAn 10 gi\xE1p v\xE0 b\u1ECB t\u1EA5n c\xF4ng,\ngi\xE1p
     s\u1EBD ph\u1EA3n l\u1EA1i 67 s\xE1t th\u01B0\u01A1ng v\xE0o k\u1EBB \u0111\u1ECBch
     ra \u0111\xF2n"
-  icon: {fileID: 2140037862, guid: c01df3ca53cc39547bd5fff4c771eae2, type: 3}
+  icon: {fileID: -738809639, guid: cbc8e37964d089a4f95413a47ee26659, type: 3}
   statMods:
   - stat: 52
     amount: 67

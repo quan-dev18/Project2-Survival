@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Diamond Armor II
   description: "Gi\xE1p t\u1ED1i \u0111a +100%"
-  icon: {fileID: 1076128227, guid: c01df3ca53cc39547bd5fff4c771eae2, type: 3}
+  icon: {fileID: -142965126, guid: cbc8e37964d089a4f95413a47ee26659, type: 3}
   statMods:
   - stat: 1
     amount: 100
