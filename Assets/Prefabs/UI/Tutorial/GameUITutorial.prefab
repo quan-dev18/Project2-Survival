@@ -453,7 +453,7 @@ MonoBehaviour:
   stepVideos:
   - {fileID: 32900000, guid: 86b88f2c4bfd1714c975008d7d28a0a3, type: 3}
   - {fileID: 32900000, guid: c0be4ed5bce8ec94d8d96bedc7367f7a, type: 3}
-  - {fileID: 32900000, guid: 74e5a8d8384cfa3448514b33ce5bf176, type: 3}
+  - {fileID: 32900000, guid: 26faaf25af5f2ee49b13c8a34776c5a1, type: 3}
   - {fileID: 32900000, guid: 74e5a8d8384cfa3448514b33ce5bf176, type: 3}
   - {fileID: 32900000, guid: c0be4ed5bce8ec94d8d96bedc7367f7a, type: 3}
   waveStartBanner: {fileID: 1274009157452196440}
@@ -524,8 +524,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "S\u1EED d\u1EE5ng C\u1EA7n \u0111i\u1EC1u khi\u1EC3n (Joystick) \u1EDF
-    g\xF3c tr\xE1i m\xE0n h\xECnh (ho\u1EB7c ph\xEDm W, A, S, D / M\u0169i t\xEAn)
-    \u0111\u1EC3 \u0111i\u1EC1u khi\u1EC3n nh\xE2n v\u1EADt."
+    g\xF3c tr\xE1i m\xE0n h\xECnh \u0111\u1EC3 \u0111i\u1EC1u khi\u1EC3n nh\xE2n
+    v\u1EADt."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
   m_sharedMaterial: {fileID: -1269213483947345980, guid: 746803b414133e54c9f1be0b559c1541, type: 2}

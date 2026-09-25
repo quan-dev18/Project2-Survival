@@ -129,6 +129,17 @@ public class LevelUpPanel : MonoBehaviour
     {
         EnsureTopmostCanvas();
         RollChoices();
+        if (choices.Count == 0)
+        {
+            // Pool exhausted: skip the pick entirely so the game never stalls
+            // on an empty upgrade screen. Levels/XP are kept, just no reward.
+            while (PlayerXP.Instance != null && PlayerXP.Instance.PendingLevelUps > 0)
+                PlayerXP.Instance.ConsumePendingLevelUp();
+            choices.Clear();
+            if (rainEffect != null) rainEffect.gameObject.SetActive(false);
+            GameManager.Instance.SetState(GameState.Playing);
+            return;
+        }
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
         if (rainEffect != null)

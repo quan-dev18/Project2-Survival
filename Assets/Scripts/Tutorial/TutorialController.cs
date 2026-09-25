@@ -44,7 +44,7 @@ public class TutorialController : MonoBehaviour
 
     private readonly List<string> stepDescriptions = new List<string>
     {
-        "Sử dụng <b>Cần điều khiển (Joystick)</b> ở góc trái màn hình (hoặc các phím <b>W, A, S, D / Mũi tên</b> trên bàn phím) để điều khiển nhân vật né đòn của quái vật.",
+        "Sử dụng <b>Cần điều khiển (Joystick)</b> ở góc trái màn hình để điều khiển nhân vật né đòn của quái vật.",
         "Nhân vật của bạn sẽ <b>tự động nhắm và bắn</b> quái vật gần nhất khi chúng tiến lại gần. Hãy luôn giữ khoảng cách an toàn và liên tục di chuyển!",
         "Khi quái vật bị tiêu diệt, chúng sẽ rơi ra <b>Ngọc Kinh Nghiệm (Exp Gem)</b>. Nhặt đủ ngọc để lên cấp và chọn các kỹ năng nâng cấp (Perk) mạnh mẽ.",
         "Trên đường đi có nhiều <b>vật cản có thể bắn vỡ</b>. Bạn có thể bắn vỡ chúng để nhặt thêm <b>phần thưởng</b> hoặc không có gì.",
