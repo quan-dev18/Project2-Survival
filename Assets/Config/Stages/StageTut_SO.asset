@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageID: 0
   maxProgress: 6
+  firstClearAmount: 500
   isInfinite: 0
   infiniteDifficultyStep: 10
   attackIncrementPercent: 10
   speedIncrementPercent: 5
-  healthIncrementPercent: 10
+  healthIncrementPercent: 5
   statsIncrementInterval: 60
   phases:
   - phaseName: I
@@ -157,22 +158,22 @@ MonoBehaviour:
       wallEnemyHP: 200
       wallEnemyDamage: 15
   - phaseName: V
-    duration: 24
-    clearEnemy: 0
+    duration: 240
+    clearEnemy: 1
     enemies:
     - mobKey: Enemy
-      spawnPerSecond: 3
-      spawnLimit: 5
+      spawnPerSecond: 1
+      spawnLimit: 2
       isBoss: 0
       isElite: 0
     - mobKey: Enemy2
-      spawnPerSecond: 3
-      spawnLimit: 5
+      spawnPerSecond: 1
+      spawnLimit: 2
       isBoss: 0
       isElite: 0
     - mobKey: Enemy2
-      spawnPerSecond: 2
-      spawnLimit: 5
+      spawnPerSecond: 1
+      spawnLimit: 2
       isBoss: 0
       isElite: 0
     - mobKey: BossA

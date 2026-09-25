@@ -374,6 +374,10 @@ public class EnemySpawner : MonoBehaviour
                 // Thắng stage (boss đã bị tiêu diệt) => đạt 100% tiến trình.
                 SaveBestProgress(stage.MaxProgress);
 
+                // Thưởng lần đầu đạt 100% (nếu stage có thưởng và chưa nhận).
+                if (UserData.Instance != null)
+                    UserData.Instance.TryGrantFirstClearReward(stage);
+
                 GameManager.Instance.SetIsWin(true);
                 GameManager.Instance.SetState(GameState.GameOver);
             }

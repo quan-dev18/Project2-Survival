@@ -229,6 +229,13 @@ public static class FirebaseAnalyticsHelper
             new Parameter("is_new_best", isNewBest ? "true" : "false"));
     }
 
+    public static void LogFirstClearRewardClaimed(string stageId, int rewardAmount)
+    {
+        FirebaseAnalytics.LogEvent("first_clear_reward_claimed",
+            new Parameter("stage_id", stageId),
+            new Parameter("reward_amount", rewardAmount));
+    }
+
     public static void LogPropBroken(string propType, string dropType)
     {
         FirebaseAnalytics.LogEvent("prop_broken",

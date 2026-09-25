@@ -239,11 +239,11 @@ public class MapSelectionManager : MonoBehaviour
         if (mapList.Count == 0 || mapList[currentIndex] == null) return;
         if (currentMapInstance == null) return;
 
-        StageProgressBarUI progressUI = currentMapInstance.GetComponentInChildren<StageProgressBarUI>();
-        if (progressUI == null) return;
-
         StageSO stage = mapList[currentIndex].stageData;
-        progressUI.DisplayStageProgress(stage);
+
+        StageProgressBarUI progressUI = currentMapInstance.GetComponentInChildren<StageProgressBarUI>();
+        if (progressUI != null)
+            progressUI.DisplayStageProgress(stage);
     }
 
     /// <summary>

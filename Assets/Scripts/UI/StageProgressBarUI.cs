@@ -29,6 +29,16 @@ public class StageProgressBarUI : MonoBehaviour
     [Tooltip("Text hiển thị phần trăm kỷ lục (vd: '80%'). Để trống nếu không cần.")]
     [SerializeField] private TextMeshProUGUI progressPercentText;
 
+    [Header("First Clear Reward")]
+    [Tooltip("Icon phần thưởng lần đầu (có sẵn trong prefab). Làm xám khi đã đạt 100%.")]
+    [SerializeField] private Image rewardIcon;
+
+    [Tooltip("Nền (bg) ô phần thưởng trong prefab. Làm xám khi đã đạt 100%.")]
+    [SerializeField] private Image rewardBg;
+
+    [Tooltip("Text hiển thị số vàng phần thưởng (đọc từ StageSO.FirstClearAmount).")]
+    [SerializeField] private TextMeshProUGUI rewardAmountText;
+
     [Header("Animation (DOTween)")]
     [Tooltip("Thời gian tween thanh từ 0 → % kỷ lục. = 0 để hiện ngay lập tức.")]
     [SerializeField] private float fillDuration = 0.4f;
@@ -68,6 +78,8 @@ public class StageProgressBarUI : MonoBehaviour
         float fillRatio = Mathf.Clamp01(highestProgress / stageData.MaxProgress);
 
         SetDisplay(fillRatio, false);
+
+        UpdateFirstClearRewardDisplay(stageData);
     }
 
     /// <summary>
@@ -140,5 +152,41 @@ public class StageProgressBarUI : MonoBehaviour
     {
         if (progressBar != null)
             progressBar.fillAmount = value;
+    }
+
+    // ──────────────────── First Clear Reward ──────────────────────
+
+    /// <summary>
+    /// Cập nhật ô phần thưởng lần đầu: số coin lấy thẳng từ StageSO.FirstClearAmount;
+    /// khi kỷ lục đạt 100% (best >= MaxProgress) thì làm xám icon + bg ô quà.
+    /// Stage không có thưởng (FirstClearAmount <= 0) thì giữ nguyên hiển thị mặc định.
+    /// </summary>
+    private void UpdateFirstClearRewardDisplay(StageSO stageData)
+    {
+        if (rewardIcon == null && rewardBg == null && rewardAmountText == null) return;
+        if (stageData == null || stageData.FirstClearAmount <= 0) return;
+
+        // Số coin hiển thị luôn lấy từ StageSO.
+        if (rewardAmountText != null)
+            rewardAmountText.text = stageData.FirstClearAmount.ToString();
+
+        // Đối chiếu với kỷ lục để xám khi đã đạt 100%.
+        float bestProgress = UserData.Instance != null
+            ? UserData.Instance.GetStageBestProgress(stageData.StageID)
+            : 0f;
+        bool cleared = bestProgress >= stageData.MaxProgress;
+
+        SetRewardGreyed(cleared);
+    }
+
+    /// <summary>
+    /// Bật/tắt trạng thái xám (grey) cho icon + bg của ô phần thưởng.
+    /// Mức xám 0.65 phối hợp với màu nền xám dùng chung trong UI.
+    /// </summary>
+    private void SetRewardGreyed(bool greyed)
+    {
+        Color target = greyed ? new Color(0.65f, 0.65f, 0.65f, 1f) : Color.white;
+        if (rewardIcon != null) rewardIcon.color = target;
+        if (rewardBg != null) rewardBg.color = target;
     }
 }
