@@ -22,10 +22,15 @@ public class BreakableProp : MonoBehaviour, IDamageable, IPoolSpawnable
 
     public void TakeDamage(float amount)
     {
+        // Late hit on a despawned prop (e.g. mid-loop AOE kill): ignore.
+        if (!gameObject.activeInHierarchy) return;
         currentHp -= amount;
         GetComponentInChildren<SpriteFlashEffect>()?.Flash();
         if (currentHp <= 0f)
         {
+            PropDropEntry entry = GetRandomDropEntry();
+            string dropType = entry != null ? entry.poolKey : "none";
+            FirebaseAnalyticsHelper.LogPropBroken(gameObject.name, dropType);
             SpawnDrop();
             if (ObjectPooling.Instance != null)
                 ObjectPooling.Instance.Despawn(gameObject);

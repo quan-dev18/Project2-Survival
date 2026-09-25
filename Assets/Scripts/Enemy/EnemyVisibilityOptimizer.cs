@@ -4,14 +4,14 @@ public class EnemyVisibilityOptimizer : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private EnemyController enemyController;
+    [SerializeField] private EnemyMovement enemyMovement;
     [SerializeField] private Animator animator;
     [SerializeField] private MonoBehaviour shadowComponent;
 
     [Header("Settings")]
     [SerializeField] private float offScreenSpeedMultiplier = 3f;
-    [SerializeField] private float checkInterval = 0.3f;
+    [SerializeField] private float checkInterval = 0.25f;
     [SerializeField] private float viewportMargin = 0.1f;
-    [SerializeField] private float activeDistance = 15f;
 
     private Camera mainCam;
     private float checkTimer;
@@ -21,6 +21,8 @@ public class EnemyVisibilityOptimizer : MonoBehaviour
     {
         if (enemyController == null)
             enemyController = GetComponent<EnemyController>();
+        if (enemyMovement == null)
+            enemyMovement = GetComponent<EnemyMovement>();
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
         mainCam = Camera.main;
@@ -29,7 +31,7 @@ public class EnemyVisibilityOptimizer : MonoBehaviour
     private void OnEnable()
     {
         isOnScreen = true;
-        checkTimer = 0f;
+        checkTimer = Random.Range(0f, checkInterval);
         SetOnScreenState(true);
     }
 
@@ -39,17 +41,16 @@ public class EnemyVisibilityOptimizer : MonoBehaviour
         if (checkTimer > 0f) return;
         checkTimer = checkInterval;
 
-        if (mainCam == null) return;
+        if (mainCam == null)
+        {
+            mainCam = Camera.main;
+            if (mainCam == null) return;
+        }
 
         Vector3 viewportPos = mainCam.WorldToViewportPoint(transform.position);
-        bool visible = viewportPos.x > -viewportMargin && viewportPos.x < 1f + viewportMargin
+        bool visible = viewportPos.z > 0f
+                    && viewportPos.x > -viewportMargin && viewportPos.x < 1f + viewportMargin
                     && viewportPos.y > -viewportMargin && viewportPos.y < 1f + viewportMargin;
-
-        if (!visible)
-        {
-            float dist = Vector3.Distance(mainCam.transform.position, transform.position);
-            visible = dist <= activeDistance;
-        }
 
         if (visible == isOnScreen) return;
         isOnScreen = visible;
@@ -61,6 +62,9 @@ public class EnemyVisibilityOptimizer : MonoBehaviour
     {
         if (enemyController != null)
             enemyController.speedMultiplier = onScreen ? 1f : offScreenSpeedMultiplier;
+
+        if (enemyMovement != null)
+            enemyMovement.SetOnScreen(onScreen);
 
         if (animator != null)
             animator.enabled = onScreen;

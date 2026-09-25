@@ -49,6 +49,9 @@ public class PlayerStats : MonoBehaviour
     public bool bonusSpiritBurn { get; private set; }
     public bool bonusSpiritEmpowered { get; private set; }
     public float bonusGoldGainPercent { get; private set; }
+    public float bonusHealMaxHealthPercent { get; private set; }
+    public bool bonusDoubleShieldArmor { get; private set; }
+    public float bonusThornsDamage { get; private set; }
     #endregion
 
     #region Stat Caps
@@ -90,8 +93,15 @@ public class PlayerStats : MonoBehaviour
     private bool isDead;
     #endregion
 
+    #region Revive (Perk)
+    [SerializeField] private float reviveInvulnerableDuration = 2f;
+    private float reviveInvulnerableTimer;
+    public int ReviveCharges { get; private set; }
+    #endregion
+
     #region Events
     public event System.Action<float, float> OnHealthChanged;
+    public event System.Action<float, float> OnArmorChanged;
     #endregion
 
     public WeaponController[] Weapons
@@ -130,6 +140,8 @@ public class PlayerStats : MonoBehaviour
     public int ActiveWeaponIndex { get; private set; }
     public WeaponController ActiveWeapon => Weapons != null && ActiveWeaponIndex >= 0 && ActiveWeaponIndex < Weapons.Length
         ? Weapons[ActiveWeaponIndex] : null;
+
+    private SpriteFlashEffect cachedFlashEffect;
 
     public void SetActiveWeaponIndex(int index)
     {
@@ -174,7 +186,13 @@ public class PlayerStats : MonoBehaviour
                 flamethrowers = foundF;
         }
 
-        int heroIndex = PlayerPrefs.GetInt("SelectedHeroIndex", 0);
+        cachedFlashEffect = GetComponentInChildren<SpriteFlashEffect>();
+
+        int heroIndex = 0;
+        if (UserData.Instance != null)
+            heroIndex = UserData.Instance.SelectedHeroIndex;
+        else
+            heroIndex = PlayerPrefs.GetInt("SelectedHeroIndex", 0);
         if (characterList != null && heroIndex >= 0 && heroIndex < characterList.Count)
             characterStats = characterList[heroIndex];
 
@@ -183,6 +201,13 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
+        // Tick down revive invulnerability window
+        if (reviveInvulnerableTimer > 0f)
+        {
+            reviveInvulnerableTimer -= Time.deltaTime;
+            if (reviveInvulnerableTimer < 0f) reviveInvulnerableTimer = 0f;
+        }
+
         //regenerate health over time
         RegenOverTime();
 
@@ -216,8 +241,12 @@ public class PlayerStats : MonoBehaviour
                 int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 4f, s_BurnAuraBuffer);
                 for (int i = 0; i < hitCount; i++)
                 {
-                    EnemyHealth enemy = s_BurnAuraBuffer[i].GetComponentInChildren<EnemyHealth>();
-                    if (enemy == null) enemy = s_BurnAuraBuffer[i].GetComponentInParent<EnemyHealth>();
+                    EnemyHealth enemy = null;
+                    if (!s_BurnAuraBuffer[i].TryGetComponent(out enemy))
+                    {
+                        enemy = s_BurnAuraBuffer[i].GetComponentInChildren<EnemyHealth>();
+                        if (enemy == null) enemy = s_BurnAuraBuffer[i].GetComponentInParent<EnemyHealth>();
+                    }
                     if (enemy != null && UnityEngine.Random.value < chance)
                     {
                         enemy.TakeDamage(5f);
@@ -248,6 +277,7 @@ public class PlayerStats : MonoBehaviour
         {
             float regenAmount = bonusArmorRegenPerSecond * Time.deltaTime;
             CurrentArmor = Mathf.Min(CurrentArmor + regenAmount, MaxArmor);
+            OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
         }
     }
 
@@ -265,6 +295,7 @@ public class PlayerStats : MonoBehaviour
         CurrentHealth = MaxHealth;
         CurrentArmor = MaxArmor;
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
     }
 
     //bonus percent
@@ -277,7 +308,14 @@ public class PlayerStats : MonoBehaviour
         OnHealthChanged?.Invoke(CurrentHealth, newMax);
     }
 
-    public void AddMaxArmorPercent(float amount) => bonusMaxArmorPercent += amount;
+    public void AddMaxArmorPercent(float amount)
+    {
+        float oldMax = MaxArmor;
+        bonusMaxArmorPercent += amount;
+        float newMax = MaxArmor;
+        CurrentArmor = Mathf.Min(CurrentArmor + (newMax - oldMax), newMax);
+        OnArmorChanged?.Invoke(CurrentArmor, newMax);
+    }
 
     public void AddRecoveryRatePercent(float amount) => bonusRecoveryRatePercent += amount;
 
@@ -311,6 +349,10 @@ public class PlayerStats : MonoBehaviour
     public void AddBurnAuraChance(float amount) => bonusBurnAuraChance += amount;
 
     public void AddArmorRegenPerSecond(float amount) => bonusArmorRegenPerSecond += amount;
+
+    public void AddDoubleShieldArmor(float amount) => bonusDoubleShieldArmor = amount > 0f;
+
+    public void AddThornsDamage(float amount) => bonusThornsDamage += amount;
 
     public void AddStackingBuffPercent(float amount) => bonusStackingBuffPercent += amount;
 
@@ -374,6 +416,35 @@ public class PlayerStats : MonoBehaviour
 
     public void AddGoldGainPercent(float amount) => bonusGoldGainPercent += amount;
 
+    public void AddHealMaxHealthPercent(float amount) => bonusHealMaxHealthPercent += amount;
+
+    /// <summary>
+    /// Thêm số lần hồi sinh (1 per level mặc định). PerkBuffApplier cộng delta mỗi tick
+    /// nên chỉ tăng, không giảm trừ khi player thực sự sử dụng 1 lượt hồi sinh.
+    /// </summary>
+    public void AddRevive(float amount)
+    {
+        int charges = Mathf.RoundToInt(amount);
+        ReviveCharges = Mathf.Max(0, ReviveCharges + charges);
+    }
+
+    /// <summary>
+    /// Tiêu thụ 1 lượt hồi sinh: hồi đầy máu & giáp, cộng thêm quãng thời gian bất tử ngắn.
+    /// Trả về false khi hết lượt (để player chết như bình thường).
+    /// </summary>
+    public bool TryRevive()
+    {
+        if (ReviveCharges <= 0) return false;
+
+        ReviveCharges--;
+        CurrentHealth = MaxHealth;
+        CurrentArmor = MaxArmor;
+        reviveInvulnerableTimer = reviveInvulnerableDuration;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
+        return true;
+    }
+
     public void AddTC1(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC1();
     public void AddTC2A(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2A();
     public void AddTC2B(float amount) => FindFirstObjectByType<ThunderCloudController>()?.EnableTC2B();
@@ -383,9 +454,15 @@ public class PlayerStats : MonoBehaviour
     public int GetGoldGainAmount(int baseAmount)
         => Mathf.RoundToInt(baseAmount * (1f + bonusGoldGainPercent));
 
-    public void TakeDamage(float amount)
+    /// <summary>Armor value above which Diamond Armor III thorns trigger.</summary>
+    private const float ThornsArmorThreshold = 10f;
+
+    public void TakeDamage(float amount, EnemyController attacker = null)
     {
         if (isDead || amount <= 0f) return;
+
+        // Invulnerable window right after revive
+        if (reviveInvulnerableTimer > 0f) return;
 
         // Invulnerable while reloading - any weapon reloading = invuln
         {
@@ -397,16 +474,26 @@ public class PlayerStats : MonoBehaviour
                 foreach (var f in allFInv) if (f != null && f.IsReloading) return;
         }
 
+        // Diamond Armor III: while armor holds above threshold, reflect damage to the attacker
+        if (bonusThornsDamage > 0f && attacker != null && CurrentArmor > ThornsArmorThreshold)
+        {
+            EnemyHealth attackerHealth = attacker.GetComponentInChildren<EnemyHealth>(true);
+            if (attackerHealth != null)
+                attackerHealth.TakeDamage(bonusThornsDamage);
+        }
+
         float remaining = amount;
         if (CurrentArmor > 0f)
         {
             float absorbed = Mathf.Min(CurrentArmor, remaining);
             CurrentArmor -= absorbed;
             remaining -= absorbed;
+            OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
         }
         CurrentHealth = Mathf.Max(CurrentHealth - remaining, 0f);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
-        GetComponentInChildren<SpriteFlashEffect>()?.Flash();
+        if (cachedFlashEffect != null && cachedFlashEffect.gameObject.activeInHierarchy)
+            cachedFlashEffect.Flash();
         // Trigger synergies on hit
         SynergyManager.Instance?.OnPlayerHit();
         // Reset stacking buff on hit
@@ -468,14 +555,19 @@ public class PlayerStats : MonoBehaviour
     {
         bonusMaxArmorFlat += amount;
         CurrentArmor = Mathf.Min(CurrentArmor + amount, MaxArmor);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
+    }
+
+    public void AddArmor(float amount)
+    {
+        if (isDead) return;
+        CurrentArmor = Mathf.Min(CurrentArmor + amount, MaxArmor);
+        OnArmorChanged?.Invoke(CurrentArmor, MaxArmor);
     }
 
     public void AddRecoveryRateFlat(float amount) => bonusRecoveryRateFlat += amount;
 
     public void AddCollectRangeFlat(float amount) => bonusCollectRangeFlat += amount;
-
-    [Header("Passive Heal")]
-    [SerializeField] private float passiveHealPerSecond = 1f;
 
     private static readonly Collider2D[] s_BurnAuraBuffer = new Collider2D[32];
 
@@ -484,7 +576,9 @@ public class PlayerStats : MonoBehaviour
         if (isDead) return;
         if (CurrentHealth < MaxHealth)
         {
-            float heal = (RecoveryRate + passiveHealPerSecond) * Time.deltaTime;
+            float heal = RecoveryRate * Time.deltaTime;
+            if (bonusHealMaxHealthPercent > 0f)
+                heal += MaxHealth * bonusHealMaxHealthPercent * Time.deltaTime;
             CurrentHealth = Mathf.Min(CurrentHealth + heal, MaxHealth);
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         }

@@ -13,10 +13,9 @@ MonoBehaviour:
   m_Name: H_2A
   m_EditorClassIdentifier: 
   upgradeName: Haste II
-  description: 'Move speed +10%
-
-    Inflict burn on nearby enemies (higher move
-    speed = higher chance)'
+  description: "T\u1ED1c \u0111\u1ED9 di chuy\u1EC3n +10%\nG\xE2y ch\xE1y cho c\xE1c
+    k\u1EBB \u0111\u1ECBch \u1EDF g\u1EA7n (t\u1EC9 l\u1EC7 g\xE2y ch\xE1y t\u0103ng
+    theo t\u1ED1c \u0111\u1ED9 di chuy\u1EC3n)"
   icon: {fileID: 812657760, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 3

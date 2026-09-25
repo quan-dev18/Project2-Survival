@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: GS_3
   m_EditorClassIdentifier: 
   upgradeName: Guardian Summon III
-  description: The guardian slowly regenerate armor if not full (3 armor every second)
+  description: "Th\u1EA7n h\u1ED9 v\u1EC7 h\u1ED3i gi\xE1p cho nh\xE2n v\u1EADt khi
+    ch\u01B0a \u0111\u1EA7y (3 gi\xE1p/s)\nGi\xE1p t\u1ED1i \u0111a +25%"
   icon: {fileID: -521324626, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 35
     amount: 3
+  - stat: 1
+    amount: 25
   requires:
   - {fileID: 11400000, guid: 476435af5af4190488302e086cdf974d, type: 2}
   - {fileID: 11400000, guid: aaa0dbba5143d614dba99ce805485202, type: 2}

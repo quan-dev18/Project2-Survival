@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SM_2B
   m_EditorClassIdentifier: 
   upgradeName: Special Mags II
-  description: Become invulnerable while reloading
+  description: "Tr\u1EDF l\xEAn b\u1EA5t t\u1EED khi \u0111ang n\u1EA1p \u0111\u1EA1n"
   icon: {fileID: 1059971654, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 28

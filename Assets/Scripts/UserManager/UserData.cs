@@ -9,6 +9,8 @@ public class UserData : MonoBehaviour
 
     private GameData data;
 
+    public GameData GetData() => data;
+
     public int Gold => data.playerGold;
     public int SessionGold { get; private set; }
 
@@ -59,6 +61,9 @@ public class UserData : MonoBehaviour
         if (data == null) data = new GameData();
         data.unlockedHeroes ??= new bool[0];
         data.unlockedWeapons ??= new bool[0];
+        data.stageIds ??= new List<string>();
+        data.stageBestProgress ??= new List<float>();
+        data.claimedStageRewards ??= new List<string>();
         data.ownedSkins ??= new List<string>();
         data.equippedWeaponIds ??= new List<string>();
         data.equippedSkinIds ??= new List<string>();
@@ -244,6 +249,13 @@ public class UserData : MonoBehaviour
     }
 
     #region Gold
+
+    public void SetGold(int amount)
+    {
+        data.playerGold = Mathf.Max(0, amount);
+        OnGoldChanged?.Invoke(data.playerGold);
+        Save();
+    }
 
     public void AddGold(int amount)
     {
@@ -446,7 +458,6 @@ public class UserData : MonoBehaviour
             PlayerPrefs.DeleteKey(oldKey);
             if (old == null || old.ids == null || old.levels == null) return;
 
-            bool changed = false;
             for (int i = 0; i < old.ids.Count && i < old.levels.Count; i++)
             {
                 string id = old.ids[i];
@@ -456,10 +467,8 @@ public class UserData : MonoBehaviour
                 if (level > existing)
                 {
                     SetPerkLevel(id, level);
-                    changed = true;
                 }
             }
-            if (changed) Debug.Log("[UserData] Đã nhập perk level từ dữ liệu cũ.");
         }
         catch (System.Exception e)
         {
@@ -506,6 +515,19 @@ public class UserData : MonoBehaviour
 
         Save();
         return true;
+    }
+
+    /// <summary>
+    /// Mở khóa skin không tốn vàng (dùng cho mở khóa bằng xem quảng cáo).
+    /// </summary>
+    public void UnlockSkin(string weaponId, string skinId)
+    {
+        if (string.IsNullOrEmpty(weaponId) || string.IsNullOrEmpty(skinId)) return;
+        if (IsSkinOwned(weaponId, skinId)) return;
+
+        data.ownedSkins ??= new List<string>();
+        data.ownedSkins.Add(MakeSkinCompositeId(weaponId, skinId));
+        Save();
     }
 
     /// <summary>
@@ -592,12 +614,14 @@ public class UserData : MonoBehaviour
         data.stageBestProgress ??= new List<float>();
 
         int index = data.stageIds.IndexOf(stageId);
+        bool isNewBest = false;
         if (index >= 0)
         {
             // Đã có kỷ lục: chỉ cập nhật nếu cao hơn, không ghi đè xuống thấp hơn.
             if (newProgress > data.stageBestProgress[index])
             {
                 data.stageBestProgress[index] = newProgress;
+                isNewBest = true;
                 Save();
             }
         }
@@ -606,8 +630,53 @@ public class UserData : MonoBehaviour
             // Chưa từng chơi stage này: thêm kỷ lục mới.
             data.stageIds.Add(stageId);
             data.stageBestProgress.Add(newProgress);
+            isNewBest = true;
             Save();
         }
+
+        if (isNewBest)
+            FirebaseAnalyticsHelper.LogStageProgressRecord(stageId, newProgress, true);
+    }
+
+    #endregion
+
+    #region Stage First-Clear Reward
+
+    /// <summary>
+    /// Kiểm tra người chơi đã nhận thưởng "hoàn thành 100% lần đầu" của stage này chưa.
+    /// </summary>
+    public bool IsStageRewardClaimed(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId) || data.claimedStageRewards == null) return false;
+        return data.claimedStageRewards.Contains(stageId);
+    }
+
+    /// <summary>
+    /// Đánh dấu đã nhận thưởng lần đầu của stage và lưu. (Vàng được cộng riêng qua AddGold.)
+    /// </summary>
+    public void ClaimStageReward(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId)) return;
+        data.claimedStageRewards ??= new List<string>();
+        if (data.claimedStageRewards.Contains(stageId)) return;
+        data.claimedStageRewards.Add(stageId);
+        Save();
+    }
+
+    /// <summary>
+    /// Trao thưởng "lần đầu đạt 100%" của stage: cộng FirstClearAmount vàng vào ví
+    /// và đánh dấu đã nhận (chỉ đúng 1 lần mỗi stage). Gọi tại đúng thời điểm
+    /// người chơi vượt màn lần đầu tiên (kỷ lục vừa đạt 100%). Idempotent.
+    /// </summary>
+    public void TryGrantFirstClearReward(StageSO stage)
+    {
+        if (stage == null || stage.FirstClearAmount <= 0) return;
+        if (IsStageRewardClaimed(stage.StageID)) return;
+        if (GetStageBestProgress(stage.StageID) < stage.MaxProgress) return;
+
+        AddGold(stage.FirstClearAmount);
+        ClaimStageReward(stage.StageID);
+        FirebaseAnalyticsHelper.LogFirstClearRewardClaimed(stage.StageID, stage.FirstClearAmount);
     }
 
     #endregion

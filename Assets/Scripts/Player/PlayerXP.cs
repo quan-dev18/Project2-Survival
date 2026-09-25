@@ -11,6 +11,8 @@ public class PlayerXP : MonoBehaviour
     public float CurrentXP { get; private set; }
     public int CurrentLevel { get; private set; } = 1;
     public float XPToNextLevel { get; private set; }
+    /// <summary>Level-ups earned but not yet claimed via the upgrade panel.</summary>
+    public int PendingLevelUps { get; private set; }
 
     public event Action<int> OnLevelUp;
     public event Action OnXPChanged;
@@ -76,17 +78,27 @@ public class PlayerXP : MonoBehaviour
             CurrentXP -= XPToNextLevel;
             CurrentLevel++;
             XPToNextLevel = GetRequiredXP(CurrentLevel);
+            PendingLevelUps++;
             OnLevelUp?.Invoke(CurrentLevel);
 
             AudioManager.Instance?.PlayLevelUp();
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log($"Level up! Now level {CurrentLevel}");
-#endif
-            // Chỉ show LevelUpPanel khi game đang Playing (không phải Tutorial)
-            if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.Playing)
-                GameManager.Instance.SetState(GameState.LevelUp);
+            // Log level up event
+            int totalUpgrades = LevelUpPanel.Instance != null ? LevelUpPanel.Instance.OwnedUpgrades.Count : 0;
+            float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
+            FirebaseAnalyticsHelper.LogLevelUp(CurrentLevel, timeAlive, totalUpgrades);
+
         }
+        // Chỉ show LevelUpPanel khi game đang Playing (không phải Tutorial).
+        // Mở một lần duy nhất: các level tồn đọng được trả dần qua LevelUpPanel.Choose.
+        if (PendingLevelUps > 0 && GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.Playing)
+            GameManager.Instance.SetState(GameState.LevelUp);
+    }
+
+    /// <summary>Called by LevelUpPanel after the player claims one upgrade.</summary>
+    public void ConsumePendingLevelUp()
+    {
+        if (PendingLevelUps > 0) PendingLevelUps--;
     }
 
     public void AddAmmoRecoverChance(float amount) => AmmoRecoverChance = Mathf.Clamp01(AmmoRecoverChance + amount);

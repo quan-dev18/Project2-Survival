@@ -73,13 +73,11 @@ public class FPSDisplay : MonoBehaviour
         {
             corner = (FPSDisplayCorner)(((int)corner + 1) % 4);
             ApplyCorner();
-            Debug.Log($"[FPSDisplay] 🎮 Đổi góc sang {corner}");
         }
         else if (Input.GetKeyDown(KeyCode.F9))
         {
             corner = FPSDisplayCorner.BottomLeft;
             ApplyCorner();
-            Debug.Log("[FPSDisplay] 🎮 Về góc dưới trái");
         }
     }
 #endif
@@ -248,7 +246,6 @@ public class FPSDisplay : MonoBehaviour
 
         // Ẩn mặc định cho tới khi cờ ShowFPS bật — chỉ ẩn chữ con, không ẩn root.
         textGo.SetActive(false);
-        Debug.Log("[FPSDisplay] 🚀 Đã tạo overlay FPS (đang ẩn, bật theo setting).");
         return true;
     }
 

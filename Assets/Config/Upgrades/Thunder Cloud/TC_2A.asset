@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: TC_2A
   m_EditorClassIdentifier: 
   upgradeName: Thunder Cloud II
-  description: The thunder cloud strikes faster (5s > 2.5s)
-  icon: {fileID: 21300000, guid: c0e3f13f0c8e5da4485873e38d3538da, type: 3}
+  description: "\u0110\xE1m m\xE2y t\u1EA5n c\xF4ng nhanh h\u01A1n (5s > 2.5s)"
+  icon: {fileID: 455650212, guid: 1b51006fe5f79c2428cb3fceef81f445, type: 3}
   statMods:
   - stat: 45
     amount: 1

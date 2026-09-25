@@ -102,8 +102,6 @@ public sealed class GameSettingsManager : MonoBehaviour
         showFPS = PlayerPrefs.GetInt(KEY_SHOW_FPS, showFPSByDefault ? 1 : 0) == 1;
         showDamage = PlayerPrefs.GetInt(KEY_SHOW_DAMAGE, showDamageByDefault ? 1 : 0) == 1;
         showVFX = PlayerPrefs.GetInt(KEY_SHOW_VFX, showVFXByDefault ? 1 : 0) == 1;
-
-        Debug.Log($"[GameSettingsManager] 🚀 Khởi tạo: ShowFPS={showFPS}, ShowDamage={showDamage}, ShowVFX={showVFX}");
     }
 
     /// <summary>
@@ -144,7 +142,7 @@ public sealed class GameSettingsManager : MonoBehaviour
         PlayerPrefs.SetInt(KEY_SHOW_FPS, showFPS ? 1 : 0);
         PlayerPrefs.Save();
         OnShowFPSChanged?.Invoke(showFPS);
-        Debug.Log($"[GameSettingsManager] 🚀 Hiện FPS: {(showFPS ? "BẬT" : "TẮT")}");
+        FirebaseAnalyticsHelper.LogSettingChanged("show_fps", showFPS);
     }
 
     /// <summary>
@@ -159,7 +157,7 @@ public sealed class GameSettingsManager : MonoBehaviour
         PlayerPrefs.SetInt(KEY_SHOW_DAMAGE, showDamage ? 1 : 0);
         PlayerPrefs.Save();
         OnShowDamageChanged?.Invoke(showDamage);
-        Debug.Log($"[GameSettingsManager] 🚀 Hiển thị sát thương: {(showDamage ? "BẬT" : "TẮT")}");
+        FirebaseAnalyticsHelper.LogSettingChanged("show_damage", showDamage);
     }
 
     /// <summary>
@@ -174,6 +172,6 @@ public sealed class GameSettingsManager : MonoBehaviour
         PlayerPrefs.SetInt(KEY_SHOW_VFX, showVFX ? 1 : 0);
         PlayerPrefs.Save();
         OnShowVFXChanged?.Invoke(showVFX);
-        Debug.Log($"[GameSettingsManager] 🚀 Hiển thị VFX: {(showVFX ? "BẬT" : "TẮT")}");
+        FirebaseAnalyticsHelper.LogSettingChanged("show_vfx", showVFX);
     }
 }

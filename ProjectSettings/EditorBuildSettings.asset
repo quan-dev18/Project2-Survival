@@ -16,7 +16,7 @@ EditorBuildSettings:
     guid: aaf1ba6efba8b3249a9ceae72b22b3e8
   - enabled: 1
     path: Assets/Scenes/GameMap1.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    guid: b8a82f254f6b799418dc5808e68d7462
   - enabled: 1
     path: Assets/Scenes/GameMap2.unity
     guid: f50cc67b887523f4bb2df0243bf2bab4
@@ -26,4 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameMap4.unity
     guid: 399a37ad7993c3e419f768ec732d7b35
+  - enabled: 1
+    path: Assets/Scenes/GameMapInf.unity
+    guid: bce7b757b19614047800ec01b0685b9f
   m_configObjects: {}

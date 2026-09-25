@@ -12,6 +12,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float hpSlowLerpSpeed = 2.5f;
     [SerializeField] private float hpSlowDelay = 0.5f;
 
+    [Header("Armor")]
+    [SerializeField] private TMP_Text currentArmorText;
+    [Tooltip("Quick armor preview (e.g. HaveArmorIcon): opacity follows armor % (opaque at full, invisible at 0).")]
+    [SerializeField] private Image playerArmorIcon;
+
     public Image HealthFillSlow => healthFillSlow;
     public Image healthFillslow => healthFillSlow;
 
@@ -35,6 +40,8 @@ public class UIManager : MonoBehaviour
     private float hpSlowDelayTimer;
     private bool hasInitializedHealth;
 
+    private bool hasInitializedArmor;
+
     private void Awake()
     {
         pauseBtn?.onClick.AddListener(OnPauseClicked);
@@ -49,7 +56,9 @@ public class UIManager : MonoBehaviour
         if (playerStats != null)
         {
             playerStats.OnHealthChanged += UpdateHealthUI;
+            playerStats.OnArmorChanged += UpdateArmorUI;
             UpdateHealthUI(playerStats.CurrentHealth, playerStats.MaxHealth);
+            UpdateArmorUI(playerStats.CurrentArmor, playerStats.MaxArmor);
         }
 
         var xp = PlayerXP.Instance != null ? PlayerXP.Instance : FindObjectOfType<PlayerXP>();
@@ -80,7 +89,10 @@ public class UIManager : MonoBehaviour
             xp.OnXPChanged -= UpdateExpBar;
         }
         if (playerStats != null)
-            playerStats.OnHealthChanged -= UpdateHealthUI;
+            {
+                playerStats.OnHealthChanged -= UpdateHealthUI;
+                playerStats.OnArmorChanged -= UpdateArmorUI;
+            }
         GameManager.OnStateChanged -= OnGameStateChanged;
     }
 
@@ -184,6 +196,23 @@ public class UIManager : MonoBehaviour
 
         if (currentHPText != null)
             currentHPText.text = $"{Mathf.CeilToInt(current)}/{Mathf.CeilToInt(max)}";
+    }
+
+    private void UpdateArmorUI(float current, float max)
+    {
+        if (currentArmorText != null)
+            currentArmorText.text = $"{Mathf.CeilToInt(current)}/{Mathf.CeilToInt(max)}";
+        UpdateArmorIcon(current, max);
+    }
+
+    private void UpdateArmorIcon(float current, float max)
+    {
+        if (playerArmorIcon == null) return;
+        // Smooth mapping: opaque at 100% armor, fully transparent at 0%.
+        float alpha = max > 0f ? Mathf.Clamp01(current / max) : 0f;
+        Color c = playerArmorIcon.color;
+        c.a = alpha;
+        playerArmorIcon.color = c;
     }
 
     private void OnLevelUp(int newLevel)

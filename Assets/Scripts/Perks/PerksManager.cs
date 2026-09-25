@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,12 +36,19 @@ public class PerksManager : MonoBehaviour
     [Tooltip("Màu chữ giá tiền khi không đủ tiền.")]
     [SerializeField] private Color notAffordableColor = new Color(1f, 0.35f, 0.35f, 1f);
 
+    [Header("Description Panel (panel mô tả nâng cấp)")]
+    [Tooltip("Panel mô tả Perk khi chọn 1 Slot. Hiện khi có Slot được chọn, ẩn khi hủy chọn.")]
+    [SerializeField] private GameObject perkDescPanel;
+    [Tooltip("Text DUY NHẤT gộp cả tên Perk + mô tả + khoảng buff (name/des/buff trong 1 Text).")]
+    [SerializeField] private TextMeshProUGUI perkDescText;
+
     private readonly List<PerkSlotUI> _slotInstances = new List<PerkSlotUI>();
     private readonly Dictionary<PerkDataSO, int> _perkLevels = new Dictionary<PerkDataSO, int>();
 
     private PerkSlotUI _selectedSlot;
     private int _currentGold;
     private bool _initialized;
+    private bool _showBuffPreview = true; // true = hiện range "cur → next"; false = sau khi đã mua, chỉ hiện buff hiện tại.
 
     public PerkSlotUI SelectedSlot => _selectedSlot;
     public IReadOnlyList<PerkDataSO> PerkPool => perkPool;
@@ -160,6 +168,7 @@ public class PerksManager : MonoBehaviour
 
         _selectedSlot = slot;
         _selectedSlot.SetSelected(true);
+        _showBuffPreview = true; // chọn mới -> hiện lại preview "cur → next" trước khi mua.
         RefreshUpgradeButton();
     }
 
@@ -193,6 +202,13 @@ public class PerksManager : MonoBehaviour
         UserData.Instance?.AddPerkLevel(perk.PerkID, perk.MaxLevel);
         OnPerkUpgraded?.Invoke(perk, level + 1); // Thông báo để cập nhật chỉ số Player
 
+        // Sau khi MUA XONG: panel chỉ hiện buff hiện tại (không còn preview "cur → next").
+        _showBuffPreview = false;
+
+        // Log perk upgraded event
+        FirebaseAnalyticsHelper.LogPerkUpgraded(perk.PerkID, perk.PerkName, level + 1, cost);
+        FirebaseAnalyticsHelper.LogGoldSpent(cost, "perk", perk.PerkID, UserData.Instance.Gold);
+
         RefreshSlot(_selectedSlot);              // Cập nhật cấp hiển thị trên Slot
         RefreshUpgradeButton();                  // Tính lại giá mới lên Nút
     }
@@ -207,6 +223,8 @@ public class PerksManager : MonoBehaviour
     private void RefreshUpgradeButton()
     {
         if (upgradeButton == null) return;
+
+        RefreshDescPanel();
 
         bool hasSelection = _selectedSlot != null && _selectedSlot.Data != null;
 
@@ -265,6 +283,154 @@ public class PerksManager : MonoBehaviour
         _currentGold = gold;
         if (_selectedSlot != null) RefreshSlot(_selectedSlot);
         RefreshUpgradeButton();
+    }
+
+    /// <summary>
+    /// Hiển thị/ẩn Panel mô tả Perk theo Slot đang chọn:
+    /// - Không có Slot chọn: ẩn panel.
+    /// - Có Slot chọn: hiện NHẬT KÝ 1 Text gồm Tên + Mô tả + Khoảng buff.
+    /// </summary>
+    private void RefreshDescPanel()
+    {
+        if (perkDescPanel == null) return;
+
+        PerkSlotUI selected = _selectedSlot;
+        if (selected == null || selected.Data == null)
+        {
+            perkDescPanel.SetActive(false);
+            return;
+        }
+
+        perkDescPanel.SetActive(true);
+
+        PerkDataSO perk = selected.Data;
+        if (perkDescText != null)
+            perkDescText.text = BuildBuffRangeText(perk, _showBuffPreview);
+    }
+
+    /// <summary>
+    /// Dựng text khoảng buff: mỗi dòng ứng với 1 chỉ số (StatMod).
+///   - showPreview = true (TRƯỚC khi mua): "+36% Máu - +69% Máu" (buff hiện tại → sau khi nâng cấp).
+///   - showPreview = false (SAU khi mua xong): chỉ hiện "+69% Máu".
+///   - Perk CHƯA được nâng (level 0): luôn hiện "0%".
+///   - Đã đạt MAX: hiện buff hiện tại kèm "(MAX)".
+    /// </summary>
+    private string BuildBuffRangeText(PerkDataSO perk, bool showPreview)
+    {
+        if (perk == null) return string.Empty;
+
+        int level = GetLevel(perk);
+        bool isMax = level >= perk.MaxLevel;
+        int nextLevel = Mathf.Min(level + 1, perk.MaxLevel);
+
+        if (perk.StatMods == null || perk.StatMods.Count == 0)
+            return isMax ? "MAX" : string.Empty;
+
+        StringBuilder sb = new StringBuilder();
+        foreach (PerkDataSO.PerkStatMod mod in perk.StatMods)
+        {
+            if (mod == null) continue;
+
+            string label = GetStatLabel(mod.Stat);
+            bool percent = IsPercentStat(mod.Stat);
+            float cur = mod.AmountPerLevel * level;
+
+            if (!showPreview || isMax || level <= 0)
+            {
+                sb.AppendLine($"{label}: {FormatBuff(cur, percent)}{(isMax ? " (MAX)" : "")}");
+                continue;
+            }
+
+            float next = mod.AmountPerLevel * nextLevel;
+            sb.AppendLine($"{label}: {FormatBuff(cur, percent)} -> {FormatBuff(next, percent)}");
+        }
+        return sb.ToString().TrimEnd();
+    }
+
+    private static string FormatBuff(float value, bool percent)
+    {
+        string sign = value > 0f ? "+" : "";
+        return percent
+            ? sign + value.ToString("0.#") + "%"
+            : sign + value.ToString("0");
+    }
+
+    /// <summary>Tên tiếng Việt hiển thị cho từng loại chỉ số.</summary>
+    private static string GetStatLabel(UpgradeType stat)
+    {
+        switch (stat)
+        {
+            case UpgradeType.MaxHealthPercent: return "Máu tối đa";
+            case UpgradeType.MaxArmorPercent: return "Giáp tối đa";
+            case UpgradeType.RecoveryRatePercent: return "Hồi máu";
+            case UpgradeType.MoveSpeedPercent: return "Tốc độ di chuyển";
+            case UpgradeType.CollectRangePercent: return "Bán kính nhặt";
+            case UpgradeType.GrowthRatePercent: return "Tốc độ EXP";
+            case UpgradeType.FireRatePercent: return "Tốc độ bắn";
+            case UpgradeType.FireRangePercent: return "Tầm bắn";
+            case UpgradeType.ReloadSpeedPercent: return "Tốc độ nạp đạn";
+            case UpgradeType.MagazineSizePercent: return "Băng đạn";
+            case UpgradeType.BulletCount: return "Số đạn";
+            case UpgradeType.BulletPierce: return "Xuyên giáp";
+            case UpgradeType.BulletSpeedPercent: return "Tốc độ đạn";
+            case UpgradeType.BulletDamagePercent: return "Sát thương đạn";
+            case UpgradeType.BulletExecutePercent: return "Tỉ lệ thiêu hủy";
+            case UpgradeType.BulletKnockbackPercent: return "Đẩy lùi";
+            case UpgradeType.BulletSizePercent: return "Kích thước đạn";
+            case UpgradeType.BulletInfinitePierceOnKill: return "Đạn xuyên vĩnh viễn khi hạ kẻ";
+            case UpgradeType.BulletExplosionOnKill: return "Nổ khi hạ kẻ";
+            case UpgradeType.BulletSpreadPercent:
+            case UpgradeType.BulletSpread: return "Độ tản đạn";
+            case UpgradeType.BulletBounceCount: return "Số lần nảy";
+            case UpgradeType.FreeShotChanceWhileStill: return "Bắn miễn phí khi đứng yên";
+            case UpgradeType.AmmoRecoverOnXP: return "Nhận đạn khi nhặt EXP";
+            case UpgradeType.FireRateBuffOnXP: return "Tăng tốc bắn khi nhặt EXP";
+            case UpgradeType.LastAmmoBurst: return "Chùm đạn cuối băng";
+            case UpgradeType.BackShot: return "Bắn phía sau";
+            case UpgradeType.DamageBuffAfterReload: return "Sát thương tăng sau khi nạp đạn";
+            case UpgradeType.ReloadSpeedStackOnKill: return "Nạp đạn nhanh theo mạng hạ";
+            case UpgradeType.InvulnerableWhileReloading: return "Bất tử khi nạp đạn";
+            case UpgradeType.BurnAura: return "Vòng lửa";
+            case UpgradeType.StackingBuffOnTime: return "Buff cộng dồn theo thời gian";
+            case UpgradeType.MysteryCube: return "Hộp bí ẩn";
+            case UpgradeType.MysteryCubeDmgStack: return "Hộp bí ẩn (sát thương cộng dồn)";
+            case UpgradeType.MysteryCubeAsStack: return "Hộp bí ẩn (xếp chồng)";
+            case UpgradeType.ArmorRegenPerSecond: return "Hồi giáp/giây";
+            case UpgradeType.SpiritSummon: return "Triệu hồi linh";
+            case UpgradeType.SpiritHeal: return "Linh hồi máu";
+            case UpgradeType.SpiritBurn: return "Linh gây bỏng";
+            case UpgradeType.SpiritEmpowered: return "Linh cường hóa";
+            case UpgradeType.CharacterSizePercent: return "Kích thước nhân vật";
+            case UpgradeType.DamageTakenFireRatePercent: return "Tốc độ bắn khi bị trúng đòn";
+            case UpgradeType.DamageTakenBulletDamagePercent: return "Sát thương khi bị trúng đòn";
+            case UpgradeType.GoldGainPercent: return "Vàng nhận thêm";
+            case UpgradeType.Revive: return "Hồi sinh";
+            case UpgradeType.VisionRangePercent: return "Tầm nhìn";
+            case UpgradeType.DoubleShieldArmor: return "Mảnh giáp đôi";
+            case UpgradeType.ThornsDamage: return "Phản sát thương";
+            default: return stat.ToString();
+        }
+    }
+
+    /// <summary>Chỉ số nào hiển thị dạng % (hiện là percent chance / percent stat).</summary>
+    private static bool IsPercentStat(UpgradeType stat)
+    {
+        switch (stat)
+        {
+            case UpgradeType.BulletCount:
+            case UpgradeType.BulletPierce:
+            case UpgradeType.BulletBounceCount:
+            case UpgradeType.ArmorRegenPerSecond:
+            case UpgradeType.ThornsDamage:
+            case UpgradeType.Revive:
+            case UpgradeType.TC_1:
+            case UpgradeType.TC_2A:
+            case UpgradeType.TC_2B:
+            case UpgradeType.TC_3:
+                return false;
+            default:
+                return true;
+        }
     }
 
     private void RefreshSlot(PerkSlotUI slot)

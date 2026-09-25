@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: H_1
   m_EditorClassIdentifier: 
   upgradeName: Haste I
-  description: 'Move speed +5%
-
-    Fire rate +5%'
+  description: "T\u1ED1c \u0111\u1ED9 di chuy\u1EC3n +5%\nT\u1ED1c \u0111\u1ED9 b\u1EAFn
+    +5%"
   icon: {fileID: 209784298, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 3

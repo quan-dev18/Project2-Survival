@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: SB_3
   m_EditorClassIdentifier: 
   upgradeName: Speedy Bullets III
-  description: 'Bullet Speed +30%
-
-    Automatically execute enemies below 20% HP'
+  description: "T\u1ED1c \u0111\u1ED9 \u0111\u1EA1n +30%\nT\u1EF1 \u0111\u1ED9ng
+    k\u1EBFt li\u1EC5u c\xE1c k\u1EBB \u0111\u1ECBch d\u01B0\u1EDBi 20% m\xE1u"
   icon: {fileID: -1195821051, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 13

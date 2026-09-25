@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using GoogleMobileAds.Api;
+using GoogleMobileAds.Common;
 
 /// <summary>
 /// Owns the AdMob banner: shows it on the main menu, hides it everywhere else.
@@ -22,6 +23,8 @@ public class AdManager : MonoBehaviour
     [SerializeField] private string androidRewardedId = "ca-app-pub-3940256099942544/5224354917";
     [Tooltip("Rewarded unit for the victory double. Test ID until release.")]
     [SerializeField] private string androidVictoryRewardedId = "ca-app-pub-3940256099942544/5224354917";
+    [Tooltip("Dedicated rewarded unit for the level-up take-all button.")]
+    [SerializeField] private string androidTakeAllRewardedId = "ca-app-pub-7087538734337269/6752957592";
 
     [Header("Reward")]
     [Tooltip("Coins granted per completed rewarded ad.")]
@@ -53,6 +56,7 @@ public class AdManager : MonoBehaviour
 
     private RewardedSlot shopSlot;
     private RewardedSlot victorySlot;
+    private RewardedSlot takeAllSlot;
 
     /// <summary>True when the shop rewarded ad is loaded and ready to show.</summary>
     public bool IsRewardedReady => IsSlotReady(shopSlot);
@@ -83,14 +87,20 @@ public class AdManager : MonoBehaviour
 
     private void Start()
     {
+        if (FirebaseRemoteConfigHelper.Instance != null)
+        {
+            FirebaseRemoteConfigHelper.Instance.OnConfigFetched += RefreshAdSettings;
+        }
+
         MobileAds.Initialize(_ =>
         {
-            CreateBanner();
-            UpdateBannerVisibility();
             shopSlot = new RewardedSlot { label = "Shop", adUnitId = androidRewardedId };
             victorySlot = new RewardedSlot { label = "Victory", adUnitId = androidVictoryRewardedId };
+            takeAllSlot = new RewardedSlot { label = "TakeAll", adUnitId = androidTakeAllRewardedId };
             LoadSlot(shopSlot);
             LoadSlot(victorySlot);
+            LoadSlot(takeAllSlot);
+            RefreshAdSettings();
         });
 #if UNITY_EDITOR
         CreatePreview();
@@ -101,12 +111,17 @@ public class AdManager : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.activeSceneChanged -= OnSceneChanged;
+        if (FirebaseRemoteConfigHelper.Instance != null)
+        {
+            FirebaseRemoteConfigHelper.Instance.OnConfigFetched -= RefreshAdSettings;
+        }
         if (Instance == this)
         {
             bannerView?.Destroy();
             bannerView = null;
             DestroySlot(shopSlot);
             DestroySlot(victorySlot);
+            DestroySlot(takeAllSlot);
         }
     }
 
@@ -120,12 +135,18 @@ public class AdManager : MonoBehaviour
     /// <summary>Shows the shop rewarded ad; grants <see cref="rewardCoinAmount"/> coins on completion.</summary>
     public void ShowRewardedAd()
     {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAdsEnabled)
+        {
+            return;
+        }
+
+        FirebaseAnalyticsHelper.LogAdRewardedShown("shop");
         ShowSlot(shopSlot, _ =>
         {
             if (UserData.Instance != null)
             {
                 UserData.Instance.AddGold(rewardCoinAmount);
-                Debug.Log($"[AdManager] Shop reward earned: +{rewardCoinAmount} coins.");
+                FirebaseAnalyticsHelper.LogAdRewardedCompleted("shop", rewardCoinAmount);
             }
         }, null);
     }
@@ -137,6 +158,14 @@ public class AdManager : MonoBehaviour
     /// </summary>
     public void ShowVictoryRewardedAd(System.Action onEarned, System.Action onFinished)
     {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAdsEnabled)
+        {
+            onEarned?.Invoke();
+            onFinished?.Invoke();
+            return;
+        }
+
+        FirebaseAnalyticsHelper.LogAdRewardedShown("victory");
         if (!ShowSlot(victorySlot, _ =>
         {
             try { onEarned?.Invoke(); }
@@ -147,6 +176,68 @@ public class AdManager : MonoBehaviour
             // Not ready (or Editor): release the caller UI immediately.
             onFinished?.Invoke();
         }
+    }
+
+    /// <summary>
+    /// Shows a rewarded ad to unlock content (hero or skin).
+    /// </summary>
+    public void ShowUnlockRewardedAd(string placement, System.Action onEarned, System.Action onFinished = null)
+    {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAdsEnabled)
+        {
+            onEarned?.Invoke();
+            onFinished?.Invoke();
+            return;
+        }
+
+        FirebaseAnalyticsHelper.LogAdRewardedShown(placement);
+#if UNITY_ANDROID && !UNITY_EDITOR
+        if (!ShowSlot(shopSlot, _ =>
+        {
+            try { onEarned?.Invoke(); }
+            finally { onFinished?.Invoke(); }
+        },
+        onFinished))
+        {
+            onFinished?.Invoke();
+        }
+#else
+        onEarned?.Invoke();
+        onFinished?.Invoke();
+#endif
+    }
+
+    /// <summary>True when the take-all rewarded ad is loaded and ready to show.</summary>
+    public bool IsTakeAllRewardedReady => IsSlotReady(takeAllSlot);
+
+    /// <summary>
+    /// Shows a rewarded ad for the level-up take-all button.
+    /// onEarned grants every presented choice; onFinished always runs after.
+    /// </summary>
+    public void ShowTakeAllRewardedAd(System.Action onEarned, System.Action onFinished = null)
+    {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsAdsEnabled)
+        {
+            onEarned?.Invoke();
+            onFinished?.Invoke();
+            return;
+        }
+
+        FirebaseAnalyticsHelper.LogAdRewardedShown("take_all");
+#if UNITY_ANDROID && !UNITY_EDITOR
+        if (!ShowSlot(takeAllSlot, _ =>
+        {
+            try { onEarned?.Invoke(); }
+            finally { onFinished?.Invoke(); }
+        },
+        onFinished))
+        {
+            onFinished?.Invoke();
+        }
+#else
+        onEarned?.Invoke();
+        onFinished?.Invoke();
+#endif
     }
 
     /// <returns>False when there was nothing to show.</returns>
@@ -193,7 +284,6 @@ public class AdManager : MonoBehaviour
             slot.ad = ad;
             slot.ad.OnAdFullScreenContentClosed += () => LoadSlot(slot);
             slot.ad.OnAdFullScreenContentFailed += (_) => LoadSlot(slot);
-            Debug.Log($"[AdManager] {slot.label} rewarded ad loaded.");
         });
 #endif
     }
@@ -208,22 +298,76 @@ public class AdManager : MonoBehaviour
 
     private void CreateBanner()
     {
+        if (FirebaseRemoteConfigHelper.Instance != null && !FirebaseRemoteConfigHelper.Instance.IsBannerEnabled)
+        {
+            return;
+        }
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         bannerView?.Destroy();
         bannerView = new BannerView(androidBannerId, AdSize.Banner, AdPosition.Top);
         bannerView.LoadAd(new AdRequest());
-#else
-        Debug.Log("[AdManager] Banner ads only run on Android builds (skipped in Editor).");
 #endif
     }
 
     private void UpdateBannerVisibility()
     {
         if (bannerView == null) return;
-        if (SceneManager.GetActiveScene().name == mainMenuSceneName)
+
+        bool bannerEnabled = FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsBannerEnabled;
+        if (bannerEnabled && SceneManager.GetActiveScene().name == mainMenuSceneName)
             bannerView.Show();
         else
             bannerView.Hide();
+    }
+
+    /// <summary>
+    /// Refresh ad states when remote config changes.
+    /// </summary>
+    public void RefreshAdSettings()
+    {
+        bool bannerEnabled = FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsBannerEnabled;
+        if (!bannerEnabled)
+        {
+            if (bannerView != null)
+            {
+                bannerView.Hide();
+                bannerView.Destroy();
+                bannerView = null;
+            }
+        }
+        else
+        {
+            if (bannerView == null)
+            {
+                CreateBanner();
+            }
+            UpdateBannerVisibility();
+        }
+
+#if UNITY_EDITOR
+        UpdatePreviewVisibility();
+#endif
+    }
+
+    /// <summary>
+    /// Shows an interstitial ad via InterstitialAdManager if cooldown and config permit.
+    /// </summary>
+    public void ShowInterstitialAd(System.Action onClosed = null)
+    {
+        if (InterstitialAdManager.Instance != null)
+            InterstitialAdManager.Instance.ShowInterstitialAd(onClosed);
+        else
+            onClosed?.Invoke();
+    }
+
+    /// <summary>
+    /// Shows an app open ad via AppOpenAdManager if config permits.
+    /// </summary>
+    public void ShowAppOpenAd()
+    {
+        if (AppOpenAdManager.Instance != null)
+            AppOpenAdManager.Instance.ShowAd();
     }
 
 #if UNITY_EDITOR

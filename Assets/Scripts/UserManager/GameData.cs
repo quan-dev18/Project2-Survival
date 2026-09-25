@@ -17,6 +17,9 @@ public class GameData
     public List<string> stageIds;
     public List<float> stageBestProgress;
 
+    // StageID đã nhận thưởng "hoàn thành 100% lần đầu" (mỗi stage chỉ nhận 1 lần).
+    public List<string> claimedStageRewards;
+
     // ──────── Skin Shop ────────
     // Danh sách composite ID (weaponID_skinID) các skin đã mua.
     public List<string> ownedSkins;
@@ -24,13 +27,17 @@ public class GameData
     public List<string> equippedWeaponIds;
     public List<string> equippedSkinIds;
 
+    // ──────── Ad-Based Unlocking ────────
+    public List<string> adWatchKeys;
+    public List<int> adWatchCounts;
+
     // ──────── Tutorial ────────
     public bool tutorialCompleted;
 
     public GameData()
     {
         version = 1;
-        playerGold = 99999;
+        playerGold = 10000;
         selectedHeroIndex = 0;
         selectedWeaponIndex = 0;
         unlockedHeroes = new bool[0];
@@ -40,9 +47,13 @@ public class GameData
 
         stageIds = new List<string>();
         stageBestProgress = new List<float>();
+        claimedStageRewards = new List<string>();
 
         ownedSkins = new List<string>();
         equippedWeaponIds = new List<string>();
         equippedSkinIds = new List<string>();
+
+        adWatchKeys = new List<string>();
+        adWatchCounts = new List<int>();
     }
 }

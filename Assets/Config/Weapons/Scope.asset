@@ -15,23 +15,37 @@ MonoBehaviour:
   weaponID: scope
   weaponIcon: {fileID: -536087438, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
   isUnlocked: 0
-  goldCost: 9999
+  goldCost: 50000
   skinList:
-  - skinID: sogeki
+  - skinID: scope_skin1
     isDefault: 0
-    skinName: Sogeking
+    skinName: Aphelius
     tier: 3
     skinIcon: {fileID: -585015684, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: -585015684, guid: 67463b703454b35409398623a8578d2a, type: 3}
-    price: 100
+    price: 100000
+  - skinID: scope_skin2
+    isDefault: 0
+    skinName: Kar36-A
+    tier: 1
+    skinIcon: {fileID: 402457114, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    weaponSprite: {fileID: 402457114, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    price: 30000
+  - skinID: scope_skin3
+    isDefault: 0
+    skinName: Kar36-B
+    tier: 2
+    skinIcon: {fileID: -95672626, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    weaponSprite: {fileID: -95672626, guid: 439f76b035256ab4998762d2f4f3fc8f, type: 3}
+    price: 45000
   shootSFX: {fileID: 8300000, guid: 40f0d6f08672bef42ab5cd6e23a106d5, type: 3}
   reloadSFX: {fileID: 8300000, guid: f0ec494150d06c64eb431e14ad64d872, type: 3}
   weaponName: AWP
-  fireRate: 1.5
+  fireRate: 2
   fireRange: 7
-  reloadTime: 1
+  reloadTime: 2
   magazineSize: 1
   bulletCount: 1
   spread: 1
-  basePierce: 1
+  basePierce: 2
   bulletSO: {fileID: 11400000, guid: 5559ee3547c44b94b968b0abc8db99de, type: 2}

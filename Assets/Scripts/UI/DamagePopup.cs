@@ -51,10 +51,10 @@ public class DamagePopup : MonoBehaviour, IPoolSpawnable
         if (type == PopupType.Crit) return false;
         if (type == PopupType.PlayerDamage) return false;
 
-        float dist = Vector3.Distance(newPos, SpawnPosition);
+        float sqrDist = (newPos - SpawnPosition).sqrMagnitude;
         float timeSince = Time.time - SpawnTime;
 
-        return dist <= mergeRadius && timeSince <= mergeWindow;
+        return sqrDist <= mergeRadius * mergeRadius && timeSince <= mergeWindow;
     }
 
     public void Merge(float additionalDamage, PopupStyle style)

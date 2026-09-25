@@ -29,6 +29,10 @@ public class EnemySpawner : MonoBehaviour
     private float eliteRetryTimer;
     private bool bossRetryWarningShown;
     private bool eliteRetryWarningShown;
+    private int lastDisplayedMinutes = -1;
+    private int lastDisplayedSeconds = -1;
+    // Final-wave timeout: Death has been spawned; the run now only ends when the player dies.
+    private bool deathSpawned;
 
     public event System.Action<EnemyHealth> OnBossSpawned;
     public event System.Action<int> OnInfiniteLoop;
@@ -94,11 +98,16 @@ public class EnemySpawner : MonoBehaviour
         eliteRetryTimer = 0f;
         bossRetryWarningShown = false;
         eliteRetryWarningShown = false;
+        deathSpawned = false;
         spawnedBosses.Clear();
         spawnedElites.Clear();
         entryStates.Clear();
         pendingBosses.Clear();
         pendingElites.Clear();
+
+        // Full wipe before the new wave spawns (no XP drops, no kill credit).
+        if (CurrentPhase.ClearEnemy)
+            ClearAllEnemiesSilent();
 
         StageSO.Phase phase = CurrentPhase;
         for (int i = 0; i < phase.Enemies.Count; i++)
@@ -205,7 +214,7 @@ public class EnemySpawner : MonoBehaviour
                     LoopInfinitePhase();
                     return;
                 }
-                Lose();
+                SpawnFinalDeath();
                 return;
             }
 
@@ -239,6 +248,29 @@ public class EnemySpawner : MonoBehaviour
         SaveBestProgress(stage != null ? stage.Phases.Count + infiniteLoopCount : infiniteLoopCount);
     }
 
+    /// <summary>
+    /// Full enemy wipe for ClearEnemy phases: despawns everything currently alive
+    /// (normals, elites and bosses) WITHOUT death rewards — no XP drops, no kill
+    /// credit. Bypasses Die()/OnDeathAnimationEnd() entirely, so DropXP never runs.
+    /// Must despawn each object exactly once (double-despawn corrupts the pool);
+    /// activeEnemies already contains every spawned enemy, bosses included.
+    /// </summary>
+    private void ClearAllEnemiesSilent()
+    {
+        if (ObjectPooling.Instance != null)
+        {
+            for (int i = activeEnemies.Count - 1; i >= 0; i--)
+            {
+                GameObject e = activeEnemies[i];
+                if (e != null && e.activeInHierarchy)
+                    ObjectPooling.Instance.Despawn(e);
+            }
+        }
+        activeEnemies.Clear();
+        spawnedBosses.Clear();
+        spawnedElites.Clear();
+    }
+
     private void CleanupActiveEnemies()
     {
         for (int i = activeEnemies.Count - 1; i >= 0; i--)
@@ -264,7 +296,12 @@ public class EnemySpawner : MonoBehaviour
 
         int minutes = Mathf.FloorToInt(totalTime / 60f);
         int seconds = Mathf.FloorToInt(totalTime % 60f);
-        phaseTimerText.text = $"{minutes:00}:{seconds:00}";
+        if (minutes != lastDisplayedMinutes || seconds != lastDisplayedSeconds)
+        {
+            lastDisplayedMinutes = minutes;
+            lastDisplayedSeconds = seconds;
+            phaseTimerText.text = $"{minutes:00}:{seconds:00}";
+        }
     }
 
     private void UpdateSpawning()
@@ -316,6 +353,8 @@ public class EnemySpawner : MonoBehaviour
         if (!IsFinalPhase) return;
         // Infinite stages never win - loop handles difficulty
         if (stage != null && stage.IsInfinite) return;
+        // After Death arrives the run can no longer be won - it ends when the player dies.
+        if (deathSpawned) return;
 
         for (int i = spawnedBosses.Count - 1; i >= 0; i--)
         {
@@ -330,13 +369,14 @@ public class EnemySpawner : MonoBehaviour
 
         if (bossPhaseActive ? bossesCleared : allEnemiesCleared)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log("Stage cleared!");
-#endif
             if (GameManager.Instance != null)
             {
                 // Thắng stage (boss đã bị tiêu diệt) => đạt 100% tiến trình.
                 SaveBestProgress(stage.MaxProgress);
+
+                // Thưởng lần đầu đạt 100% (nếu stage có thưởng và chưa nhận).
+                if (UserData.Instance != null)
+                    UserData.Instance.TryGrantFirstClearReward(stage);
 
                 GameManager.Instance.SetIsWin(true);
                 GameManager.Instance.SetState(GameState.GameOver);
@@ -357,15 +397,24 @@ public class EnemySpawner : MonoBehaviour
         UserData.Instance.SetStageBestProgress(stage.StageID, progress);
     }
 
-    private void Lose()
+    /// <summary>
+    /// Final-wave timeout (non-infinite stages): instead of an instant game over,
+    /// spawn one Death and stall — no win is possible anymore, the run ends only
+    /// when the player dies. Runs through the normal spawn path so stat scaling
+    /// and HP reset apply.
+    /// </summary>
+    private void SpawnFinalDeath()
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        Debug.Log("Timer ran out!");
-#endif
-        if (GameManager.Instance != null)
+        if (deathSpawned) return;
+        if (ObjectPooling.Instance == null) return;
+        GameObject death = SpawnEnemy("Death", new EntryState());
+        if (death != null)
         {
-            GameManager.Instance.SetIsWin(false);
-            GameManager.Instance.SetState(GameState.GameOver);
+            deathSpawned = true;
+        }
+        else
+        {
+            Debug.LogWarning("EnemySpawner: failed to spawn 'Death' — check it is registered in ObjectPooling with key 'Death'");
         }
     }
 
@@ -377,10 +426,30 @@ public class EnemySpawner : MonoBehaviour
         {
             // Apply global stat scaling (linear: flat % bonus)
             EnemyController ec = enemy.GetComponent<EnemyController>();
+            EnemyHealth eh = null;
             if (ec != null)
             {
+                eh = enemy.GetComponent<EnemyHealth>();
+                if (eh == null) eh = enemy.GetComponentInChildren<EnemyHealth>(true);
+                if (eh != null)
+                {
+                    // Tagler: OnEnable a garanti bir heal tam dolumu yapmi$tir (eski
+                    // aktif durumun 0 canindan dolayi yanli$ erken olum tellerinden
+                    // once korumak icin). Bu turu devre di$i birakiyoruz.
+                    eh.suppressInvokesUntilAwakeDone = true;
+                    eh.silenceDamagePopups = true;
+                    eh.silenceDeathEvents = true;
+                }
+
                 // Reset bonuses from previous spawn, then apply current global values
                 ec.ResetBonuses();
+                if (FirebaseRemoteConfigHelper.Instance != null)
+                {
+                    ec.difficultyHpMultiplier = Mathf.Max(0.01f, FirebaseRemoteConfigHelper.Instance.DifficultyHpMultiplier);
+                    ec.difficultySpeedMultiplier = Mathf.Max(0.01f, FirebaseRemoteConfigHelper.Instance.DifficultySpeedMultiplier);
+                    ec.difficultyDamageMultiplier = Mathf.Max(0.01f, FirebaseRemoteConfigHelper.Instance.DifficultyDamageMultiplier);
+                }
+
                 if (globalHealthBonusPercent > 0f)
                     ec.AddMaxHealthPercent(globalHealthBonusPercent / 100f);
                 if (globalSpeedBonusPercent > 0f)
@@ -390,6 +459,10 @@ public class EnemySpawner : MonoBehaviour
 
                 enemy.GetComponent<EnemyColorVariant>()?.ApplyRandomColor();
             }
+
+            // Restore real HP after bonuses are set, then re-enable health events
+            if (eh != null)
+                eh.OnRewardsDone();
 
             activeEnemies.Add(enemy);
             state.spawned.Add(enemy);

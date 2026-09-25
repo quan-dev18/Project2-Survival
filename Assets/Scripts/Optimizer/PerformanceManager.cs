@@ -22,7 +22,8 @@ public enum FrameRateMode
     FPS30 = 1,
     FPS60 = 2,
     FPS90 = 3,
-    FPS120 = 4
+    FPS120 = 4,
+    Unlimited = 5
 }
 
 /// <summary>
@@ -37,50 +38,28 @@ public enum PerformanceLevel
 
 /// <summary>
 /// Bộ cài đặt GPU cho một nấc chất lượng (Low/Medium/High).
-/// Chỉ dùng đúng các property URP set được lúc RUNTIME (Unity 2022.3 / URP 14):
-///   - renderScale
-///   - msaaSampleCount
-///   - shadowDistance (0 = tắt hẳn bóng đổ, tiết kiệm nhất)
-///   - shadowCascadeCount (1..4)
-/// Các cờ như supportsSoftShadows / mainLightShadowmapResolution là internal set
-/// trong URP 14 nên không đụng đến ở runtime; muốn tinh chỉnh thì sửa trực tiếp
-/// trên URP asset trong Inspector (hoặc nâng cấp sang nhiều URP asset/nấc).
+/// 2D pixel art chạy URP 2D Renderer: chỉ renderScale thực sự giảm fillrate
+/// (quan trọng vì game có Fog of War shader + Light2D phủ toàn màn hình).
+/// Các lever như MSAA / shadowDistance / shadowCascadeCount là của 3D và
+/// KHÔNG ÁP DỤNG (Render2D dùng Light2D, không có shadow cascade 3D) —
+/// MSAA còn làm nhòe pixel art nên bị khóa cố định 0 trong ApplyRenderProfile.
+/// MSAA luôn 0; muốn đổi phải sửa trực tiếp URP asset trong Inspector.
 /// </summary>
 [Serializable]
 public struct RenderProfile
 {
-    [Tooltip("Render Scale: tỷ lệ độ phân giải GPU (0.1..2). Càng thấp càng nhanh.")]
+    [Tooltip("Render Scale: tỷ lệ độ phân giải GPU (0.1..2). Càng thấp càng nhanh.\nChỉ dùng bội số nguyên/rõ ràng (1.0 / 0.75 / 0.5) để không làm lệch pixel art.")]
     [Range(0.1f, 2f)]
     public float renderScale;
 
-    [Tooltip("MSAA chống răng cưa: 0 = tắt, 2/4/8 = số mẫu.")]
-    public int msaaSampleCount;
-
-    [Tooltip("Khoảng cách vẽ bóng (0 = tắt hẳn, tiết kiệm nhất).")]
-    public float shadowDistance;
-
-    [Tooltip("Số cascade của bóng (1..4). Càng nhiều bóng càng nét nhưng đắt hơn.")]
-    [Range(1, 4)]
-    public int shadowCascadeCount;
-
     public static RenderProfile HighPreset =>
-        new RenderProfile { renderScale = 1f, msaaSampleCount = 4, shadowDistance = 50f, shadowCascadeCount = 4 };
+        new RenderProfile { renderScale = 1f };
 
     public static RenderProfile MediumPreset =>
-        new RenderProfile { renderScale = 0.875f, msaaSampleCount = 2, shadowDistance = 30f, shadowCascadeCount = 2 };
+        new RenderProfile { renderScale = 0.75f };
 
     public static RenderProfile LowPreset =>
-        new RenderProfile { renderScale = 0.7f, msaaSampleCount = 0, shadowDistance = 0f, shadowCascadeCount = 1 };
-
-    /// <summary>MSAA hợp lệ cho URP: chỉ nhận 0, 2, 4 hoặc 8 mẫu.</summary>
-    public static int ValidateMsaa(int samples)
-    {
-        if (samples == 0 || samples == 2 || samples == 4 || samples == 8) return samples;
-        return samples < 4 ? 0 : 4;
-    }
-
-    /// <summary>Số cascade hợp lệ: luôn nằm trong 1..4.</summary>
-    public static int ValidateCascades(int count) => Mathf.Clamp(count, 1, 4);
+        new RenderProfile { renderScale = 0.5f };
 }
 
 /// <summary>
@@ -118,6 +97,7 @@ public sealed class PerformanceManager : MonoBehaviour
     private const string KEY_ADAPTIVE_ENABLED = "Performance_Adaptive_Enabled";
     private const string KEY_LOW_GRAPHICS = "Performance_LowGraphics";
     private const string KEY_VSYNC = "Performance_VSync";
+    private const string KEY_QUALITY_LOCKED = "Performance_Quality_Locked";
 
     // =============================================================
     //  SERIALIZE FIELDS - thiết lập trong Inspector
@@ -178,13 +158,13 @@ public sealed class PerformanceManager : MonoBehaviour
     [SerializeField] private bool lowGraphicsEnabledByDefault = false;
 
     [Header("=== Render Profile (GPU) — 1 bộ cài đặt cho mỗi nấc ===")]
-    [Tooltip("Nấc High: render scale 1.0, MSAA 4x, bóng nét nhiều cascade.")]
+    [Tooltip("Nấc High: render scale 1.0 (full resolution). 2D pixel art — MSAA luôn 0.")]
     [SerializeField] private RenderProfile renderProfileHigh = RenderProfile.HighPreset;
 
-    [Tooltip("Nấc Medium: cân bằng hình ảnh/hiệu năng.")]
+    [Tooltip("Nấc Medium: render scale 0.75 (giảm fillrate cho Fog/Light2D).")]
     [SerializeField] private RenderProfile renderProfileMedium = RenderProfile.MediumPreset;
 
-    [Tooltip("Nấc Low hoặc bật Cấu hình thấp: ưu tiên FPS (bóng tắt, MSAA 0).")]
+    [Tooltip("Nấc Low hoặc bật Cấu hình thấp: render scale 0.5 (ưu tiên FPS).")]
     [SerializeField] private RenderProfile renderProfileLow = RenderProfile.LowPreset;
 
     // =============================================================
@@ -195,6 +175,11 @@ public sealed class PerformanceManager : MonoBehaviour
     private int baseQualityLevel;
     private bool lowGraphicsEnabled;
     private bool vSyncEnabled;
+
+    /// <summary>Người chơi đã chủ động bấm chọn chất lượng (Low/Medium/High).
+    /// Khi đó là quyết định cuối cùng: adaptive KHÔNG được tự hạ chất lượng nữa,
+    /// chỉ còn được giảm FPS mục tiêu để giữ mượt.</summary>
+    private bool qualityLocked;
 
     private float fpsAccumulator;        // thời gian tích lũy trong cửa sổ mẫu
     private float frameTimeAccumulator;  // tổng frame time trong cửa sổ mẫu (ms)
@@ -222,8 +207,41 @@ public sealed class PerformanceManager : MonoBehaviour
     /// <summary>FPS mục tiêu gốc theo chế độ đã chọn (trước khi adaptive giảm).</summary>
     public int RawTargetFPS => GetTargetFPS(frameRateMode);
 
-    /// <summary>FPS mục tiêu đang thực sự áp dụng (đã trừ bước hạ của adaptive).</summary>
-    public int AppliedTargetFPS => Mathf.Max(minimumTargetFPS, RawTargetFPS - adaptiveStep * frameRateDropPerStep);
+    /// <summary>
+    /// FPS mục tiêu đang thực sự áp dụng: mục tiêu gốc trừ bước hạ của adaptive.
+    /// KHÔNG clamp theo tần số quét hiện tại của màn hình vì:
+    ///   1. Screen.currentResolution.refreshRateRatio (Android) trả tần số ĐANG
+    ///      chạy (thường 60) chứ không phải tần số tối đa → clamp sai sẽ chặn luôn
+    ///      việc đạt 90/120 trên màn hình 90/120Hz.
+    ///   2. Làm nút VSync "vô hình": tắt VSync thì target cũng bị ép bằng khi bật.
+    ///   Việc không vượt quá Hz của panel do VSync / phần cứng tự xử lý.
+    /// Chọn FPS tay (30/60/90/120) hoặc khóa chất lượng (qualityLocked) = quyết định
+    /// cuối cùng: adaptive KHÔNG được kéo FPS xuống thấp hơn mức đã chọn.
+    /// </summary>
+    public int AppliedTargetFPS
+    {
+        get
+        {
+            if (frameRateMode == FrameRateMode.Unlimited)
+            {
+#if UNITY_ANDROID || UNITY_IOS
+                // Trên mobile KHÔNG được để -1 vì OS sẽ tự khóa về 30 FPS (tiết kiệm pin).
+                // Chạy max = đúng Hz cao nhất màn hình điện thoại (60/90/120).
+                return Mathf.Max(60, GetMaxScreenRefreshRate());
+#else
+                return -1; // Desktop: không giới hạn thật sự.
+#endif
+            }
+            // Người chơi chọn FPS tay (30/60/90/120): đó là quyết định cuối cùng,
+            // adaptive không được kéo xuống thấp hơn (chọn 90 không còn rơi về 60).
+            // Chỉ khi ở chế độ Auto mới cho adaptive giảm FPS để giữ mượt.
+            if (frameRateMode != FrameRateMode.Auto)
+                return RawTargetFPS;
+            if (qualityLocked)
+                return RawTargetFPS;
+            return Mathf.Max(minimumTargetFPS, RawTargetFPS - adaptiveStep * frameRateDropPerStep);
+        }
+    }
 
     /// <summary>FPS trung bình (làm mượt) của cửa sổ mẫu vừa qua.</summary>
     public float SmoothedFPS => smoothedFPS;
@@ -241,9 +259,16 @@ public sealed class PerformanceManager : MonoBehaviour
     public bool AdaptiveEnabled => adaptiveEnabled;
 
     /// <summary>Mức chất lượng đồ họa đang thực sự áp dụng (0..QualitySettings.names.Length-1).</summary>
-    public int AppliedQualityLevel => lowGraphicsEnabled
-        ? 0
-        : Mathf.Clamp(baseQualityLevel - adaptiveStep, 0, QualitySettings.names.Length - 1);
+    public int AppliedQualityLevel
+    {
+        get
+        {
+            if (lowGraphicsEnabled) return 0;
+            // qualityLocked: người chơi chọn tay = khóa, adaptive không hạ chất lượng nữa.
+            if (qualityLocked) return baseQualityLevel;
+            return Mathf.Clamp(baseQualityLevel - adaptiveStep, 0, QualitySettings.names.Length - 1);
+        }
+    }
 
     /// <summary>Chất lượng đồ họa gốc người chơi chọn (trước adaptive và trước cấu hình thấp).</summary>
     public int BaseQualityLevel => baseQualityLevel;
@@ -255,7 +280,7 @@ public sealed class PerformanceManager : MonoBehaviour
     public bool VSyncEnabled => vSyncEnabled;
 
     /// <summary>Render Scale URP đang áp dụng — đi theo MỨC CHẤT LƯỢNG người chơi chọn
-    /// (High=1.0 / Medium=0.875 / Low=0.7 theo RenderProfile), chứ không theo adaptive.
+    /// (High=1.0 / Medium=0.75 / Low=0.5 theo RenderProfile), chứ không theo adaptive.
     /// Adaptive/low-graphics chỉ làm giảm mức áp dụng (AppliedQualityLevel).</summary>
     public float CurrentRenderScale =>
         GetRenderScaleForLevel(GetPerformanceLevelForQuality(AppliedQualityLevel));
@@ -336,7 +361,7 @@ public sealed class PerformanceManager : MonoBehaviour
         minFrameTimeMs = float.MaxValue;
         frameRateMode = (FrameRateMode)Mathf.Clamp(
             PlayerPrefs.GetInt(KEY_FRAME_RATE_MODE, (int)FrameRateMode.Auto),
-            (int)FrameRateMode.Auto, (int)FrameRateMode.FPS120);
+            (int)FrameRateMode.Auto, (int)FrameRateMode.Unlimited);
 
         adaptiveEnabled = PlayerPrefs.GetInt(KEY_ADAPTIVE_ENABLED, adaptiveEnabledByDefault ? 1 : 0) == 1;
         lowGraphicsEnabled = PlayerPrefs.GetInt(KEY_LOW_GRAPHICS, lowGraphicsEnabledByDefault ? 1 : 0) == 1;
@@ -344,6 +369,7 @@ public sealed class PerformanceManager : MonoBehaviour
         baseQualityLevel = Mathf.Clamp(
             PlayerPrefs.GetInt(KEY_QUALITY_LEVEL, QualitySettings.GetQualityLevel()),
             0, QualityLevelCount - 1);
+        qualityLocked = PlayerPrefs.GetInt(KEY_QUALITY_LOCKED, 0) == 1;
 
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
         // Bản Release: luôn dùng % pin thật của máy. Nếu trong Editor từng gán
@@ -356,8 +382,6 @@ public sealed class PerformanceManager : MonoBehaviour
 
         // Bộ nhớ thấp: hạ mức tối đa ngay để cứu game khỏi súp sệt / bị kill.
         Application.lowMemory += OnLowMemoryWarning;
-
-        Debug.Log($"[PerformanceManager] 🚀 Khởi tạo: Mode={frameRateMode}, Target={AppliedTargetFPS} FPS, Quality={AppliedQualityLevel}, Adaptive={adaptiveEnabled}");
     }
 
     /// <summary>
@@ -368,6 +392,7 @@ public sealed class PerformanceManager : MonoBehaviour
     private void Start()
     {
         ApplyFrameRate();
+        GameManager.OnStateChanged += OnGameStateChanged;
     }
 
     /// <summary>
@@ -389,8 +414,16 @@ public sealed class PerformanceManager : MonoBehaviour
     private void OnDestroy()
     {
         Application.lowMemory -= OnLowMemoryWarning;
+        GameManager.OnStateChanged -= OnGameStateChanged;
         if (Instance == this)
             Instance = null;
+    }
+
+    private void OnGameStateChanged(GameState state)
+    {
+        // Khi chuyển state -> re-apply render profile theo mức chất lượng đã chọn
+        // (render scale áp dụng đồng nhất cả menu lẫn gameplay).
+        ApplyRenderProfile();
     }
 
     // =============================================================
@@ -499,7 +532,6 @@ public sealed class PerformanceManager : MonoBehaviour
     private void AdaptiveStepDown()
     {
         adaptiveStep = Mathf.Min(maxAdaptiveStep, adaptiveStep + 1);
-        Debug.Log($"[PerformanceManager] ⚠️ Hiệu năng tụt, hạ xuống mức {CurrentPerformanceLevel} (Target={AppliedTargetFPS} FPS, Quality={AppliedQualityLevel})");
         ApplyAdaptiveStep();
     }
 
@@ -509,7 +541,6 @@ public sealed class PerformanceManager : MonoBehaviour
     private void AdaptiveStepUp()
     {
         adaptiveStep = Mathf.Max(0, adaptiveStep - 1);
-        Debug.Log($"[PerformanceManager] ✅ Hiệu năng hồi phục, nâng lên mức {CurrentPerformanceLevel} (Target={AppliedTargetFPS} FPS, Quality={AppliedQualityLevel})");
         ApplyAdaptiveStep();
     }
 
@@ -522,7 +553,6 @@ public sealed class PerformanceManager : MonoBehaviour
     {
         simulateBatteryPercent = Mathf.Clamp(percent, -1f, 100f);
         batteryWarningRaised = false;
-        Debug.Log($"[PerformanceManager] 🔋 Mô phỏng pin: {(simulateBatteryPercent < 0f ? "TẮT (dùng pin thật)" : simulateBatteryPercent + "%")}");
     }
 
     /// <summary>
@@ -605,7 +635,9 @@ public sealed class PerformanceManager : MonoBehaviour
     // =============================================================
 
     /// <summary>
-    /// Đổi chế độ frame rate (Auto/30/60/90/120) và lưu ngay vào PlayerPrefs.
+    /// Đổi chế độ frame rate (Auto/30/60/90/120/Unlimited) và lưu ngay vào PlayerPrefs.
+    /// Chọn bằng tay = quyết định cuối cùng: reset bước adaptive để FPS mục tiêu
+    /// KHÔNG bị kéo xuống thấp hơn mức đã chọn (vd chọn 90 không còn rơi về 60).
     /// </summary>
     /// <param name="mode">Chế độ frame rate mới.</param>
     public void SetFrameRateMode(FrameRateMode mode)
@@ -613,6 +645,8 @@ public sealed class PerformanceManager : MonoBehaviour
         if (frameRateMode == mode) return;
 
         frameRateMode = mode;
+        // Lựa chọn bằng tay: hoàn bỏ bước adaptive đã tích lũy (90 - 2x15 = 60).
+        ResetAdaptiveState();
         ApplyFrameRate();
         SavePreferences();
         OnFrameRateModeChanged?.Invoke(frameRateMode);
@@ -626,7 +660,10 @@ public sealed class PerformanceManager : MonoBehaviour
     public void SetQualityLevel(int level)
     {
         int clamped = Mathf.Clamp(level, 0, QualityLevelCount - 1);
-        if (baseQualityLevel == clamped) return;
+
+        // Không early-return khi giữ nguyên level: baseQualityLevel có thể ĐÃ bằng
+        // mức này nhưng adaptive đã tự hạ AppliedQualityLevel xuống dưới (base - step).
+        // Bấm lại nút phải ép áp dụng đúng mức người chơi chọn.
 
         baseQualityLevel = clamped;
         ApplyQuality();
@@ -642,15 +679,22 @@ public sealed class PerformanceManager : MonoBehaviour
     /// Render Profile GPU đã định sẵn trong Inspector (Low → renderProfileLow,
     /// Medium → renderProfileMedium, High → renderProfileHigh). Dùng cho nút
     /// chất lượng trong Settings.
+    /// Lưu ý: đây là lựa chọn CHỦ ĐỘNG của người chơi nên phải áp đúng ngay mức
+    /// đó — reset luôn bước adaptive về 0, kẻo Adaptive từng tự hạ thấp (máy yếu,
+    /// pin cạn) thì applied = base - step sẽ không bao giờ lên tới High dù bấm
+    /// nút High.
     /// </summary>
     /// <param name="level">Nấc hiệu năng/profile cần áp dụng.</param>
     public void SetQualityPreset(PerformanceLevel level)
     {
+        // Lựa chọn bằng tay = khóa chất lượng ở đúng mức này (adaptive không hạ nữa).
+        qualityLocked = true;
+        ResetAdaptiveState();
         SetQualityLevel(GetQualityLevelForPerformanceLevel(level));
     }
 
     /// <summary>
-    /// Bật/tắt Adaptive Throttling và lưu ngay vào PlayerPrefs.
+    /// Tắt Adaptive Throttling và lưu ngay vào PlayerPrefs.
     /// </summary>
     /// <param name="enabled">true = bật tự điều chỉnh hiệu năng.</param>
     public void SetAdaptiveEnabled(bool enabled)
@@ -660,14 +704,23 @@ public sealed class PerformanceManager : MonoBehaviour
         adaptiveEnabled = enabled;
         if (!adaptiveEnabled)
         {
-            adaptiveStep = 0;
-            consecutiveBadChecks = 0;
-            consecutiveGoodChecks = 0;
+            ResetAdaptiveState();
         }
         ApplyAll();
         SavePreferences();
         OnAdaptiveEnabledChanged?.Invoke(adaptiveEnabled);
-        Debug.Log($"[PerformanceManager] 🚀 Adaptive Throttling: {(adaptiveEnabled ? "BẬT" : "TẮT")}");
+    }
+
+    /// <summary>
+    /// Đưa adaptive về trạng thái "chưa hạ gì": step 0, sạch bộ đếm hạ/nâng.
+    /// Gọi khi người chơi chủ động chọn chất lượng (phải áp đúng mức họ chọn)
+    /// hoặc khi tắt adaptive.
+    /// </summary>
+private void ResetAdaptiveState()
+    {
+        adaptiveStep = 0;
+        consecutiveBadChecks = 0;
+        consecutiveGoodChecks = 0;
     }
 
     /// <summary>
@@ -703,10 +756,12 @@ public sealed class PerformanceManager : MonoBehaviour
         if (vSyncEnabled == enabled) return;
 
         vSyncEnabled = enabled;
+        // Bật/tắt thủ công = quyết định cuối cùng: xóa bước adaptive đã tích lũy
+        // để FPS không còn kẹt ở 30 (60 - 2x15) khi vừa tắt VSync.
+        ResetAdaptiveState();
         ApplyFrameRate();
         SavePreferences();
         OnVSyncChanged?.Invoke(vSyncEnabled);
-        Debug.Log($"[PerformanceManager] 🎮 VSync: {(vSyncEnabled ? "BẬT" : "TẮT")} (Target={AppliedTargetFPS} FPS)");
     }
 
     // =============================================================
@@ -714,11 +769,37 @@ public sealed class PerformanceManager : MonoBehaviour
     // =============================================================
 
     /// <summary>
-    /// Trả về FPS mục tiêu gốc của một chế độ. Chế độ Auto chọn theo tần số quét màn hình
-    /// (ưu tiên 120/90/60) và rơi về autoTargetFPS cho màn hình thường.
+    /// Tần số quét màn hình đang áp dụng (Hz) — 60/90/120...
+    /// Ưu tiên đọc Screen.mainWindowDisplayInfo.refreshRateRatio (đúng tần số HIỆN TẠI,
+    /// không bị 120Hz ảo khi panel đang chạy 60/90), rơi về currentResolution từng cũ.
+    /// Giá trị NaN/vô lý thì rơi về 60 (an toàn cho mọi máy).
+    /// </summary>
+    public static int GetMaxScreenRefreshRate()
+    {
+#if UNITY_2023_1_OR_NEWER
+        // Đọc tần số quét HIỆN TẠI mà OS đang điều khiển (chính xác trên Android/iOS,
+        // không bị báo 120Hz ảo khi panel chỉ đang chạy 60/90).
+        double refresh = Screen.mainWindowDisplayInfo.refreshRateRatio.value;
+        if (double.IsNaN(refresh) || refresh < 30.0)
+            refresh = Screen.currentResolution.refreshRateRatio.value;
+#elif UNITY_2022_2_OR_NEWER
+        double refresh = Screen.currentResolution.refreshRateRatio.value;
+#else
+        double refresh = Screen.currentResolution.refreshRate;
+#endif
+        if (double.IsNaN(refresh) || double.IsPositiveInfinity(refresh) || refresh < 30.0)
+            return 60;
+        return Mathf.RoundToInt((float)refresh);
+    }
+
+    /// <summary>
+    /// Trả về FPS mục tiêu gốc của một chế độ:
+    /// - Auto luôn = autoTargetFPS (60), KHÔNG còn tự nhảy 90/120 theo Hz màn hình.
+    /// - Các mức FPS30/60/90/120: con số cố định.
+    /// - Unlimited: -1 (desktop). Trên mobile, AppliedTargetFPS sẽ thay bằng Hz màn hình.
     /// </summary>
     /// <param name="mode">Chế độ cần tra FPS mục tiêu.</param>
-    /// <returns>FPS mục tiêu gốc (&gt; 0).</returns>
+    /// <returns>FPS mục tiêu gốc (&gt; 0; -1 cho Unlimited desktop).</returns>
     public int GetTargetFPS(FrameRateMode mode)
     {
         switch (mode)
@@ -727,15 +808,9 @@ public sealed class PerformanceManager : MonoBehaviour
             case FrameRateMode.FPS60: return 60;
             case FrameRateMode.FPS90: return 90;
             case FrameRateMode.FPS120: return 120;
+            case FrameRateMode.Unlimited: return -1;
             default:
-#if UNITY_2022_2_OR_NEWER
-                double refresh = System.Math.Max(1.0, Screen.currentResolution.refreshRateRatio.value);
-#else
-                double refresh = System.Math.Max(1, Screen.currentResolution.refreshRate);
-#endif
-                if (refresh >= 120.0) return 120;
-                if (refresh >= 90.0) return 90;
-                if (refresh >= 60.0) return 60;
+                // Auto LUÔN là 60fps (không tự nhảy 90/120 theo Hz màn hình nữa).
                 return Mathf.Clamp(autoTargetFPS, 30, 60);
         }
     }
@@ -765,23 +840,23 @@ public sealed class PerformanceManager : MonoBehaviour
         OnAdaptiveEnabledChanged?.Invoke(adaptiveEnabled);
     }
 
-/// <summary>
-/// Lấy URP asset đang dùng, tương thích nhiều phiên bản Unity
-/// (defaultRenderPipelineAsset chỉ có từ 2023.1; 2022.x dùng renderPipelineAsset).
-/// </summary>
-/// <returns>UniversalRenderPipelineAsset hoặc null nếu không dùng URP.</returns>
-private static UniversalRenderPipelineAsset GetURPAsset()
-{
-    RenderPipelineAsset pipeline =
+    /// <summary>
+    /// Lấy URP asset đang dùng, tương thích nhiều phiên bản Unity
+    /// (defaultRenderPipelineAsset chỉ có từ 2023.1; 2022.x dùng renderPipelineAsset).
+    /// </summary>
+    /// <returns>UniversalRenderPipelineAsset hoặc null nếu không dùng URP.</returns>
+    private static UniversalRenderPipelineAsset GetURPAsset()
+    {
+        RenderPipelineAsset pipeline =
 #if UNITY_2023_1_OR_NEWER
-        GraphicsSettings.defaultRenderPipelineAsset;
+            GraphicsSettings.defaultRenderPipelineAsset;
 #else
-        GraphicsSettings.renderPipelineAsset;
+            GraphicsSettings.renderPipelineAsset;
 #endif
-    return pipeline as UniversalRenderPipelineAsset;
-}
+        return pipeline as UniversalRenderPipelineAsset;
+    }
 
-/// <summary>
+    /// <summary>
     /// Trả về RenderProfile của 1 nấc hiệu năng (đã cấu hình trong Inspector).
     /// </summary>
     /// <param name="level">Mức hiệu năng cần tra.</param>
@@ -842,8 +917,11 @@ private static UniversalRenderPipelineAsset GetURPAsset()
 
     /// <summary>
     /// Áp dụng RenderProfile của mức đang áp dụng xuống URP asset (chỉ khi đang dùng URP).
-    /// Gồm: render scale, MSAA, shadow distance (0 = tắt bóng), số cascade.
-    /// Tránh ghi lại khi giá trị chưa đổi để không gây re-alloc render target.
+    /// 2D pixel art: chỉ renderScale là lever GPU thật (giảm fillrate cho Fog/Light2D);
+    /// MSAA ép cố định 0 (pixel art sắc nét, không nhòe); bỏ hẳn shadowDistance/
+    /// shadowCascadeCount vì 2D Renderer không dùng shadow cascade kiểu 3D.
+    /// Áp dụng ĐỒNG NHẤT cả menu lẫn gameplay. Tránh ghi lại khi giá trị chưa đổi
+    /// để không gây re-alloc render target.
     /// </summary>
     private void ApplyRenderProfile()
     {
@@ -854,53 +932,45 @@ private static UniversalRenderPipelineAsset GetURPAsset()
         PerformanceLevel tier = GetPerformanceLevelForQuality(AppliedQualityLevel);
         RenderProfile profile = GetRenderProfile(tier);
 
-        bool changed = false;
-
         float scale = Mathf.Clamp(profile.renderScale, UniversalRenderPipeline.minRenderScale, 1f);
         if (Mathf.Abs(urp.renderScale - scale) > 0.001f)
         {
             urp.renderScale = scale;
-            changed = true;
         }
 
-        int msaa = RenderProfile.ValidateMsaa(profile.msaaSampleCount);
-        if (urp.msaaSampleCount != msaa)
+        // Pixel art không cần MSAA — ép 0 để khỏi nhòe + đỡ fillrate.
+        if (urp.msaaSampleCount != 0)
         {
-            urp.msaaSampleCount = msaa;
-            changed = true;
+            urp.msaaSampleCount = 0;
         }
 
-        float shadowDistance = Mathf.Max(0f, profile.shadowDistance);
-        if (Mathf.Abs(urp.shadowDistance - shadowDistance) > 0.01f)
-        {
-            urp.shadowDistance = shadowDistance;
-            changed = true;
-        }
-
-        int cascades = RenderProfile.ValidateCascades(profile.shadowCascadeCount);
-        if (urp.shadowCascadeCount != cascades)
-        {
-            urp.shadowCascadeCount = cascades;
-            changed = true;
-        }
-
-        if (changed)
-            Debug.Log($"[PerformanceManager] 🎨 Render Profile: {tier} | Scale={scale:0.00} MSAA={msaa}x Shadows={(shadowDistance > 0f ? "ON" : "OFF")} Cascades={cascades}");
     }
 
     /// <summary>
     /// Áp dụng chế độ đồng bộ hiện tại:
-    /// - Nếu bật VSync thủ công: vSyncCount = 1 và bỏ targetFrameRate (màn hình tự đồng bộ).
-    /// - Ngược lại: tắt VSync mọi mức (vì VSync đè lên targetFrameRate làm chọn
-    ///   FPS 120/60/30 vô dụng) rồi áp targetFrameRate theo chế độ người chơi chọn.
+    ///    - Bật VSync: set vSyncCount = 1 ĐỒNG THỜI ép Application.targetFrameRate bằng
+    ///      đúng Hz màn hình (60/90/120). KHÔNG dùng -1 vì trên Android/iOS, một số máy
+    ///      thấy targetFrameRate = -1 sẽ tự chuyển vể chế độ tiết kiệm pin và khóa game
+    ///      ở 30 FPS — phải đặt target = Hz màn hình để hệ điều hành giữ đúng tần số.
+    ///    - Tắt VSync: dùng targetFrameRate theo chế độ (Unlimited mobile = Hz màn hình,
+    ///      desktop = -1).
     /// </summary>
     private void ApplyFrameRate()
     {
         if (vSyncEnabled)
         {
+#if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR
+            QualitySettings.vSyncCount = 1;
+            // Ép đúng Hz màn hình điện thoại — tránh OS đưa về 30 FPS tiết kiệm pin
+            // VÀ giới hạn FPS không vượt quá tần số quét thực tế (không còn nhảy 120
+            // nếu màn hình chỉ 60/90Hz nữa vì Auto giờ cố định 60).
+            Application.targetFrameRate = GetMaxScreenRefreshRate();
+            return;
+#else
             QualitySettings.vSyncCount = 1;
             Application.targetFrameRate = -1;
             return;
+#endif
         }
 
         if (QualitySettings.vSyncCount > 0)
@@ -914,9 +984,13 @@ private static UniversalRenderPipelineAsset GetURPAsset()
     /// </summary>
     private void ApplyQuality()
     {
-        int effective = lowGraphicsEnabled
-            ? 0
-            : Mathf.Clamp(baseQualityLevel - adaptiveStep, 0, QualityLevelCount - 1);
+        int effective;
+        if (lowGraphicsEnabled)
+            effective = 0;
+        else if (qualityLocked)
+            effective = baseQualityLevel; // người chơi chọn tay = khóa, không hạ nữa
+        else
+            effective = Mathf.Clamp(baseQualityLevel - adaptiveStep, 0, QualityLevelCount - 1);
         if (QualitySettings.GetQualityLevel() != effective)
             QualitySettings.SetQualityLevel(effective, false);
 
@@ -937,6 +1011,7 @@ private static UniversalRenderPipelineAsset GetURPAsset()
         PlayerPrefs.SetInt(KEY_ADAPTIVE_ENABLED, adaptiveEnabled ? 1 : 0);
         PlayerPrefs.SetInt(KEY_LOW_GRAPHICS, lowGraphicsEnabled ? 1 : 0);
         PlayerPrefs.SetInt(KEY_VSYNC, vSyncEnabled ? 1 : 0);
+        PlayerPrefs.SetInt(KEY_QUALITY_LOCKED, qualityLocked ? 1 : 0);
         PlayerPrefs.Save();
     }
 }

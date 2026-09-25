@@ -86,8 +86,12 @@ public class ThunderCloudController : MonoBehaviour
         float best = float.MaxValue;
         foreach (var h in hits)
         {
-            var eh = h.GetComponentInParent<EnemyHealth>();
-            if (eh == null) eh = h.GetComponentInChildren<EnemyHealth>();
+            EnemyHealth eh;
+            if (!h.TryGetComponent(out eh))
+            {
+                eh = h.GetComponentInChildren<EnemyHealth>();
+                if (eh == null) eh = h.GetComponentInParent<EnemyHealth>();
+            }
             if (eh == null) continue;
             float d = Vector2.Distance(player.position, h.transform.position);
             if (d < best) { best = d; nearest = h.transform; }
@@ -124,8 +128,12 @@ public class ThunderCloudController : MonoBehaviour
         Collider2D[] aoe = Physics2D.OverlapCircleAll(nearest.position, 1.5f);
         foreach (var h in aoe)
         {
-            var eh = h.GetComponentInParent<EnemyHealth>();
-            if (eh == null) eh = h.GetComponentInChildren<EnemyHealth>();
+            EnemyHealth eh;
+            if (!h.TryGetComponent(out eh))
+            {
+                eh = h.GetComponentInChildren<EnemyHealth>();
+                if (eh == null) eh = h.GetComponentInParent<EnemyHealth>();
+            }
             if (eh == null) continue;
             eh.TakeDamage(strikeDamage);
             if (tc2BEnabled) ApplyThunderBurn(eh);
@@ -138,8 +146,12 @@ public class ThunderCloudController : MonoBehaviour
         Collider2D[] hits = Physics2D.OverlapCircleAll(player.position, fieldRadius);
         foreach (var h in hits)
         {
-            var eh = h.GetComponentInParent<EnemyHealth>();
-            if (eh == null) eh = h.GetComponentInChildren<EnemyHealth>();
+            EnemyHealth eh;
+            if (!h.TryGetComponent(out eh))
+            {
+                eh = h.GetComponentInChildren<EnemyHealth>();
+                if (eh == null) eh = h.GetComponentInParent<EnemyHealth>();
+            }
             if (eh != null) eh.TakeDamage(1f);
         }
     }

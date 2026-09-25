@@ -97,9 +97,6 @@ public class GameManager : MonoBehaviour
             return;
 
         currentState = newState;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        Debug.Log($"GameState: {currentState}");
-#endif
         Time.timeScale = (currentState == GameState.Playing || currentState == GameState.Tutorial) ? 1f : 0f;
 
         if (currentState == GameState.Playing)
@@ -107,10 +104,31 @@ public class GameManager : MonoBehaviour
             IsWin = false;
             if (UserData.Instance != null)
                 UserData.Instance.ResetSessionGold();
+
+            // Log session start
+            if (PlayerEquipment.SelectedHeroIndex >= 0)
+            {
+                string heroId = $"hero_{PlayerEquipment.SelectedHeroIndex}";
+                string weaponId = $"weapon_{PlayerEquipment.SelectedWeaponIndex}";
+                string stageId = PlayerPrefs.GetString("SelectedMapIndex", "0");
+                string skinId = UserData.Instance != null
+                    ? UserData.Instance.GetEquippedSkinId(heroId) ?? "default"
+                    : "default";
+                FirebaseAnalyticsHelper.LogGameSessionStart(heroId, weaponId, stageId, skinId);
+            }
         }
 
         if (currentState == GameState.GameOver)
         {
+            // Log session end
+            string result = IsWin ? "win" : "lose";
+            string heroId = $"hero_{PlayerEquipment.SelectedHeroIndex}";
+            string weaponId = $"weapon_{PlayerEquipment.SelectedWeaponIndex}";
+            string stageId = PlayerPrefs.GetString("SelectedMapIndex", "0");
+            int highestLevel = PlayerXP.Instance != null ? PlayerXP.Instance.CurrentLevel : 1;
+            int gold = UserData.Instance != null ? UserData.Instance.SessionGold : 0;
+            FirebaseAnalyticsHelper.LogGameSessionEnd(result, TotalElapsedTime, KillCount, gold, heroId, weaponId, stageId, highestLevel);
+
             if (panel != null) panel.Show();
         }
 

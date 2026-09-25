@@ -84,5 +84,10 @@ FreeShotChanceWhileStill,
     TC_1,
     TC_2A,
     TC_2B,
-    TC_3
+    TC_3,
+    HealMaxHealthPercentPerSecond,
+    Revive,
+    VisionRangePercent,
+    DoubleShieldArmor,
+    ThornsDamage
 }

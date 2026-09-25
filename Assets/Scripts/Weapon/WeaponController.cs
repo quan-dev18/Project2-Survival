@@ -23,6 +23,10 @@ public class WeaponController : MonoBehaviour
     [Header("Target Detection")]
     [SerializeField] private string targetTag = "Target";
 
+    [Header("Aim")]
+    [Tooltip("Rotation responsiveness. Higher = snappier, lower = smoother. Frame-rate independent.")]
+    [SerializeField] private float aimLerpSpeed = 15f;
+
     [Header("Fog")]
     [SerializeField] private FogController fogController;
 
@@ -226,7 +230,9 @@ public class WeaponController : MonoBehaviour
         // Offset so weaponFront's resting angle lines up with 0°
         float frontOffset = Mathf.Atan2(weaponFront.localPosition.y, weaponFront.localPosition.x) * Mathf.Rad2Deg;
 
-        transform.rotation = Quaternion.Euler(0f, 0f, targetAngle - frontOffset);
+        float desiredAngle = targetAngle - frontOffset;
+        float smoothedAngle = Mathf.LerpAngle(transform.eulerAngles.z, desiredAngle, 1f - Mathf.Exp(-aimLerpSpeed * Time.deltaTime));
+        transform.rotation = Quaternion.Euler(0f, 0f, smoothedAngle);
 
         // Mirror sprite so it doesn't appear upside-down on the left side
         if (weaponSprite != null)

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: VB_2A
   m_EditorClassIdentifier: 
   upgradeName: Vitality Boost II
-  description: Increase bullet dmg and fire rate by 50% when hit for 2s
+  description: "T\u0103ng s\xE1t th\u01B0\u01A1ng v\xE0 t\u1ED1c \u0111\u1ED9 b\u1EAFn
+    b\u1EB1ng 50% khi b\u1ECB \u0111\xE1nh tr\xFAng trong 2s"
   icon: {fileID: -92024176, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 41

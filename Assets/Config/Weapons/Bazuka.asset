@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponID: bazuka
   weaponIcon: {fileID: -475155561, guid: 7e69c66b47b2aa846a5a1fb583894959, type: 3}
   isUnlocked: 0
-  goldCost: 300000
+  goldCost: 100000
   skinList:
   - skinID: zoko
     isDefault: 0
@@ -23,7 +23,14 @@ MonoBehaviour:
     tier: 2
     skinIcon: {fileID: -1447843693, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: -1447843693, guid: 67463b703454b35409398623a8578d2a, type: 3}
-    price: 100
+    price: 50000
+  - skinID: railgun
+    isDefault: 0
+    skinName: Railgun
+    tier: 3
+    skinIcon: {fileID: 21300000, guid: a55babdff852cef43af18e21950a38f1, type: 3}
+    weaponSprite: {fileID: 21300000, guid: a55babdff852cef43af18e21950a38f1, type: 3}
+    price: 100000
   shootSFX: {fileID: 8300000, guid: f9c73c2aac0d0b34189d45aa766f042d, type: 3}
   reloadSFX: {fileID: 0}
   weaponName: Bazuka
@@ -33,4 +40,5 @@ MonoBehaviour:
   magazineSize: 1
   bulletCount: 1
   spread: 5
+  basePierce: 0
   bulletSO: {fileID: 11400000, guid: 2e35bea7a5751eb4ca9d86270446cbad, type: 2}

@@ -46,7 +46,7 @@ Material:
     - _ExploredDensity: 0.55
     - _FlashAngle: 50
     - _FlashRadius: 10
-    - _FlashStrength: 0.7886665
+    - _FlashStrength: 0.9563266
     - _FogDensity: 0.7
     - _InnerRadius: 3.6
     - _NoiseScale: 0.3
@@ -56,11 +56,11 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ExploredColor: {r: 0.9811321, g: 0.47668213, b: 0.5914197, a: 1}
-    - _FlashDir: {r: -0.6148202, g: -0.7886674, b: 0, a: 0}
-    - _FlashPos: {r: 4.951381, g: 6.8919773, b: 0, a: 0}
+    - _FlashDir: {r: 0.686504, g: -0.72712606, b: 0, a: 0}
+    - _FlashPos: {r: -3.6666164, g: 0.39492768, b: 0, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _FogColor: {r: 0, g: 0, b: 0, a: 1}
     - _NoiseSpeed: {r: 0.07, g: 0.07, b: 0, a: 0}
-    - _PlayerPos: {r: 5.4408646, g: 7.540383, b: 0, a: 0}
+    - _PlayerPos: {r: -4.1587176, g: 1.143404, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

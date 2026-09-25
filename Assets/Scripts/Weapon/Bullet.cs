@@ -115,9 +115,13 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         if (other.TryGetComponent(out Bullet _))
             return;
 
-        IDamageable damageable = other.GetComponentInChildren<IDamageable>();
-        if (damageable == null)
-            damageable = other.GetComponentInParent<IDamageable>();
+        IDamageable damageable;
+        if (!other.TryGetComponent(out damageable))
+        {
+            damageable = other.GetComponentInChildren<IDamageable>();
+            if (damageable == null)
+                damageable = other.GetComponentInParent<IDamageable>();
+        }
 
         if (damageable == null)
             return;
@@ -140,11 +144,12 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         if (executePercent > 0f && damageable is EnemyHealth enemyHealth
             && enemyHealth.CurrentHealth > 0f && enemyHealth.CurrentHealth <= enemyHealth.MaxHealth * executePercent)
         {
-            damageable.TakeDamage(9999f);
+            // Fixed execute damage: flat value, never scaled by damage multipliers.
+            damageable.TakeDamage(999f);
         }
 
-        IKnockbackable knockbackable = other.GetComponent<IKnockbackable>();
-        if (knockbackable == null)
+        IKnockbackable knockbackable;
+        if (!other.TryGetComponent(out knockbackable))
             knockbackable = other.GetComponentInParent<IKnockbackable>();
 
         if (knockbackable != null)
@@ -165,20 +170,27 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         }
 
         // Explosion on kill - skip owner/player
-        if (wouldKill && explosionDamagePercent > 0f && bulletStats.ExplosionRadius > 0f)
+        if (wouldKill && explosionDamagePercent > 0f && bulletStats.ExplosionRadius > 0f && UnityEngine.Random.value < 0.25f)
         {
             float explosionDamage = finalDamage * explosionDamagePercent;
-            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, bulletStats.ExplosionRadius);
+            float explosionRadius = bulletStats.ExplosionRadius * 0.5f;
+            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, explosionRadius);
             foreach (Collider2D hit in hits)
             {
                 if (hit == other) continue;
+                if (hit == null || !hit.gameObject.activeInHierarchy) continue; // killed earlier in this blast
                 if (owner != null && (hit.transform == owner || hit.transform.IsChildOf(owner) || hit.transform.root == owner)) continue;
                 if (hit.GetComponentInParent<PlayerStats>() != null) continue;
-                IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
-                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                IDamageable dmg;
+                if (!hit.TryGetComponent(out dmg))
+                {
+                    dmg = hit.GetComponentInChildren<IDamageable>();
+                    if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                }
                 if (dmg != null && dmg != damageable)
                     dmg.TakeDamage(explosionDamage);
             }
+            PlayPooledOneShotVFXScaled("VFX_NO2", other.transform.position, 0.5f);
         }
 
         // Multiple damage: AOE on every hit
@@ -188,9 +200,14 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             foreach (Collider2D hit in hits)
             {
                 if (hit == other) continue;
+                if (hit == null || !hit.gameObject.activeInHierarchy) continue; // killed earlier in this blast
                 if (owner != null && hit.transform.IsChildOf(owner)) continue;
-                IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
-                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                IDamageable dmg;
+                if (!hit.TryGetComponent(out dmg))
+                {
+                    dmg = hit.GetComponentInChildren<IDamageable>();
+                    if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+                }
                 if (dmg != null)
                     dmg.TakeDamage(finalDamage);
             }
@@ -230,8 +247,13 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private void BounceToNewTarget(Transform excludeTarget)
     {
         // Resolve exclude root to avoid matching child colliders of same enemy
-        IDamageable excludeDmg = excludeTarget.GetComponentInParent<IDamageable>();
-        if (excludeDmg == null) excludeDmg = excludeTarget.GetComponentInChildren<IDamageable>();
+        IDamageable excludeDmg;
+        if (!excludeTarget.TryGetComponent(out excludeDmg))
+        {
+            excludeDmg = excludeTarget.GetComponentInChildren<IDamageable>();
+            if (excludeDmg == null)
+                excludeDmg = excludeTarget.GetComponentInParent<IDamageable>();
+        }
         Transform excludeRoot = excludeDmg != null ? (excludeDmg as Component)?.transform : excludeTarget;
 
         // Find all valid enemies in range (no GC alloc - uses static buffer)
@@ -243,8 +265,12 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
             Collider2D hit = s_BounceOverlapBuffer[i];
             if (hit == null) continue;
             if (hit.transform.IsChildOf(owner)) continue;
-            IDamageable dmg = hit.GetComponentInChildren<IDamageable>();
-            if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+            IDamageable dmg;
+            if (!hit.TryGetComponent(out dmg))
+            {
+                dmg = hit.GetComponentInChildren<IDamageable>();
+                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+            }
             if (dmg == null) continue;
             if (dmg == excludeDmg) continue;
             Transform hitRoot = (dmg as Component)?.transform;
@@ -301,6 +327,37 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         // Chạy coroutine trên ObjectPooling.Instance (luôn active) thay vì bullet:
         // bullet có thể đã bị despawn (inactive) trong cùng callback vật lý,
         // StartCoroutine trên gameObject inactive sẽ ném lỗi.
+        ObjectPooling.Instance.StartCoroutine(DespawnVFXAfter(vfx, lifetime + 0.1f));
+    }
+
+    private void PlayPooledOneShotVFXScaled(string key, Vector3 pos, float scale)
+    {
+        if (GameSettingsManager.Instance != null && !GameSettingsManager.Instance.ShowVFX)
+            return;
+        if (ObjectPooling.Instance == null) return;
+        GameObject vfx = ObjectPooling.Instance.Spawn(key, pos, Quaternion.identity);
+        if (vfx == null) return;
+        vfx.transform.localScale = Vector3.one * scale;
+        foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ps.Clear(true);
+            ps.Play(true);
+        }
+        float lifetime = 1f;
+        foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            var main = ps.main;
+            float d = main.duration + main.startLifetime.constantMax;
+            if (d > lifetime) lifetime = d;
+        }
+        var animator = vfx.GetComponentInChildren<Animator>(true);
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            float animLen = 0f;
+            foreach (var clip in animator.runtimeAnimatorController.animationClips)
+                if (clip.length > animLen) animLen = clip.length;
+            if (animLen > lifetime) lifetime = animLen;
+        }
         ObjectPooling.Instance.StartCoroutine(DespawnVFXAfter(vfx, lifetime + 0.1f));
     }
 

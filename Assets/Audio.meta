@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Audio.meta
 guid: d9269fcc3eb156c488d766621cd35b07
+========
+guid: b2d0a1063e56a414ebaa436f01c0208e
+>>>>>>>> 48285f1 (Add gameplay fixes and Character 4):Assets/Animations/Character4.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

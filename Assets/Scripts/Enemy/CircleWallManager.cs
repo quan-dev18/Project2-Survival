@@ -25,6 +25,7 @@ public class CircleWallManager : MonoBehaviour
         public GameObject gameObject;
         public Transform transform;
         public EnemyController controller;
+        public EnemyHealth enemyHealth;
         public EnemyMovement[] movements;
         public BossController[] bossControllers;
         public Rigidbody2D[] rigidbodies;
@@ -151,6 +152,7 @@ public class CircleWallManager : MonoBehaviour
                 gameObject = obj,
                 transform = obj.transform,
                 controller = ec,
+                enemyHealth = ec != null ? ec.GetComponent<EnemyHealth>() : obj.GetComponentInChildren<EnemyHealth>(true),
                 movements = movements,
                 bossControllers = bosses,
                 rigidbodies = rbs,
@@ -194,7 +196,7 @@ public class CircleWallManager : MonoBehaviour
                     continue;
                 }
 
-                EnemyHealth eh = enemy.gameObject.GetComponentInChildren<EnemyHealth>(true);
+                EnemyHealth eh = enemy.enemyHealth;
                 if (eh == null) eh = enemy.gameObject.GetComponentInParent<EnemyHealth>();
                 if (eh != null && eh.CurrentHealth <= 0f)
                 {

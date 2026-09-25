@@ -70,12 +70,18 @@ public sealed class AudioManager : MonoBehaviour
     [Tooltip("Tiếng khi TẮT (off) một Toggle/switch trong UI.")]
     [SerializeField] private AudioClip uiToggleOffSFX;
 
+    [Tooltip("Tiếng khi NHẬN ĐỒ (claim) — dùng cho Daily Reward, nhận quà hằng ngày, nhận thưởng...")]
+    [SerializeField] private AudioClip uiClaimSFX;
+
     [Header("=== Âm thanh thu thập ===")]
     [Tooltip("Tiếng khi nhặt viên kinh nghiệm (EXP).")]
     [SerializeField] private AudioClip xpCollectSFX;
 
     [Tooltip("Tiếng khi nhặt vàng (Gold).")]
     [SerializeField] private AudioClip goldCollectSFX;
+
+    [Tooltip("Tiếng khi nhặt mảnh khiên (Armor/Shield).")]
+    [SerializeField] private AudioClip shieldCollectSFX;
 
     [Tooltip("Tiếng khi lên cấp (Level Up).")]
     [SerializeField] private AudioClip levelUpSFX;
@@ -655,6 +661,23 @@ public sealed class AudioManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Phát tiếng khi NHẬN ĐỒ (claim) — gắn được ngay trong Unity:
+    /// EventSystem/Button -> OnClick -> kéo AudioManager vào -> chọn PlayUIClaim.
+    /// </summary>
+    public void PlayUIClaim(float volume = 1f)
+    {
+        PlaySFX(uiClaimSFX, volume);
+    }
+
+    /// <summary>
+    /// Phiên bản PlayUIClaim có clip tự truyền từ bên ngoài (không cần cấu hình Inspector).
+    /// </summary>
+    public void PlayUIClaim(AudioClip clip, float volume = 1f)
+    {
+        PlaySFX(clip, volume);
+    }
+
+    /// <summary>
     /// HÀM HỖ TRỢ UI TOGGLE: phát tiếng theo trạng thái BẬT/TẮT.
     /// Cách dùng trong code:
     ///   myToggle.onValueChanged.AddListener(isOn => AudioManager.Instance.PlayUIToggle(isOn));
@@ -700,6 +723,14 @@ public sealed class AudioManager : MonoBehaviour
     public void PlayGoldCollect(float volume = 1f)
     {
         PlaySFX(goldCollectSFX, volume, 1f, 0.08f);
+    }
+
+    /// <summary>
+    /// Phát tiếng nhặt mảnh khiên (Armor/Shield).
+    /// </summary>
+    public void PlayShieldCollect(float volume = 1f)
+    {
+        PlaySFX(shieldCollectSFX, volume, 1f, 0.08f);
     }
 
     /// <summary>
@@ -772,36 +803,37 @@ public sealed class AudioManager : MonoBehaviour
     [ContextMenu("Test Play Gold Collect")]
     private void TestPlayGoldCollect()
     {
-        Debug.Log($"[AudioManager] Test Gold: clip={(goldCollectSFX != null ? goldCollectSFX.name : "(TRONG !)")}, SFXVolume={sfxVolume}");
         PlayGoldCollect();
     }
 
     [ContextMenu("Test Play XP Collect")]
     private void TestPlayXPCollect()
     {
-        Debug.Log($"[AudioManager] Test XP: clip={(xpCollectSFX != null ? xpCollectSFX.name : "(TRONG !)")}, SFXVolume={sfxVolume}");
         PlayXPCollect();
     }
 
     [ContextMenu("Test Play Level Up")]
     private void TestPlayLevelUp()
     {
-        Debug.Log($"[AudioManager] Test LevelUp: clip={(levelUpSFX != null ? levelUpSFX.name : "(TRONG !)")}, SFXVolume={sfxVolume}");
         PlayLevelUp();
     }
 
     [ContextMenu("Test Play UI Toggle On")]
     private void TestPlayUIToggleOn()
     {
-        Debug.Log($"[AudioManager] Test Toggle-On: clip={(uiToggleOnSFX != null ? uiToggleOnSFX.name : "(TRONG !)")}");
         PlayUIToggle(true);
     }
 
     [ContextMenu("Test Play UI Toggle Off")]
     private void TestPlayUIToggleOff()
     {
-        Debug.Log($"[AudioManager] Test Toggle-Off: clip={(uiToggleOffSFX != null ? uiToggleOffSFX.name : "(TRONG !)")}");
         PlayUIToggle(false);
+    }
+
+    [ContextMenu("Test Play UI Claim")]
+    private void TestPlayUIClaim()
+    {
+        PlayUIClaim();
     }
 #endif
 }

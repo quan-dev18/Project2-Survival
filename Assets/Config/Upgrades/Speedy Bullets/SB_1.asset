@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: SB_1
   m_EditorClassIdentifier: 
   upgradeName: Speedy Bullets I
-  description: Bullet Speed +15%
+  description: "T\u1ED1c \u0111\u1ED9 \u0111\u1EA1n +15%\n\u0110\u1EA9y l\xF9i +20%\n"
   icon: {fileID: 1336292380, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 12
     amount: 15
+  - stat: 15
+    amount: 20
   requires: []

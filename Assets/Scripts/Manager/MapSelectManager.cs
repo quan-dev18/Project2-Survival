@@ -8,6 +8,9 @@ using DG.Tweening; // Import DOTween (๑•̀ㅂ•́)و✧
 
 public class MapSelectionManager : MonoBehaviour
 {
+    public static bool debugMode = false;
+    public static MapSelectionManager Instance { get; private set; }
+
     [Header("--- MAP DATABASE ---")]
     public List<PreMapSO> mapList = new List<PreMapSO>();
     private int currentIndex = 0;
@@ -21,11 +24,31 @@ public class MapSelectionManager : MonoBehaviour
     [Header("--- UI BUTTON ---")]
     public Button startButton; // Nút "Bắt đầu" ngoài màn hình main menu
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    public void RefreshDebugState()
+    {
+        RefreshStartButton();
+    }
+
     [Header("--- LOCKED MAP ---")]
     [Tooltip("Text của nút Bắt đầu (tự tìm nếu để trống). Bị xóa khi map bị khóa.")]
     public TextMeshProUGUI startButtonText;
     [Tooltip("Màu của nút Bắt đầu khi map bị khóa (xám).")]
     public Color lockedButtonColor = new Color(0.45f, 0.45f, 0.45f, 1f);
+    [Tooltip("GameObject thông báo khi map ĐANG KHÓA (vd: dòng chữ 'Hoàn thành 100% map trước đó để mở khóa map này'). " +
+             "Hệ thống sẽ SetActive: BẬT khi map hiện tại bị khóa, TẮT khi map mở. Nên để ẨN sẵn.")]
+    public GameObject lockedMapNotifier;
+    [Tooltip("Icon hiển thị KHÓA (vd: ổ khóa). Hệ thống sẽ SetActive: BẬT khi map hiện tại bị khóa, TẮT khi map mở. Nên để ẨN sẵn.")]
+    [SerializeField] private GameObject lockedMapIcon;
 
     [Header("--- SWIPE SETTINGS ---")]
     public float swipeThreshold = 50f;
@@ -35,8 +58,41 @@ public class MapSelectionManager : MonoBehaviour
     private Vector2 dragStartPos;
     private bool isDragging = false;
 
+    // Map mới đang được tween vào giữa lúc transition (chưa phải currentMapInstance).
+    // Dùng để dọn dẹp khi người chơi bấm nút map INF giữa lúc đang lướt — tránh map
+    // "orphan" (tween xong OnComplete ghi đè currentIndex về map thường, còn map INF
+    // thì bị bỏ rơi nằm dưới). Tween/instances rác tích tụ chính là lý do map INF
+    // "bị đè dưới và không bật lên được" sau nhiều lần lặp lại.
+    private Sequence mapAnimSeq;
+    private GameObject pendingMapInstance;
+
+    [Header("--- INF (ENDLESS) MAP ---")]
+    [Tooltip("Map INF (endless). Đã nằm SẴN trong mapList (database) — kéo PreMapSO của nó vào đây để " +
+             "hệ thống biết map nào là INF. Map INF KHÔNG nằm trong carousel chọn map thường (không swipe tới được); " +
+             "chỉ hiện khi bấm nút 'ShowInfiniteMap'. Nên đặt nó ở CUỐI danh sách.")]
+    [SerializeField] private PreMapSO infiniteMap;
+
+    [Tooltip("Text của nút bật map INF (tự tìm con trẻ nếu để trống).")]
+    [SerializeField] private TextMeshProUGUI infButtonText;
+    [Tooltip("Chữ hiển thị khi CHƯA ở map INF (vd: \"Đấu vô tận\").")]
+    [SerializeField] private string infButtonDefaultText = "Đấu vô tận";
+    [Tooltip("Chữ hiển thị khi ĐANG Ở map INF — nút lúc này dùng để quay lại (vd: \"Đấu thường\").")]
+    [SerializeField] private string infButtonInfText = "Đấu thường";
+    [Tooltip("Icon HIỆN sẵn của nút bật map INF (icon bình thường của 'Đấu vô tận').")]
+    [SerializeField] private GameObject infButtonNormalIcon;
+    [Tooltip("Icon chỉ HIỆN khi đang ở map INF (icon dùng cho nút quay lại 'Đấu thường'). Nên để ẨN sẵn.")]
+    [SerializeField] private GameObject infButtonInfIcon;
+
     private string defaultStartText;      // Text gốc của nút để khôi phục lại
     private ColorBlock defaultButtonColors; // Màu gốc của nút để khôi phục lại
+    private Tween lockedNotifyTween;      // Tween hiện/ẩn thông báo "hoàn thành map trước".
+    private int previousNormalIndex = 0;  // Map thường người chơi đang xem trước khi bật map INF.
+
+    [Header("--- LOCKED NOTIFY ANIMATION ---")]
+    [Tooltip("Thời gian (giây) hiện thông báo khi map bị khóa.")]
+    public float lockedNotifyInDuration = 0.25f;
+    [Tooltip("Thời gian (giây) ẩn thông báo khi map được mở.")]
+    public float lockedNotifyOutDuration = 0.15f;
 
     private void Start()
     {
@@ -61,6 +117,9 @@ public class MapSelectionManager : MonoBehaviour
 
         SpawnInitialMap();
         RefreshStartButton();
+
+        // Khởi tạo trạng thái nút bật map INF (mặc định: ngoài map INF).
+        RefreshInfButtonState(false);
     }
 
     private void Update()
@@ -144,8 +203,17 @@ public class MapSelectionManager : MonoBehaviour
         seq.Join(newMap.transform.DOScale(1f, transitionDuration).SetEase(transitionEase));
         seq.Join(newCG.DOFade(1f, transitionDuration).SetEase(transitionEase));
 
+        // Nhớ sequence đang chạy + map mới để hủy đúng lúc nếu người chơi bấm nút map INF
+        // (ShowInfiniteMap/ShowMapAtIndex) giữa chừng — nếu không, OnComplete của tween
+        // cũ vẫn chạy và ghi đè currentIndex về map thường, làm map INF bị "kẹt dưới".
+        mapAnimSeq = seq;
+        pendingMapInstance = newMap;
+
         seq.OnComplete(() =>
         {
+            mapAnimSeq = null;
+            pendingMapInstance = null;
+
             if (oldMap != null) Destroy(oldMap); // Xóa map cũ giải phóng RAM
 
             currentMapInstance = newMap;
@@ -171,11 +239,11 @@ public class MapSelectionManager : MonoBehaviour
         if (mapList.Count == 0 || mapList[currentIndex] == null) return;
         if (currentMapInstance == null) return;
 
-        StageProgressBarUI progressUI = currentMapInstance.GetComponentInChildren<StageProgressBarUI>();
-        if (progressUI == null) return;
-
         StageSO stage = mapList[currentIndex].stageData;
-        progressUI.DisplayStageProgress(stage);
+
+        StageProgressBarUI progressUI = currentMapInstance.GetComponentInChildren<StageProgressBarUI>();
+        if (progressUI != null)
+            progressUI.DisplayStageProgress(stage);
     }
 
     /// <summary>
@@ -186,6 +254,13 @@ public class MapSelectionManager : MonoBehaviour
     private bool IsMapUnlocked(int index)
     {
         if (mapList == null || mapList.Count == 0 || index < 0 || index >= mapList.Count) return false;
+
+        if (debugMode) return true;
+
+        // Map INF: luôn mở khi được hiển thị (nút Bắt đầu chạy được ngay).
+        // Nó KHÔNG nằm trong carousel chọn map thường — chỉ hiện khi bấm nút ShowInfiniteMap.
+        if (infiniteMap != null && mapList[index] == infiniteMap) return true;
+
         if (index == 0) return true; // Map đầu tiên luôn mở.
 
         // Map trước đó không có StageData => không có điều kiện khóa, xem như mở.
@@ -200,16 +275,26 @@ public class MapSelectionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Trả về index cao nhất được phép xem/chọn.
+    /// Trả về index cao nhất được phép xem/chọn trong carousel map thường.
     /// Chỉ hiển thị: toàn bộ map đã mở + MAP KHÓA ĐẦU TIÊN (i+1) làm gợi ý.
-    /// Các map nằm sau map khóa đầu tiên sẽ không được swipe tới (bị tắt).
+    /// Map INF bị LOẠI khỏi carousel: luôn cap dưới index của nó nên không bao giờ
+    /// swipe tới được — chỉ hiện khi ấn nút ShowInfiniteMap.
     /// </summary>
     private int GetMaxVisibleIndex()
     {
         if (mapList == null || mapList.Count == 0) return 0;
 
+        // Cap cứng: mọi index trước map INF trong danh sách.
+        int hardCap = mapList.Count - 1;
+        int infIndex = GetInfiniteMapIndex();
+        if (infIndex >= 0)
+            hardCap = Mathf.Min(hardCap, infIndex - 1);
+        if (hardCap < 0) return 0;
+
+        if (debugMode) return hardCap;
+
         int lastUnlocked = -1;
-        for (int i = 0; i < mapList.Count; i++)
+        for (int i = 0; i <= hardCap; i++)
         {
             if (IsMapUnlocked(i))
                 lastUnlocked = i;
@@ -217,14 +302,14 @@ public class MapSelectionManager : MonoBehaviour
                 break; // Gặp map khóa đầu tiên thì dừng lại.
         }
 
-        // maxVisible = map khóa đầu tiên (lastUnlocked + 1), nhưng không vượt quá danh sách.
-        return Mathf.Clamp(lastUnlocked + 1, 0, mapList.Count - 1);
+        // maxVisible = map khóa đầu tiên (lastUnlocked + 1), nhưng không vượt quá hardCap.
+        return Mathf.Clamp(lastUnlocked + 1, 0, hardCap);
     }
 
     /// <summary>
     /// Cập nhật trạng thái nút Bắt đầu theo map đang hiển thị:
-    /// - Map KHÓA  : nút màu xám + xóa text + không bấm được.
-    /// - Map MỞ    : khôi phục màu + text gốc.
+    /// - Map KHÓA  : nút màu xám + xóa text + không bấm được + BẬT thông báo "hoàn thành map trước".
+    /// - Map MỞ    : khôi phục màu + text gốc + TẮT thông báo.
     /// </summary>
     private void RefreshStartButton()
     {
@@ -234,6 +319,13 @@ public class MapSelectionManager : MonoBehaviour
 
         // Chặn/bật bấm nút.
         startButton.interactable = unlocked;
+
+        // Bật/tắt icon khóa khi map đang khóa.
+        if (lockedMapIcon != null)
+            lockedMapIcon.SetActive(!unlocked);
+
+        // Bật/tắt thông báo "hoàn thành map trước đó để chơi map này" khi map đang khóa.
+        SetLockedNotifier(!unlocked);
 
         // Đổi màu nút theo trạng thái.
         ColorBlock cb = startButton.colors;
@@ -254,6 +346,54 @@ public class MapSelectionManager : MonoBehaviour
         // Xóa / khôi phục text trên nút.
         if (startButtonText != null)
             startButtonText.text = unlocked ? defaultStartText : string.Empty;
+
+        // Đồng bộ trạng thái nút bật map INF theo map đang hiển thị
+        // (ủng hộ cả trường hợp lướt swipe sang map thường khi đang ở map INF).
+        RefreshInfButtonState(currentIndex == GetInfiniteMapIndex());
+    }
+
+    /// <summary>
+    /// Hiện/ẩn thông báo "hoàn thành map trước đó" kèm hiệu ứng DOTween:
+    ///   - HIỆN (map khóa) : fade in + scale nảy lên (Ease.OutBack) cho bắt mắt.
+    ///   - ẨN (map mở)     : fade out rồi mới SetActive(false) — kết thúc mượt, không lag "tắt ngay".
+    /// </summary>
+    private void SetLockedNotifier(bool show)
+    {
+        if (lockedMapNotifier == null) return;
+
+        // Hủy tween cũ để không đè 2 hiệu ứng chồng lên nhau khi lướt liên tục.
+        if (lockedNotifyTween != null)
+        {
+            lockedNotifyTween.Kill();
+            lockedNotifyTween = null;
+        }
+
+        CanvasGroup cg = GetOrAddCanvasGroup(lockedMapNotifier);
+
+        if (show)
+        {
+            // Bật GameObject rồi chạy hiệu ứng từ trong suốt + nhỏ lên.
+            lockedMapNotifier.SetActive(true);
+            cg.alpha = 0f;
+            lockedMapNotifier.transform.localScale = Vector3.one * 0.8f;
+
+            lockedNotifyTween = DOTween.Sequence()
+                .Join(cg.DOFade(1f, lockedNotifyInDuration))
+                .Join(lockedMapNotifier.transform.DOScale(Vector3.one, lockedNotifyInDuration).SetEase(Ease.OutBack));
+        }
+        else
+        {
+            // Đã tắt sẵn rồi thì không cần chạy hiệu ứng fade nữa (tránh tween trên object inactive).
+            if (!lockedMapNotifier.activeSelf)
+            {
+                lockedNotifyTween = null;
+                return;
+            }
+
+            // Fade ra xong mới tắt GameObject → không bị "tắt cái rụp".
+            lockedNotifyTween = cg.DOFade(0f, lockedNotifyOutDuration)
+                .OnComplete(() => lockedMapNotifier.SetActive(false));
+        }
     }
 
     private void ResetRectTransform(RectTransform rt)
@@ -275,7 +415,121 @@ public class MapSelectionManager : MonoBehaviour
         return cg;
     }
 
-    // Ấn nút "Bắt đầu" -> Vào thẳng Scene Game
+    /// <summary>
+    /// Tìm index của map INF (endless) trong danh sách.
+    /// Trả về -1 nếu map INF được gán qua field "Infinite Map" nhưng không có trong mapList.
+    /// </summary>
+    private int GetInfiniteMapIndex()
+    {
+        if (mapList == null || infiniteMap == null) return -1;
+        for (int i = 0; i < mapList.Count; i++)
+        {
+            if (mapList[i] == infiniteMap)
+                return i;
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// NÚT BẬT/TẮT MAP INF (endless): gắn trực tiếp vào nút qua Inspector (Button -> OnClick ->
+    /// kéo GameObject MapSelectionManager -> chọn ShowInfiniteMap).
+    /// Map INF đã có sẵn trong mapList (database) nhưng KHÔNG hiện trong carousel chọn map thường.
+    ///   - Bấm lần 1: map INF hiện ra giữa màn hình selection.
+    ///   - Bấm lần 2: trở về map thường đang chọn trước đó (bỏ qua map INF).
+    /// Ngoài ra có thể lướt (swipe) sang trái/phải để về map thường, nhưng swipe vào
+    /// map INF bị chặn — phải bấm nút mới hiện được.
+    /// </summary>
+    public void ShowInfiniteMap()
+    {
+        int infIndex = GetInfiniteMapIndex();
+        if (infIndex < 0)
+        {
+            Debug.LogWarning("[MapSelection] Không thấy map INF trong mapList! Hãy kéo PreMapSO của nó vào field 'Infinite Map' và đảm bảo nó nằm trong mapList.");
+            return;
+        }
+
+        // Đang ở map INF rồi => toggle: quay về map thường trước đó.
+        if (currentIndex == infIndex)
+        {
+            Debug.Log($"[MapSelection] Tắt map INF, quay về map thường index {previousNormalIndex}.");
+            ShowMapAtIndex(previousNormalIndex);
+            RefreshInfButtonState(false);
+            return;
+        }
+
+        // Nhớ map thường đang xem để bấm nút lần 2 quay lại.
+        previousNormalIndex = currentIndex;
+        Debug.Log($"[MapSelection] Bật hiện map INF (index {infIndex}).");
+        ShowMapAtIndex(infIndex);
+        RefreshInfButtonState(true);
+    }
+
+    /// <summary>
+    /// Cập nhật giao diện nút bật map INF theo trạng thái:
+    ///   - isInf = false (đang ở map thường): text "Đấu vô tận" + icon bình thường.
+    ///   - isInf = true  (đang ở map INF)  : text "Đấu thường" + icon quay lại (bật icon INF, tắt icon thường).
+    /// </summary>
+    private void RefreshInfButtonState(bool isInf)
+    {
+        if (infButtonText != null)
+            infButtonText.text = isInf ? infButtonInfText : infButtonDefaultText;
+
+        if (infButtonNormalIcon != null)
+            infButtonNormalIcon.SetActive(!isInf);
+        if (infButtonInfIcon != null)
+            infButtonInfIcon.SetActive(isInf);
+    }
+
+    /// <summary>
+    /// Nhảy về hiển thị map ở index cho trước (không animate lướt,
+    /// dùng khi nhảy thẳng từ nút bật map INF).
+    /// </summary>
+    private void ShowMapAtIndex(int index)
+    {
+        if (mapList.Count == 0 || index < 0 || index >= mapList.Count || mapList[index] == null) return;
+
+        // Hủy transition swipe đang dang dở (nếu có) trước khi thay map:
+        // nếu không, tween cũ chạy nốt xong vẫn ghi đè currentIndex về map thường
+        // → map INF vừa bật bị kẹt dưới + tích lũy instance rác trên container.
+        CancelTransition();
+
+        if (currentMapInstance != null)
+            Destroy(currentMapInstance);
+
+        currentIndex = index;
+        currentMapInstance = Instantiate(mapList[currentIndex].mapPreviewPrefab, mapContainer);
+        ResetRectTransform(currentMapInstance.GetComponent<RectTransform>());
+
+        PlayerPrefs.SetInt("SelectedMapIndex", currentIndex);
+        PlayerPrefs.Save();
+
+        ShowCurrentMapProgress();
+        RefreshStartButton();
+    }
+
+    /// <summary>
+    /// Hủy transition chuyển map đang chạy: kill tween + xóa map mới đang bay vào,
+    /// đưa isTransitioning về false. Map hiện tại (currentMapInstance) sẽ do người
+    /// gọi xử lý tiếp (ShowMapAtIndex thay map mới ngay sau đó).
+    /// </summary>
+    private void CancelTransition()
+    {
+        if (mapAnimSeq != null)
+        {
+            mapAnimSeq.Kill();
+            mapAnimSeq = null;
+        }
+
+        if (pendingMapInstance != null)
+        {
+            Destroy(pendingMapInstance);
+            pendingMapInstance = null;
+        }
+
+        isTransitioning = false;
+    }
+
+    //  Ấn nút "Bắt đầu" -> Vào thẳng Scene Game
     private void OnStartButtonClicked()
     {
         if (mapList.Count == 0 || mapList[currentIndex] == null) return;
@@ -290,6 +544,11 @@ public class MapSelectionManager : MonoBehaviour
         // Lưu thông tin Map đã chọn
         PlayerPrefs.SetInt("SelectedMapIndex", currentIndex);
         PlayerPrefs.Save();
+
+        // Log map selected event
+        PreMapSO map = mapList[currentIndex];
+        string stageId = map.stageData != null ? map.stageData.StageID : "unknown";
+        FirebaseAnalyticsHelper.LogMapSelected(map.name, stageId, currentIndex);
 
         // Chuyển Scene
         string sceneName = mapList[currentIndex].sceneToLoad;

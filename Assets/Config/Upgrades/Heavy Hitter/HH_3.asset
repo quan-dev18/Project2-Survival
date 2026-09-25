@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: HH_3
   m_EditorClassIdentifier: 
   upgradeName: Heavy Hitter III
-  description: 'Bullet Damage +20%
-
-    Bullet pierce on kill'
+  description: "S\xE1t th\u01B0\u01A1ng +20%\n\u0110\u1EA1n xuy\xEAn th\u1EA5u \u0111\u1ECBch
+    n\u1EBFu k\u1EBFt li\u1EC5u"
   icon: {fileID: 268695731, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 13

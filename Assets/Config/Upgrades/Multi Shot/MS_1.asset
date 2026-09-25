@@ -13,13 +13,8 @@ MonoBehaviour:
   m_Name: MS_1
   m_EditorClassIdentifier: 
   upgradeName: Multi Shot I
-  description: 'Bullet count +1
-
-    Bullet spread +3
-
-    Bullet damage -20%
-
-'
+  description: "S\u1ED1 l\u01B0\u1EE3ng \u0111\u1EA1n b\u1EAFn ra +1\n\u0110\u1ED9
+    t\u1ECFa c\u1EE7a \u0111\u1EA1n +3\nS\xE1t th\u01B0\u01A1ng -20%\n"
   icon: {fileID: 330987150, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 10

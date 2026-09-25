@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponID: shotgun
   weaponIcon: {fileID: 888993701, guid: c7d4cb0f0f1d1f14791efeba23a32a2b, type: 3}
   isUnlocked: 0
-  goldCost: 9999
+  goldCost: 8000
   skinList:
   - skinID: raiden
     isDefault: 0
@@ -23,14 +23,15 @@ MonoBehaviour:
     tier: 1
     skinIcon: {fileID: 942102750, guid: 67463b703454b35409398623a8578d2a, type: 3}
     weaponSprite: {fileID: 942102750, guid: 67463b703454b35409398623a8578d2a, type: 3}
-    price: 100
+    price: 20000
   shootSFX: {fileID: 8300000, guid: 9c2311ed8179ac1498a4bbcece2d3390, type: 3}
   reloadSFX: {fileID: 8300000, guid: 0554fbc56fc3c9e4fb69826db943a8b4, type: 3}
-  weaponName: ShotGun
+  weaponName: Shotgun
   fireRate: 0.4
   fireRange: 4
   reloadTime: 0.7
   magazineSize: 2
   bulletCount: 4
   spread: 15
+  basePierce: 0
   bulletSO: {fileID: 11400000, guid: 945e346cca3380d42b8c431c5011e1c6, type: 2}

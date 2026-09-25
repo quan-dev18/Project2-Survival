@@ -39,6 +39,10 @@ public class FlamethrowerController : MonoBehaviour
     [Header("Target Detection")]
     [SerializeField] private string targetTag = "Target";
 
+    [Header("Aim")]
+    [Tooltip("Rotation responsiveness. Higher = snappier, lower = smoother. Frame-rate independent.")]
+    [SerializeField] private float aimLerpSpeed = 15f;
+
     [Header("Fog")]
     [SerializeField] private FogController fogController;
 
@@ -94,7 +98,7 @@ public class FlamethrowerController : MonoBehaviour
 
     /// <summary>Sát thương nền mỗi tick (gồm cả flat damage từ WeaponSO nếu bật useWeaponDamage).</summary>
     public float BaseDamagePerTick =>
-        damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
+        damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 1f : 0f);
 
     /// <summary>Sát thương thực tế mỗi tick sau buff % — dùng cho Stat UI.</summary>
     public float EffectiveDamagePerTick => BaseDamagePerTick * (1f + bonusBulletDamagePercent);
@@ -201,8 +205,8 @@ public class FlamethrowerController : MonoBehaviour
         bool hasTarget = target != null && IsTargetInRange();
         if (hasTarget) Aim();
 
-        // Flamethrower fires whenever not reloading/has ammo, not only when hasTarget - so particles show even without lock
-        bool shouldFire = !isReloading && currentAmmo > 0;
+        // Only fire when an enemy is actually in range: saves ammo/particles/sound and stops wasteful spraying.
+        bool shouldFire = !isReloading && currentAmmo > 0 && hasTarget;
         UpdateFireEffect(shouldFire);
         UpdateFireSound(shouldFire);
 
@@ -304,19 +308,27 @@ public class FlamethrowerController : MonoBehaviour
             float angle = Vector2.Angle(barrelDir, toEnemy.normalized);
             if (angle > halfAngle) continue;
 
-            IDamageable dmg = hit.GetComponentInParent<IDamageable>();
-            if (dmg == null) dmg = hit.GetComponentInChildren<IDamageable>();
+            IDamageable dmg;
+            if (!hit.TryGetComponent(out dmg))
+            {
+                dmg = hit.GetComponentInChildren<IDamageable>();
+                if (dmg == null) dmg = hit.GetComponentInParent<IDamageable>();
+            }
             if (dmg == null) continue;
 
-            float baseDmg = damagePerTick + (useWeaponDamage && weaponStats != null ? weaponStats.BulletCount * 2f : 0f);
+            float baseDmg = BaseDamagePerTick;
             float finalDamage = baseDmg * (1f + bonusBulletDamagePercent);
             dmg.TakeDamage(finalDamage);
 
             if (bonusBulletExecutePercent > 0f && dmg is EnemyHealth eh && eh.CurrentHealth > 0f && eh.CurrentHealth <= eh.MaxHealth * bonusBulletExecutePercent)
                 dmg.TakeDamage(eh.CurrentHealth);
 
-            var kb = hit.GetComponentInParent<IKnockbackable>();
-            if (kb == null) kb = hit.GetComponent<IKnockbackable>();
+            IKnockbackable kb;
+            if (!hit.TryGetComponent(out kb))
+            {
+                kb = hit.GetComponentInChildren<IKnockbackable>();
+                if (kb == null) kb = hit.GetComponentInParent<IKnockbackable>();
+            }
             if (kb != null) kb.ApplyKnockback(barrelDir, 3f * (1f + bonusBulletKnockbackPercent));
 
             if (dmg is EnemyHealth eh2 && eh2.CurrentHealth <= 0f)
@@ -341,14 +353,16 @@ public class FlamethrowerController : MonoBehaviour
 
     private void FireLastAmmoBurst()
     {
-        for (int i = 0; i < 10; i++)
+        int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 3f, s_ConeOverlapBuffer, enemyMask);
+        for (int j = 0; j < hitCount; j++)
         {
-            int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, 3f, s_ConeOverlapBuffer, enemyMask);
-            for (int j = 0; j < hitCount; j++)
+            IDamageable dmg;
+            if (!s_ConeOverlapBuffer[j].TryGetComponent(out dmg))
             {
-                var dmg = s_ConeOverlapBuffer[j].GetComponentInParent<IDamageable>();
-                if (dmg != null) dmg.TakeDamage(5f);
+                dmg = s_ConeOverlapBuffer[j].GetComponentInChildren<IDamageable>();
+                if (dmg == null) dmg = s_ConeOverlapBuffer[j].GetComponentInParent<IDamageable>();
             }
+            if (dmg != null) dmg.TakeDamage(50f);
         }
     }
 
@@ -385,7 +399,9 @@ public class FlamethrowerController : MonoBehaviour
         Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
         float targetAngle = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
         float frontOffset = Mathf.Atan2(weaponFront.localPosition.y, weaponFront.localPosition.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, targetAngle - frontOffset);
+        float desiredAngle = targetAngle - frontOffset;
+        float smoothedAngle = Mathf.LerpAngle(transform.eulerAngles.z, desiredAngle, 1f - Mathf.Exp(-aimLerpSpeed * Time.deltaTime));
+        transform.rotation = Quaternion.Euler(0f, 0f, smoothedAngle);
         if (weaponSprite != null)
         {
             bool aimingRight = toTarget.x >= 0f;

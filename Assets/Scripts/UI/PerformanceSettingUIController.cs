@@ -316,6 +316,7 @@ public class PerformanceSettingUIController : MonoBehaviour
             FrameRateMode.FPS60  => "FPS 60",
             FrameRateMode.FPS90  => "FPS 90",
             FrameRateMode.FPS120 => "FPS 120",
+            FrameRateMode.Unlimited => "Unlimited",
             _ => mode.ToString()
         };
     }

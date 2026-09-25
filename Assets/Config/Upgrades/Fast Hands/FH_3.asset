@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: FH_3
   m_EditorClassIdentifier: 
   upgradeName: Fast Hands III
-  description: Increase reload rate by 2% for every enemy killed (up to 69%) (reset
-    after a reload)
+  description: "T\u0103ng t\u1ED1c \u0111\u1ED9 n\u1EA1p \u0111\u1EA1n b\u1EB1ng
+    2% cho m\u1ED7i k\u1EBB \u0111\u1ECBch b\u1ECB gi\u1EBFt (t\u1ED1i \u0111a 69%)
+    l\xE0m m\u1EDBi sau m\u1ED7i l\u1EA7n n\u1EA1p \u0111\u1EA1n"
   icon: {fileID: 1955695880, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 27
-    amount: 2
+    amount: 1
   requires:
   - {fileID: 11400000, guid: 006b64c51f855f5499b64cc8197f6259, type: 2}
   - {fileID: 11400000, guid: 878cb5cd8ead8a24da082cbf1ba056f6, type: 2}

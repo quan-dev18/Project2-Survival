@@ -9,6 +9,10 @@ public class LoadingSceneController : MonoBehaviour
     public static string targetScene;
 
     [SerializeField] private Image progressBar;
+    [Tooltip("Image hiển thị ảnh loading. Ảnh sẽ được chọn NGẪU NHIÊN từ Loading Images mỗi lần vào loading.")]
+    [SerializeField] private Image loadingImage;
+    [Tooltip("List ảnh loading. Mỗi lần vào scene loading sẽ chọn 1 ảnh ngẫu nhiên trong list này.")]
+    [SerializeField] private Sprite[] loadingImages;
     [SerializeField] private float lerpDuration = 1f;
     [SerializeField] private float firstTimeLerpDuration = 3f;
     [Tooltip("Nếu tích chọn, trạng thái lần đầu sẽ lưu vĩnh viễn vào PlayerPrefs. Nếu bỏ tích, mỗi lần mở game/bật Play mode đều tính lần đầu.")]
@@ -51,7 +55,23 @@ public class LoadingSceneController : MonoBehaviour
             targetScene = "MainMenu";
         }
 
+        PickRandomLoadingImage();
+
         StartCoroutine(LoadSceneAsync());
+    }
+
+    /// <summary>
+    /// Chọn 1 ảnh loading ngẫu nhiên từ danh sách Loading Images.
+    /// Bỏ qua nếu chưa gán list hoặc chưa gán Image đích.
+    /// </summary>
+    private void PickRandomLoadingImage()
+    {
+        if (loadingImage == null || loadingImages == null || loadingImages.Length == 0)
+            return;
+
+        Sprite picked = loadingImages[Random.Range(0, loadingImages.Length)];
+        if (picked != null)
+            loadingImage.sprite = picked;
     }
 
     private IEnumerator LoadSceneAsync()
@@ -82,6 +102,42 @@ public class LoadingSceneController : MonoBehaviour
         }
 
         yield return new WaitForSeconds(isFirst ? 0.3f : 0.15f);
+
+        // Kiểm tra Remote Config mỗi lần loading: cái nào bật, cái nào tắt
+        if (RemoteConfigController.Instance == null)
+        {
+            var rcGo = new GameObject("RemoteConfigController");
+            rcGo.AddComponent<RemoteConfigController>();
+        }
+
+        if (RemoteConfigController.Instance != null)
+        {
+            bool canProceed = true;
+            try
+            {
+                canProceed = RemoteConfigController.Instance.EvaluateAllConfigs();
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning("[LoadingSceneController] Remote config evaluation warning: " + ex.Message);
+                canProceed = true;
+            }
+
+            while (!canProceed)
+            {
+                // Nếu đang bảo trì hoặc bắt buộc cập nhật, giữ màn hình loading và hiển thị thông báo
+                yield return new WaitForSeconds(1f);
+                try
+                {
+                    canProceed = RemoteConfigController.Instance.EvaluateAllConfigs();
+                }
+                catch
+                {
+                    canProceed = true;
+                    break;
+                }
+            }
+        }
 
         MarkFirstTimeDone();
         operation.allowSceneActivation = true;

@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: M_2A
   m_EditorClassIdentifier: 
   upgradeName: Magnetic II
-  description: 'Pickup range +10%
-
-    XP pickup has a 10% chance to recover 1 Ammo'
+  description: "Kho\u1EA3ng c\xE1ch nh\u1EB7t kinh nghi\u1EC7m +10%\nKinh nghi\u1EC7m
+    c\xF3 10% c\u01A1 h\u1ED9i tr\u1EA3 v\u1EC1 1 \u0111\u1EA1n"
   icon: {fileID: 340936774, guid: 3dec9eea8a5984647bff78833b397306, type: 3}
   statMods:
   - stat: 4
