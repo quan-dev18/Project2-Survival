@@ -19,6 +19,7 @@ public class GameData
 
     // StageID đã nhận thưởng "hoàn thành 100% lần đầu" (mỗi stage chỉ nhận 1 lần).
     public List<string> claimedStageRewards;
+    public List<string> completedStageIds;
 
     // ──────── Skin Shop ────────
     // Danh sách composite ID (weaponID_skinID) các skin đã mua.
@@ -48,6 +49,7 @@ public class GameData
         stageIds = new List<string>();
         stageBestProgress = new List<float>();
         claimedStageRewards = new List<string>();
+        completedStageIds = new List<string>();
 
         ownedSkins = new List<string>();
         equippedWeaponIds = new List<string>();

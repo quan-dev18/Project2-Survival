@@ -6566,7 +6566,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 350, y: 0}
+  m_AnchoredPosition: {x: 315.8, y: 0}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &331991953
@@ -15726,8 +15726,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 30, y: 0}
-  m_SizeDelta: {x: 402.16, y: 120}
+  m_AnchoredPosition: {x: 101.95764, y: 0}
+  m_SizeDelta: {x: 258.2427, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &772391808
 MonoBehaviour:
@@ -15749,7 +15749,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 670
+  m_text: 6700
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
   m_sharedMaterial: {fileID: -1269213483947345980, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
@@ -15783,7 +15783,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -19843,7 +19843,7 @@ MonoBehaviour:
   androidRewardedId: ca-app-pub-7087538734337269/8737436180
   androidVictoryRewardedId: ca-app-pub-7087538734337269/3521602675
   androidTakeAllRewardedId: ca-app-pub-7087538734337269/6752957592
-  rewardCoinAmount: 670
+  rewardCoinAmount: 6700
   mainMenuSceneName: MainMenu
   previewDpi: 420
   showPreviewInEditor: 0

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: G_HU_2
   m_EditorClassIdentifier: 
   upgradeName: Health Up
-  description: "M\xE1u t\u1ED1i \u0111a +30%"
+  description: "M\xE1u t\u1ED1i \u0111a +25%"
   icon: {fileID: -1739901164, guid: 604cd838aeccaa2488585e0cdcf11018, type: 3}
   statMods:
   - stat: 0
-    amount: 30
+    amount: 25
   requires: []

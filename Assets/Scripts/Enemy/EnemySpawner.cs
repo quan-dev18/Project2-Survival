@@ -376,7 +376,12 @@ public class EnemySpawner : MonoBehaviour
 
                 // Thưởng lần đầu đạt 100% (nếu stage có thưởng và chưa nhận).
                 if (UserData.Instance != null)
+                {
+                    if (UserData.Instance.TryMarkStageCompleted(stage.StageID))
+                        MapSelectionManager.QueueNextMapAfterFirstClear(stage.StageID);
+
                     UserData.Instance.TryGrantFirstClearReward(stage);
+                }
 
                 GameManager.Instance.SetIsWin(true);
                 GameManager.Instance.SetState(GameState.GameOver);
