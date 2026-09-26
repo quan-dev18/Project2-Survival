@@ -2,12 +2,24 @@ using UnityEngine;
 
 public class FogController : MonoBehaviour
 {
+    private static readonly int FogColorID = Shader.PropertyToID("_FogColor");
+    private static readonly int PlayerPosID = Shader.PropertyToID("_PlayerPos");
+    private static readonly int InnerRadiusID = Shader.PropertyToID("_InnerRadius");
+    private static readonly int OuterRadiusID = Shader.PropertyToID("_OuterRadius");
+    private static readonly int EdgeSoftnessID = Shader.PropertyToID("_EdgeSoftness");
+    private static readonly int FlashPosID = Shader.PropertyToID("_FlashPos");
+    private static readonly int FlashDirID = Shader.PropertyToID("_FlashDir");
+    private static readonly int FlashRadiusID = Shader.PropertyToID("_FlashRadius");
+    private static readonly int FlashAngleID = Shader.PropertyToID("_FlashAngle");
+    private static readonly int FlashStrengthID = Shader.PropertyToID("_FlashStrength");
+
     [Header("References")]
     [SerializeField] private Camera targetCamera;
     [SerializeField] private Transform player;
     [SerializeField] private Material fogMaterial;
 
     [Header("Vision")]
+    [SerializeField] private Color fogColor;
     [SerializeField] private float innerRadius = 4f;
     [SerializeField] private float outerRadius = 7f;
     [SerializeField] private float edgeSoftness = 1.5f;
@@ -22,6 +34,12 @@ public class FogController : MonoBehaviour
     private float flashStrength;
     private Vector2 flashPos;
     private Vector2 flashDir;
+
+    /// <summary>Đổi màu fog theo map.</summary>
+    public void SetFogColor(Color color)
+    {
+        fogColor = color;
+    }
 
     /// <summary>Eagle Eyes: widen the visible radius (stacks multiplicatively).</summary>
     public void AddVisionPercent(float pct)
@@ -66,24 +84,25 @@ public class FogController : MonoBehaviour
             return;
 
         currentPos = Vector3.SmoothDamp(currentPos, player.position, ref velocity, smoothTime);
-        fogMaterial.SetVector("_PlayerPos", currentPos);
+        fogMaterial.SetVector(PlayerPosID, currentPos);
+        fogMaterial.SetColor(FogColorID, fogColor);
 
-        fogMaterial.SetFloat("_InnerRadius", innerRadius);
-        fogMaterial.SetFloat("_OuterRadius", outerRadius);
-        fogMaterial.SetFloat("_EdgeSoftness", edgeSoftness);
+        fogMaterial.SetFloat(InnerRadiusID, innerRadius);
+        fogMaterial.SetFloat(OuterRadiusID, outerRadius);
+        fogMaterial.SetFloat(EdgeSoftnessID, edgeSoftness);
 
         if (flashStrength > 0f)
         {
             flashStrength = Mathf.MoveTowards(flashStrength, 0f, Time.deltaTime / flashDuration);
-            fogMaterial.SetVector("_FlashPos", new Vector4(flashPos.x, flashPos.y, 0f, 0f));
-            fogMaterial.SetVector("_FlashDir", new Vector4(flashDir.x, flashDir.y, 0f, 0f));
-            fogMaterial.SetFloat("_FlashRadius", flashRadius);
-            fogMaterial.SetFloat("_FlashAngle", flashHalfAngle);
-            fogMaterial.SetFloat("_FlashStrength", flashStrength);
+            fogMaterial.SetVector(FlashPosID, new Vector4(flashPos.x, flashPos.y, 0f, 0f));
+            fogMaterial.SetVector(FlashDirID, new Vector4(flashDir.x, flashDir.y, 0f, 0f));
+            fogMaterial.SetFloat(FlashRadiusID, flashRadius);
+            fogMaterial.SetFloat(FlashAngleID, flashHalfAngle);
+            fogMaterial.SetFloat(FlashStrengthID, flashStrength);
         }
-        else if (fogMaterial.GetFloat("_FlashStrength") > 0f)
+        else if (fogMaterial.GetFloat(FlashStrengthID) > 0f)
         {
-            fogMaterial.SetFloat("_FlashStrength", 0f);
+            fogMaterial.SetFloat(FlashStrengthID, 0f);
         }
     }
 }

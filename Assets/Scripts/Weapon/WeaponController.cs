@@ -166,6 +166,9 @@ public class WeaponController : MonoBehaviour
             }
         }
 
+        if (target != null && !target.gameObject.activeInHierarchy)
+            target = null;
+
         bool hasTarget = target != null && IsTargetInRange();
 
         if (hasTarget)
@@ -207,8 +210,9 @@ public class WeaponController : MonoBehaviour
 
     private bool IsTargetInRange()
     {
-        float dist = Vector2.Distance(transform.position, target.position);
-        return dist <= fireRange;
+        if (target == null) return false;
+        float sqrDist = ((Vector2)transform.position - (Vector2)target.position).sqrMagnitude;
+        return sqrDist <= fireRange * fireRange;
     }
 #region Aim
     private void Aim()
@@ -344,7 +348,8 @@ public class WeaponController : MonoBehaviour
             Vector2 burstDir = Quaternion.Euler(0, 0, angle) * Vector2.right;
 
             Quaternion bulletRotation = Quaternion.FromToRotation(Vector3.right, burstDir);
-            GameObject bulletObj = ObjectPooling.Instance.Spawn(bulletKey, transform.position, bulletRotation);
+            Vector3 spawnPos = weaponFront != null ? weaponFront.position : transform.position;
+            GameObject bulletObj = ObjectPooling.Instance.Spawn(bulletKey, spawnPos, bulletRotation);
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {
@@ -461,11 +466,17 @@ public class WeaponController : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        if (!other.CompareTag(targetTag)) return;
+        if (!other.CompareTag(targetTag) || !other.gameObject.activeInHierarchy) return;
 
-        if (target == null ||
-            Vector2.Distance(other.transform.position, transform.position) <
-            Vector2.Distance(target.position, transform.position))
+        if (target == null || !target.gameObject.activeInHierarchy)
+        {
+            target = other.transform;
+            return;
+        }
+
+        float otherSqrDist = ((Vector2)other.transform.position - (Vector2)transform.position).sqrMagnitude;
+        float currentSqrDist = ((Vector2)target.position - (Vector2)transform.position).sqrMagnitude;
+        if (otherSqrDist < currentSqrDist)
         {
             target = other.transform;
         }

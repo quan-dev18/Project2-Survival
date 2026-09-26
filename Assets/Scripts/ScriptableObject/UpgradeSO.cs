@@ -58,7 +58,7 @@ public enum UpgradeType
     BulletExplosionOnKill,
     BulletSpreadPercent,
     BulletBounceCount,
-FreeShotChanceWhileStill,
+    FreeShotChanceWhileStill,
     AmmoRecoverOnXP,
     FireRateBuffOnXP,
     LastAmmoBurst,

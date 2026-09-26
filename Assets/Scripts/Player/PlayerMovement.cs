@@ -12,6 +12,9 @@ public class PlayerMovement : MonoBehaviour
     public int LastDir => lastDir;
     [SerializeField] private Transform mesh;
 
+    private static readonly int s_DirHash = Animator.StringToHash("Dir");
+    private static readonly int s_IdleBlendHash = Animator.StringToHash("idle_blend");
+
     void Awake()
     {
         if (playerStats == null)
@@ -78,7 +81,7 @@ public class PlayerMovement : MonoBehaviour
             }
 
             // Gán hướng di chuyển cho Animator (0: Front, 1: Back)
-            animator.SetInteger("Dir", lastDir);
+            animator.SetInteger(s_DirHash, lastDir);
 
             // Lật mặt nhân vật khi đi trái / phải
             if (Mathf.Abs(movementInput.x) > 0.01f)
@@ -89,8 +92,8 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             // Khi dừng lại: chuyển về Idle với hướng nhìn cuối cùng
-            animator.SetInteger("Dir", -1);
-            animator.SetFloat("idle_blend", lastDir); 
+            animator.SetInteger(s_DirHash, -1);
+            animator.SetFloat(s_IdleBlendHash, lastDir); 
         }
     }
     private void Flip(float x)

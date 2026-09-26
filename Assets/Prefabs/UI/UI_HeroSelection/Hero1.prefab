@@ -65,18 +65,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'HP: 100
-
-    Recovery: 1/s
-
-    Shield: 25
-
-    Move Speed: 4
-
-    Collect
-    Range: 2
-
-    Growth Rate: 100%'
+  m_text: "HP: 100\nH\u1ED3i m\xE1u: 1/s\nGI\xE1p: 25\nT\u1ED1c \u0111\u1ED9 di chuy\u1EC3n:
+    4\nT\u1EA7m nh\u1EB7t: 2"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
   m_sharedMaterial: {fileID: -1269213483947345980, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
@@ -340,14 +330,14 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 5291053685132168475}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.296, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -105.43274}
-  m_SizeDelta: {x: 0, y: -170.86548}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 178.78, y: -92}
+  m_SizeDelta: {x: 812.44214, y: 1560.718}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2414825919575532975
 CanvasRenderer:
@@ -377,7 +367,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1040319861, guid: c29d1a91b0ad00447b801fc9b73327dd, type: 3}
+  m_Sprite: {fileID: 2030649756, guid: 9ab17eabde6b6484fb08b77b715aa365, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

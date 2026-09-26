@@ -5,8 +5,9 @@ using UnityEngine.UI;
 /// <summary>
 /// Hiển thị 1 ô skin trong SkinShop (nằm trong ScrollRect).
 /// Mỗi ô gồm: icon skin, tên skin (kèm tên súng tuỳ chọn) và 1 nút duy nhất:
-///   - Chưa mua  → nút hiện giá tiền, bấm để mua.
-///   - Đã sở hữu → nút ghi "Đã sở hữu", không bấm được.
+///   - Đã sở hữu         → nút ghi "Đã sở hữu", không bấm được.
+///   - Ads bật (chưa mua) → nút chuyển sang "Xem Ads (x/y)" (thay cho nút mua gold).
+///   - Ads tắt (chưa mua) → nút hiện giá tiền, bấm để mua.
 /// </summary>
 public class SkinSlotUI : MonoBehaviour
 {
@@ -15,12 +16,9 @@ public class SkinSlotUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI skinNameText;
     [Tooltip("(Tuỳ chọn) Tên khẩu súng chứa skin này, giúp phân biệt khi shop hiện skin của nhiều súng.")]
     [SerializeField] private TextMeshProUGUI weaponNameText;
-    [Tooltip("Nút duy nhất: hiện giá (chưa mua) hoặc 'Đã sở hữu'.")]
+    [Tooltip("Nút duy nhất: hiện giá (chưa mua), 'Xem Ads' (bật ads) hoặc 'Đã sở hữu'.")]
     [SerializeField] private Button actionButton;
     [SerializeField] private TextMeshProUGUI actionButtonText;
-    [Tooltip("Nút xem quảng cáo để mở khóa skin (tùy chọn / tự tạo nếu bật remote config).")]
-    [SerializeField] private Button adButton;
-    [SerializeField] private TextMeshProUGUI adButtonText;
     [Tooltip("(Tuỳ chọn) Ảnh khoá hiện khi skin chưa được sở hữu.")]
     [SerializeField] private GameObject lockOverlay;
 
@@ -30,8 +28,14 @@ public class SkinSlotUI : MonoBehaviour
     private System.Action<SkinSlotUI> onAdClickCallback;
     private bool isOwned;
 
+    /// <summary>Nút actionButton đang ở chế độ Xem Ads (thay cho mua bằng gold).</summary>
+    private bool adModeActive;
+
     /// <summary>Skin này đã được người chơi sở hữu chưa.</summary>
     public bool IsOwned => isOwned;
+
+    private static bool IsAdUnlockEnabled =>
+        FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsSkinAdUnlockEnabled;
 
     // ──────────────────── Setup ────────────────────
 
@@ -51,61 +55,30 @@ public class SkinSlotUI : MonoBehaviour
         if (actionButton != null)
         {
             actionButton.onClick.RemoveAllListeners();
-            actionButton.onClick.AddListener(() =>
-            {
-                // Đã sở hữu thì không làm gì khi bấm
-                if (!isOwned)
-                    onClickCallback?.Invoke(this);
-            });
+            actionButton.onClick.AddListener(OnActionClicked);
         }
-
-        SetupAdButton();
     }
 
-    private void SetupAdButton()
+    /// <summary>Chế độ ads → xem ads, ngược lại mua bằng gold (đã sở hữu thì không làm gì).</summary>
+    private void OnActionClicked()
     {
-        bool adUnlockEnabled = FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsSkinAdUnlockEnabled;
-        if (!adUnlockEnabled || isOwned)
-        {
-            if (adButton != null) adButton.gameObject.SetActive(false);
-            return;
-        }
+        if (isOwned) return;
 
-        if (adButton == null && actionButton != null)
-        {
-            GameObject clone = Instantiate(actionButton.gameObject, actionButton.transform.parent);
-            clone.name = "SkinAdButton";
-            adButton = clone.GetComponent<Button>();
-            adButtonText = clone.GetComponentInChildren<TextMeshProUGUI>();
-
-            RectTransform rt = clone.GetComponent<RectTransform>();
-            RectTransform srcRt = actionButton.GetComponent<RectTransform>();
-            if (rt != null && srcRt != null && (actionButton.transform.parent == null || actionButton.transform.parent.GetComponent<UnityEngine.UI.LayoutGroup>() == null))
-            {
-                rt.anchoredPosition = srcRt.anchoredPosition + new Vector2(0f, srcRt.rect.height + 6f);
-            }
-        }
-
-        if (adButton != null)
-        {
-            adButton.gameObject.SetActive(true);
-            adButton.interactable = true;
-            adButton.onClick.RemoveAllListeners();
-            adButton.onClick.AddListener(() =>
-            {
-                if (!isOwned)
-                    onAdClickCallback?.Invoke(this);
-            });
-            UpdateAdButtonVisual();
-        }
+        if (adModeActive) onAdClickCallback?.Invoke(this);
+        else onClickCallback?.Invoke(this);
     }
 
+    /// <summary>Làm mới text nút theo chế độ hiện tại (gọi sau khi xem 1 ads xong).</summary>
     public void UpdateAdButtonVisual()
     {
-        if (adButton == null || skinData == null || parentWeapon == null) return;
+        if (!IsAdUnlockEnabled) return;
+        if (skinData == null || parentWeapon == null) return;
+
         if (isOwned)
         {
-            adButton.gameObject.SetActive(false);
+            adModeActive = false;
+            if (actionButtonText != null) actionButtonText.text = "Đã sở hữu";
+            if (actionButton != null) actionButton.interactable = false;
             return;
         }
 
@@ -113,8 +86,11 @@ public class SkinSlotUI : MonoBehaviour
         int watched = AdUnlockTracker.Instance != null ? AdUnlockTracker.Instance.GetAdWatchCount(compositeId) : 0;
         int required = FirebaseRemoteConfigHelper.Instance != null ? FirebaseRemoteConfigHelper.Instance.SkinAdWatchCount : 2;
 
-        if (adButtonText != null)
-            adButtonText.text = $"Ads ({watched}/{required})";
+        adModeActive = true;
+        if (actionButtonText != null)
+            actionButtonText.text = $"Xem Ads ({watched}/{required})";
+        if (actionButton != null)
+            actionButton.interactable = true;
     }
 
     /// <summary>Lấy dữ liệu skin đang giữ.</summary>
@@ -127,7 +103,6 @@ public class SkinSlotUI : MonoBehaviour
     public void SetOwned(bool owned)
     {
         isOwned = owned;
-        if (adButton != null) adButton.gameObject.SetActive(false);
         ApplyVisual();
     }
 
@@ -156,14 +131,21 @@ public class SkinSlotUI : MonoBehaviour
         if (lockOverlay != null)
             lockOverlay.SetActive(!isOwned);
 
-        // ═══ Nút: giá tiền (chưa mua) hoặc "Đã sở hữu" ═══
+        // ═══ Nút: "Đã sở hữu" / "Xem Ads" (bật ads) / giá tiền ═══
         if (isOwned)
         {
+            adModeActive = false;
             if (actionButtonText != null) actionButtonText.text = "Đã sở hữu";
             if (actionButton != null) actionButton.interactable = false;
         }
+        else if (IsAdUnlockEnabled)
+        {
+            // Ads bật → nút mua gold bị thay bằng nút Xem Ads.
+            UpdateAdButtonVisual();
+        }
         else
         {
+            adModeActive = false;
             if (actionButtonText != null)
                 actionButtonText.text = FormatHelper.FormatGold(skinData.price);
             if (actionButton != null)

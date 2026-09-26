@@ -73,7 +73,10 @@ public static class SaveSystem
                 string backup = GetPath() + ".corrupt." + System.DateTime.Now.ToString("yyyyMMddHHmmss");
                 if (File.Exists(path)) File.Copy(path, backup, true);
             }
-            catch { }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[SaveSystem] Failed to create corrupt file backup: {ex.Message}");
+            }
             return new GameData();
         }
     }

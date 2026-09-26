@@ -202,6 +202,9 @@ public class FlamethrowerController : MonoBehaviour
             }
         }
 
+        if (target != null && !target.gameObject.activeInHierarchy)
+            target = null;
+
         bool hasTarget = target != null && IsTargetInRange();
         if (hasTarget) Aim();
 
@@ -384,8 +387,8 @@ public class FlamethrowerController : MonoBehaviour
     private bool IsTargetInRange()
     {
         if (target == null) return false;
-        float dist = Vector2.Distance(transform.position, target.position);
-        return dist <= fireRange;
+        float sqrDist = ((Vector2)transform.position - (Vector2)target.position).sqrMagnitude;
+        return sqrDist <= fireRange * fireRange;
     }
 
     private void Aim()
@@ -466,6 +469,22 @@ public class FlamethrowerController : MonoBehaviour
     #endregion
     public void SetTarget(Transform newTarget) => target = newTarget;
     public void SetPlayerMovement(PlayerMovement pm) => playerMovement = pm;
-    private void OnTriggerStay2D(Collider2D other) { if (!other.CompareTag(targetTag)) return; if (target == null || Vector2.Distance(other.transform.position, transform.position) < Vector2.Distance(target.position, transform.position)) target = other.transform; }
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (!other.CompareTag(targetTag) || !other.gameObject.activeInHierarchy) return;
+
+        if (target == null || !target.gameObject.activeInHierarchy)
+        {
+            target = other.transform;
+            return;
+        }
+
+        float otherSqrDist = ((Vector2)other.transform.position - (Vector2)transform.position).sqrMagnitude;
+        float currentSqrDist = ((Vector2)target.position - (Vector2)transform.position).sqrMagnitude;
+        if (otherSqrDist < currentSqrDist)
+        {
+            target = other.transform;
+        }
+    }
     private void OnTriggerExit2D(Collider2D other) { if (other.transform == target) target = null; }
 }

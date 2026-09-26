@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour, IPoolSpawnable
@@ -27,6 +27,7 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
     private bool trailReady;
     private float trailOriginalTime;
     private static readonly Collider2D[] s_BounceOverlapBuffer = new Collider2D[32];
+    private static readonly Collider2D[] s_ExplosionOverlapBuffer = new Collider2D[64];
     private static readonly List<Transform> s_BounceValidTargets = new List<Transform>(16);
 
     public void Init(Vector2 dir, Transform owner, int pierce = 0, float speedMultiplier = 1f, float damageMultiplier = 1f, float executePercent = 0f, float knockbackMultiplier = 1f, float sizeMultiplier = 1f, bool infinitePierceOnKill = false, float explosionDamagePercent = 0f, int bounceCount = 0, System.Action onKillCallback = null)
@@ -60,6 +61,9 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     public void OnSpawned()
     {
+        age = 0f;
+        lastHit = null;
+        lastHitTime = 0f;
         if (trail != null)
         {
             trail.emitting = false;
@@ -109,6 +113,11 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // Already despawned earlier in this physics step: skip so a queued
+        // second callback cannot deal damage again or despawn twice.
+        if (!gameObject.activeSelf)
+            return;
+
         // Ignore any hit on owner hierarchy (player, weapons, etc.) or any WeaponController
         if (owner != null && (other.transform.IsChildOf(owner) || other.transform == owner || other.transform.root == owner || other.GetComponentInParent<WeaponController>() != null))
             return;
@@ -174,9 +183,10 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         {
             float explosionDamage = finalDamage * explosionDamagePercent;
             float explosionRadius = bulletStats.ExplosionRadius * 0.5f;
-            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, explosionRadius);
-            foreach (Collider2D hit in hits)
+            int hitCount = Physics2D.OverlapCircleNonAlloc(other.transform.position, explosionRadius, s_ExplosionOverlapBuffer);
+            for (int i = 0; i < hitCount; i++)
             {
+                Collider2D hit = s_ExplosionOverlapBuffer[i];
                 if (hit == other) continue;
                 if (hit == null || !hit.gameObject.activeInHierarchy) continue; // killed earlier in this blast
                 if (owner != null && (hit.transform == owner || hit.transform.IsChildOf(owner) || hit.transform.root == owner)) continue;
@@ -196,9 +206,10 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
         // Multiple damage: AOE on every hit
         if (bulletStats.IsMultipleDamage)
         {
-            Collider2D[] hits = Physics2D.OverlapCircleAll(other.transform.position, bulletStats.ExplosionRadius);
-            foreach (Collider2D hit in hits)
+            int hitCount = Physics2D.OverlapCircleNonAlloc(other.transform.position, bulletStats.ExplosionRadius, s_ExplosionOverlapBuffer);
+            for (int i = 0; i < hitCount; i++)
             {
+                Collider2D hit = s_ExplosionOverlapBuffer[i];
                 if (hit == other) continue;
                 if (hit == null || !hit.gameObject.activeInHierarchy) continue; // killed earlier in this blast
                 if (owner != null && hit.transform.IsChildOf(owner)) continue;

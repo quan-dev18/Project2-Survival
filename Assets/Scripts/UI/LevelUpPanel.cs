@@ -288,19 +288,6 @@ public class LevelUpPanel : MonoBehaviour
                 desc.text = upgrade.Description;
             if (icon != null)
                 icon.sprite = upgrade.Icon; // placeholder - assign icons in UpgradeSO
-            // If title assigned, clear legacy combined label to avoid duplicate text
-            if (title != null)
-            {
-                var legacyLabels = button.GetComponentsInChildren<TMP_Text>(true);
-                foreach (var lbl in legacyLabels)
-                {
-                    if (lbl != title && lbl != desc)
-                    {
-                        // Keep legacy label empty when split fields are used (optional)
-                        // lbl.text = string.Empty;
-                    }
-                }
-            }
         }
         else
         {

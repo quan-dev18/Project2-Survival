@@ -38,7 +38,7 @@ public class ObjectPooling : MonoBehaviour
                 string key = string.IsNullOrEmpty(setup.key) ? setup.prefab.name : setup.key;
                 prefabMap[key] = setup.prefab;
                 for (int i = 0; i < setup.count; i++)
-                    CreateNew(key, setup.prefab);
+                    Despawn(CreateNew(key, setup.prefab));
             }
         }
     }
@@ -77,6 +77,9 @@ public class ObjectPooling : MonoBehaviour
         else
             return null;
 
+        if (obj.TryGetComponent(out PooledObject pooledObj))
+            pooledObj.InPool = false;
+
         obj.SetActive(true);
         obj.transform.SetPositionAndRotation(pos, rot);
         if (obj.TryGetComponent(out IPoolSpawnable spawnable))
@@ -88,14 +91,26 @@ public class ObjectPooling : MonoBehaviour
     {
         if (obj == null) return;
 
-        if (!obj.TryGetComponent(out PooledObject pooled) || !pools.TryGetValue(pooled.Key, out var queue))
+        if (!obj.TryGetComponent(out PooledObject pooled))
         {
             Destroy(obj);
             return;
         }
 
+        // Already returned to this pool: skip to avoid enqueueing the same
+        // instance twice (which makes two Spawns hand out one GameObject and
+        // makes bullets "vanish" mid-flight).
+        if (pooled.InPool) return;
+
+        if (!pools.TryGetValue(pooled.Key, out var queue))
+        {
+            queue = new Queue<GameObject>();
+            pools[pooled.Key] = queue;
+        }
+
         obj.SetActive(false);
         obj.transform.SetParent(transform, false);
+        pooled.InPool = true;
         queue.Enqueue(obj);
     }
 
@@ -113,6 +128,7 @@ public class ObjectPooling : MonoBehaviour
 public class PooledObject : MonoBehaviour
 {
     public string Key;
+    public bool InPool;
 }
 public interface IPoolSpawnable
 {
