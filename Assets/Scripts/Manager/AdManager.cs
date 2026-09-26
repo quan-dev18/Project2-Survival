@@ -51,7 +51,7 @@ public class AdManager : MonoBehaviour
         public string label;
         public string adUnitId;
         public RewardedAd ad;
-        public bool loading;
+        public bool loading = false;
     }
 
     private RewardedSlot shopSlot;

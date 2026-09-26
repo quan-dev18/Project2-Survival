@@ -91,6 +91,8 @@ public class PlayerStats : MonoBehaviour
     public float CurrentHealth { get; private set; }
     public float CurrentArmor { get; private set; }
     private bool isDead;
+    public bool IsDead => isDead;
+    public void SetDead(bool dead) => isDead = dead;
     #endregion
 
     #region Revive (Perk)
@@ -108,15 +110,8 @@ public class PlayerStats : MonoBehaviour
     {
         get
         {
-            // Use hierarchy order (Player/Weapons) so ActiveWeaponIndex matches PlayerEquipment order
-            var all = GetComponentsInChildren<WeaponController>(true);
-            if (all != null && all.Length > 0)
-            {
-                weapons = all;
-                return weapons;
-            }
             if (weapons == null || weapons.Length == 0)
-                weapons = GetComponentsInChildren<WeaponController>(true);
+                RegisterAllWeapons();
             return weapons;
         }
     }
@@ -124,14 +119,8 @@ public class PlayerStats : MonoBehaviour
     {
         get
         {
-            var all = GetComponentsInChildren<FlamethrowerController>(true);
-            if (all != null && all.Length > 0)
-            {
-                flamethrowers = all;
-                return flamethrowers;
-            }
             if (flamethrowers == null || flamethrowers.Length == 0)
-                flamethrowers = GetComponentsInChildren<FlamethrowerController>(true);
+                RegisterAllWeapons();
             return flamethrowers;
         }
     }
@@ -437,6 +426,7 @@ public class PlayerStats : MonoBehaviour
         if (ReviveCharges <= 0) return false;
 
         ReviveCharges--;
+        isDead = false;
         CurrentHealth = MaxHealth;
         CurrentArmor = MaxArmor;
         reviveInvulnerableTimer = reviveInvulnerableDuration;

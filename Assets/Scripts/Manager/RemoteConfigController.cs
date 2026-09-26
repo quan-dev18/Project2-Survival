@@ -121,10 +121,10 @@ public class RemoteConfigController : MonoBehaviour
         }
 
         // 2. Check Force Update
-        // if (ForceUpdateHandler.Instance != null && ForceUpdateHandler.Instance.CheckForceUpdate())
-        // {
-        //     return false; // Block game entry
-        // }
+        if (ForceUpdateHandler.Instance != null && ForceUpdateHandler.Instance.CheckForceUpdate())
+        {
+            return false; // Block game entry
+        }
 
         // 3. Apply Debug Mode
         if (DebugModeHandler.Instance != null)

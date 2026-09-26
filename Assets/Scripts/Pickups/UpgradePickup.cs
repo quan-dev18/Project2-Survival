@@ -11,6 +11,7 @@ public class UpgradePickup : MonoBehaviour
     private const float ArrivalTolerance = 0.5f;
 
     private Transform target;
+    private PlayerStats cachedStats;
     private bool magnetized;
     private bool bouncing;
     private Tween magnetTween;
@@ -26,26 +27,31 @@ public class UpgradePickup : MonoBehaviour
         if (target == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            target = player != null ? player.transform : null;
+            if (player != null)
+            {
+                target = player.transform;
+                cachedStats = player.GetComponent<PlayerStats>();
+            }
+        }
+        else if (cachedStats == null)
+        {
+            cachedStats = target.GetComponent<PlayerStats>();
         }
     }
 
     private void Update()
     {
-        if (target == null)
+        if (target == null || cachedStats == null)
         {
             ResolveTarget();
-            return;
+            if (cachedStats == null) return;
         }
-
-        PlayerStats stats = target.GetComponent<PlayerStats>();
-        if (stats == null) return;
 
         float dist = Vector2.Distance(target.position, transform.position);
 
         if (!magnetized)
         {
-            if (dist <= stats.CollectRange)
+            if (dist <= cachedStats.CollectRange)
             {
                 magnetized = true;
                 BackBounce();

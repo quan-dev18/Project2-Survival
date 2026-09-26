@@ -18,7 +18,7 @@ public class AppOpenAdManager : MonoBehaviour
 #pragma warning restore CS0414
 
     private AppOpenAd appOpenAd;
-    private DateTime loadTime;
+    private DateTime loadTime = DateTime.MinValue;
     private bool isShowing = false;
 #pragma warning disable CS0414
     private bool isLoading = false;

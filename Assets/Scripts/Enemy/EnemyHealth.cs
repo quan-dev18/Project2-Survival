@@ -143,12 +143,6 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         if (GameManager.Instance != null)
             GameManager.Instance.AddKill();
 
-        // Log enemy killed event
-        string enemyType = enemyController != null ? enemyController.gameObject.name : "unknown";
-        int playerLevel = PlayerXP.Instance != null ? PlayerXP.Instance.CurrentLevel : 1;
-        float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
-        FirebaseAnalyticsHelper.LogEnemyKilled(enemyType, playerLevel, timeAlive);
-
         if (enemyMovement != null)
         {
             enemyMovement.enabled = false;
