@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour, IDamageable
@@ -31,6 +29,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
                 return;
             }
 
+            playerStats.SetDead(true);
+
             // Log player died event
             float timeAlive = GameManager.Instance != null ? GameManager.Instance.TotalElapsedTime : 0f;
             int killCount = GameManager.Instance != null ? GameManager.Instance.KillCount : 0;
@@ -41,5 +41,4 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             GameManager.Instance?.SetState(GameState.GameOver);
         }
     }
-
 }

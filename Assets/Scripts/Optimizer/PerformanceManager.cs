@@ -62,26 +62,6 @@ public struct RenderProfile
         new RenderProfile { renderScale = 0.5f };
 }
 
-/// <summary>
-/// [PerformanceManager] Core Manager chịu trách nhiệm tối ưu hiệu năng toàn game:
-/// giám sát FPS (không cấp phát GC), kiểm soát Frame Budget theo FPS mục tiêu
-/// (60FPS <= 16.67ms, 90FPS <= 11.11ms, 120FPS <= 8.33ms) và Tự điều chỉnh thích ứng
-/// (Adaptive Throttling) hạ chất lượng / FPS khi máy yếu, pin cạn hoặc bộ nhớ thấp.
-///
-/// ▐▌ KIẾN TRÚC
-///   - Là Singleton sống xuyên scene (DontDestroyOnLoad), tự động được tạo nếu
-///     chưa có trong scene (xem EnsureInstance).
-///   - KHÔNG chứa bất kỳ logic UI nào. Toàn bộ UI giao tiếp qua:
-///       + Các Setter công khai (Push):  SetFrameRateMode / SetQualityLevel / ...
-///       + Các event Action (Push):      OnFPSUpdated / OnFrameRateModeChanged / ...
-///   - Dữ liệu cài đặt lưu PlayerPrefs với khóa hằng const quản lý tập trung,
-///     mỗi lần thay đổi đều gọi PlayerPrefs.Save() ngay.
-///
-/// ▐▌ CÁCH GẮN TRONG UNITY EDITOR
-///   1. Tạo GameObject rỗng tên "PerformanceManager".
-///   2. Kéo script này lên. Script tự gọi DontDestroyOnLoad.
-///   3. Không cần làm gì thêm — nếu quên gắn vào scene, hệ thống tự tạo runtime.
-/// </summary>
 public sealed class PerformanceManager : MonoBehaviour
 {
     // =============================================================
@@ -650,7 +630,6 @@ public sealed class PerformanceManager : MonoBehaviour
         ApplyFrameRate();
         SavePreferences();
         OnFrameRateModeChanged?.Invoke(frameRateMode);
-        //Debug.Log($"[PerformanceManager] 🚀 Đổi chế độ frame rate: {mode} (Target={AppliedTargetFPS} FPS)");
     }
 
     /// <summary>
@@ -671,7 +650,6 @@ public sealed class PerformanceManager : MonoBehaviour
         ApplyFrameRate(); // quality mới có thể bật lại VSync -> áp lại target
         SavePreferences();
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
-        //Debug.Log($"[PerformanceManager] 🚀 Đổi chất lượng đồ họa: {clamped} (áp dụng {AppliedQualityLevel})");
     }
 
     /// <summary>
@@ -740,7 +718,6 @@ private void ResetAdaptiveState()
         SavePreferences();
         OnLowGraphicsChanged?.Invoke(lowGraphicsEnabled);
         OnQualityLevelChanged?.Invoke(AppliedQualityLevel);
-        //Debug.Log($"[PerformanceManager] 🚀 Cấu hình thấp: {(lowGraphicsEnabled ? "BẬT" : "TẮT")} (Quality={AppliedQualityLevel}, RenderScale={CurrentRenderScale:0.00})");
     }
 
     /// <summary>

@@ -106,7 +106,7 @@ public class DamagePopup : MonoBehaviour, IPoolSpawnable
             .Append(transform.DOMoveY(basePos.y + style.floatDistance, duration)
                 .SetEase(Ease.OutCubic)
                 .SetUpdate(true))
-            .Join(DOTween.To(() => label.alpha, x => label.alpha = x, 0f, duration)
+            .Join(label.DOFade(0f, duration)
                 .SetEase(Ease.InQuad)
                 .SetUpdate(true))
             .OnComplete(() =>

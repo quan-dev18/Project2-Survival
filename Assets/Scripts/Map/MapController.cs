@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +7,6 @@ public class MapController : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private float checkerRadius;
     public GameObject currentChunk;
-    Vector3 noTerrainChunk;
     [SerializeField] private LayerMask terrainLayer;
     PlayerMovement playerMovement;
 
@@ -16,7 +14,6 @@ public class MapController : MonoBehaviour
     [SerializeField] private List<GameObject> SpawnedChunks;
     GameObject lastChunk;
     [SerializeField] private float maxDistace; //must be greater than the length of the chunk
-    float OpDistance;
     float OptimizerCooldown;
     [SerializeField] private float OptimizerCooldownDuration;
 
