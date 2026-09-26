@@ -20,10 +20,6 @@ public class HeroSelectManager : MonoBehaviour
     [SerializeField] private Button selectButton;
     [SerializeField] private TextMeshProUGUI selectButtonText;
 
-    [Header("Ad Unlock Button (Optional / Dynamic)")]
-    [SerializeField] private Button adUnlockButton;
-    [SerializeField] private TextMeshProUGUI adUnlockButtonText;
-
     [Header("Gold Cost Display")]
     [SerializeField] private TextMeshProUGUI goldCostText;
     [SerializeField] private GameObject goldCostContainer;
@@ -39,6 +35,9 @@ public class HeroSelectManager : MonoBehaviour
     private GameObject currentPreviewInstance;
     private HeroSelectSO currentSelectedHero;
     private HeroSlotUI currentSelectedSlot;
+
+    /// <summary>Nút selectButton đang ở chế độ Xem Ads (thay cho Mua bằng gold).</summary>
+    private bool adModeActive;
 
     private void OnEnable()
     {
@@ -58,58 +57,39 @@ public class HeroSelectManager : MonoBehaviour
         if (selectButton != null)
         {
             selectButton.onClick.RemoveAllListeners();
-            selectButton.onClick.AddListener(OnConfirmSelect);
+            selectButton.onClick.AddListener(OnSelectButtonClicked);
         }
-        EnsureAdUnlockButton();
     }
 
-    private void EnsureAdUnlockButton()
+    /// <summary>Nút select đang ở chế độ ads thì xem ads, ngược lại mua/chọn bằng gold.</summary>
+    private void OnSelectButtonClicked()
     {
-        if (adUnlockButton != null || selectButton == null) return;
-
-        GameObject clone = Instantiate(selectButton.gameObject, selectButton.transform.parent);
-        clone.name = "AdUnlockButton";
-        // Clone copies the select button's visuals/text ("Đã chọn") and active state:
-        // keep it hidden until UpdateAdUnlockUI explicitly shows it for ad-unlock.
-        clone.SetActive(false);
-        adUnlockButton = clone.GetComponent<Button>();
-        adUnlockButtonText = clone.GetComponentInChildren<TextMeshProUGUI>();
-
-        // Park the clone on the right side of the bottom button strip
-        // (select stays left): side-by-side, below the hero icons.
-        RectTransform rt = clone.GetComponent<RectTransform>();
-        if (rt != null)
-        {
-            rt.anchorMin = new Vector2(1f, 0.5f);
-            rt.anchorMax = new Vector2(1f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = new Vector2(-170f, 0f);
-        }
-
-        adUnlockButton.onClick.RemoveAllListeners();
-        adUnlockButton.onClick.AddListener(OnAdUnlockClicked);
+        if (adModeActive) OnAdUnlockClicked();
+        else OnConfirmSelect();
     }
 
-    private void UpdateAdUnlockUI(HeroSelectSO data, int index)
-    {
-        bool adUnlockEnabled = FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsHeroAdUnlockEnabled;
-        if (!adUnlockEnabled)
-        {
-            if (adUnlockButton != null) adUnlockButton.gameObject.SetActive(false);
-            return;
-        }
+    private static bool IsHeroAdUnlockEnabled =>
+        FirebaseRemoteConfigHelper.Instance != null && FirebaseRemoteConfigHelper.Instance.IsHeroAdUnlockEnabled;
 
-        EnsureAdUnlockButton();
-        if (adUnlockButton == null) return;
+    private void ShowAdModeUI(HeroSelectSO data, int index)
+    {
+        adModeActive = true;
+
+        if (selectButton != null) selectButton.interactable = true;
+        if (goldCostContainer != null) goldCostContainer.SetActive(false);
+
+        UpdateAdUnlockText(data, index);
+    }
+
+    private void UpdateAdUnlockText(HeroSelectSO data, int index)
+    {
+        if (selectButtonText == null) return;
 
         string heroKey = !string.IsNullOrEmpty(data.heroName) ? data.heroName : $"Hero_{index}";
         int watched = AdUnlockTracker.Instance != null ? AdUnlockTracker.Instance.GetAdWatchCount(heroKey) : 0;
         int required = FirebaseRemoteConfigHelper.Instance != null ? FirebaseRemoteConfigHelper.Instance.HeroAdWatchCount : 3;
 
-        adUnlockButton.gameObject.SetActive(true);
-        adUnlockButton.interactable = true;
-        if (adUnlockButtonText != null)
-            adUnlockButtonText.text = $"Xem Ads ({watched}/{required})";
+        selectButtonText.text = $"Xem Ads ({watched}/{required})";
     }
 
     private void OnAdUnlockClicked()
@@ -151,7 +131,7 @@ public class HeroSelectManager : MonoBehaviour
                     }
                     else
                     {
-                        UpdateAdUnlockUI(currentSelectedHero, heroIndex);
+                        UpdateAdUnlockText(currentSelectedHero, heroIndex);
                     }
                 }
             });
@@ -280,6 +260,7 @@ public class HeroSelectManager : MonoBehaviour
         bool isUnlocked = IsHeroUnlocked(index);
         if (isUnlocked)
         {
+            adModeActive = false;
             bool isAlreadySelected = UserData.Instance != null && (index == UserData.Instance.SelectedHeroIndex);
 
             selectButton.interactable = !isAlreadySelected;
@@ -288,12 +269,15 @@ public class HeroSelectManager : MonoBehaviour
 
             if (goldCostContainer != null)
                 goldCostContainer.SetActive(false);
-
-            if (adUnlockButton != null)
-                adUnlockButton.gameObject.SetActive(false);
+        }
+        else if (IsHeroAdUnlockEnabled)
+        {
+            // Ads bật → nút Mua thay bằng Xem Ads (không mua gold nữa), giấu khung giá.
+            ShowAdModeUI(data, index);
         }
         else
         {
+            adModeActive = false;
             selectButton.interactable = UserData.Instance != null && UserData.Instance.HasEnoughGold(data.GoldCost);
             if (selectButtonText != null)
                 selectButtonText.text = $"Mua {FormatHelper.FormatGold(data.GoldCost)}";
@@ -302,8 +286,6 @@ public class HeroSelectManager : MonoBehaviour
                 goldCostContainer.SetActive(true);
             if (goldCostText != null)
                 goldCostText.text = FormatHelper.FormatGold(data.GoldCost);
-
-            UpdateAdUnlockUI(data, index);
         }
 
         RefreshOutsideName();
@@ -330,9 +312,6 @@ public class HeroSelectManager : MonoBehaviour
             string heroKey = !string.IsNullOrEmpty(currentSelectedHero.heroName) ? currentSelectedHero.heroName : $"Hero_{heroIndex}";
             if (AdUnlockTracker.Instance != null)
                 AdUnlockTracker.Instance.ResetAdWatch(heroKey);
-
-            if (adUnlockButton != null)
-                adUnlockButton.gameObject.SetActive(false);
 
             if (currentSelectedSlot != null)
                 currentSelectedSlot.SetUnlocked(true);
