@@ -344,7 +344,8 @@ public class WeaponController : MonoBehaviour
             Vector2 burstDir = Quaternion.Euler(0, 0, angle) * Vector2.right;
 
             Quaternion bulletRotation = Quaternion.FromToRotation(Vector3.right, burstDir);
-            GameObject bulletObj = ObjectPooling.Instance.Spawn(bulletKey, transform.position, bulletRotation);
+            Vector3 spawnPos = weaponFront != null ? weaponFront.position : transform.position;
+            GameObject bulletObj = ObjectPooling.Instance.Spawn(bulletKey, spawnPos, bulletRotation);
 
             if (bulletObj != null && bulletObj.TryGetComponent(out Bullet bullet))
             {

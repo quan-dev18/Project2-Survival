@@ -16,4 +16,4 @@ MonoBehaviour:
   heroIcon: {fileID: -846219768, guid: 12cbced1fbd6feb45b0608fd4f57dd1f, type: 3}
   previewPrefab: {fileID: 6044015267666217839, guid: 4627d590226b03d48a397fd069167a45, type: 3}
   isUnlocked: 0
-  goldCost: 67
+  goldCost: 67000

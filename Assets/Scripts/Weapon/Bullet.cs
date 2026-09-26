@@ -60,6 +60,9 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     public void OnSpawned()
     {
+        age = 0f;
+        lastHit = null;
+        lastHitTime = 0f;
         if (trail != null)
         {
             trail.emitting = false;
@@ -109,6 +112,11 @@ public class Bullet : MonoBehaviour, IPoolSpawnable
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // Already despawned earlier in this physics step: skip so a queued
+        // second callback cannot deal damage again or despawn twice.
+        if (!gameObject.activeSelf)
+            return;
+
         // Ignore any hit on owner hierarchy (player, weapons, etc.) or any WeaponController
         if (owner != null && (other.transform.IsChildOf(owner) || other.transform == owner || other.transform.root == owner || other.GetComponentInParent<WeaponController>() != null))
             return;

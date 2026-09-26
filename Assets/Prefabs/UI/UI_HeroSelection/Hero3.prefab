@@ -153,18 +153,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'HP: 60
-
-    Recovery: 3/s
-
-    Armor: 70
-
-    Move Speed: 5
-
-    Collect
-    Range: 2
-
-    Growth Rate: 100%'
+  m_text: "HP: 60\nH\u1ED3i m\xE1u: 3/s\nGi\xE1p: 70\nT\u1ED1c \u0111\u1ED9 di chuy\u1EC3n:
+    5\nT\u1EA7m nh\u1EB7t: 2"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
   m_sharedMaterial: {fileID: -1269213483947345980, guid: 746803b414133e54c9f1be0b559c1541, type: 2}
