@@ -1,6 +1,7 @@
+#if !UNITY_WEBGL
 using Firebase;
 using Firebase.Analytics;
-using GoogleMobileAds.Common;
+#endif
 using UnityEngine;
 
 public class FirebaseInit : MonoBehaviour
@@ -34,6 +35,7 @@ public class FirebaseInit : MonoBehaviour
 
     void Start()
     {
+#if !UNITY_WEBGL
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             var dependencyStatus = task.Result;
@@ -48,6 +50,10 @@ public class FirebaseInit : MonoBehaviour
                 Debug.LogError($"Firebase initialization failed: {dependencyStatus}");
             }
         });
+#else
+        IsInitialized = true;
+        pendingMainThreadInit = true;
+#endif
     }
 
     void Update()

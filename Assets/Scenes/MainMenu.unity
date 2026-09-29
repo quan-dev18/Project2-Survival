@@ -8604,7 +8604,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -74.99999}
+  m_AnchoredPosition: {x: 0, y: -74.99988}
   m_SizeDelta: {x: 0, y: -150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &406303326
@@ -13287,8 +13287,6 @@ MonoBehaviour:
   previewParent: {fileID: 601592258}
   selectButton: {fileID: 2094096596}
   selectButtonText: {fileID: 1094298171}
-  adUnlockButton: {fileID: 0}
-  adUnlockButtonText: {fileID: 0}
   goldCostText: {fileID: 0}
   goldCostContainer: {fileID: 0}
   outsideHeroIcon: {fileID: 139104916}
@@ -31350,7 +31348,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0.000061035156, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -900, y: 250}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1640016011

@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if !UNITY_WEBGL
 using System.Threading.Tasks;
 using Firebase.RemoteConfig;
+#endif
 using UnityEngine;
 
 /// <summary>
@@ -140,6 +142,20 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
 
     private IEnumerator InitAndFetchRoutine()
     {
+#if UNITY_WEBGL
+        yield return null;
+        IsFetched = true;
+        OnConfigFetched?.Invoke();
+
+        if (RemoteConfigController.Instance != null)
+        {
+            RemoteConfigController.Instance.EvaluateAllConfigs();
+        }
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.RefreshAdSettings();
+        }
+#else
         FirebaseRemoteConfig remoteConfig = null;
         try
         {
@@ -220,6 +236,7 @@ public class FirebaseRemoteConfigHelper : MonoBehaviour
         {
             AdManager.Instance.RefreshAdSettings();
         }
+#endif
     }
 
     // ──────────────────── Getters with Fallbacks ────────────────────

@@ -1,4 +1,6 @@
+#if !UNITY_WEBGL
 using Firebase.Analytics;
+#endif
 using UnityEngine;
 
 /// <summary>
@@ -7,6 +9,7 @@ using UnityEngine;
 /// </summary>
 public static class FirebaseAnalyticsHelper
 {
+#if !UNITY_WEBGL
     // ──────────────────── P1: Core Gameplay ────────────────────
 
     public static void LogGameSessionStart(string heroId, string weaponId, string stageId, string skinId)
@@ -358,4 +361,60 @@ public static class FirebaseAnalyticsHelper
         FirebaseAnalytics.LogEvent("ab_test_group_assigned",
             new Parameter("group_name", groupName));
     }
+#else
+    // ──────────────────── WebGL Stubs (Firebase is not supported on WebGL) ────────────────────
+    public static void LogGameSessionStart(string heroId, string weaponId, string stageId, string skinId) { }
+    public static void LogGameSessionEnd(string result, float timeAlive, int killCount, int goldEarned,
+        string heroId, string weaponId, string stageId, int highestLevel) { }
+    public static void LogLevelUp(int newLevel, float timeAlive, int totalUpgrades) { }
+    public static void LogUpgradeChosen(string upgradeName, int upgradeTier, int choiceSlot, int totalUpgrades) { }
+    public static void LogEnemyKilled(string enemyType, int playerLevel, float timeAlive) { }
+    public static void LogBossKilled(string bossType, float timeAlive, int playerLevel, int killCount) { }
+    public static void LogPlayerDied(float timeAlive, int killCount, int highestLevel, string stageId) { }
+    public static void LogPlayerDamaged(float damageAmount, float remainingHealth, string enemyType) { }
+
+    public static void LogGoldEarned(int amount, string source, int totalSessionGold) { }
+    public static void LogGoldSpent(int amount, string itemType, string itemId, int remainingGold) { }
+    public static void LogDailyRewardClaimed(int dayNumber, int streakCount, string rewardType, int rewardAmount, string rewardName) { }
+    public static void LogDailyRewardStreakReset(int previousStreak, string reason) { }
+    public static void LogAdRewardedShown(string adType) { }
+    public static void LogAdRewardedCompleted(string adType, int rewardAmount) { }
+    public static void LogAdRewardedFailed(string adType, string reason) { }
+
+    public static void LogHeroSelected(string heroId, string heroName) { }
+    public static void LogHeroUnlocked(string heroId, string heroName, int goldCost) { }
+    public static void LogWeaponSelected(string weaponId, string weaponName) { }
+    public static void LogWeaponUnlocked(string weaponId, string weaponName, int goldCost) { }
+    public static void LogSkinPurchased(string weaponId, string skinId, string skinTier, int price) { }
+    public static void LogSkinEquipped(string weaponId, string skinId, string skinTier) { }
+    public static void LogPerkUpgraded(string perkId, string perkName, int newLevel, int goldCost) { }
+    public static void LogMapSelected(string mapId, string stageId, int mapIndex) { }
+    public static void LogMapUnlocked(string mapId, string stageId) { }
+
+    public static void LogSynergyActivated(string synergyName, string ownedUpgrades) { }
+    public static void LogStageProgressRecord(string stageId, float progress, bool isNewBest) { }
+    public static void LogFirstClearRewardClaimed(string stageId, int rewardAmount) { }
+    public static void LogPropBroken(string propType, string dropType) { }
+    public static void LogTutorialStepCompleted(int stepNumber, string stepName) { }
+    public static void LogTutorialCompleted() { }
+    public static void LogSettingChanged(string settingName, bool newValue) { }
+
+    public static void LogFirstGameStart() { }
+    public static void LogFirstGameComplete(string result) { }
+    public static void LogFirstHeroUnlocked(string heroId) { }
+    public static void LogFirstWeaponUnlocked(string weaponId) { }
+    public static void LogFirstSkinPurchased(string skinId) { }
+    public static void LogFirstPerkUpgraded(string perkId) { }
+
+    public static void LogDebugModeActivated() { }
+    public static void LogDebugModeDeactivated() { }
+    public static void LogInterstitialAdShown() { }
+    public static void LogInterstitialAdClicked() { }
+    public static void LogAppOpenAdShown() { }
+    public static void LogHeroUnlockedByAd(string heroId, int adWatchCount) { }
+    public static void LogSkinUnlockedByAd(string weaponId, string skinId, int adWatchCount) { }
+    public static void LogMaintenanceModeTriggered() { }
+    public static void LogForceUpdateTriggered(string requiredVersion, string currentVersion) { }
+    public static void LogABTestGroupAssigned(string groupName) { }
+#endif
 }
