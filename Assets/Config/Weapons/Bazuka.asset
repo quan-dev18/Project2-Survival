@@ -35,7 +35,7 @@ MonoBehaviour:
   reloadSFX: {fileID: 0}
   weaponName: Bazuka
   fireRate: 1.7
-  fireRange: 6
+  fireRange: 7
   reloadTime: 2
   magazineSize: 1
   bulletCount: 1
